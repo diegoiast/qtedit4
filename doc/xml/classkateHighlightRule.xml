@@ -1,0 +1,145 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classkateHighlightRule" kind="class" prot="public">
+    <compoundname>kateHighlightRule</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classkateHighlightRule_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateHighlightRule::kateHighlightRule</definition>
+        <argsstring>()</argsstring>
+        <name>kateHighlightRule</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="34" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.cpp" bodystart="26" bodyend="28"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateHighlightRule_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateHighlightRule::kateHighlightRule</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>kateHighlightRule</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="35" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.cpp" bodystart="30" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateHighlightRule_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateHighlightRule::load</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="36" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.cpp" bodystart="35" bodyend="49"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateHighlightRule_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateHighlightRule::save</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>save</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="37" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.cpp" bodystart="51" bodyend="58"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateHighlightRule_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int kateHighlightRule::getTypeFromName</definition>
+        <argsstring>(QString name)</argsstring>
+        <name>getTypeFromName</name>
+        <param>
+          <type>QString</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="38" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.cpp" bodystart="60" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classkateHighlightRule_1r0" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString kateHighlightRule::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="40" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" bodystart="40" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateHighlightRule_1r1" prot="private" static="no" mutable="no">
+        <type>int</type>
+        <definition>int kateHighlightRule::type</definition>
+        <argsstring></argsstring>
+        <name>type</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="41" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" bodystart="41" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateHighlightRule_1r2" prot="private" static="no" mutable="no">
+        <type>QStringMap</type>
+        <definition>QStringMap kateHighlightRule::attributes</definition>
+        <argsstring></argsstring>
+        <name>attributes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="42" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" bodystart="42" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" line="32" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlightrule.h" bodystart="31" bodyend="43"/>
+    <listofallmembers>
+      <member refid="classkateHighlightRule_1r2" prot="private" virt="non-virtual"><scope>kateHighlightRule</scope><name>attributes</name></member>
+      <member refid="classkateHighlightRule_1a4" prot="public" virt="non-virtual"><scope>kateHighlightRule</scope><name>getTypeFromName</name></member>
+      <member refid="classkateHighlightRule_1a0" prot="public" virt="non-virtual"><scope>kateHighlightRule</scope><name>kateHighlightRule</name></member>
+      <member refid="classkateHighlightRule_1a1" prot="public" virt="non-virtual"><scope>kateHighlightRule</scope><name>kateHighlightRule</name></member>
+      <member refid="classkateHighlightRule_1a2" prot="public" virt="non-virtual"><scope>kateHighlightRule</scope><name>load</name></member>
+      <member refid="classkateHighlightRule_1r0" prot="private" virt="non-virtual"><scope>kateHighlightRule</scope><name>name</name></member>
+      <member refid="classkateHighlightRule_1a3" prot="public" virt="non-virtual"><scope>kateHighlightRule</scope><name>save</name></member>
+      <member refid="classkateHighlightRule_1r1" prot="private" virt="non-virtual"><scope>kateHighlightRule</scope><name>type</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="a00105" kind="class" prot="public">
+    <compoundname>kateLanguage</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="a00105_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateLanguage::kateLanguage</definition>
+        <argsstring>()</argsstring>
+        <name>kateLanguage</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="7" bodyend="9"/>
+      </memberdef>
+      <memberdef kind="function" id="a00105_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateLanguage::kateLanguage</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>kateLanguage</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="16" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="11" bodyend="14"/>
+      </memberdef>
+      <memberdef kind="function" id="a00105_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateLanguage::loadFromFile</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>loadFromFile</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="18" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="16" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="a00105_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateLanguage::saveToFile</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>saveToFile</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="35" bodyend="48"/>
+      </memberdef>
+      <memberdef kind="function" id="a00105_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateLanguage::load</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="21" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="50" bodyend="72"/>
+      </memberdef>
+      <memberdef kind="function" id="a00105_1a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateLanguage::save</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>save</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="22" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.cpp" bodystart="74" bodyend="78"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="a00105_1o0" prot="public" static="no" mutable="no">
+        <type>QStringMap</type>
+        <definition>QStringMap kateLanguage::attributes</definition>
+        <argsstring></argsstring>
+        <name>attributes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="24" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" bodystart="24" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00105_1o1" prot="public" static="no" mutable="no">
+        <type>kateHighlight</type>
+        <definition>kateHighlight kateLanguage::highlight</definition>
+        <argsstring></argsstring>
+        <name>highlight</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="25" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" bodystart="25" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00105_1o2" prot="public" static="no" mutable="no">
+        <type>kateGeneral</type>
+        <definition>kateGeneral kateLanguage::general</definition>
+        <argsstring></argsstring>
+        <name>general</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="26" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" bodystart="26" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" line="13" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katelanguage.h" bodystart="12" bodyend="27"/>
+    <listofallmembers>
+      <member refid="a00105_1o0" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>attributes</name></member>
+      <member refid="a00105_1o2" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>general</name></member>
+      <member refid="a00105_1o1" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>highlight</name></member>
+      <member refid="a00105_1a0" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>kateLanguage</name></member>
+      <member refid="a00105_1a1" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>kateLanguage</name></member>
+      <member refid="a00105_1a4" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>load</name></member>
+      <member refid="a00105_1a2" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>loadFromFile</name></member>
+      <member refid="a00105_1a5" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>save</name></member>
+      <member refid="a00105_1a3" prot="public" virt="non-virtual"><scope>kateLanguage</scope><name>saveToFile</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

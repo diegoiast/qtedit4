@@ -1,0 +1,18 @@
+<!-- default data items for kate -->
+
+<itemDatas>
+	<itemData defStyleNum="dsNormal"   name="Normal"         color="#000000" selColor="#ffffff" background="#ffffff"  bold="0" italic="0" />
+	<itemData defStyleNum="dsKeyword"  name="Keyword"        color="#000000" selColor="#ffffff" bold="1" italic="0" />
+	<itemData defStyleNum="dsDataType" name="Data type"      color="#800000" selColor="#ffffff" bold="0" italic="0" />
+	<itemData defStyleNum="dsDecVal"   name="Decimal/Value"  color="#0000ff" selColor="#00ffff" bold="0" italic="0" />
+	<itemData defStyleNum="dsBaseN"    name="Base-N Integer" color="#008080" selColor="#00ffff" bold="0" italic="0" />
+	<itemData defStyleNum="dsFloat"    name="Floating point" color="#800080" selColor="#00ffff" bold="0" italic="0" />
+	<itemData defStyleNum="dsChar"     name="Character"      color="#ff00ff" selColor="#ff00ff" bold="0" italic="0" />
+	<itemData defStyleNum="dsString"   name="String"         color="#ff0000" selColor="#ff0000" bold="0" italic="0" />
+	<itemData defStyleNum="dsComment"  name="Comment"        color="#808080" selColor="#A0A0A4" bold="0" italic="1" />
+	<itemData defStyleNum="dsOthers"   name="Others"         color="#008000" selColor="#00ff00" bold="0" italic="0" />
+	<itemData defStyleNum="dsAlert"    name="Alert"          color="#ffffff" selColor="#ffcccc" bold="1" italic="0" />
+	<itemData defStyleNum="dsFunction" name="Function"       color="#000080" selColor="#ffffff" bold="0" italic="0" />
+	<itemData defStyleNum="dsRegion"   name="Region marker"  color="#ffffff" selColor="#A0A0A4" bold="0" italic="0" />
+	<itemData defStyleNum="dsError"    name="Error "         color="#ff0000" selColor="#ff0000" bold="0" italic="0" underline="1" />
+</itemDatas>

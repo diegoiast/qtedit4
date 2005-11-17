@@ -1,0 +1,127 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classkateGeneral" kind="class" prot="public">
+    <compoundname>kateGeneral</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classkateGeneral_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateGeneral::kateGeneral</definition>
+        <argsstring>()</argsstring>
+        <name>kateGeneral</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="14" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.cpp" bodystart="3" bodyend="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateGeneral_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateGeneral::kateGeneral</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>kateGeneral</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.cpp" bodystart="7" bodyend="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateGeneral_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateGeneral::load</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="16" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.cpp" bodystart="12" bodyend="18"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateGeneral_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateGeneral::save</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>save</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="17" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.cpp" bodystart="20" bodyend="26"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classkateGeneral_1r0" prot="private" static="no" mutable="no">
+        <type>kateKeywords</type>
+        <definition>kateKeywords kateGeneral::keywords</definition>
+        <argsstring></argsstring>
+        <name>keywords</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateGeneral_1r1" prot="private" static="no" mutable="no">
+        <type>kateComment</type>
+        <definition>kateComment kateGeneral::comment</definition>
+        <argsstring></argsstring>
+        <name>comment</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="20" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateGeneral_1r2" prot="private" static="no" mutable="no">
+        <type>kateFolding</type>
+        <definition>kateFolding kateGeneral::folding</definition>
+        <argsstring></argsstring>
+        <name>folding</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="21" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" bodystart="21" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" line="12" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kategeneral.h" bodystart="11" bodyend="22"/>
+    <listofallmembers>
+      <member refid="classkateGeneral_1r1" prot="private" virt="non-virtual"><scope>kateGeneral</scope><name>comment</name></member>
+      <member refid="classkateGeneral_1r2" prot="private" virt="non-virtual"><scope>kateGeneral</scope><name>folding</name></member>
+      <member refid="classkateGeneral_1a0" prot="public" virt="non-virtual"><scope>kateGeneral</scope><name>kateGeneral</name></member>
+      <member refid="classkateGeneral_1a1" prot="public" virt="non-virtual"><scope>kateGeneral</scope><name>kateGeneral</name></member>
+      <member refid="classkateGeneral_1r0" prot="private" virt="non-virtual"><scope>kateGeneral</scope><name>keywords</name></member>
+      <member refid="classkateGeneral_1a2" prot="public" virt="non-virtual"><scope>kateGeneral</scope><name>load</name></member>
+      <member refid="classkateGeneral_1a3" prot="public" virt="non-virtual"><scope>kateGeneral</scope><name>save</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

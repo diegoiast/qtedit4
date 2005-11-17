@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language name="Diff" version="1.01" kateversion="2.1" section="Other" extensions="*.diff;*patch" mimetype="text/x-diff">
+  <highlighting>
+
+    <contexts>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+      	<RegExpr attribute="Keyword" context="Keyword" String="^(\+\+\+|\-\-\-|\*\*\*|diff|\d)" />
+	<RegExpr attribute="Added line" context="Added" String="^(\+|&gt;|!)" />
+	<RegExpr attribute="Removed line" context="Removed" String="^(\-|&lt;)" />
+	<RegExpr attribute="Data Type" context="Data" String="^\@\@" />
+      </context>
+
+      <context attribute="Keyword" lineEndContext="#pop" name="Keyword"/>
+      <context attribute="Removed line" lineEndContext="#pop" name="Removed"/>
+      <context attribute="Added line" lineEndContext="#pop" name="Added"/>
+      <context attribute="Data Type" lineEndContext="#pop" name="Data"/>
+
+    </contexts>
+
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Keyword"  defStyleNum="dsKeyword"/>
+      <itemData name="Data Type"  defStyleNum="dsDataType"/>
+      <itemData name="Removed line"  defStyleNum="dsOthers"/>
+      <itemData name="Added line"  defStyleNum="dsString"/>
+      <itemData name="Comment"  defStyleNum="dsComment"/>
+    </itemDatas>
+  </highlighting>
+  <general>
+    <keywords casesensitive="1" />
+  </general>
+</language>

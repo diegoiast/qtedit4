@@ -1,0 +1,990 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="a00024" kind="class" prot="public">
+    <compoundname>MainWindow</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="a00024_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>MainWindow::MainWindow</definition>
+        <argsstring>()</argsstring>
+        <name>MainWindow</name>
+        <briefdescription>
+<para>Constructor for the main window. </para>        </briefdescription>
+        <detaileddescription>
+<para>This constructs a main window, and generates the actions, menus and toolbars needed.</para><para><xrefsect id="todo_1_todo000001"><xreftitle>Todo</xreftitle><xrefdescription><para>This class also loads the default highlight mode, shuold be move to another class? </para><para>Do we need to modify the title of the main window? </para></xrefdescription></xrefsect></para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="29" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="40" bodyend="63"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="a00024_1i0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::selectNextTab</definition>
+        <argsstring>()</argsstring>
+        <name>selectNextTab</name>
+        <briefdescription>
+<para>move the focus to the next tab (SLOT) </para>        </briefdescription>
+        <detaileddescription>
+<para>This slot is called when the user presses the ALT+right keyboard combination (alt+left on RTL desktops). This function does the job of selecting the needed tab number.</para><para><simplesect kind="see"><para><ref refid="a00024_1i1" kindref="member">selectPrevTab</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="36" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="106" bodyend="115"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::selectPrevTab</definition>
+        <argsstring>()</argsstring>
+        <name>selectPrevTab</name>
+        <briefdescription>
+<para>move the focus to the previous tab (SLOT) </para>        </briefdescription>
+        <detaileddescription>
+<para>This slot is called when the user presses the ALT+left keyboard combination (alt+right on RTL desktops) This function does the job of selecting the needed tab number.</para><para><simplesect kind="see"><para><ref refid="a00024_1i0" kindref="member">selectNextTab</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="37" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="128" bodyend="137"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::selectEditor</definition>
+        <argsstring>()</argsstring>
+        <name>selectEditor</name>
+        <briefdescription>
+<para>set the focus on the editor (SLOT) </para>        </briefdescription>
+        <detaileddescription>
+<para>This function restores the focus to the current editor, to the editor in the mainTab.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="38" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="146" bodyend="152"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editorChanged</definition>
+        <argsstring>()</argsstring>
+        <name>editorChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="39" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="155" bodyend="202"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editorCursorPositionChanged</definition>
+        <argsstring>()</argsstring>
+        <name>editorCursorPositionChanged</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="40" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="205" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::fileNew</definition>
+        <argsstring>()</argsstring>
+        <name>fileNew</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="42" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="213" bodyend="216"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::fileOpen</definition>
+        <argsstring>()</argsstring>
+        <name>fileOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="43" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="218" bodyend="234"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::fileSave</definition>
+        <argsstring>()</argsstring>
+        <name>fileSave</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="44" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="236" bodyend="239"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::fileSave</definition>
+        <argsstring>(QTextEdit *e)</argsstring>
+        <name>fileSave</name>
+        <param>
+          <type>QTextEdit *</type>
+          <declname>e</declname>
+          <defname>edit</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="45" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="241" bodyend="259"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::fileSaveAs</definition>
+        <argsstring>()</argsstring>
+        <name>fileSaveAs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="46" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="261" bodyend="264"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::fileSaveAs</definition>
+        <argsstring>(QTextEdit *e)</argsstring>
+        <name>fileSaveAs</name>
+        <param>
+          <type>QTextEdit *</type>
+          <declname>e</declname>
+          <defname>edit</defname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="47" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="266" bodyend="293"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::fileClose</definition>
+        <argsstring>()</argsstring>
+        <name>fileClose</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="48" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="295" bodyend="324"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editUndo</definition>
+        <argsstring>()</argsstring>
+        <name>editUndo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="50" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="327" bodyend="334"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editRedo</definition>
+        <argsstring>()</argsstring>
+        <name>editRedo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="51" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="336" bodyend="343"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i14" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editCopy</definition>
+        <argsstring>()</argsstring>
+        <name>editCopy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="52" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="345" bodyend="352"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editCut</definition>
+        <argsstring>()</argsstring>
+        <name>editCut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="53" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="354" bodyend="362"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::editPaste</definition>
+        <argsstring>()</argsstring>
+        <name>editPaste</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="54" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="364" bodyend="371"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::searchFind</definition>
+        <argsstring>()</argsstring>
+        <name>searchFind</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="56" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="373" bodyend="380"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::searchFindNext</definition>
+        <argsstring>()</argsstring>
+        <name>searchFindNext</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="57" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="382" bodyend="389"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i19" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::searchFindPrev</definition>
+        <argsstring>()</argsstring>
+        <name>searchFindPrev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="58" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="391" bodyend="398"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i20" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::searchReplace</definition>
+        <argsstring>()</argsstring>
+        <name>searchReplace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="59" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="400" bodyend="407"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i21" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::searchGotoLine</definition>
+        <argsstring>()</argsstring>
+        <name>searchGotoLine</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="60" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="409" bodyend="416"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i22" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::optionsConfiguration</definition>
+        <argsstring>()</argsstring>
+        <name>optionsConfiguration</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="62" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="419" bodyend="422"/>
+      </memberdef>
+      <memberdef kind="slot" id="a00024_1i23" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::about</definition>
+        <argsstring>()</argsstring>
+        <name>about</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="63" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="424" bodyend="429"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="protected-func">
+      <memberdef kind="function" id="a00024_1b0" prot="protected" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::closeEvent</definition>
+        <argsstring>(QCloseEvent *event)</argsstring>
+        <name>closeEvent</name>
+        <param>
+          <type>QCloseEvent *</type>
+          <declname>event</declname>
+        </param>
+        <briefdescription>
+<para>Called when the window is been closed. </para>        </briefdescription>
+        <detaileddescription>
+<para>This function is called when the main window is about to be closed. We use this to save the status of the application.</para><para><simplesect kind="warning"><para>This function changes the value of the event passed because otherwise, gcc complains and issues a warning.</para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="32" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="75" bodyend="81"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="a00024_1d0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::createActions</definition>
+        <argsstring>()</argsstring>
+        <name>createActions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="66" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="433" bodyend="544"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::createMenus</definition>
+        <argsstring>()</argsstring>
+        <name>createMenus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="67" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="546" bodyend="580"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::createToolbar</definition>
+        <argsstring>()</argsstring>
+        <name>createToolbar</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="68" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="582" bodyend="590"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::saveStatus</definition>
+        <argsstring>()</argsstring>
+        <name>saveStatus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="69" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="652" bodyend="674"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::loadStatus</definition>
+        <argsstring>()</argsstring>
+        <name>loadStatus</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="70" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="676" bodyend="688"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString MainWindow::getFileName</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>getFileName</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="71" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="592" bodyend="604"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void MainWindow::loadFile</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>loadFile</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="72" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="606" bodyend="628"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d7" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QTextEdit *</type>
+        <definition>QTextEdit * MainWindow::getCurrentEditor</definition>
+        <argsstring>()</argsstring>
+        <name>getCurrentEditor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="73" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="630" bodyend="649"/>
+      </memberdef>
+      <memberdef kind="function" id="a00024_1d8" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool MainWindow::canCloseEditor</definition>
+        <argsstring>(QTextEdit *e)</argsstring>
+        <name>canCloseEditor</name>
+        <param>
+          <type>QTextEdit *</type>
+          <declname>e</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="74" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" bodystart="690" bodyend="718"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="a00024_1r0" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* MainWindow::fileMenu</definition>
+        <argsstring></argsstring>
+        <name>fileMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="76" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="76" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r1" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* MainWindow::editMenu</definition>
+        <argsstring></argsstring>
+        <name>editMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="77" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="77" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r2" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* MainWindow::searchMenu</definition>
+        <argsstring></argsstring>
+        <name>searchMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="78" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="78" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r3" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* MainWindow::optionsMenu</definition>
+        <argsstring></argsstring>
+        <name>optionsMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="79" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="79" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r4" prot="private" static="no" mutable="no">
+        <type>QMenu *</type>
+        <definition>QMenu* MainWindow::helpMenu</definition>
+        <argsstring></argsstring>
+        <name>helpMenu</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="80" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="80" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r5" prot="private" static="no" mutable="no">
+        <type>QToolBar *</type>
+        <definition>QToolBar* MainWindow::fileToolBar</definition>
+        <argsstring></argsstring>
+        <name>fileToolBar</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="81" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="81" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r6" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionNextTab</definition>
+        <argsstring></argsstring>
+        <name>actionNextTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="84" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r7" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionPreviousTab</definition>
+        <argsstring></argsstring>
+        <name>actionPreviousTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="85" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r8" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionSelectEditor</definition>
+        <argsstring></argsstring>
+        <name>actionSelectEditor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="86" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r9" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionNew</definition>
+        <argsstring></argsstring>
+        <name>actionNew</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="89" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r10" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionOpen</definition>
+        <argsstring></argsstring>
+        <name>actionOpen</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="90" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r11" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionSave</definition>
+        <argsstring></argsstring>
+        <name>actionSave</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="91" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r12" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionSaveAs</definition>
+        <argsstring></argsstring>
+        <name>actionSaveAs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="92" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r13" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionClose</definition>
+        <argsstring></argsstring>
+        <name>actionClose</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="93" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r14" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionExit</definition>
+        <argsstring></argsstring>
+        <name>actionExit</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="94" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r15" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionUndo</definition>
+        <argsstring></argsstring>
+        <name>actionUndo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="96" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="96" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r16" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionRedo</definition>
+        <argsstring></argsstring>
+        <name>actionRedo</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="97" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="97" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r17" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionCut</definition>
+        <argsstring></argsstring>
+        <name>actionCut</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="98" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="98" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r18" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionCopy</definition>
+        <argsstring></argsstring>
+        <name>actionCopy</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="99" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="99" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r19" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionPaste</definition>
+        <argsstring></argsstring>
+        <name>actionPaste</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="100" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="100" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r20" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionConfig</definition>
+        <argsstring></argsstring>
+        <name>actionConfig</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="102" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="102" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r21" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionFind</definition>
+        <argsstring></argsstring>
+        <name>actionFind</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="104" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="104" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r22" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionReplace</definition>
+        <argsstring></argsstring>
+        <name>actionReplace</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="105" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="105" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r23" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionFindNext</definition>
+        <argsstring></argsstring>
+        <name>actionFindNext</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="106" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="106" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r24" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionFindPrev</definition>
+        <argsstring></argsstring>
+        <name>actionFindPrev</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="107" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="107" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r25" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionGotoLine</definition>
+        <argsstring></argsstring>
+        <name>actionGotoLine</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="108" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="108" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r26" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionAbout</definition>
+        <argsstring></argsstring>
+        <name>actionAbout</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="110" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="110" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r27" prot="private" static="no" mutable="no">
+        <type>QAction *</type>
+        <definition>QAction* MainWindow::actionAboutQt</definition>
+        <argsstring></argsstring>
+        <name>actionAboutQt</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="111" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="111" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r28" prot="private" static="no" mutable="no">
+        <type>QTextEdit *</type>
+        <definition>QTextEdit* MainWindow::currentEditor</definition>
+        <argsstring></argsstring>
+        <name>currentEditor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="113" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="113" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r29" prot="private" static="no" mutable="no">
+        <type>OptionsDialog *</type>
+        <definition>OptionsDialog* MainWindow::optionsDialog</definition>
+        <argsstring></argsstring>
+        <name>optionsDialog</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="114" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="114" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r30" prot="private" static="no" mutable="no">
+        <type>QTabWidget *</type>
+        <definition>QTabWidget* MainWindow::mainTab</definition>
+        <argsstring></argsstring>
+        <name>mainTab</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="115" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="115" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00024_1r31" prot="private" static="no" mutable="no">
+        <type>kateItemDataManager</type>
+        <definition>kateItemDataManager MainWindow::defColors</definition>
+        <argsstring></argsstring>
+        <name>defColors</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="116" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="116" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>The main window of the application. </para>    </briefdescription>
+    <detaileddescription>
+<para>This is the main window seen on screen. When this window is closed, this means the application has been terminated.</para>    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" line="25" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" bodystart="24" bodyend="117"/>
+    <listofallmembers>
+      <member refid="a00024_1i23" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>about</name></member>
+      <member refid="a00024_1r26" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionAbout</name></member>
+      <member refid="a00024_1r27" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionAboutQt</name></member>
+      <member refid="a00024_1r13" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionClose</name></member>
+      <member refid="a00024_1r20" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionConfig</name></member>
+      <member refid="a00024_1r18" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionCopy</name></member>
+      <member refid="a00024_1r17" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionCut</name></member>
+      <member refid="a00024_1r14" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionExit</name></member>
+      <member refid="a00024_1r21" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionFind</name></member>
+      <member refid="a00024_1r23" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionFindNext</name></member>
+      <member refid="a00024_1r24" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionFindPrev</name></member>
+      <member refid="a00024_1r25" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionGotoLine</name></member>
+      <member refid="a00024_1r9" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionNew</name></member>
+      <member refid="a00024_1r6" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionNextTab</name></member>
+      <member refid="a00024_1r10" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionOpen</name></member>
+      <member refid="a00024_1r19" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionPaste</name></member>
+      <member refid="a00024_1r7" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionPreviousTab</name></member>
+      <member refid="a00024_1r16" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionRedo</name></member>
+      <member refid="a00024_1r22" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionReplace</name></member>
+      <member refid="a00024_1r11" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionSave</name></member>
+      <member refid="a00024_1r12" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionSaveAs</name></member>
+      <member refid="a00024_1r8" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionSelectEditor</name></member>
+      <member refid="a00024_1r15" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>actionUndo</name></member>
+      <member refid="a00024_1d8" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>canCloseEditor</name></member>
+      <member refid="a00024_1b0" prot="protected" virt="non-virtual"><scope>MainWindow</scope><name>closeEvent</name></member>
+      <member refid="a00024_1d0" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>createActions</name></member>
+      <member refid="a00024_1d1" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>createMenus</name></member>
+      <member refid="a00024_1d2" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>createToolbar</name></member>
+      <member refid="a00024_1r28" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>currentEditor</name></member>
+      <member refid="a00024_1r31" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>defColors</name></member>
+      <member refid="a00024_1i14" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editCopy</name></member>
+      <member refid="a00024_1i15" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editCut</name></member>
+      <member refid="a00024_1r1" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>editMenu</name></member>
+      <member refid="a00024_1i3" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editorChanged</name></member>
+      <member refid="a00024_1i4" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editorCursorPositionChanged</name></member>
+      <member refid="a00024_1i16" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editPaste</name></member>
+      <member refid="a00024_1i13" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editRedo</name></member>
+      <member refid="a00024_1i12" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>editUndo</name></member>
+      <member refid="a00024_1i11" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileClose</name></member>
+      <member refid="a00024_1r0" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>fileMenu</name></member>
+      <member refid="a00024_1i5" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileNew</name></member>
+      <member refid="a00024_1i6" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileOpen</name></member>
+      <member refid="a00024_1i7" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileSave</name></member>
+      <member refid="a00024_1i8" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileSave</name></member>
+      <member refid="a00024_1i9" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileSaveAs</name></member>
+      <member refid="a00024_1i10" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>fileSaveAs</name></member>
+      <member refid="a00024_1r5" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>fileToolBar</name></member>
+      <member refid="a00024_1d7" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>getCurrentEditor</name></member>
+      <member refid="a00024_1d5" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>getFileName</name></member>
+      <member refid="a00024_1r4" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>helpMenu</name></member>
+      <member refid="a00024_1d6" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>loadFile</name></member>
+      <member refid="a00024_1d4" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>loadStatus</name></member>
+      <member refid="a00024_1r30" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>mainTab</name></member>
+      <member refid="a00024_1a0" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>MainWindow</name></member>
+      <member refid="a00024_1i22" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>optionsConfiguration</name></member>
+      <member refid="a00024_1r29" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>optionsDialog</name></member>
+      <member refid="a00024_1r3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>optionsMenu</name></member>
+      <member refid="a00024_1d3" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>saveStatus</name></member>
+      <member refid="a00024_1i17" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>searchFind</name></member>
+      <member refid="a00024_1i18" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>searchFindNext</name></member>
+      <member refid="a00024_1i19" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>searchFindPrev</name></member>
+      <member refid="a00024_1i21" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>searchGotoLine</name></member>
+      <member refid="a00024_1r2" prot="private" virt="non-virtual"><scope>MainWindow</scope><name>searchMenu</name></member>
+      <member refid="a00024_1i20" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>searchReplace</name></member>
+      <member refid="a00024_1i2" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>selectEditor</name></member>
+      <member refid="a00024_1i0" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>selectNextTab</name></member>
+      <member refid="a00024_1i1" prot="public" virt="non-virtual"><scope>MainWindow</scope><name>selectPrevTab</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

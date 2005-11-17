@@ -1,0 +1,39 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<!DOCTYPE KDevPrjSession>
+<KDevPrjSession>
+ <DocsAndViews NumberOfDocuments="3" >
+  <Doc0 NumberOfViews="1" URL="file:///home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" >
+   <View0 line="17" Type="Source" />
+  </Doc0>
+  <Doc1 NumberOfViews="1" URL="file:///home/elcuco/mysources/designer/qtedit4/src/mainwindow.h" >
+   <View0 line="19" Type="Source" />
+  </Doc1>
+  <Doc2 NumberOfViews="1" URL="file:///home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp" >
+   <View0 line="41" Type="Source" />
+  </Doc2>
+ </DocsAndViews>
+ <pluginList>
+  <kdevdebugger>
+   <breakpointList>
+    <breakpoint0 location="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp:42" type="1" condition="" enabled="1" />
+   </breakpointList>
+  </kdevdebugger>
+  <kdevbookmarks>
+   <bookmarks/>
+  </kdevbookmarks>
+  <kdevrbdebugger>
+   <breakpointList>
+    <breakpoint0 location="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp:42" type="1" enabled="1" />
+   </breakpointList>
+   <watchExpressions>
+    <el>fileName</el>
+   </watchExpressions>
+  </kdevrbdebugger>
+  <kdevvalgrind>
+   <executable path="" params="" />
+   <valgrind path="" params="" />
+   <calltree path="" params="" />
+   <kcachegrind path="" />
+  </kdevvalgrind>
+ </pluginList>
+</KDevPrjSession>

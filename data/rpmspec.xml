@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<language name="RPM Spec" version="1.03" kateversion="2.1" section="Other" extensions="*.spec" mimetype="">
+  <highlighting>
+    <list name="keywords">
+        <item> Name </item>
+                <item> Summary </item>
+                <item> Version </item>
+                <item> Release </item>
+                <item> Source </item>
+                <item> Group </item>
+                <item> BuildRoot </item>
+                <item> Copyright </item>
+                <item> Packager </item>
+                <item> Url </item>
+                <item> URL </item>
+                <item> Prefix </item>
+		<item> Provides </item>
+                <item> Requires </item>
+                <item> BuildRequires </item>
+                <item> Serial </item>
+                <item> Vendor </item>
+                <item> License </item>
+    </list>
+    <list name="types">
+      <item> GPL </item>
+      <item> LGPL </item>
+      <item> Artistic </item>
+    </list>
+    <contexts>
+
+      <context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+         <keyword attribute="Keyword" context="#stay" String="keywords"/>
+         <keyword attribute="Data" context="#stay" String="types"/>
+         <RegExpr attribute="Red" context="#stay" String="%[a-zA-Z0-9_]*" />
+         <DetectChar attribute="Comment" context="Comment" char="#" />
+         <RegExpr attribute="Keyword" context="Some Context" String="\{[a-zA-Z0-9_]*" />
+         <RegExpr attribute="Blue" context="Some Context2" String="&lt;\s*[a-zA-Z0-9_@\.]*" />
+         <RegExpr attribute="Data" context="#stay" String="\$[a-zA-Z0-9_]*" />
+         <RegExpr attribute="Keyword" context="#stay" String="(Source|Patch)[0-9]*" />
+         <RegExpr attribute="Keyword" context="#stay" String="^\*.*" />    <!-- ChangeLog -->
+         <Int attribute="Blue" context="#stay" />
+   </context>
+
+       <context attribute="Comment" lineEndContext="#pop" name="Comment"/>
+
+       <context attribute="Keyword" lineEndContext="#pop" name="Some Context">
+          <DetectChar attribute="Keyword" char="}" context="#pop"/>
+       </context>
+
+       <context attribute="Blue" lineEndContext="#pop" name="Some Context2">
+           <DetectChar attribute="Blue" char="&gt;" context="#pop"/>
+       </context>
+
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text" defStyleNum="dsNormal"/>
+      <itemData name="Keyword"  defStyleNum="dsKeyword"/>
+      <itemData name="Red"  defStyleNum="dsString"/>
+      <itemData name="Comment"  defStyleNum="dsComment"/>
+      <itemData name="Blue"  defStyleNum="dsDecVal"/>
+      <itemData name="Data" defStyleNum="dsDataType"/>
+    </itemDatas>
+  </highlighting>
+   <general>
+    <keywords casesensitive="1" />
+  </general>
+</language>

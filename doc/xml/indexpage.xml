@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="indexpage" kind="page">
+    <compoundname>index</compoundname>
+    <detaileddescription>
+<sect1 id="index_1Introduction">
+<title>Introduction</title>
+<para>The goal is to make the best IDE ever, using Trolltech&apos;s Qt library. Main goals are:<itemizedlist>
+<listitem><para>Portable to all the platforms supported by Qt</para></listitem><listitem><para>The IDE shuold have native look and feel on every platform</para></listitem><listitem><para>Be able to use free tools, but also commercial ones</para></listitem><listitem><para>Flexyble and easy to use</para></listitem><listitem><para>Fast loader</para></listitem><listitem><para>Integrate all the tools needed to making a project: (compiler, help, VCS etc)</para></listitem></itemizedlist>
+</para></sect1>
+    </detaileddescription>
+  </compounddef>
+</doxygen>

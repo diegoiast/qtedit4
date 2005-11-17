@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="dir_000003" kind="dir">
+    <compoundname>src/qelib/qecpphighlighter/</compoundname>
+    <innerfile refid="a00048">kateitemdata.cpp</innerfile>
+    <innerfile refid="a00050">kateitemdata.h</innerfile>
+    <innerfile refid="a00052">kateitemdatamanager.cpp</innerfile>
+    <innerfile refid="a00054">kateitemdatamanager.h</innerfile>
+    <innerfile refid="a00060">kateqtglobal.h</innerfile>
+    <innerfile refid="a00067">qecpphighlighter.cpp</innerfile>
+    <innerfile refid="a00068">qecpphighlighter.h</innerfile>
+    <innerfile refid="a00069">qemymap.cpp</innerfile>
+    <innerfile refid="a00070">qemymap.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/"/>
+  </compounddef>
+</doxygen>

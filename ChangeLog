@@ -1,0 +1,5 @@
+qtedit-4 (0.5.0)
+  * Rewite, using Qt4
+  * New synatx highlighter engine
+  * Inline search and replace (ala Firefox)
+  -- Diego Iastrubni <elcuco@kde.org>	Sat, 24 Sep 21:00

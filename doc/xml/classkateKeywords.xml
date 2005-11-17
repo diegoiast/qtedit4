@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classkateKeywords" kind="class" prot="public">
+    <compoundname>kateKeywords</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classkateKeywords_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateKeywords::kateKeywords</definition>
+        <argsstring>()</argsstring>
+        <name>kateKeywords</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="10" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.cpp" bodystart="3" bodyend="5"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateKeywords_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateKeywords::kateKeywords</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>kateKeywords</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="11" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.cpp" bodystart="7" bodyend="10"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateKeywords_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateKeywords::load</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="12" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.cpp" bodystart="12" bodyend="20"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateKeywords_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateKeywords::save</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>save</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="13" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.cpp" bodystart="22" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateKeywords_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateKeywords::isTrue</definition>
+        <argsstring>(QString value)</argsstring>
+        <name>isTrue</name>
+        <param>
+          <type>QString</type>
+          <declname>value</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.cpp" bodystart="27" bodyend="37"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classkateKeywords_1r0" prot="private" static="no" mutable="no">
+        <type>bool</type>
+        <definition>bool kateKeywords::caseSensitive</definition>
+        <argsstring></argsstring>
+        <name>caseSensitive</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="17" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" bodystart="17" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateKeywords_1r1" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString kateKeywords::weakDelimiter</definition>
+        <argsstring></argsstring>
+        <name>weakDelimiter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="18" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateKeywords_1r2" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString kateKeywords::aditionalDelimiter</definition>
+        <argsstring></argsstring>
+        <name>aditionalDelimiter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateKeywords_1r3" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString kateKeywords::wordWrapDeliminator</definition>
+        <argsstring></argsstring>
+        <name>wordWrapDeliminator</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="20" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" bodystart="20" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" line="8" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katekeywords.h" bodystart="7" bodyend="21"/>
+    <listofallmembers>
+      <member refid="classkateKeywords_1r2" prot="private" virt="non-virtual"><scope>kateKeywords</scope><name>aditionalDelimiter</name></member>
+      <member refid="classkateKeywords_1r0" prot="private" virt="non-virtual"><scope>kateKeywords</scope><name>caseSensitive</name></member>
+      <member refid="classkateKeywords_1a4" prot="public" virt="non-virtual"><scope>kateKeywords</scope><name>isTrue</name></member>
+      <member refid="classkateKeywords_1a0" prot="public" virt="non-virtual"><scope>kateKeywords</scope><name>kateKeywords</name></member>
+      <member refid="classkateKeywords_1a1" prot="public" virt="non-virtual"><scope>kateKeywords</scope><name>kateKeywords</name></member>
+      <member refid="classkateKeywords_1a2" prot="public" virt="non-virtual"><scope>kateKeywords</scope><name>load</name></member>
+      <member refid="classkateKeywords_1a3" prot="public" virt="non-virtual"><scope>kateKeywords</scope><name>save</name></member>
+      <member refid="classkateKeywords_1r1" prot="private" virt="non-virtual"><scope>kateKeywords</scope><name>weakDelimiter</name></member>
+      <member refid="classkateKeywords_1r3" prot="private" virt="non-virtual"><scope>kateKeywords</scope><name>wordWrapDeliminator</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,437 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygenindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="index.xsd" version="1.4.4">
+  <compound refid="a00097" kind="class"><name>kateColorFile</name>
+    <member refid="a00097_1a0" kind="function"><name>kateColorFile</name></member>
+    <member refid="a00097_1a1" kind="function"><name>kateColorFile</name></member>
+    <member refid="a00097_1a2" kind="function"><name>loadFromFile</name></member>
+    <member refid="a00097_1a3" kind="function"><name>saveToFile</name></member>
+    <member refid="a00097_1a4" kind="function"><name>load</name></member>
+    <member refid="a00097_1a5" kind="function"><name>save</name></member>
+    <member refid="a00097_1a6" kind="function"><name>getItemData</name></member>
+    <member refid="a00097_1r0" kind="variable"><name>itemDatas</name></member>
+  </compound>
+  <compound refid="a00098" kind="class"><name>kateComment</name>
+    <member refid="a00098_1a0" kind="function"><name>kateComment</name></member>
+    <member refid="a00098_1a1" kind="function"><name>kateComment</name></member>
+    <member refid="a00098_1a2" kind="function"><name>load</name></member>
+    <member refid="a00098_1a3" kind="function"><name>save</name></member>
+    <member refid="a00098_1r0" kind="variable"><name>name</name></member>
+    <member refid="a00098_1r1" kind="variable"><name>isSingle</name></member>
+    <member refid="a00098_1r2" kind="variable"><name>position</name></member>
+    <member refid="a00098_1r3" kind="variable"><name>start</name></member>
+    <member refid="a00098_1r4" kind="variable"><name>end</name></member>
+    <member refid="a00098_1r5" kind="variable"><name>region</name></member>
+  </compound>
+  <compound refid="a00022" kind="class"><name>kateContext</name>
+    <member refid="a00022_1a0" kind="function"><name>kateContext</name></member>
+    <member refid="a00022_1a1" kind="function"><name>kateContext</name></member>
+    <member refid="a00022_1a2" kind="function"><name>load</name></member>
+    <member refid="a00022_1a3" kind="function"><name>save</name></member>
+    <member refid="a00022_1r0" kind="variable"><name>attributes</name></member>
+    <member refid="a00022_1r1" kind="variable"><name>rules</name></member>
+  </compound>
+  <compound refid="a00099" kind="class"><name>kateFolding</name>
+    <member refid="a00099_1a0" kind="function"><name>kateFolding</name></member>
+    <member refid="a00099_1a1" kind="function"><name>kateFolding</name></member>
+    <member refid="a00099_1a2" kind="function"><name>load</name></member>
+    <member refid="a00099_1a3" kind="function"><name>save</name></member>
+    <member refid="a00099_1r0" kind="variable"><name>indintationSensitive</name></member>
+  </compound>
+  <compound refid="a00100" kind="class"><name>kateGeneral</name>
+    <member refid="a00100_1a0" kind="function"><name>kateGeneral</name></member>
+    <member refid="a00100_1a1" kind="function"><name>kateGeneral</name></member>
+    <member refid="a00100_1a2" kind="function"><name>load</name></member>
+    <member refid="a00100_1a3" kind="function"><name>save</name></member>
+    <member refid="a00100_1r0" kind="variable"><name>keywords</name></member>
+    <member refid="a00100_1r1" kind="variable"><name>comment</name></member>
+    <member refid="a00100_1r2" kind="variable"><name>folding</name></member>
+  </compound>
+  <compound refid="a00101" kind="class"><name>kateHighlight</name>
+    <member refid="a00101_1a0" kind="function"><name>kateHighlight</name></member>
+    <member refid="a00101_1a1" kind="function"><name>kateHighlight</name></member>
+    <member refid="a00101_1a2" kind="function"><name>load</name></member>
+    <member refid="a00101_1a3" kind="function"><name>save</name></member>
+    <member refid="a00101_1r0" kind="variable"><name>attributes</name></member>
+    <member refid="a00101_1r1" kind="variable"><name>list</name></member>
+    <member refid="a00101_1r2" kind="variable"><name>contexts</name></member>
+    <member refid="a00101_1r3" kind="variable"><name>itemDatas</name></member>
+  </compound>
+  <compound refid="a00102" kind="class"><name>kateHighlightRule</name>
+    <member refid="a00102_1a0" kind="function"><name>kateHighlightRule</name></member>
+    <member refid="a00102_1a1" kind="function"><name>kateHighlightRule</name></member>
+    <member refid="a00102_1a2" kind="function"><name>load</name></member>
+    <member refid="a00102_1a3" kind="function"><name>save</name></member>
+    <member refid="a00102_1a4" kind="function"><name>getTypeFromName</name></member>
+    <member refid="a00102_1r0" kind="variable"><name>name</name></member>
+    <member refid="a00102_1r1" kind="variable"><name>type</name></member>
+    <member refid="a00102_1r2" kind="variable"><name>attributes</name></member>
+  </compound>
+  <compound refid="a00023" kind="class"><name>kateItemData</name>
+    <member refid="a00023_1a0" kind="function"><name>kateItemData</name></member>
+    <member refid="a00023_1a1" kind="function"><name>kateItemData</name></member>
+    <member refid="a00023_1a2" kind="function"><name>load</name></member>
+    <member refid="a00023_1a3" kind="function"><name>save</name></member>
+    <member refid="a00023_1a4" kind="function"><name>isBold</name></member>
+    <member refid="a00023_1a5" kind="function"><name>isUnderline</name></member>
+    <member refid="a00023_1a6" kind="function"><name>isItalic</name></member>
+    <member refid="a00023_1a7" kind="function"><name>getColor</name></member>
+    <member refid="a00023_1a8" kind="function"><name>getSelColor</name></member>
+    <member refid="a00023_1a9" kind="function"><name>getBackground</name></member>
+    <member refid="a00023_1a10" kind="function"><name>getStyleNum</name></member>
+    <member refid="a00023_1a11" kind="function"><name>toCharFormat</name></member>
+    <member refid="a00023_1a12" kind="function"><name>kateItemData</name></member>
+    <member refid="a00023_1a13" kind="function"><name>kateItemData</name></member>
+    <member refid="a00023_1a14" kind="function"><name>load</name></member>
+    <member refid="a00023_1a15" kind="function"><name>save</name></member>
+    <member refid="a00023_1a16" kind="function"><name>isBold</name></member>
+    <member refid="a00023_1a17" kind="function"><name>isUnderline</name></member>
+    <member refid="a00023_1a18" kind="function"><name>isItalic</name></member>
+    <member refid="a00023_1a19" kind="function"><name>getColor</name></member>
+    <member refid="a00023_1a20" kind="function"><name>getSelColor</name></member>
+    <member refid="a00023_1a21" kind="function"><name>getBackground</name></member>
+    <member refid="a00023_1a22" kind="function"><name>getStyleNum</name></member>
+    <member refid="a00023_1a23" kind="function"><name>toCharFormat</name></member>
+    <member refid="a00023_1r0" kind="variable"><name>attributes</name></member>
+  </compound>
+  <compound refid="a00103" kind="class"><name>kateItemDataManager</name>
+    <member refid="a00103_1a0" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a1" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a2" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a3" kind="function"><name>~kateItemDataManager</name></member>
+    <member refid="a00103_1a4" kind="function"><name>getItemData</name></member>
+    <member refid="a00103_1a5" kind="function"><name>load</name></member>
+    <member refid="a00103_1a6" kind="function"><name>load</name></member>
+    <member refid="a00103_1a7" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a8" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a9" kind="function"><name>kateItemDataManager</name></member>
+    <member refid="a00103_1a10" kind="function"><name>~kateItemDataManager</name></member>
+    <member refid="a00103_1a11" kind="function"><name>getItemData</name></member>
+    <member refid="a00103_1a12" kind="function"><name>load</name></member>
+    <member refid="a00103_1a13" kind="function"><name>load</name></member>
+    <member refid="a00103_1r0" kind="variable"><name>itemDatas</name></member>
+    <member refid="a00103_1r1" kind="variable"><name>itemDatas</name></member>
+  </compound>
+  <compound refid="a00104" kind="class"><name>kateKeywords</name>
+    <member refid="a00104_1a0" kind="function"><name>kateKeywords</name></member>
+    <member refid="a00104_1a1" kind="function"><name>kateKeywords</name></member>
+    <member refid="a00104_1a2" kind="function"><name>load</name></member>
+    <member refid="a00104_1a3" kind="function"><name>save</name></member>
+    <member refid="a00104_1a4" kind="function"><name>isTrue</name></member>
+    <member refid="a00104_1r0" kind="variable"><name>caseSensitive</name></member>
+    <member refid="a00104_1r1" kind="variable"><name>weakDelimiter</name></member>
+    <member refid="a00104_1r2" kind="variable"><name>aditionalDelimiter</name></member>
+    <member refid="a00104_1r3" kind="variable"><name>wordWrapDeliminator</name></member>
+  </compound>
+  <compound refid="a00105" kind="class"><name>kateLanguage</name>
+    <member refid="a00105_1a0" kind="function"><name>kateLanguage</name></member>
+    <member refid="a00105_1a1" kind="function"><name>kateLanguage</name></member>
+    <member refid="a00105_1a2" kind="function"><name>loadFromFile</name></member>
+    <member refid="a00105_1a3" kind="function"><name>saveToFile</name></member>
+    <member refid="a00105_1a4" kind="function"><name>load</name></member>
+    <member refid="a00105_1a5" kind="function"><name>save</name></member>
+    <member refid="a00105_1o0" kind="variable"><name>attributes</name></member>
+    <member refid="a00105_1o1" kind="variable"><name>highlight</name></member>
+    <member refid="a00105_1o2" kind="variable"><name>general</name></member>
+  </compound>
+  <compound refid="a00106" kind="class"><name>kateWordList</name>
+    <member refid="a00106_1a0" kind="function"><name>kateWordList</name></member>
+    <member refid="a00106_1a1" kind="function"><name>kateWordList</name></member>
+    <member refid="a00106_1a2" kind="function"><name>load</name></member>
+    <member refid="a00106_1a3" kind="function"><name>save</name></member>
+    <member refid="a00106_1o0" kind="variable"><name>name</name></member>
+    <member refid="a00106_1o1" kind="variable"><name>items</name></member>
+  </compound>
+  <compound refid="a00024" kind="class"><name>MainWindow</name>
+    <member refid="a00024_1a0" kind="function"><name>MainWindow</name></member>
+    <member refid="a00024_1i0" kind="slot"><name>selectNextTab</name></member>
+    <member refid="a00024_1i1" kind="slot"><name>selectPrevTab</name></member>
+    <member refid="a00024_1i2" kind="slot"><name>selectEditor</name></member>
+    <member refid="a00024_1i3" kind="slot"><name>editorChanged</name></member>
+    <member refid="a00024_1i4" kind="slot"><name>editorCursorPositionChanged</name></member>
+    <member refid="a00024_1i5" kind="slot"><name>fileNew</name></member>
+    <member refid="a00024_1i6" kind="slot"><name>fileOpen</name></member>
+    <member refid="a00024_1i7" kind="slot"><name>fileSave</name></member>
+    <member refid="a00024_1i8" kind="slot"><name>fileSave</name></member>
+    <member refid="a00024_1i9" kind="slot"><name>fileSaveAs</name></member>
+    <member refid="a00024_1i10" kind="slot"><name>fileSaveAs</name></member>
+    <member refid="a00024_1i11" kind="slot"><name>fileClose</name></member>
+    <member refid="a00024_1i12" kind="slot"><name>editUndo</name></member>
+    <member refid="a00024_1i13" kind="slot"><name>editRedo</name></member>
+    <member refid="a00024_1i14" kind="slot"><name>editCopy</name></member>
+    <member refid="a00024_1i15" kind="slot"><name>editCut</name></member>
+    <member refid="a00024_1i16" kind="slot"><name>editPaste</name></member>
+    <member refid="a00024_1i17" kind="slot"><name>searchFind</name></member>
+    <member refid="a00024_1i18" kind="slot"><name>searchFindNext</name></member>
+    <member refid="a00024_1i19" kind="slot"><name>searchFindPrev</name></member>
+    <member refid="a00024_1i20" kind="slot"><name>searchReplace</name></member>
+    <member refid="a00024_1i21" kind="slot"><name>searchGotoLine</name></member>
+    <member refid="a00024_1i22" kind="slot"><name>optionsConfiguration</name></member>
+    <member refid="a00024_1i23" kind="slot"><name>about</name></member>
+    <member refid="a00024_1b0" kind="function"><name>closeEvent</name></member>
+    <member refid="a00024_1d0" kind="function"><name>createActions</name></member>
+    <member refid="a00024_1d1" kind="function"><name>createMenus</name></member>
+    <member refid="a00024_1d2" kind="function"><name>createToolbar</name></member>
+    <member refid="a00024_1d3" kind="function"><name>saveStatus</name></member>
+    <member refid="a00024_1d4" kind="function"><name>loadStatus</name></member>
+    <member refid="a00024_1d5" kind="function"><name>getFileName</name></member>
+    <member refid="a00024_1d6" kind="function"><name>loadFile</name></member>
+    <member refid="a00024_1d7" kind="function"><name>getCurrentEditor</name></member>
+    <member refid="a00024_1d8" kind="function"><name>canCloseEditor</name></member>
+    <member refid="a00024_1r0" kind="variable"><name>fileMenu</name></member>
+    <member refid="a00024_1r1" kind="variable"><name>editMenu</name></member>
+    <member refid="a00024_1r2" kind="variable"><name>searchMenu</name></member>
+    <member refid="a00024_1r3" kind="variable"><name>optionsMenu</name></member>
+    <member refid="a00024_1r4" kind="variable"><name>helpMenu</name></member>
+    <member refid="a00024_1r5" kind="variable"><name>fileToolBar</name></member>
+    <member refid="a00024_1r6" kind="variable"><name>actionNextTab</name></member>
+    <member refid="a00024_1r7" kind="variable"><name>actionPreviousTab</name></member>
+    <member refid="a00024_1r8" kind="variable"><name>actionSelectEditor</name></member>
+    <member refid="a00024_1r9" kind="variable"><name>actionNew</name></member>
+    <member refid="a00024_1r10" kind="variable"><name>actionOpen</name></member>
+    <member refid="a00024_1r11" kind="variable"><name>actionSave</name></member>
+    <member refid="a00024_1r12" kind="variable"><name>actionSaveAs</name></member>
+    <member refid="a00024_1r13" kind="variable"><name>actionClose</name></member>
+    <member refid="a00024_1r14" kind="variable"><name>actionExit</name></member>
+    <member refid="a00024_1r15" kind="variable"><name>actionUndo</name></member>
+    <member refid="a00024_1r16" kind="variable"><name>actionRedo</name></member>
+    <member refid="a00024_1r17" kind="variable"><name>actionCut</name></member>
+    <member refid="a00024_1r18" kind="variable"><name>actionCopy</name></member>
+    <member refid="a00024_1r19" kind="variable"><name>actionPaste</name></member>
+    <member refid="a00024_1r20" kind="variable"><name>actionConfig</name></member>
+    <member refid="a00024_1r21" kind="variable"><name>actionFind</name></member>
+    <member refid="a00024_1r22" kind="variable"><name>actionReplace</name></member>
+    <member refid="a00024_1r23" kind="variable"><name>actionFindNext</name></member>
+    <member refid="a00024_1r24" kind="variable"><name>actionFindPrev</name></member>
+    <member refid="a00024_1r25" kind="variable"><name>actionGotoLine</name></member>
+    <member refid="a00024_1r26" kind="variable"><name>actionAbout</name></member>
+    <member refid="a00024_1r27" kind="variable"><name>actionAboutQt</name></member>
+    <member refid="a00024_1r28" kind="variable"><name>currentEditor</name></member>
+    <member refid="a00024_1r29" kind="variable"><name>optionsDialog</name></member>
+    <member refid="a00024_1r30" kind="variable"><name>mainTab</name></member>
+    <member refid="a00024_1r31" kind="variable"><name>defColors</name></member>
+  </compound>
+  <compound refid="a00107" kind="struct"><name>MyCodecListEntry</name>
+    <member refid="a00107_1o0" kind="variable"><name>CodecName</name></member>
+    <member refid="a00107_1o1" kind="variable"><name>Encoding</name></member>
+  </compound>
+  <compound refid="a00108" kind="class"><name>OptionsDialog</name>
+    <member refid="a00108_1a0" kind="function"><name>OptionsDialog</name></member>
+    <member refid="a00108_1a1" kind="function"><name>~OptionsDialog</name></member>
+    <member refid="a00108_1i0" kind="slot"><name>chooseFont</name></member>
+    <member refid="a00108_1r0" kind="variable"><name>optionsDialogUI</name></member>
+    <member refid="a00108_1r1" kind="variable"><name>editorFont</name></member>
+  </compound>
+  <compound refid="a00025" kind="class"><name>QECodeEditor</name>
+    <member refid="a00025_1a0" kind="function"><name>QECodeEditor</name></member>
+    <member refid="a00025_1a1" kind="function"><name>~QECodeEditor</name></member>
+    <member refid="a00025_1a2" kind="function"><name>getFileName</name></member>
+    <member refid="a00025_1a3" kind="function"><name>loadFile</name></member>
+    <member refid="a00025_1a4" kind="function"><name>loadFile</name></member>
+    <member refid="a00025_1a5" kind="function"><name>saveFile</name></member>
+    <member refid="a00025_1a6" kind="function"><name>saveFile</name></member>
+    <member refid="a00025_1a7" kind="function"><name>setHighlight</name></member>
+    <member refid="a00025_1r0" kind="variable"><name>fileName</name></member>
+    <member refid="a00025_1r1" kind="variable"><name>codeHighlighter</name></member>
+  </compound>
+  <compound refid="a00026" kind="class"><name>QECodeHighlighter</name>
+    <member refid="a00026_1a0" kind="function"><name>QECodeHighlighter</name></member>
+    <member refid="a00026_1a1" kind="function"><name>~QECodeHighlighter</name></member>
+    <member refid="a00026_1a2" kind="function"><name>setHighlight</name></member>
+    <member refid="a00026_1a3" kind="function"><name>addToDocument</name></member>
+    <member refid="a00026_1a4" kind="function"><name>getDefaultColor</name></member>
+    <member refid="a00026_1a5" kind="function"><name>getDefaultBackground</name></member>
+    <member refid="a00026_1i0" kind="slot"><name>highlight</name></member>
+    <member refid="a00026_1k0" kind="slot"><name>highlightBlock</name></member>
+  </compound>
+  <compound refid="a00109" kind="class"><name>QECPPHighlighter</name>
+    <member refid="a00109_1a0" kind="function"><name>QECPPHighlighter</name></member>
+    <member refid="a00109_1a1" kind="function"><name>getDefaultColor</name></member>
+    <member refid="a00109_1a2" kind="function"><name>getDefaultBackground</name></member>
+    <member refid="a00109_1d0" kind="function"><name>highlightBlock</name></member>
+    <member refid="a00109_1d1" kind="function"><name>setHighlight</name></member>
+    <member refid="a00109_1d2" kind="function"><name>addMapping</name></member>
+    <member refid="a00109_1d3" kind="function"><name>addMapping</name></member>
+    <member refid="a00109_1d4" kind="function"><name>addMappings_cpp</name></member>
+    <member refid="a00109_1d5" kind="function"><name>addMappings_pro</name></member>
+    <member refid="a00109_1r0" kind="variable"><name>mappings</name></member>
+    <member refid="a00109_1r1" kind="variable"><name>defaultColors</name></member>
+  </compound>
+  <compound refid="a00110" kind="class"><name>QEMyMap</name>
+    <member refid="a00110_1a0" kind="function"><name>QEMyMap</name></member>
+    <member refid="a00110_1a1" kind="function"><name>~QEMyMap</name></member>
+    <member refid="a00110_1a2" kind="function"><name>add</name></member>
+    <member refid="a00110_1a3" kind="function"><name>remove</name></member>
+    <member refid="a00110_1a4" kind="function"><name>clear</name></member>
+    <member refid="a00110_1a5" kind="function"><name>contains</name></member>
+    <member refid="a00110_1a6" kind="function"><name>count</name></member>
+    <member refid="a00110_1a7" kind="function"><name>empty</name></member>
+    <member refid="a00110_1a8" kind="function"><name>keys</name></member>
+    <member refid="a00110_1r0" kind="variable"><name>nodes</name></member>
+  </compound>
+  <compound refid="a00111" kind="class"><name>QEMyMapNode</name>
+    <member refid="a00111_1a0" kind="function"><name>QEMyMapNode</name></member>
+    <member refid="a00111_1o0" kind="variable"><name>key</name></member>
+    <member refid="a00111_1o1" kind="variable"><name>value</name></member>
+  </compound>
+  <compound refid="a00112" kind="class"><name>TextDisplay</name>
+    <member refid="a00112_1a0" kind="function"><name>TextDisplay</name></member>
+    <member refid="a00112_1a1" kind="function"><name>~TextDisplay</name></member>
+    <member refid="a00112_1a2" kind="function"><name>getEditor</name></member>
+    <member refid="a00112_1a3" kind="function"><name>getInternalFind</name></member>
+    <member refid="a00112_1a4" kind="function"><name>document</name></member>
+    <member refid="a00112_1i0" kind="slot"><name>hideInternalWidgets</name></member>
+    <member refid="a00112_1i1" kind="slot"><name>undo</name></member>
+    <member refid="a00112_1i2" kind="slot"><name>redo</name></member>
+    <member refid="a00112_1i3" kind="slot"><name>copy</name></member>
+    <member refid="a00112_1i4" kind="slot"><name>cut</name></member>
+    <member refid="a00112_1i5" kind="slot"><name>paste</name></member>
+    <member refid="a00112_1i6" kind="slot"><name>find</name></member>
+    <member refid="a00112_1i7" kind="slot"><name>replace</name></member>
+    <member refid="a00112_1i8" kind="slot"><name>gotoLine</name></member>
+    <member refid="a00112_1i9" kind="slot"><name>findNext</name></member>
+    <member refid="a00112_1i10" kind="slot"><name>findPrev</name></member>
+    <member refid="a00112_1i11" kind="slot"><name>incrementalSearch</name></member>
+    <member refid="a00112_1i12" kind="slot"><name>findString</name></member>
+    <member refid="a00112_1i13" kind="slot"><name>doReplace</name></member>
+    <member refid="a00112_1i14" kind="slot"><name>gotoLine</name></member>
+    <member refid="a00112_1i15" kind="slot"><name>getCursorLocation</name></member>
+    <member refid="a00112_1i16" kind="slot"><name>setCursorLocation</name></member>
+    <member refid="a00112_1i17" kind="slot"><name>setCursorLocation</name></member>
+    <member refid="a00112_1i18" kind="slot"><name>getLineCount</name></member>
+    <member refid="a00112_1r0" kind="variable"><name>editor</name></member>
+    <member refid="a00112_1r1" kind="variable"><name>layout</name></member>
+    <member refid="a00112_1r2" kind="variable"><name>fileName</name></member>
+    <member refid="a00112_1r3" kind="variable"><name>internalFind</name></member>
+    <member refid="a00112_1r4" kind="variable"><name>internalReplace</name></member>
+    <member refid="a00112_1r5" kind="variable"><name>internalGotoLine</name></member>
+    <member refid="a00112_1r6" kind="variable"><name>uiInlineFind</name></member>
+    <member refid="a00112_1r7" kind="variable"><name>uiInlineReplace</name></member>
+    <member refid="a00112_1r8" kind="variable"><name>uiInlineGotoLine</name></member>
+  </compound>
+  <compound refid="a00027" kind="file"><name>main.cpp</name>
+    <member refid="a00027_1a0" kind="function"><name>main</name></member>
+  </compound>
+  <compound refid="a00028" kind="file"><name>main.cpp</name>
+    <member refid="a00028_1a0" kind="function"><name>main</name></member>
+  </compound>
+  <compound refid="a00029" kind="file"><name>mainwindow.cpp</name>
+  </compound>
+  <compound refid="a00030" kind="file"><name>mainwindow.h</name>
+  </compound>
+  <compound refid="a00031" kind="file"><name>optionsdialog.cpp</name>
+  </compound>
+  <compound refid="a00032" kind="file"><name>optionsdialog.h</name>
+  </compound>
+  <compound refid="a00033" kind="file"><name>katecolorfile.cpp</name>
+  </compound>
+  <compound refid="a00034" kind="file"><name>katecolorfile.h</name>
+  </compound>
+  <compound refid="a00035" kind="file"><name>katecomment.cpp</name>
+  </compound>
+  <compound refid="a00036" kind="file"><name>katecomment.h</name>
+  </compound>
+  <compound refid="a00037" kind="file"><name>katecontext.cpp</name>
+  </compound>
+  <compound refid="a00038" kind="file"><name>katecontext.h</name>
+  </compound>
+  <compound refid="a00039" kind="file"><name>katefolding.cpp</name>
+  </compound>
+  <compound refid="a00040" kind="file"><name>katefolding.h</name>
+  </compound>
+  <compound refid="a00041" kind="file"><name>kategeneral.cpp</name>
+  </compound>
+  <compound refid="a00042" kind="file"><name>kategeneral.h</name>
+  </compound>
+  <compound refid="a00043" kind="file"><name>katehighlight.cpp</name>
+  </compound>
+  <compound refid="a00044" kind="file"><name>katehighlight.h</name>
+  </compound>
+  <compound refid="a00045" kind="file"><name>katehighlightrule.cpp</name>
+    <member refid="a00045_1a0" kind="variable"><name>KateHighlightRuleNames</name></member>
+  </compound>
+  <compound refid="a00046" kind="file"><name>katehighlightrule.h</name>
+    <member refid="a00046_1a16" kind="enum"><name>KateHighlightRuleTypes</name></member>
+    <member refid="a00046_1a16a0" kind="enumvalue"><name>DetectChar</name></member>
+    <member refid="a00046_1a16a1" kind="enumvalue"><name>Detect2Chars</name></member>
+    <member refid="a00046_1a16a2" kind="enumvalue"><name>AnyChar</name></member>
+    <member refid="a00046_1a16a3" kind="enumvalue"><name>StringDetect</name></member>
+    <member refid="a00046_1a16a4" kind="enumvalue"><name>RegExp</name></member>
+    <member refid="a00046_1a16a5" kind="enumvalue"><name>keyword</name></member>
+    <member refid="a00046_1a16a6" kind="enumvalue"><name>Int</name></member>
+    <member refid="a00046_1a16a7" kind="enumvalue"><name>Float</name></member>
+    <member refid="a00046_1a16a8" kind="enumvalue"><name>HICOct</name></member>
+    <member refid="a00046_1a16a9" kind="enumvalue"><name>HlCStringChar</name></member>
+    <member refid="a00046_1a16a10" kind="enumvalue"><name>HlCChar</name></member>
+    <member refid="a00046_1a16a11" kind="enumvalue"><name>RangeDetect</name></member>
+    <member refid="a00046_1a16a12" kind="enumvalue"><name>LineContinue</name></member>
+    <member refid="a00046_1a16a13" kind="enumvalue"><name>IncludeRules</name></member>
+    <member refid="a00046_1a16a14" kind="enumvalue"><name>DetectSpaces</name></member>
+    <member refid="a00046_1a16a15" kind="enumvalue"><name>DetectIdentifier</name></member>
+  </compound>
+  <compound refid="a00047" kind="file"><name>kateitemdata.cpp</name>
+  </compound>
+  <compound refid="a00048" kind="file"><name>kateitemdata.cpp</name>
+  </compound>
+  <compound refid="a00049" kind="file"><name>kateitemdata.h</name>
+  </compound>
+  <compound refid="a00050" kind="file"><name>kateitemdata.h</name>
+  </compound>
+  <compound refid="a00051" kind="file"><name>kateitemdatamanager.cpp</name>
+  </compound>
+  <compound refid="a00052" kind="file"><name>kateitemdatamanager.cpp</name>
+  </compound>
+  <compound refid="a00053" kind="file"><name>kateitemdatamanager.h</name>
+  </compound>
+  <compound refid="a00054" kind="file"><name>kateitemdatamanager.h</name>
+  </compound>
+  <compound refid="a00055" kind="file"><name>katekeywords.cpp</name>
+  </compound>
+  <compound refid="a00056" kind="file"><name>katekeywords.h</name>
+  </compound>
+  <compound refid="a00057" kind="file"><name>katelanguage.cpp</name>
+  </compound>
+  <compound refid="a00058" kind="file"><name>katelanguage.h</name>
+  </compound>
+  <compound refid="a00059" kind="file"><name>kateqtglobal.h</name>
+    <member refid="a00059_1a0" kind="typedef"><name>QStringMap</name></member>
+  </compound>
+  <compound refid="a00060" kind="file"><name>kateqtglobal.h</name>
+    <member refid="a00060_1a0" kind="typedef"><name>QStringMap</name></member>
+  </compound>
+  <compound refid="a00061" kind="file"><name>katewordlist.cpp</name>
+  </compound>
+  <compound refid="a00062" kind="file"><name>katewordlist.h</name>
+  </compound>
+  <compound refid="a00063" kind="file"><name>qecodeeditor.cpp</name>
+  </compound>
+  <compound refid="a00064" kind="file"><name>qecodeeditor.h</name>
+  </compound>
+  <compound refid="a00065" kind="file"><name>qecodehighlighter.cpp</name>
+  </compound>
+  <compound refid="a00066" kind="file"><name>qecodehighlighter.h</name>
+  </compound>
+  <compound refid="a00067" kind="file"><name>qecpphighlighter.cpp</name>
+  </compound>
+  <compound refid="a00068" kind="file"><name>qecpphighlighter.h</name>
+  </compound>
+  <compound refid="a00069" kind="file"><name>qemymap.cpp</name>
+  </compound>
+  <compound refid="a00070" kind="file"><name>qemymap.h</name>
+  </compound>
+  <compound refid="a00071" kind="file"><name>textdisplay.cpp</name>
+  </compound>
+  <compound refid="a00072" kind="file"><name>textdisplay.h</name>
+  </compound>
+  <compound refid="todo" kind="page"><name>todo</name>
+  </compound>
+  <compound refid="dir_000002" kind="dir"><name>src/qelib/kate-qt/</name>
+  </compound>
+  <compound refid="dir_000003" kind="dir"><name>src/qelib/qecpphighlighter/</name>
+  </compound>
+  <compound refid="dir_000001" kind="dir"><name>src/qelib/</name>
+  </compound>
+  <compound refid="dir_000000" kind="dir"><name>src/</name>
+  </compound>
+  <compound refid="indexpage" kind="page"><name>index</name>
+  </compound>
+</doxygenindex>

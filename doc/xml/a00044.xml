@@ -1,0 +1,161 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="a00044" kind="file">
+    <compoundname>katehighlight.h</compoundname>
+    <includes local="no">QDomDocument</includes>
+    <includes local="no">QList</includes>
+    <includes refid="a00059" local="yes">kateqtglobal.h</includes>
+    <includes refid="a00062" local="yes">katewordlist.h</includes>
+    <includes refid="a00038" local="yes">katecontext.h</includes>
+    <includes refid="a00049" local="yes">kateitemdata.h</includes>
+    <includedby refid="a00034" local="yes">src/qelib/kate-qt/katecolorfile.h</includedby>
+    <includedby refid="a00043" local="yes">src/qelib/kate-qt/katehighlight.cpp</includedby>
+    <includedby refid="a00058" local="yes">src/qelib/kate-qt/katelanguage.h</includedby>
+    <includedby refid="a00028" local="yes">src/qelib/kate-qt/main.cpp</includedby>
+    <incdepgraph>
+      <node id="236">
+        <label>QMap</label>
+      </node>
+      <node id="238">
+        <label>QDomNode</label>
+      </node>
+      <node id="244">
+        <label>QTextCharFormat</label>
+      </node>
+      <node id="233">
+        <label>QList</label>
+      </node>
+      <node id="234">
+        <label>kateqtglobal.h</label>
+        <link refid="a00059-source"/>
+        <childnode refid="235" relation="include">
+        </childnode>
+        <childnode refid="236" relation="include">
+        </childnode>
+      </node>
+      <node id="242">
+        <label>kateitemdata.h</label>
+        <link refid="a00049-source"/>
+        <childnode refid="238" relation="include">
+        </childnode>
+        <childnode refid="243" relation="include">
+        </childnode>
+        <childnode refid="244" relation="include">
+        </childnode>
+        <childnode refid="234" relation="include">
+        </childnode>
+      </node>
+      <node id="240">
+        <label>katecontext.h</label>
+        <link refid="a00038-source"/>
+        <childnode refid="238" relation="include">
+        </childnode>
+        <childnode refid="234" relation="include">
+        </childnode>
+        <childnode refid="241" relation="include">
+        </childnode>
+      </node>
+      <node id="231">
+        <label>src/qelib/kate-qt/katehighlight.h</label>
+        <link refid="katehighlight.h"/>
+        <childnode refid="232" relation="include">
+        </childnode>
+        <childnode refid="233" relation="include">
+        </childnode>
+        <childnode refid="234" relation="include">
+        </childnode>
+        <childnode refid="237" relation="include">
+        </childnode>
+        <childnode refid="240" relation="include">
+        </childnode>
+        <childnode refid="242" relation="include">
+        </childnode>
+      </node>
+      <node id="241">
+        <label>katehighlightrule.h</label>
+        <link refid="a00046-source"/>
+        <childnode refid="238" relation="include">
+        </childnode>
+        <childnode refid="235" relation="include">
+        </childnode>
+        <childnode refid="234" relation="include">
+        </childnode>
+      </node>
+      <node id="232">
+        <label>QDomDocument</label>
+      </node>
+      <node id="237">
+        <label>katewordlist.h</label>
+        <link refid="a00062-source"/>
+        <childnode refid="238" relation="include">
+        </childnode>
+        <childnode refid="239" relation="include">
+        </childnode>
+        <childnode refid="234" relation="include">
+        </childnode>
+      </node>
+      <node id="235">
+        <label>QString</label>
+      </node>
+      <node id="243">
+        <label>QColor</label>
+      </node>
+      <node id="239">
+        <label>QStringList</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="247">
+        <label>src/qelib/kate-qt/katelanguage.h</label>
+        <link refid="a00058-source"/>
+      </node>
+      <node id="245">
+        <label>src/qelib/kate-qt/katehighlight.h</label>
+        <link refid="katehighlight.h"/>
+        <childnode refid="246" relation="include">
+        </childnode>
+        <childnode refid="247" relation="include">
+        </childnode>
+      </node>
+      <node id="246">
+        <label>src/qelib/kate-qt/katecolorfile.h</label>
+        <link refid="a00034-source"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="a00101">kateHighlight</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__KATE_HIGHLIGHT__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__KATE_HIGHLIGHT__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDomDocument&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QList&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateqtglobal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;katewordlist.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;katecontext.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateitemdata.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight></codeline>
+<codeline lineno="12"><highlight class="normal"></highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">kateHighlight</highlight></codeline>
+<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateHighlight();</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateHighlight(<sp/>QDomDocument<sp/>doc<sp/>);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>load(<sp/>QDomDocument<sp/>doc<sp/>);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>save(<sp/>QDomDocument<sp/>doc<sp/>);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QStringMap<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>attributes;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;kateWordList&gt;<sp/>list;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;kateContext&gt;<sp/><sp/>contexts;</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;kateItemData&gt;<sp/>itemDatas;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"></highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__KATE_HIGHLIGHT__</highlight></codeline>
+    </programlisting>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katehighlight.h"/>
+  </compounddef>
+</doxygen>

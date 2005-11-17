@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="dir_000001" kind="dir">
+    <compoundname>src/qelib/</compoundname>
+    <innerdir refid="dir_000002">src/qelib/kate-qt/</innerdir>
+    <innerdir refid="dir_000003">src/qelib/qecpphighlighter/</innerdir>
+    <innerfile refid="a00063">qecodeeditor.cpp</innerfile>
+    <innerfile refid="a00064">qecodeeditor.h</innerfile>
+    <innerfile refid="a00065">qecodehighlighter.cpp</innerfile>
+    <innerfile refid="a00066">qecodehighlighter.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/"/>
+  </compounddef>
+</doxygen>

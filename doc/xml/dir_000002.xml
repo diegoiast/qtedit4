@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="dir_000002" kind="dir">
+    <compoundname>src/qelib/kate-qt/</compoundname>
+    <innerfile refid="a00033">katecolorfile.cpp</innerfile>
+    <innerfile refid="a00034">katecolorfile.h</innerfile>
+    <innerfile refid="a00035">katecomment.cpp</innerfile>
+    <innerfile refid="a00036">katecomment.h</innerfile>
+    <innerfile refid="a00037">katecontext.cpp</innerfile>
+    <innerfile refid="a00038">katecontext.h</innerfile>
+    <innerfile refid="a00039">katefolding.cpp</innerfile>
+    <innerfile refid="a00040">katefolding.h</innerfile>
+    <innerfile refid="a00041">kategeneral.cpp</innerfile>
+    <innerfile refid="a00042">kategeneral.h</innerfile>
+    <innerfile refid="a00043">katehighlight.cpp</innerfile>
+    <innerfile refid="a00044">katehighlight.h</innerfile>
+    <innerfile refid="a00045">katehighlightrule.cpp</innerfile>
+    <innerfile refid="a00046">katehighlightrule.h</innerfile>
+    <innerfile refid="a00047">kateitemdata.cpp</innerfile>
+    <innerfile refid="a00049">kateitemdata.h</innerfile>
+    <innerfile refid="a00051">kateitemdatamanager.cpp</innerfile>
+    <innerfile refid="a00053">kateitemdatamanager.h</innerfile>
+    <innerfile refid="a00055">katekeywords.cpp</innerfile>
+    <innerfile refid="a00056">katekeywords.h</innerfile>
+    <innerfile refid="a00057">katelanguage.cpp</innerfile>
+    <innerfile refid="a00058">katelanguage.h</innerfile>
+    <innerfile refid="a00059">kateqtglobal.h</innerfile>
+    <innerfile refid="a00061">katewordlist.cpp</innerfile>
+    <innerfile refid="a00062">katewordlist.h</innerfile>
+    <innerfile refid="a00028">main.cpp</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/"/>
+  </compounddef>
+</doxygen>

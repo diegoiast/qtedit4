@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="qecpphighlighter_8h" kind="file">
+    <compoundname>qecpphighlighter.h</compoundname>
+    <includes refid="qecpphighlighter_2kateitemdatamanager_8h" local="yes">kateitemdatamanager.h</includes>
+    <includes refid="qecodehighlighter_8h" local="yes">qecodehighlighter.h</includes>
+    <includes refid="qemymap_8h" local="yes">qemymap.h</includes>
+    <includedby refid="mainwindow_8cpp" local="yes">src/mainwindow.cpp</includedby>
+    <includedby refid="qecpphighlighter_8cpp" local="yes">src/qelib/qecpphighlighter/qecpphighlighter.cpp</includedby>
+    <incdepgraph>
+      <node id="524">
+        <label>QMap</label>
+      </node>
+      <node id="520">
+        <label>QDomNode</label>
+      </node>
+      <node id="528">
+        <label>QTextEdit</label>
+      </node>
+      <node id="523">
+        <label>kateqtglobal.h</label>
+        <link refid="qecpphighlighter_2kateqtglobal_8h-source"/>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="524" relation="include">
+        </childnode>
+      </node>
+      <node id="514">
+        <label>src/qelib/qecpphighlighter/qecpphighlighter.h</label>
+        <link refid="qecpphighlighter.h"/>
+        <childnode refid="515" relation="include">
+        </childnode>
+        <childnode refid="525" relation="include">
+        </childnode>
+        <childnode refid="530" relation="include">
+        </childnode>
+      </node>
+      <node id="526">
+        <label>QObject</label>
+      </node>
+      <node id="522">
+        <label>QTextCharFormat</label>
+      </node>
+      <node id="518">
+        <label>QList</label>
+      </node>
+      <node id="525">
+        <label>qecodehighlighter.h</label>
+        <link refid="qecodehighlighter_8h-source"/>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="526" relation="include">
+        </childnode>
+        <childnode refid="527" relation="include">
+        </childnode>
+        <childnode refid="528" relation="include">
+        </childnode>
+        <childnode refid="529" relation="include">
+        </childnode>
+      </node>
+      <node id="515">
+        <label>kateitemdatamanager.h</label>
+        <link refid="qecpphighlighter_2kateitemdatamanager_8h-source"/>
+        <childnode refid="516" relation="include">
+        </childnode>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="518" relation="include">
+        </childnode>
+        <childnode refid="519" relation="include">
+        </childnode>
+      </node>
+      <node id="519">
+        <label>kateitemdata.h</label>
+        <link refid="qecpphighlighter_2kateitemdata_8h-source"/>
+        <childnode refid="520" relation="include">
+        </childnode>
+        <childnode refid="521" relation="include">
+        </childnode>
+        <childnode refid="522" relation="include">
+        </childnode>
+        <childnode refid="523" relation="include">
+        </childnode>
+      </node>
+      <node id="516">
+        <label>QDomDocument</label>
+      </node>
+      <node id="517">
+        <label>QString</label>
+      </node>
+      <node id="521">
+        <label>QColor</label>
+      </node>
+      <node id="529">
+        <label>QTextBlock</label>
+      </node>
+      <node id="527">
+        <label>QTextDocument</label>
+      </node>
+      <node id="530">
+        <label>qemymap.h</label>
+        <link refid="qemymap_8h-source"/>
+        <childnode refid="517" relation="include">
+        </childnode>
+        <childnode refid="518" relation="include">
+        </childnode>
+        <childnode refid="522" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="531">
+        <label>src/qelib/qecpphighlighter/qecpphighlighter.h</label>
+        <link refid="qecpphighlighter.h"/>
+        <childnode refid="532" relation="include">
+        </childnode>
+      </node>
+      <node id="532">
+        <label>src/mainwindow.cpp</label>
+        <link refid="mainwindow_8cpp"/>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="classQECPPHighlighter">QECPPHighlighter</innerclass>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateitemdatamanager.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qecodehighlighter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qemymap.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QECPPHighlighter:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="classQECodeHighlighter" kindref="compound">QECodeHighlighter</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QECPPHighlighter(<sp/>kateItemDataManager<sp/>*d=NULL<sp/>);</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QColor<sp/>getDefaultColor();</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QColor<sp/>getDefaultBackground();</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>highlightBlock(<sp/>QTextBlock<sp/>block<sp/>);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setHighlight(<sp/>QString<sp/>fileName<sp/>);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QTextCharFormat<sp/>&amp;format,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/><sp/>);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;formatName,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMappings_cpp();</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMappings_pro();</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QEMyMap<sp/>mappings;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager<sp/>*defaultColors;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+    </programlisting>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qecpphighlighter.h"/>
+  </compounddef>
+</doxygen>

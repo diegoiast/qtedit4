@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classQECodeHighlighter" kind="class" prot="public">
+    <compoundname>QECodeHighlighter</compoundname>
+    <derivedcompoundref refid="classQECPPHighlighter" prot="public" virt="non-virtual">QECPPHighlighter</derivedcompoundref>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classQECodeHighlighter_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>QECodeHighlighter::QECodeHighlighter</definition>
+        <argsstring>()</argsstring>
+        <name>QECodeHighlighter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Default constructor. All it does is setting the highlightData to NULL and call QSyntaxHighlighter&apos;s constructor.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="14" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="23" bodyend="25"/>
+      </memberdef>
+      <memberdef kind="function" id="classQECodeHighlighter_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>virtual</type>
+        <definition>QECodeHighlighter::~QECodeHighlighter</definition>
+        <argsstring>()</argsstring>
+        <name>~QECodeHighlighter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="27" bodyend="29"/>
+      </memberdef>
+      <memberdef kind="function" id="classQECodeHighlighter_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>void</type>
+        <definition>void QECodeHighlighter::setHighlight</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>setHighlight</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="16" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="31" bodyend="36"/>
+      </memberdef>
+      <memberdef kind="function" id="classQECodeHighlighter_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void QECodeHighlighter::addToDocument</definition>
+        <argsstring>(QTextDocument *doc)</argsstring>
+        <name>addToDocument</name>
+        <param>
+          <type>QTextDocument *</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="17" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="38" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classQECodeHighlighter_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QColor</type>
+        <definition>QColor QECodeHighlighter::getDefaultColor</definition>
+        <argsstring>()</argsstring>
+        <name>getDefaultColor</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="18" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classQECodeHighlighter_1a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>QColor</type>
+        <definition>QColor QECodeHighlighter::getDefaultBackground</definition>
+        <argsstring>()</argsstring>
+        <name>getDefaultBackground</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="48" bodyend="51"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-slot">
+      <memberdef kind="slot" id="classQECodeHighlighter_1i0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void QECodeHighlighter::highlight</definition>
+        <argsstring>(int from, int removed, int added)</argsstring>
+        <name>highlight</name>
+        <param>
+          <type>int</type>
+          <declname>from</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>removed</declname>
+        </param>
+        <param>
+          <type>int</type>
+          <declname>added</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="22" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.cpp" bodystart="53" bodyend="72"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-slot">
+      <memberdef kind="slot" id="classQECodeHighlighter_1k0" prot="private" static="no" const="no" explicit="no" inline="no" virt="pure-virtual">
+        <type>void</type>
+        <definition>virtual void QECodeHighlighter::highlightBlock</definition>
+        <argsstring>(QTextBlock block)=0</argsstring>
+        <name>highlightBlock</name>
+        <param>
+          <type>QTextBlock</type>
+          <declname>block</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="25"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+<para>An abstruct class for drawing syntax. </para>    </briefdescription>
+    <detaileddescription>
+<para>An implemenation of QSyntaxHighlighter which can handle highlight defintions from the kate project.</para><para>This will make a normal QTextEdit show text just as kate does.</para>    </detaileddescription>
+    <inheritancegraph>
+      <node id="34">
+        <label>QECPPHighlighter</label>
+        <childnode refid="33" relation="public-inheritance">
+        </childnode>
+      </node>
+      <node id="33">
+        <label>QECodeHighlighter</label>
+        <link refid="classQECodeHighlighter"/>
+      </node>
+    </inheritancegraph>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" line="11" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecodehighlighter.h" bodystart="10" bodyend="26"/>
+    <listofallmembers>
+      <member refid="classQECodeHighlighter_1a3" prot="public" virt="non-virtual"><scope>QECodeHighlighter</scope><name>addToDocument</name></member>
+      <member refid="classQECodeHighlighter_1a5" prot="public" virt="virtual"><scope>QECodeHighlighter</scope><name>getDefaultBackground</name></member>
+      <member refid="classQECodeHighlighter_1a4" prot="public" virt="virtual"><scope>QECodeHighlighter</scope><name>getDefaultColor</name></member>
+      <member refid="classQECodeHighlighter_1i0" prot="public" virt="non-virtual"><scope>QECodeHighlighter</scope><name>highlight</name></member>
+      <member refid="classQECodeHighlighter_1k0" prot="private" virt="pure-virtual"><scope>QECodeHighlighter</scope><name>highlightBlock</name></member>
+      <member refid="classQECodeHighlighter_1a0" prot="public" virt="non-virtual"><scope>QECodeHighlighter</scope><name>QECodeHighlighter</name></member>
+      <member refid="classQECodeHighlighter_1a2" prot="public" virt="virtual"><scope>QECodeHighlighter</scope><name>setHighlight</name></member>
+      <member refid="classQECodeHighlighter_1a1" prot="public" virt="virtual"><scope>QECodeHighlighter</scope><name>~QECodeHighlighter</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

@@ -1,0 +1,173 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classQEMyMap" kind="class" prot="public">
+    <compoundname>QEMyMap</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classQEMyMap_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>QEMyMap::QEMyMap</definition>
+        <argsstring>()</argsstring>
+        <name>QEMyMap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="9" bodyend="12"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>QEMyMap::~QEMyMap</definition>
+        <argsstring>()</argsstring>
+        <name>~QEMyMap</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="20" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="14" bodyend="17"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void QEMyMap::add</definition>
+        <argsstring>(QString k, QTextCharFormat v)</argsstring>
+        <name>add</name>
+        <param>
+          <type>QString</type>
+          <declname>k</declname>
+        </param>
+        <param>
+          <type>QTextCharFormat</type>
+          <declname>v</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="22" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="19" bodyend="26"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void QEMyMap::remove</definition>
+        <argsstring>(QString k)</argsstring>
+        <name>remove</name>
+        <param>
+          <type>QString</type>
+          <declname>k</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="23" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="28" bodyend="41"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void QEMyMap::clear</definition>
+        <argsstring>()</argsstring>
+        <name>clear</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="25" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="43" bodyend="46"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QEMyMap::contains</definition>
+        <argsstring>(QString key)</argsstring>
+        <name>contains</name>
+        <param>
+          <type>QString</type>
+          <declname>key</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="26" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="48" bodyend="57"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int QEMyMap::count</definition>
+        <argsstring>()</argsstring>
+        <name>count</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="27" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="59" bodyend="62"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QEMyMap::empty</definition>
+        <argsstring>()</argsstring>
+        <name>empty</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="28" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="64" bodyend="67"/>
+      </memberdef>
+      <memberdef kind="function" id="classQEMyMap_1a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; QEMyMapNode &gt;</type>
+        <definition>QList&lt; QEMyMapNode &gt; QEMyMap::keys</definition>
+        <argsstring>()</argsstring>
+        <name>keys</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="29" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.cpp" bodystart="70" bodyend="73"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="classQEMyMap_1r0" prot="private" static="no" mutable="no">
+        <type>QList&lt; QEMyMapNode &gt;</type>
+        <definition>QList&lt;QEMyMapNode&gt; QEMyMap::nodes</definition>
+        <argsstring></argsstring>
+        <name>nodes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="33" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" bodystart="33" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" line="17" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qemymap.h" bodystart="16" bodyend="34"/>
+    <listofallmembers>
+      <member refid="classQEMyMap_1a2" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>add</name></member>
+      <member refid="classQEMyMap_1a4" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>clear</name></member>
+      <member refid="classQEMyMap_1a5" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>contains</name></member>
+      <member refid="classQEMyMap_1a6" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>count</name></member>
+      <member refid="classQEMyMap_1a7" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>empty</name></member>
+      <member refid="classQEMyMap_1a8" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>keys</name></member>
+      <member refid="classQEMyMap_1r0" prot="private" virt="non-virtual"><scope>QEMyMap</scope><name>nodes</name></member>
+      <member refid="classQEMyMap_1a0" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>QEMyMap</name></member>
+      <member refid="classQEMyMap_1a3" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>remove</name></member>
+      <member refid="classQEMyMap_1a1" prot="public" virt="non-virtual"><scope>QEMyMap</scope><name>~QEMyMap</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

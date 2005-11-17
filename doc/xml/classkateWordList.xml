@@ -1,0 +1,113 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="classkateWordList" kind="class" prot="public">
+    <compoundname>kateWordList</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="classkateWordList_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateWordList::kateWordList</definition>
+        <argsstring>()</argsstring>
+        <name>kateWordList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="13" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.cpp" bodystart="4" bodyend="6"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateWordList_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>kateWordList::kateWordList</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>kateWordList</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="14" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.cpp" bodystart="8" bodyend="11"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateWordList_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateWordList::load</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.cpp" bodystart="13" bodyend="33"/>
+      </memberdef>
+      <memberdef kind="function" id="classkateWordList_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool kateWordList::save</definition>
+        <argsstring>(QDomNode node)</argsstring>
+        <name>save</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="16" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.cpp" bodystart="35" bodyend="39"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="public-attrib">
+      <memberdef kind="variable" id="classkateWordList_1o0" prot="public" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString kateWordList::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="18" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" bodystart="18" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="classkateWordList_1o1" prot="public" static="no" mutable="no">
+        <type>QStringList</type>
+        <definition>QStringList kateWordList::items</definition>
+        <argsstring></argsstring>
+        <name>items</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" bodystart="19" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" line="11" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h" bodystart="10" bodyend="20"/>
+    <listofallmembers>
+      <member refid="classkateWordList_1o1" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>items</name></member>
+      <member refid="classkateWordList_1a0" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>kateWordList</name></member>
+      <member refid="classkateWordList_1a1" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>kateWordList</name></member>
+      <member refid="classkateWordList_1a2" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>load</name></member>
+      <member refid="classkateWordList_1o0" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>name</name></member>
+      <member refid="classkateWordList_1a3" prot="public" virt="non-virtual"><scope>kateWordList</scope><name>save</name></member>
+    </listofallmembers>
+  </compounddef>
+</doxygen>

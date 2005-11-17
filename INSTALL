@@ -1,0 +1,45 @@
+Windows
+=======
+
+You will need Qt4, you can get the free edition from TrollTech's home:
+
+   http://www.trolltech.com/download/qt/windows.html
+   
+   
+If you use the free edition, you will also need MinGW 4:
+
+   http://www.mingw.org/download.shtml
+   
+This release was tested with MinGW 4.1.0 and qt-win-opensource-desktop-4.0.0-mingw 
+or qt-win-opensource-4.0.1-mingw
+
+To compile this program, you need to run the batch file "mingw-build.bat".
+If you installed Qt or MinGW in a non standard location, you will have to
+edit the first lines of the batch file. When the compilation finishes, the EXE file
+will be copied to the root of the project. 
+
+To clean the project, you may run from the command line "mingw32-make clean",
+or execute the file "mingw-clean.bat".
+
+Linux
+=====
+
+You will need Qt4, you can get the free edition from TrollTech's home:
+
+   http://www.trolltech.com/download/qt/x11.html
+   
+You will need also a C++ compiler, all the compilers supported by Qt4 are OK.
+
+To compile the program you will need to execute on a console:
+
+	qmake
+	make
+	
+
+Mac
+===
+
+This target is not officially supported by this application (nor the library), but it should work.
+
+If you have more information about this, please contact kobi_zamir@yahoo.com or elcuco@kde.org.
+

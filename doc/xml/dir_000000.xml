@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
+<doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
+  <compounddef id="dir_000000" kind="dir">
+    <compoundname>src/</compoundname>
+    <innerdir refid="dir_000001">src/qelib/</innerdir>
+    <innerfile refid="a00027">main.cpp</innerfile>
+    <innerfile refid="a00029">mainwindow.cpp</innerfile>
+    <innerfile refid="a00030">mainwindow.h</innerfile>
+    <innerfile refid="a00031">optionsdialog.cpp</innerfile>
+    <innerfile refid="a00032">optionsdialog.h</innerfile>
+    <innerfile refid="a00071">textdisplay.cpp</innerfile>
+    <innerfile refid="a00072">textdisplay.h</innerfile>
+    <briefdescription>
+    </briefdescription>
+    <detaileddescription>
+    </detaileddescription>
+    <location file="/home/elcuco/mysources/designer/qtedit4/src/"/>
+  </compounddef>
+</doxygen>
