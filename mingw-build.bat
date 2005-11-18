@@ -8,16 +8,19 @@ rem *
 rem * Public domain
 rem 
 rem * v 0.02 - use system environment if found, otherwise use "MY_*_DIR" variables
+rem * v 0.03 - now has an option, which is checked before running the application
 
 
-rem *
-rem * You only need to change the 2 sets, match the dir where you installed Qt-free and mingw
+rem * You  need to change the 2 sets, match the dir where you installed Qt-free and mingw
 rem * If you installed from the installers found on the site, thos variables will not be used. 
-rem * The  values here are just examples, please ovveride them
-set MY_QT_DIR=c:\qt
-set MY_MINGW_DIR=c:\mingw
+rem * On default setups these values are not needed, as QTDIR will be set up by the Qt4 installer
 
-set MY_APPNAME=qhocr
+rem * set MY_QT_DIR=c:\qt
+rem * set MY_MINGW_DIR=c:\mingw
+
+rem * You need to change the mame of the application. This must be the name of the exe, without
+rem * the extention. The exe must be on the "bin" sub-directory
+set MY_APPNAME=qtedit4
 
 rem *
 rem * if QTDIR is not set, lets use user defaults. Oterwise, we can use the ones from the system
@@ -31,7 +34,8 @@ goto COMPILE
 
 :SET_ENV
 echo.
-echo System libraries not found. Setting sane defaults...
+echo System libraries not found. Using own libraries 
+echo To overide set the MY_QT_DIR and MY_MINGW_DIR on the script
 echo.
 set MINGWDIR=%MY_MINGW_DIR%
 set QTDIR=%MY_QT_DIR%
@@ -78,6 +82,7 @@ copy bin\%MY_APPNAME%.exe .
 echo.
 echo.
 echo Application %MY_APPNAME% has been compiled. Enjoy!
+echo Executing applicaction... "asdasd"
 echo.
 
 %MY_APPNAME%
