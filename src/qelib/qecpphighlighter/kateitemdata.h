@@ -13,6 +13,8 @@ class kateItemData
 public:
 	kateItemData();
 	kateItemData( QDomNode node );
+	kateItemData( bool def );
+
 	bool load( QDomNode node );
 	bool save( QDomNode node );
 

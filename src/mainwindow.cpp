@@ -39,7 +39,7 @@
  */
 MainWindow::MainWindow()
 {
-	defColors.load( "data/default/kate.xml" );
+	defColors.load( "data/default/turbo.xml" );
 	mainTab = new QTabWidget( this );
 	currentEditor = NULL;
 	connect( mainTab, SIGNAL(currentChanged(int)), this, SLOT(editorChanged()) );

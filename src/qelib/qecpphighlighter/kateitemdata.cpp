@@ -7,8 +7,6 @@
  */
 kateItemData::kateItemData()
 {
-// 	attributes["color"] = "black";
-// 	attributes["background"] = "white";
 }
 
 kateItemData::kateItemData( QDomNode node )
@@ -16,6 +14,34 @@ kateItemData::kateItemData( QDomNode node )
 	load( node );
 }
 
+
+/**
+ * \brief constructor for emppty definitions
+ * \param def use a default color?
+ * 
+ * If \p def is \p true a default color (black on white)
+ * will be used for this item data.
+ */
+kateItemData::kateItemData( bool def )
+{
+	if (def)
+	{
+		attributes["color"] = "black";
+		attributes["background"] = "white";
+	}
+}
+
+
+/**
+ * \brief Load the color definition from XML
+ * \param node a DomNode to load the information frmo
+ * \return true if succesfull
+ * 
+ * This function will create the item data from values found on
+ * the XML. 
+ * 
+ * \see kateItemDataManager::load(QDomDocument)
+ */
 bool kateItemData::load( QDomNode node )
 {
 	uint attrCount = node.attributes().count();
@@ -28,9 +54,10 @@ bool kateItemData::load( QDomNode node )
 	return true;
 }
 
+
 bool kateItemData::save( QDomNode node )
 {
-//QStringMap attributes;
+// TODO code this function
 	return true;
 }
 
@@ -104,6 +131,14 @@ QString kateItemData::getStyleNum()
 	return attributes["defStyleNum"];
 }
 
+
+/**
+ * \brief get a QTextCharFormat from this object
+ * \return a well constructed QTextCharFormat which corresponds to this object
+ * 
+ * When applying the item-data to a QTextDocument, it is needed to convert
+ * the item-data into a valid QTextCharFormat.
+ */
 QTextCharFormat kateItemData::toCharFormat()
 {
 	QTextCharFormat f;
@@ -114,7 +149,7 @@ QTextCharFormat kateItemData::toCharFormat()
 	if (attributes.contains("background"))
 		f.setBackground( QColor(attributes["background"]) );
 
-	if (isBold()) 
+	if (isBold())
 		f.setFontWeight(QFont::Bold);
 	
 	if (isItalic())

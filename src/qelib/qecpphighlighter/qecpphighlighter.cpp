@@ -3,6 +3,14 @@
 #include <QTextLayout>
 #include "qecpphighlighter.h"
 
+/**
+ * \brief default constructor
+ * @param d a pointer to the abstruct factory for item-datas
+ * 
+ * This will construct a CPP highlighter. It will use \p d as the
+ * factory to get the highlight colro definitions for all the items 
+ * found on the text.
+ */
 QECPPHighlighter::QECPPHighlighter( kateItemDataManager *d )
 	:QECodeHighlighter()
 {
@@ -71,7 +79,8 @@ void QECPPHighlighter::setHighlight( QString fileName )
 		mappings.clear();
 // 	else if (QDir::match( "*.cpp",fileName ) );
 
-// 	highlight( 0, 0, 0 );
+//	redraw the document
+//	highlight( 0, 0, 0 );
 }
 
 void QECPPHighlighter::addMapping(const QString &pattern, const QTextCharFormat &format, bool fullWord )
@@ -100,55 +109,55 @@ void QECPPHighlighter::addMappings_cpp()
 {
 	mappings.clear();
 	// reserved words
-	addMapping("struct"  , "dsKeyword", true );
-	addMapping("class"   , "dsKeyword", true );
-	addMapping("private" , "dsKeyword", true );
-	addMapping("public"  , "dsKeyword", true );
-	addMapping("protected","dsKeyword", true );
-	addMapping("for"     , "dsKeyword", true );
-	addMapping("while"   , "dsKeyword", true );
-	addMapping("return"  , "dsKeyword", true );
-	addMapping("if"      , "dsKeyword", true );
-	addMapping("else"    , "dsKeyword", true );
-	addMapping("case"    , "dsKeyword", true );
-	addMapping("switch"  , "dsKeyword", true );
-	addMapping("new"  , "dsKeyword", true );
-	addMapping("delete"  , "dsKeyword", true );
+	addMapping( "case"    , "dsKeyword", true );
+	addMapping( "class"   , "dsKeyword", true );
+	addMapping( "delete"  , "dsKeyword", true );
+	addMapping( "else"    , "dsKeyword", true );
+	addMapping( "for"     , "dsKeyword", true );
+	addMapping( "if"      , "dsKeyword", true );
+	addMapping( "private" , "dsKeyword", true );
+	addMapping( "protected","dsKeyword", true );
+	addMapping( "public"  , "dsKeyword", true );
+	addMapping( "new"     , "dsKeyword", true );
+	addMapping( "return"  , "dsKeyword", true );
+	addMapping( "struct"  , "dsKeyword", true );
+	addMapping( "switch"  , "dsKeyword", true );
+	addMapping( "while"   , "dsKeyword", true );
 
 	// some types
-	addMapping("int"     , "dsDataType", true );
-	addMapping("float"   , "dsDataType", true );
-	addMapping("double"  , "dsDataType", true );
-	addMapping("void"    , "dsDataType", true );
-	addMapping("char"    , "dsDataType", true );
-	addMapping("unsigned", "dsDataType", true );
+	addMapping( "int"     , "dsDataType", true );
+	addMapping( "float"   , "dsDataType", true );
+	addMapping( "double"  , "dsDataType", true );
+	addMapping( "void"    , "dsDataType", true );
+	addMapping( "char"    , "dsDataType", true );
+	addMapping( "unsigned", "dsDataType", true );
 	
-// 	addMapping("QString"     , "dsDataType", true );
-// 	addMapping("QWidget"     , "dsDataType", true );
-// 	addMapping("QPoint"      , "dsDataType", true );
-// 	addMapping("QTextBrowser", "dsDataType", true );
-// 	addMapping("QMainWindow" , "dsDataType", true );
-// 	addMapping("QLayout"     , "dsDataType", true );
-// 	addMapping("QMenu"       , "dsDataType", true );
-// 	addMapping("QAction"     , "dsDataType", true );
-// 	addMapping("QToolBar"    , "dsDataType", true );
-// 	addMapping("QToolButton" , "dsDataType", true );
-//  	addMapping("QObject"     , "dsDataType", true );
-// 	addMapping("", "dsDataType" );
+// 	addMapping( "QString"     , "dsDataType", true );
+// 	addMapping( "QWidget"     , "dsDataType", true );
+// 	addMapping( "QPoint"      , "dsDataType", true );
+// 	addMapping( "QTextBrowser", "dsDataType", true );
+// 	addMapping( "QMainWindow" , "dsDataType", true );
+// 	addMapping( "QLayout"     , "dsDataType", true );
+// 	addMapping( "QMenu"       , "dsDataType", true );
+// 	addMapping( "QAction"     , "dsDataType", true );
+// 	addMapping( "QToolBar"    , "dsDataType", true );
+// 	addMapping( "QToolButton" , "dsDataType", true );
+//  	addMapping( "QObject"     , "dsDataType", true );
+// 	addMapping( "", "dsDataType" );
 	
 	// numbers
-	addMapping("[0-9]+"         , "dsDecVal", true );
- 	addMapping("0x[\\da-fA-F]+" , "dsDecVal", true );
- 	addMapping("0[0-7]+"        , "dsBaseN" , true );
- 	addMapping("[\\d]*\\.[\\d]*", "dsFloat" , true );
+	addMapping( "[0-9]+"         , "dsDecVal", true );
+	addMapping( "0x[\\da-fA-F]+" , "dsDecVal", true );
+	addMapping( "0[0-7]+"        , "dsBaseN" , true );
+	addMapping( "[\\d]*\\.[\\d]*", "dsFloat" , true );
 
 	// Qt4 extentions
-	addMapping("Q_OBJECT", "dsAlerts", true );
-	addMapping("SLOT"    , "dsAlerts", true );
-	addMapping("connect" , "dsAlerts", true );
-	addMapping("SIGNAL"  , "dsAlerts", true );
-	addMapping("slots"   , "dsAlerts", true );
-	addMapping("foreach" , "dsAlerts", true );
+	addMapping( "Q_OBJECT", "dsAlert", true );
+	addMapping( "SLOT"    , "dsAlert", true );
+	addMapping( "SIGNAL"  , "dsAlert", true );
+	addMapping( "connect" , "dsAlert", true );
+	addMapping( "slots"   , "dsAlert", true );
+	addMapping( "foreach" , "dsAlert", true );
 	
 	// strings
 	addMapping("'[^']+'"   , "dsChar" );
@@ -159,15 +168,15 @@ void QECPPHighlighter::addMappings_cpp()
 	addMapping( QString("%1[^\n]*").arg("//"), "dsComment" );
 	addMapping( QString("%1[^\n]*").arg("/\\*"), "dsComment" );
 	addMapping( QString("%1[^\n]*").arg("///"), "dsError" );
-	addMapping( QString("%1[^\n]*").arg("/\\*\\*"), "dsAlerts" );
+	addMapping( QString("%1[^\n]*").arg("/\\*\\*"), "dsAlert" );
 }
 
 void QECPPHighlighter::addMappings_pro()
 {
 	mappings.clear();
 
-	addMapping("[A-Z_]+", "dsDataType", true );
-	addMapping("#[^\n]*", "dsComment" );
-	addMapping("\".*\"", "dsString", true );
-	addMapping("\\b[a-z0-9_]+\\(.*\\)", "dsFunction" );
+	addMapping( "[A-Z_]+", "dsDataType", true );
+	addMapping( "#[^\n]*", "dsComment" );
+	addMapping( "\".*\"", "dsString", true );
+	addMapping( "\\b[a-z0-9_]+\\(.*\\)", "dsFunction" );
 }

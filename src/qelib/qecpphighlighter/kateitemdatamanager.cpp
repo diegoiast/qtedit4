@@ -28,9 +28,8 @@ kateItemData kateItemDataManager::getItemData( QString name )
 			return item;
 	}
 
-	// new empthy one
-// 	qDebug( "kateItemDataManager::getItemData() - could not find an item data" );
-	return kateItemData();
+	// new empty one
+	return kateItemData( true );
 }
 
 bool kateItemDataManager::load( QDomDocument doc )
@@ -38,7 +37,6 @@ bool kateItemDataManager::load( QDomDocument doc )
 	/* load the attributes of this language */
 	QDomNodeList list = doc.elementsByTagName("itemData");
 
-// 	qDebug( "kateItemDataManager::load(QDomDocument) - Found %i elements", list.length());
 	for( uint n=0 ;n<list.length(); n++ )
 	{
 		kateItemData item;
