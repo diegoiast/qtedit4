@@ -21,7 +21,10 @@ HEADERS += \
 	qelib/qecodeeditor.h \
 	qelib/qecodehighlighter.h \
 	qelib/qecpphighlighter/kateitemdata.h \
-	qelib/qecpphighlighter/kateitemdatamanager.h
+	qelib/qecpphighlighter/kateitemdatamanager.h \
+	qexdilib/qexitabwidget.h \
+	qexdilib/qextabwidget.h
+	
 
 SOURCES += \
 	main.cpp \
@@ -33,6 +36,6 @@ SOURCES += \
 	qelib/qecpphighlighter/qemymap.cpp \
 	qelib/qecpphighlighter/qecpphighlighter.cpp \
 	qelib/qecpphighlighter/kateitemdata.cpp \
-	qelib/qecpphighlighter/kateitemdatamanager.cpp 
-
-
+	qelib/qecpphighlighter/kateitemdatamanager.cpp \
+	qexdilib/qexitabwidget.cpp \
+	qexdilib/qextabwidget.cpp

@@ -1,10 +1,11 @@
-#ifndef __qe_CODE_EDITOR_H__
-#define __qe_CODE_EDITOR_H__
+#ifndef __QE_CODE_EDITOR_H__
+#define __QE_CODE_EDITOR_H__
 
 // forward declarations instead of including headers
 class QWidget;
 class QTextCodec;
 class QString;
+class QAction;
 
 class QECodeHighlighter;
 
@@ -28,4 +29,4 @@ private:
 };
 
 
-#endif // __qe_CODE_EDITOR_H__
+#endif // __QE_CODE_EDITOR_H__

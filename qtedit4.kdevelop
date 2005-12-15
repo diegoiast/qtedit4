@@ -138,9 +138,7 @@
       <inlineGet>true</inlineGet>
       <inlineSet>true</inlineSet>
     </creategettersetter>
-    <references>
-      <pcs>Qt4</pcs>
-    </references>
+    <references/>
   </kdevcppsupport>
   <kdevvisualadvance>
     <emulator>VisualBoyAdvance</emulator>

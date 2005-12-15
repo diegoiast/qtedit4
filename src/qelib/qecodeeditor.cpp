@@ -5,6 +5,7 @@
 #include <QTextCodec>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QAction>
 
 #include "qecodehighlighter.h"
 #include "qecodeeditor.h"
@@ -50,6 +51,7 @@ QECodeEditor::QECodeEditor( QWidget *p, QECodeHighlighter *h ):QTextEdit(p)
 
 	setHighlight( "1.cpp" );
 }
+
 
 
 /**

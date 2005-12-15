@@ -2,6 +2,7 @@
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextDocument>
+#include <QClipboard>
 
 #include "textdisplay.h"
 
@@ -38,7 +39,96 @@ TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
 	layout->addWidget( this->internalGotoLine );
 	this->setLayout( layout );
 
-	// connect the find slots
+	createActions();
+
+	// generate the toolbat for this widget
+	toolbar = new QToolBar;
+	toolbar->addAction( actionCopy );
+	toolbar->addAction( actionPaste );
+	toolbar->addAction( actionCut );
+	toolbar->addAction( actionFind );
+	toolbar->addAction( actionReplace );
+	toolbar->addAction( actionGotoLine );
+
+	// menus used by this widget
+	menus["&Edit"]->add( actionUndo );
+	menus["&Edit"]->add( actionRedo );
+	menus["&Edit"]->addSeparator();
+	menus["&Edit"]->add( actionCut );
+	menus["&Edit"]->add( actionCopy );
+	menus["&Edit"]->add( actionPaste );
+
+	menus["&Search"]->add( actionFind );
+	menus["&Search"]->add( actionReplace );
+	menus["&Search"]->add( actionGotoLine );
+	menus["&Search"]->addSeparator();
+	menus["&Search"]->add( actionFindNext );
+	menus["&Search"]->add( actionFindPrev );
+}
+
+TextDisplay::~TextDisplay()
+{
+	delete editor;
+	delete internalFind;
+	delete internalReplace;
+}
+
+void TextDisplay::createActions()
+{
+	// edit menu
+	actionUndo = new QAction( QIcon(":images/undo.png"), tr("&Undo"), this);
+	actionUndo->setShortcut(tr("Ctrl+Z"));
+	actionUndo->setStatusTip(tr("Undo the last operation"));
+	connect( actionUndo, SIGNAL(triggered()), this, SLOT(undo()) );
+	
+	actionRedo = new QAction( QIcon(":images/redo.png"), tr("&Redo"), this);
+	actionRedo->setShortcut(tr("Ctrl+Y"));
+	actionRedo->setStatusTip(tr("Redo the last operation"));
+	connect( actionRedo, SIGNAL(triggered()), this, SLOT(undo()) );
+	
+	actionCut = new QAction( QIcon(":images/editcut.png"), tr("Cu&t"), this);
+	actionCut->setShortcut(tr("Ctrl+X"));
+	actionCut->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
+	connect( actionCut, SIGNAL(triggered()), this, SLOT(cut()) );
+	
+	actionCopy = new QAction( QIcon(":images/editcopy.png"), tr("&Copy"), this);
+	actionCopy->setShortcut(tr("Ctrl+C"));
+	actionCopy->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
+	connect( actionCopy, SIGNAL(triggered()), this, SLOT(copy()) );
+	
+	actionPaste = new QAction( QIcon(":images/editpaste.png"), tr("&Paste"), this);
+	actionPaste->setShortcut(tr("Ctrl+V"));
+	actionPaste->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
+	actionPaste->setEnabled( !QApplication::clipboard()->text().isEmpty() );
+	connect( actionPaste, SIGNAL(triggered()), this, SLOT(paste()) );
+
+	// search menu
+	actionFind = new QAction( QIcon(":images/find.png"), tr("&Find"), this);
+	actionFind->setShortcut(tr("Ctrl+F"));
+	actionFind->setStatusTip(tr("Search for a string in the currently opened window"));
+	connect( actionFind, SIGNAL(triggered()), this, SLOT(find()) );
+	
+	actionReplace = new QAction( QIcon(":images/find.png"), tr("&Replace"), this);
+	actionReplace->setShortcut(tr("Ctrl+R"));
+	actionReplace->setStatusTip(tr("Replace a string in the currently opened window"));
+	connect( actionReplace, SIGNAL(triggered()), this, SLOT(replace()) );
+	
+	actionGotoLine = new QAction( QIcon(":images/find.png"), tr("&Goto line"), this);
+	actionGotoLine ->setShortcut(tr("Ctrl+G"));
+	actionGotoLine ->setStatusTip(tr("Scroll to a new line in the currently opened window"));
+	connect( actionGotoLine, SIGNAL(triggered()), this, SLOT(gotoLine()) );
+	
+	actionFindNext = new QAction( QIcon(":images/next.png"), tr("&Find next"), this);
+	actionFindNext->setShortcut(tr("F3"));
+	actionFindNext->setStatusTip(tr("Search for the next match of a string the currently opened window"));
+	connect( actionFindNext, SIGNAL(triggered()), this, SLOT(findNext()) );
+
+	actionFindPrev = new QAction( QIcon(":images/previous.png"), tr("&Find previous"), this);
+	actionFindPrev->setShortcut(tr("Shift+F3"));
+	actionFindPrev->setStatusTip(tr("Search for the previous match of a string the currently opened window"));
+	connect( actionFindPrev, SIGNAL(triggered()), this, SLOT(findPrev()) );
+
+// 	connect the find slots
  	connect( uiInlineFind.editSearchText, SIGNAL(textChanged(QString)), this, SLOT(incrementalSearch(QString)) );
 	connect( uiInlineFind.buttonHide, SIGNAL(clicked()), internalFind, SLOT(hide()) );
 	connect( uiInlineFind.buttonNext, SIGNAL(clicked()), this, SLOT(findNext()) ) ;
@@ -57,13 +147,6 @@ TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
 	connect( uiInlineGotoLine.buttonHide, SIGNAL(clicked()), this, SLOT(gotoLine()) );
 	connect( uiInlineGotoLine.sbLineNumber, SIGNAL(editingFinished()), internalGotoLine, SLOT(hide()) );
 	connect( uiInlineGotoLine.sbLineNumber, SIGNAL(valueChanged ( int )), this, SLOT(gotoLine(int )) );
-}
-
-TextDisplay::~TextDisplay()
-{
-	delete editor;
-	delete internalFind;
-	delete internalReplace;
 }
 
 QTextDocument *TextDisplay::document()

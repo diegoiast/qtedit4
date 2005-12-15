@@ -1,6 +1,8 @@
 #include <QtGui>
 #include <QtDebug>
 
+#include "qexdilib/qextabwidget.h"
+
 #include "qecpphighlighter.h"
 #include "qecodeeditor.h"
 #include "mainwindow.h"
@@ -39,10 +41,9 @@
  */
 MainWindow::MainWindow()
 {
-	defColors.load( "data/default/turbo.xml" );
-	mainTab = new QTabWidget( this );
-	currentEditor = NULL;
-	connect( mainTab, SIGNAL(currentChanged(int)), this, SLOT(editorChanged()) );
+	defColors.load( "data/default/kate.xml" );
+// 	mainTab = new QTabWidget( this );
+	mainTab = new QexTabWidget();
 	setCentralWidget( mainTab );
 	
 	createActions();
@@ -50,8 +51,6 @@ MainWindow::MainWindow()
 	createToolbar();
 	
 	// some internal hacks
-	addAction( actionPreviousTab );
-	addAction( actionNextTab );
 	addAction( actionSelectEditor );
 	
 	setWindowTitle( tr("QtEdit 4 [*]") );
@@ -94,50 +93,6 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 
 /**
- * \brief move the focus to the next tab (SLOT)
- *
- * This slot is called when the user presses the ALT+right
- * keyboard combination (alt+left on RTL desktops).
- * This function does the job of selecting the needed
- * tab number.
- * 
- * \see selectPrevTab
- */
-void MainWindow::selectNextTab()
-{
-	int i = mainTab->currentIndex();
-	++i;
-
-	if ( i >= mainTab->count() )
-		i = 0;
-		
-	mainTab->setCurrentIndex( i );
-}
-
-
-/**
- * \brief move the focus to the previous tab (SLOT)
- *
- * This slot is called when the user presses the ALT+left
- * keyboard combination (alt+right on RTL desktops)
- * This function does the job of selecting the needed
- * tab number.
- * 
- * \see selectNextTab
- */
-void MainWindow::selectPrevTab()
-{
-	int i = mainTab->currentIndex();
-	--i;
-
-	if ( i < 0 )
-		i = mainTab->count() - 1;
-	
-	mainTab->setCurrentIndex( i );
-}
-
-
-/**
  * \brief set the focus on the editor (SLOT)
  *
  * This function restores the focus to the current editor,
@@ -151,62 +106,10 @@ void MainWindow::selectEditor()
 		w->setFocus();
 }
 
-
-void MainWindow::editorChanged()
-{
-	// disconnect old connections
-	if (currentEditor)
-	{
-		disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)), actionSave, SLOT(setEnabled(bool)));
-		disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(setWindowModified(bool)));
-		disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-		disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-
-		disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-		disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-	}
-
-	// make the new ones
-	currentEditor = getCurrentEditor();
-
-	if (!currentEditor)
-	{
-		actionSave->setEnabled( false );
-		actionUndo->setEnabled( false );
-		actionRedo->setEnabled( false );
-		actionCut->setEnabled( false );
-		actionCopy->setEnabled( false );
-		
-		return;
-	}	
-	
-	const bool selection = currentEditor->textCursor().hasSelection();
-// 	TextDisplay *textDisplay = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	
-	setWindowModified( currentEditor->document()->isModified() );
-	actionSave->setEnabled( currentEditor->document()->isModified() );
-	actionUndo->setEnabled( currentEditor->document()->isUndoAvailable() );
-	actionRedo->setEnabled( currentEditor->document()->isRedoAvailable() );
-		
-	connect(currentEditor->document(), SIGNAL(modificationChanged(bool)), actionSave, SLOT(setEnabled(bool)));
-	connect(currentEditor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(setWindowModified(bool)));
-	connect(currentEditor->document(), SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-	connect(currentEditor->document(), SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-		
-	connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-	connect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-
-	
-	actionCut->setEnabled(selection);
-	actionCopy->setEnabled(selection);
-}
-
-
 void MainWindow::editorCursorPositionChanged()
 {
-	QPoint p = qobject_cast<TextDisplay*>(mainTab->currentWidget())->getCursorLocation();
-	
-	statusBar()->showMessage( QString("line: %1, culumn %2").arg(p.y()).arg(p.x() ) );
+// 	QPoint p = qobject_cast<TextDisplay*>(mainTab->currentWidget())->getCursorLocation();
+// 	statusBar()->showMessage( QString("line: %1, culumn %2").arg(p.y()).arg(p.x() ) );
 }
 
 
@@ -300,119 +203,7 @@ void MainWindow::fileClose()
 	QWidget *w = mainTab->currentWidget();
 	mainTab->removeTab( mainTab->currentIndex() );
 
-	// this is wierd, I was under the impression this
-	// signal will be emmited for me...
-	// lets do it mannually, otherwise when we open a new
-	// tab after the last one has been close, it will try to
-	// disconnect a nont existant tab. A new tab will be selected
-	// anyway (if such one exists), therefor I can set the currentEditor to null
-	// Note that this code is done also when selecting a new tav.
-	// see also editorChanged()
-	if (currentEditor)
-	{
-		disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)), actionSave, SLOT(setEnabled(bool)));
-		disconnect(currentEditor->document(), SIGNAL(modificationChanged(bool)), this, SLOT(setWindowModified(bool)));
-		disconnect(currentEditor->document(), SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-		disconnect(currentEditor->document(), SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-	
-		disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-		disconnect(currentEditor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-		currentEditor = NULL;
-	}
 	delete w;
-
-}
-
-
-void MainWindow::editUndo()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->undo();
-}
-
-void MainWindow::editRedo()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->redo();
-}
-
-void MainWindow::editCopy()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->copy();
-}
-
-void MainWindow::editCut()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->cut();
-
-}
-
-void MainWindow::editPaste()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->paste();
-}
-
-void MainWindow::searchFind()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->find();
-}
-
-void MainWindow::searchFindNext()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->findNext();
-}
-
-void MainWindow::searchFindPrev()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->findPrev();
-}
-
-void MainWindow::searchReplace()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->replace();
-}
-
-void MainWindow::searchGotoLine()
-{
-	TextDisplay *t = qobject_cast<TextDisplay*>(mainTab->currentWidget());
-	if (!t)
-		return;
-
-	t->gotoLine();
 }
 
 
@@ -432,14 +223,6 @@ void MainWindow::about()
 
 void MainWindow::createActions()
 {
-	actionNextTab = new QAction( tr("&Next tab"), this);
-	actionNextTab->setShortcut( tr("Alt+Right") );
-	connect( actionNextTab, SIGNAL(triggered()), this, SLOT(selectNextTab()) );
-	
-	actionPreviousTab = new QAction( tr("&Previous tab"), this);
-	actionPreviousTab->setShortcut( tr("Alt+Left") );
-	connect( actionPreviousTab, SIGNAL(triggered()), this, SLOT(selectPrevTab()) );
-
 	actionSelectEditor = new QAction( tr("Select editor"), this);
 	actionSelectEditor->setShortcut( tr("Esc") );
 	connect( actionSelectEditor, SIGNAL(triggered()), this, SLOT(selectEditor()) );
@@ -455,16 +238,6 @@ void MainWindow::createActions()
 	actionOpen->setStatusTip(tr("Open an existing file"));
 	connect( actionOpen, SIGNAL(triggered()), this, SLOT(fileOpen()) );
 	
-	actionSave = new QAction( QIcon(":images/filesave.png"), tr("&Save"), this);
-	actionSave->setShortcut(tr("Ctrl+S"));
-	actionSave->setStatusTip(tr("Save the document to disk"));
-	actionSave->setEnabled( false );
-	connect( actionSave, SIGNAL(triggered()), this, SLOT(fileSave()) );
-	
-	actionSaveAs = new QAction( QIcon(":images/filesaveas.png"), tr("&Save as"), this);
-	actionSaveAs->setStatusTip(tr("Save the document to disk"));
-	connect( actionSaveAs, SIGNAL(triggered()), this, SLOT(fileSaveAs()) );
-	
 	actionClose = new QAction( QIcon(":images/fileclose.png"), tr("C&lose"), this);
 	actionClose->setShortcut(tr("Ctrl+W"));
 	actionClose->setStatusTip(tr("Close the active tab"));
@@ -474,59 +247,6 @@ void MainWindow::createActions()
 	actionExit->setShortcut(tr("Ctrl+Q"));
 	actionExit->setStatusTip(tr("Exit the application"));
 	connect( actionExit, SIGNAL(triggered()), this, SLOT(close()) );
-
-	// edit menu
-	actionUndo = new QAction( QIcon(":images/undo.png"), tr("&Undo"), this);
-	actionUndo->setShortcut(tr("Ctrl+Z"));
-	actionUndo->setStatusTip(tr("Undo the last operation"));
-	connect( actionUndo, SIGNAL(triggered()), this, SLOT(editUndo()) );
-	
-	actionRedo = new QAction( QIcon(":images/redo.png"), tr("&Redo"), this);
-	actionRedo->setShortcut(tr("Ctrl+Y"));
-	actionRedo->setStatusTip(tr("Redo the last operation"));
-	connect( actionRedo, SIGNAL(triggered()), this, SLOT(editRedo()) );
-	
-	actionCut = new QAction( QIcon(":images/editcut.png"), tr("Cu&t"), this);
-	actionCut->setShortcut(tr("Ctrl+X"));
-	actionCut->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
-	connect( actionCut, SIGNAL(triggered()), this, SLOT(editCut()) );
-	
-	actionCopy = new QAction( QIcon(":images/editcopy.png"), tr("&Copy"), this);
-	actionCopy->setShortcut(tr("Ctrl+C"));
-	actionCopy->setStatusTip(tr("Copy the current selection's contents to the clipboard"));
-	connect( actionCopy, SIGNAL(triggered()), this, SLOT(editCopy()) );
-	
-	actionPaste = new QAction( QIcon(":images/editpaste.png"), tr("&Paste"), this);
-	actionPaste->setShortcut(tr("Ctrl+V"));
-	actionPaste->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-	actionPaste->setEnabled( !QApplication::clipboard()->text().isEmpty() );
-	connect( actionPaste, SIGNAL(triggered()), this, SLOT(editPaste()) );
-
-	// search menu
-	actionFind = new QAction( QIcon(":images/find.png"), tr("&Find"), this);
-	actionFind->setShortcut(tr("Ctrl+F"));
-	actionFind->setStatusTip(tr("Search for a string in the currently opened window"));
-	connect( actionFind, SIGNAL(triggered()), this, SLOT(searchFind()) );
-	
-	actionReplace = new QAction( QIcon(":images/find.png"), tr("&Replace"), this);
-	actionReplace->setShortcut(tr("Ctrl+R"));
-	actionReplace->setStatusTip(tr("Replace a string in the currently opened window"));
-	connect( actionReplace, SIGNAL(triggered()), this, SLOT(searchReplace()) );
-	
-	actionGotoLine = new QAction( QIcon(":images/find.png"), tr("&Goto line"), this);
-	actionGotoLine ->setShortcut(tr("Ctrl+G"));
-	actionGotoLine ->setStatusTip(tr("Scroll to a new line in the currently opened window"));
-	connect( actionGotoLine, SIGNAL(triggered()), this, SLOT(searchGotoLine()) );
-	
-	actionFindNext = new QAction( QIcon(":images/next.png"), tr("&Find next"), this);
-	actionFindNext->setShortcut(tr("F3"));
-	actionFindNext->setStatusTip(tr("Search for the next match of a string the currently opened window"));
-	connect( actionFindNext, SIGNAL(triggered()), this, SLOT(searchFindNext()) );
-
-	actionFindPrev = new QAction( QIcon(":images/previous.png"), tr("&Find previous"), this);
-	actionFindPrev->setShortcut(tr("Shift+F3"));
-	actionFindPrev->setStatusTip(tr("Search for the previous match of a string the currently opened window"));
-	connect( actionFindPrev, SIGNAL(triggered()), this, SLOT(searchFindPrev()) );
 
 	// options menu
 	actionConfig = new QAction( tr("Configuration"), this  );
@@ -545,38 +265,18 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-	fileMenu = menuBar()->addMenu(tr("&File"));
-	fileMenu->addAction(actionNew);
-	fileMenu->addAction(actionOpen);
-	fileMenu->addAction(actionSave);
-	fileMenu->addAction(actionSaveAs);
-	fileMenu->addSeparator();
-	fileMenu->addAction(actionClose);
-	fileMenu->addSeparator();
-	fileMenu->addAction(actionExit);
+	// create own menus
+	menus["&File"]->add( actionExit );
+	menus["&Edit"];
+	menus["&Search"];
+	menus["&Project"];
+	menus["&Tools"];
+	menus["&Options"]->add( actionConfig );
+	menus["&Settings"];
+	menus["&Help"]->add( actionAbout );
+	menus["&Help"]->add( actionAboutQt );
+	menus.makeMenuBar( menuBar() );
 	
-	editMenu = menuBar()->addMenu(tr("&Edit"));
-	editMenu->addAction(actionUndo);
-	editMenu->addAction(actionRedo);
-	editMenu->addSeparator();
-	editMenu->addAction(actionCut);
-	editMenu->addAction(actionCopy);
-	editMenu->addAction(actionPaste);
-	
-	searchMenu = menuBar()->addMenu(tr("&Search"));
-	searchMenu->addAction( actionFind );
-	searchMenu->addAction( actionFindNext );
-	searchMenu->addAction( actionFindPrev );
-	searchMenu->addAction( actionReplace );
-	searchMenu->addSeparator();
-	searchMenu->addAction( actionGotoLine );
-
-	optionsMenu = menuBar()->addMenu( tr("&Options") );
-	optionsMenu->addAction( actionConfig );
-	
-	helpMenu = menuBar()->addMenu(tr("&Help"));
-	helpMenu->addAction(actionAbout);
-	helpMenu->addAction(actionAboutQt);
 }
 
 void MainWindow::createToolbar()
@@ -585,7 +285,7 @@ void MainWindow::createToolbar()
 	fileToolBar->setObjectName( "File" );
 	fileToolBar->addAction(actionNew);
 	fileToolBar->addAction(actionOpen);
-	fileToolBar->addAction(actionSave);
+// 	fileToolBar->addAction(actionSave);
 	fileToolBar->addAction(actionClose);
 }
 
@@ -666,7 +366,7 @@ void MainWindow::saveStatus()
 			// TODO how about using qobject_cast instead of C cast?
 			TextDisplay* e = (TextDisplay*)mainTab->widget(i);
 			openFiles += //e->getEditor()->getFileName() + ";";
-			qobject_cast<QECodeEditor*>(e->getEditor())->getFileName() + ";";
+				qobject_cast<QECodeEditor*>(e->getEditor())->getFileName() + ";";
 		}
 	}
 	openFiles.remove( openFiles.size()-1, 1 );

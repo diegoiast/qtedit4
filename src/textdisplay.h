@@ -6,6 +6,9 @@
 #include <QAction>
 #include <QVBoxLayout>
 
+#include "qexdilib/qexitabwidget.h"
+
+
 #include "ui_inlinefind.h"
 #include "ui_inlinereplace.h"
 #include "ui_inlinegotoline.h"
@@ -17,7 +20,8 @@
  * \date    11-11-2005
  */
 
-class TextDisplay: public QWidget {
+class TextDisplay: public QWidget, public QITabInterface
+{
 Q_OBJECT
 public:
 	TextDisplay( QTextEdit *editor, QWidget *parent=NULL );
@@ -26,6 +30,9 @@ public:
 	QTextEdit* getEditor() {return editor; };
 	QWidget* getInternalFind() { return internalFind; };
 	QTextDocument *document();
+
+protected:
+	void createActions();
 	
 public slots:
 	void hideInternalWidgets();
@@ -50,16 +57,27 @@ public slots:
  	uint getLineCount();
 	
 private:
-	QTextEdit *editor;
-	QVBoxLayout *layout;
-	QString fileName;
-	QWidget *internalFind;
-	QWidget *internalReplace;
-	QWidget *internalGotoLine;
+	QAction *actionUndo;
+	QAction *actionRedo;
+	QAction *actionCut;
+	QAction *actionCopy;
+	QAction *actionPaste;
+	QAction *actionFind;
+	QAction *actionReplace;
+	QAction *actionGotoLine;
+	QAction *actionFindNext;
+	QAction *actionFindPrev;
+
+	QString			fileName;
+	QTextEdit		*editor;
+	QVBoxLayout		*layout;
+	QWidget			*internalFind;
+	QWidget			*internalReplace;
+	QWidget			*internalGotoLine;
 	
-	Ui::InlineFind uiInlineFind;
-	Ui::InlineReplace uiInlineReplace;
-	Ui::InlineGotoLine uiInlineGotoLine;
+	Ui::InlineFind  	uiInlineFind;
+	Ui::InlineReplace	uiInlineReplace;
+	Ui::InlineGotoLine	uiInlineGotoLine;
 };
 
 #endif // __TEXT_DISPLAY_H__

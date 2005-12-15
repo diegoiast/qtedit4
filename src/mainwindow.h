@@ -5,6 +5,9 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
+#include "qexdilib/qexitabwidget.h"
+#include "qexdilib/qextabwidget.h"
+
 #include "kateitemdatamanager.h"
 #include "optionsdialog.h"
 
@@ -21,7 +24,7 @@ class QLabel;
 class QMenu;
 class QString;
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public QITabWinInterface
 {
     Q_OBJECT
 
@@ -33,10 +36,7 @@ protected:
 // 	void contextMenuEvent(QContextMenuEvent *event);
 
 public slots:
-	void selectNextTab();
-	void selectPrevTab();
 	void selectEditor();
-	void editorChanged();
 	void editorCursorPositionChanged();
 	
 	void fileNew();
@@ -46,18 +46,6 @@ public slots:
 	bool fileSaveAs();
 	bool fileSaveAs( QTextEdit *e );
 	void fileClose();
-
-	void editUndo();
-	void editRedo();
-	void editCopy();
-	void editCut();
-	void editPaste();
-	
-	void searchFind();
-	void searchFindNext();
-	void searchFindPrev();
-	void searchReplace();
-	void searchGotoLine();
 	
 	void optionsConfiguration();
 	void about();
@@ -68,51 +56,30 @@ private:
 	void createToolbar();
 	void saveStatus();
 	void loadStatus();
-	QString MainWindow::getFileName( QString fileName );
+	QString getFileName( QString fileName );
 	void loadFile( QString fileName );
 	QTextEdit* getCurrentEditor();
 	bool canCloseEditor( QTextEdit *e );
 	
-	QMenu *fileMenu;
-	QMenu *editMenu;
-	QMenu *searchMenu;
-	QMenu *optionsMenu;
-	QMenu *helpMenu;
 	QToolBar *fileToolBar;
 
 	// internal actions
-	QAction *actionNextTab;
-	QAction *actionPreviousTab;
 	QAction *actionSelectEditor;
 
 	// menus and toolbars - file
 	QAction *actionNew;
 	QAction *actionOpen;
-	QAction *actionSave;
-	QAction *actionSaveAs;
 	QAction *actionClose;
 	QAction *actionExit;
-	// menus and toolbars - edit
-	QAction *actionUndo;
-	QAction *actionRedo;
-	QAction *actionCut;
-	QAction *actionCopy;
-	QAction *actionPaste;
 	// menus and toolbars - options
 	QAction *actionConfig;
-	// menus and toolbars - search
-	QAction *actionFind;
-	QAction *actionReplace;
-	QAction *actionFindNext;
-	QAction *actionFindPrev;
-	QAction *actionGotoLine;
 	// menus and toolbars - about
 	QAction *actionAbout;
 	QAction *actionAboutQt;
 	
-	QTextEdit *currentEditor;
 	OptionsDialog *optionsDialog;
-	QTabWidget *mainTab;
+// 	QTabWidget *mainTab;
+	QexTabWidget *mainTab;
 	kateItemDataManager defColors;
 };
 
