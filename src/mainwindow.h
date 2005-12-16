@@ -48,6 +48,8 @@ public slots:
 	void fileClose();
 	
 	void optionsConfiguration();
+	void helpBrowseQtDocs();
+	void helpBrowseQtEditDocs();
 	void about();
 
 private:
@@ -74,11 +76,12 @@ private:
 	// menus and toolbars - options
 	QAction *actionConfig;
 	// menus and toolbars - about
+	QAction *actionBrowseQtDocs;
+	QAction *actionBrowseQtEditDocs;
 	QAction *actionAbout;
 	QAction *actionAboutQt;
 	
 	OptionsDialog *optionsDialog;
-// 	QTabWidget *mainTab;
 	QexTabWidget *mainTab;
 	kateItemDataManager defColors;
 };

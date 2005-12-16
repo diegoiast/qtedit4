@@ -5,6 +5,7 @@
 #include <QTextEdit>
 #include <QAction>
 #include <QVBoxLayout>
+#include <QTextBrowser>
 
 #include "qexdilib/qexitabwidget.h"
 
@@ -56,7 +57,7 @@ public slots:
 	void setCursorLocation( int x, int y );
  	uint getLineCount();
 	
-private:
+protected:
 	QAction *actionUndo;
 	QAction *actionRedo;
 	QAction *actionCut;
@@ -77,7 +78,7 @@ private:
 	
 	Ui::InlineFind  	uiInlineFind;
 	Ui::InlineReplace	uiInlineReplace;
-	Ui::InlineGotoLine	uiInlineGotoLine;
+	Ui::InlineGotoLine	uiInlineGotoLine;	
 };
 
 #endif // __TEXT_DISPLAY_H__

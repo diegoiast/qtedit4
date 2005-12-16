@@ -9,10 +9,14 @@
  * widgets contained inside, and if the widget implement the QITabInterface
  * interface, it will query them for extra functions: one to generate toolbars and 
  * menu entries needed, and another to remove those entries.
+ * 
+ * If you want to use the full features
  */
 QexTabWidget::QexTabWidget()
 {
 	mainLayout = new QVBoxLayout( this );
+	mainLayout->setSpacing( 0 );
+	mainLayout->setMargin( 0 );
 	this->setLayout( mainLayout );
 
 	mainTab = new QTabWidget( this);

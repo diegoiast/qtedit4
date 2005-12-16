@@ -1,5 +1,11 @@
 #include <qemymap.h>
 
+/**
+ * A string hash table. The twist, is that the objects are ordered inside
+ * at the same order they were inserted (unlike QMap which orders by key or 
+ * QHash which orders by arbitrarily order)
+ */
+ 
 QEMyMapNode::QEMyMapNode( QString k, QTextCharFormat v )
 {
 	key = k;

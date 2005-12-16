@@ -1,5 +1,6 @@
 QT         += xml
-CONFIG     += warn_on debug
+CONFIG     += warn_on 
+CONFIG	   -= debug
 TARGET      = qtedit4
 DESTDIR     = ../bin
 
@@ -18,6 +19,7 @@ HEADERS += \
 	mainwindow.h \
 	textdisplay.h \
 	optionsdialog.h \
+	helpdisplay.h \
 	qelib/qecodeeditor.h \
 	qelib/qecodehighlighter.h \
 	qelib/qecpphighlighter/kateitemdata.h \
@@ -31,6 +33,7 @@ SOURCES += \
 	mainwindow.cpp \
 	textdisplay.cpp \
 	optionsdialog.cpp \
+	helpdisplay.cpp \
 	qelib/qecodeeditor.cpp \
 	qelib/qecodehighlighter.cpp \
 	qelib/qecpphighlighter/qemymap.cpp \

@@ -30,7 +30,7 @@ TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
 	uiInlineGotoLine.setupUi( internalGotoLine );
 	internalGotoLine->hide();
 	
-	QVBoxLayout *layout = new QVBoxLayout;
+	layout = new QVBoxLayout;
 	layout->setMargin( 1 );
 	layout->setSpacing( 1 );
 	layout->addWidget( this->editor );

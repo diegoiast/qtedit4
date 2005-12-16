@@ -15,12 +15,16 @@ rem * You  need to change the 2 sets, match the dir where you installed Qt-free 
 rem * If you installed from the installers found on the site, thos variables will not be used. 
 rem * On default setups these values are not needed, as QTDIR will be set up by the Qt4 installer
 
-rem * set MY_QT_DIR=c:\qt
-rem * set MY_MINGW_DIR=c:\mingw
+set MY_QT_DIR=c:\Qt\4.0.1
+set MY_MINGW_DIR=c:\mingw
 
 rem * You need to change the mame of the application. This must be the name of the exe, without
 rem * the extention. The exe must be on the "bin" sub-directory
 set MY_APPNAME=qtedit4
+
+rem * If you want the application to be run at the end of compilation
+rem * set this variable to "1", all other values are ignored
+set RUN_APP=1
 
 rem *
 rem * if QTDIR is not set, lets use user defaults. Oterwise, we can use the ones from the system
@@ -67,24 +71,25 @@ del bin\%MY_APPNAME%.exe
 echo Compiling using mingw32-make
 mingw32-make all 2> error.txt
 
-if EXIST bin\%MY_APPNAME%.exe GOTO COMPILATION_OK
+if EXIST bin\%MY_APPNAME%.exe goto COMPILATION_OK
 
 :COMPILATION_FAILED
 echo.
 echo.
-echo Compilation failed. 
+echo Compilation failed. See errors.txt for the full compilation log.
 echo.
 pause
 goto END_BATCH
 
 :COMPILATION_OK
-copy bin\%MY_APPNAME%.exe .
+rem copy bin\%MY_APPNAME%.exe .
 echo.
 echo.
 echo Application %MY_APPNAME% has been compiled. Enjoy!
-echo Executing applicaction... "asdasd"
+echo Executing applicaction... 
 echo.
 
-%MY_APPNAME%
+if NOT %RUN_APP%==1 goto END_BATCH
+bin\%MY_APPNAME%
 
 :END_BATCH

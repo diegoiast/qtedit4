@@ -1,5 +1,6 @@
 #include <QtGui>
 #include <QtDebug>
+#include <QUrl>
 
 #include "qexdilib/qextabwidget.h"
 
@@ -7,6 +8,7 @@
 #include "qecodeeditor.h"
 #include "mainwindow.h"
 #include "textdisplay.h"
+#include "helpdisplay.h"
 
 
 /**
@@ -36,13 +38,12 @@
  * and toolbars needed.
  * 
  * \todo This class also loads the default highlight mode,
- *       shuold be move to another class?
+ *       should be move to another class?
  * \todo Do we need to modify the title of the main window?
  */
 MainWindow::MainWindow()
 {
 	defColors.load( "data/default/kate.xml" );
-// 	mainTab = new QTabWidget( this );
 	mainTab = new QexTabWidget();
 	setCentralWidget( mainTab );
 	
@@ -50,7 +51,6 @@ MainWindow::MainWindow()
 	createMenus();
 	createToolbar();
 	
-	// some internal hacks
 	addAction( actionSelectEditor );
 	
 	setWindowTitle( tr("QtEdit 4 [*]") );
@@ -212,14 +212,32 @@ void MainWindow::optionsConfiguration()
 	optionsDialog->show();
 }
 
+void MainWindow::helpBrowseQtDocs()
+{
+	QString helpFile = QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/index.html");
+	
+	HelpDisplay *t = new HelpDisplay( helpFile );	
+	int i = mainTab->addTab( t, "Qt - doc" );
+	mainTab->setCurrentWidget( t );
+	mainTab->setCurrentIndex( i );
+}
+
+void MainWindow::helpBrowseQtEditDocs()
+{
+	QString helpFile = QApplication::applicationDirPath()  + QLatin1String("/../doc/html/index.html");
+	
+	HelpDisplay *t = new HelpDisplay( helpFile );
+	int i = mainTab->addTab( t, "QtEdit - doc" );
+	mainTab->setCurrentWidget( t );
+	mainTab->setCurrentIndex( i );
+}
+
 void MainWindow::about()
 {
 	QMessageBox::about( this, tr("About QtEdit4"),
 		tr("The 4rth version of my Qt editor.")
 	);
 }
-
-
 
 void MainWindow::createActions()
 {
@@ -254,6 +272,13 @@ void MainWindow::createActions()
 	connect( actionConfig, SIGNAL(triggered()), this, SLOT(optionsConfiguration()) );
 	
 	// help menu
+	actionBrowseQtDocs = new QAction(tr("&Browse Qt documentation"), this);
+	connect(actionBrowseQtDocs, SIGNAL(triggered()), this, SLOT(helpBrowseQtDocs()));
+	
+	actionBrowseQtEditDocs = new QAction(tr("&Browse QtEdit documentation"), this);
+	actionBrowseQtEditDocs->setShortcut(tr("F1"));
+	connect(actionBrowseQtEditDocs, SIGNAL(triggered()), this, SLOT(helpBrowseQtEditDocs()));
+	
 	actionAbout = new QAction(tr("&About"), this);
 	actionAbout->setStatusTip(tr("Show the application's About box"));
 	connect(actionAbout, SIGNAL(triggered()), this, SLOT(about()));
@@ -266,13 +291,19 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
 	// create own menus
+	menus["&File"]->add( actionOpen );
 	menus["&File"]->add( actionExit );
+	
 	menus["&Edit"];
 	menus["&Search"];
 	menus["&Project"];
 	menus["&Tools"];
 	menus["&Options"]->add( actionConfig );
 	menus["&Settings"];
+	
+	menus["&Help"]->add( actionBrowseQtDocs );
+	menus["&Help"]->add( actionBrowseQtEditDocs );
+	menus["&Help"]->addSeparator();
 	menus["&Help"]->add( actionAbout );
 	menus["&Help"]->add( actionAboutQt );
 	menus.makeMenuBar( menuBar() );
@@ -362,11 +393,18 @@ void MainWindow::saveStatus()
 	{
 		if (mainTab->widget(i)->inherits( "TextDisplay" ) )
 		{
-			// TODO what if the widget is not a TextDisplay?
-			// TODO how about using qobject_cast instead of C cast?
-			TextDisplay* e = (TextDisplay*)mainTab->widget(i);
-			openFiles += //e->getEditor()->getFileName() + ";";
-				qobject_cast<QECodeEditor*>(e->getEditor())->getFileName() + ";";
+			//if (dynamic_cast<const TextDisplay*>( mainTab->widget(i) ) == NULL)
+			if (!mainTab->widget(i)->inherits("TextDisplay" ))
+				continue;
+			
+			TextDisplay *e = (TextDisplay*) mainTab->widget(i);
+			
+			if (dynamic_cast<const QECodeEditor*>(e->getEditor()) == NULL )
+			//if (!e->getEditor()->inherits("QECodeEditor" ))
+				continue;
+				
+			QECodeEditor* ee = (QECodeEditor*)( e->getEditor() );
+			openFiles += ee->getFileName() + ";";
 		}
 	}
 	openFiles.remove( openFiles.size()-1, 1 );
