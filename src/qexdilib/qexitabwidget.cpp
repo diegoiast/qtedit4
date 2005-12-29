@@ -268,10 +268,14 @@ QITabInterface::QITabInterface()
 /**
  * \brief Destructor for QITabInterface
  * 
- * Default destructor for the tab interace
+ * Default destructor for the tab interace. 
+ * By default de-allocates the toolbar.
+ * 
  */
 QITabInterface::~QITabInterface()
 {
+	if (toolbar)
+		delete toolbar;
 };
 
 
@@ -419,7 +423,7 @@ void QITabInterface::hideToolBar()
 
 	if (window != NULL)
 	{
-		toolbar->hide();
+// 		toolbar->hide();
 		window->removeToolBar( toolbar );
 	}
 }

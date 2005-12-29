@@ -16,8 +16,6 @@
 TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
 	QWidget(parent)
 {
-	this->editor = editor;
-	
 	internalFind= new QWidget();
 	uiInlineFind.setupUi( internalFind );
 	internalFind->hide();
@@ -30,45 +28,16 @@ TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
 	uiInlineGotoLine.setupUi( internalGotoLine );
 	internalGotoLine->hide();
 	
-	layout = new QVBoxLayout;
-	layout->setMargin( 1 );
-	layout->setSpacing( 1 );
-	layout->addWidget( this->editor );
-	layout->addWidget( this->internalFind );
-	layout->addWidget( this->internalReplace );
-	layout->addWidget( this->internalGotoLine );
-	this->setLayout( layout );
-
 	createActions();
-
-	// generate the toolbat for this widget
-	toolbar = new QToolBar;
-	toolbar->addAction( actionCopy );
-	toolbar->addAction( actionPaste );
-	toolbar->addAction( actionCut );
-	toolbar->addAction( actionFind );
-	toolbar->addAction( actionReplace );
-	toolbar->addAction( actionGotoLine );
-
-	// menus used by this widget
-	menus["&Edit"]->add( actionUndo );
-	menus["&Edit"]->add( actionRedo );
-	menus["&Edit"]->addSeparator();
-	menus["&Edit"]->add( actionCut );
-	menus["&Edit"]->add( actionCopy );
-	menus["&Edit"]->add( actionPaste );
-
-	menus["&Search"]->add( actionFind );
-	menus["&Search"]->add( actionReplace );
-	menus["&Search"]->add( actionGotoLine );
-	menus["&Search"]->addSeparator();
-	menus["&Search"]->add( actionFindNext );
-	menus["&Search"]->add( actionFindPrev );
+	layout = NULL;
+	setEditor( editor );
 }
 
 TextDisplay::~TextDisplay()
 {
-	delete editor;
+	if (editor)
+		delete editor;
+
 	delete internalFind;
 	delete internalReplace;
 }
@@ -148,6 +117,101 @@ void TextDisplay::createActions()
 	connect( uiInlineGotoLine.sbLineNumber, SIGNAL(editingFinished()), internalGotoLine, SLOT(hide()) );
 	connect( uiInlineGotoLine.sbLineNumber, SIGNAL(valueChanged ( int )), this, SLOT(gotoLine(int )) );
 }
+
+void	TextDisplay::createToolbar()
+{
+	// generate the toolbar for this widget
+	toolbar = new QToolBar( "Text operations" );
+ 	toolbar->setObjectName( "Text operations" );
+
+	// menus used by this widget
+	if (editor->isReadOnly())
+	{
+		toolbar->addAction( actionPaste );
+		toolbar->addAction( actionFind );
+		toolbar->addAction( actionGotoLine );
+	}
+	else
+	{
+		toolbar->addAction( actionCopy );
+		toolbar->addAction( actionCut );
+		toolbar->addAction( actionPaste );
+		toolbar->addAction( actionFind );
+		toolbar->addAction( actionReplace );
+		toolbar->addAction( actionGotoLine );
+	}
+}
+
+void    TextDisplay::setEditor( QTextEdit *e )
+{
+#if 0
+	// wtf? this should not crash
+	if (editor)
+	{
+		editor->disconnect();
+	}
+#endif
+	if (layout)
+		delete layout;
+	
+	if (toolbar)
+		delete toolbar;
+
+	menus.clear();
+
+	editor = e;
+ 	actionCopy->setEnabled( false );
+	actionCut->setEnabled( false );
+
+	layout = new QVBoxLayout;
+	layout->setMargin( 0 );
+	layout->setSpacing( 0 );
+
+	if (!editor) 
+		goto SET_LAYOUT;
+
+ 	connect( editor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)) );
+	connect( editor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)) );
+
+	layout->addWidget( this->editor );
+	layout->addWidget( this->internalFind );
+	layout->addWidget( this->internalReplace );
+	layout->addWidget( this->internalGotoLine );
+
+	connect( actionRedo, SIGNAL(triggered()), this, SLOT(undo()) );
+
+	// menus used by this widget
+	if (editor->isReadOnly())
+	{
+		menus["&Edit"]->add( actionCopy );
+		menus["&Search"]->add( actionFind );
+		menus["&Search"]->add( actionGotoLine );
+		menus["&Search"]->addSeparator();
+		menus["&Search"]->add( actionFindNext );
+		menus["&Search"]->add( actionFindPrev );
+	}
+	else
+	{
+		menus["&Edit"]->add( actionUndo );
+		menus["&Edit"]->add( actionRedo );
+		menus["&Edit"]->addSeparator();
+		menus["&Edit"]->add( actionCut );
+		menus["&Edit"]->add( actionCopy );
+		menus["&Edit"]->add( actionPaste );
+	
+		menus["&Search"]->add( actionFind );
+		menus["&Search"]->add( actionReplace );
+		menus["&Search"]->add( actionGotoLine );
+		menus["&Search"]->addSeparator();
+		menus["&Search"]->add( actionFindNext );
+		menus["&Search"]->add( actionFindPrev );
+	}
+	createToolbar();
+
+SET_LAYOUT:
+	this->setLayout( layout );
+}
+
 
 QTextDocument *TextDisplay::document()
 {
@@ -417,4 +481,12 @@ void TextDisplay::findString( QString s, bool wholeDocument, QTextDocument::Find
 void TextDisplay::gotoLine( int i )
 {
 	setCursorLocation( 0, i );
+}
+
+void TextDisplay::setGotoLineEnabled( bool enabled )
+{
+	gotoLineEnabled = enabled;
+	
+	actionGotoLine->setEnabled( enabled );
+	actionGotoLine->setVisible( enabled );
 }

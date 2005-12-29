@@ -1,36 +1,36 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="5" >
+ <DocsAndViews NumberOfDocuments="3" >
   <Doc0 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/mainwindow.h" >
-   <View0 line="79" Type="Source" />
+   <View0 line="26" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qexdilib/qextabwidget.h" >
-   <View0 line="20" Type="Source" />
+   <View0 line="9" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/textdisplay.h" >
+  <Doc2 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qexdilib/qextabwidget.cpp" >
    <View0 line="0" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qexdilib/qexitabwidget.h" >
-   <View0 line="17" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qexdilib/qexitabwidget.cpp" >
-   <View0 line="0" Type="Source" />
-  </Doc4>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
    <breakpointList>
     <breakpoint0 location="/home/elcuco/mysources/designer/qtedit4/src/mainwindow.cpp:42" type="1" condition="" enabled="1" />
-    <breakpoint1 location="/home/elcuco/src/qtedit4/src/qexdilib/qexitabwidget.cpp:385" type="1" condition="" enabled="1" />
    </breakpointList>
   </kdevdebugger>
   <kdevbookmarks>
-   <bookmarks/>
+   <bookmarks>
+    <bookmark url="/home/elcuco/src/qtedit4/src/textdisplay.cpp" >
+     <mark line="148" />
+    </bookmark>
+   </bookmarks>
   </kdevbookmarks>
+  <kdevsubversion>
+   <subversion recurseresolve="1" recurserelocate="1" recursemerge="1" recursecommit="1" base="" recursepropget="1" recurseswitch="1" recurseupdate="1" recursepropset="1" recursediff="1" recurserevert="1" forcemove="1" recursecheckout="1" forceremove="1" recurseadd="1" recurseproplist="1" forcemerge="1" />
+  </kdevsubversion>
   <kdevvalgrind>
    <executable path="" params="" />
-   <valgrind path="" params="" />
+   <valgrind path="/usr/bin/valgrind" params="--tool=memcheck --tool=memcheck --tool=memcheck --leak-check=yes" />
    <calltree path="" params="" />
    <kcachegrind path="" />
   </kdevvalgrind>

@@ -10,6 +10,7 @@
     <projectdirectory>.</projectdirectory>
     <absoluteprojectpath>false</absoluteprojectpath>
     <description/>
+    <versioncontrol>kdevsubversion</versioncontrol>
   </general>
   <kdevcustomproject>
     <run>
@@ -157,6 +158,11 @@
     <tree>
       <hidepatterns>*.o,*.lo,CVS</hidepatterns>
       <hidenonprojectfiles>false</hidenonprojectfiles>
+      <showvcsfields>false</showvcsfields>
     </tree>
   </kdevfileview>
+  <ctagspart>
+    <customArguments/>
+    <customTagfilePath/>
+  </ctagspart>
 </kdevelop>

@@ -17,7 +17,11 @@ public:
 	
 public slots:
 	void goHome();
-	
+
+protected:
+	virtual void	createToolbar();
+
+
 private:
 	QTextBrowser *helpBrowser;
 	QString homeURL;

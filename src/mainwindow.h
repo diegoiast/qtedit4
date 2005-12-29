@@ -82,7 +82,7 @@ private:
 	QAction *actionAboutQt;
 	
 	OptionsDialog *optionsDialog;
-	QexTabWidget *mainTab;
+	QTabWidget *mainTab;
 	kateItemDataManager defColors;
 };
 

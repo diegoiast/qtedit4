@@ -11,12 +11,8 @@ HelpDisplay::HelpDisplay( QString helpSource, QWidget *parent )
 	:TextDisplay( NULL, parent )
 {
 	homeURL = helpSource;
-	helpBrowser = new QTextBrowser( this );
-	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
-	editor = helpBrowser;
+	helpBrowser = new QTextBrowser;
 	
-//QMessageBox::warning( NULL, "go home", "working"	);
-
 	actionBackward = new QAction( QIcon(":images/back.png"), tr("&Back"), this);
 	actionBackward->setShortcut(tr("Alt+Left"));
 	actionBackward->setStatusTip(tr("Go to the previous page"));
@@ -46,22 +42,10 @@ HelpDisplay::HelpDisplay( QString helpSource, QWidget *parent )
 	actionGoHome->setStatusTip(tr("Go to the home page"));
 	connect( actionGoHome, SIGNAL(triggered()), this, SLOT(goHome()) );
 
-	// now this is a huge hack...  we need to break the original layout
-	// and then insert the same widgets (almost)
-	layout->addWidget( this->editor );
-	layout->addWidget( this->internalFind );
-	layout->addWidget( this->internalReplace );
-	layout->addWidget( this->internalGotoLine );
-	
-	toolbar->clear();
-	toolbar->addAction( actionBackward );
-	toolbar->addAction( actionForward );
-	toolbar->addAction( actionGoHome );
-	toolbar->addSeparator();
-	toolbar->addAction( actionZoomIn );
-	toolbar->addAction( actionZoomOut );
-	toolbar->addSeparator();
-	toolbar->addAction( actionCopy );
+	editor = helpBrowser;
+	setEditor( helpBrowser );
+	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
+	setGotoLineEnabled( false );
 }
 
 HelpDisplay::~HelpDisplay()
@@ -74,6 +58,23 @@ HelpDisplay::~HelpDisplay()
 
 void HelpDisplay::goHome()
 {
-	//
 	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
 }
+
+void	HelpDisplay::createToolbar()
+{
+	if (toolbar)
+		delete toolbar;
+
+	toolbar = new QToolBar( "Help browser operations" );
+	toolbar->setObjectName( "Help browser operations" );
+	toolbar->addAction( actionBackward );
+	toolbar->addAction( actionForward );
+	toolbar->addAction( actionGoHome );
+	toolbar->addSeparator();
+	toolbar->addAction( actionZoomIn );
+	toolbar->addAction( actionZoomOut );
+	toolbar->addSeparator();
+	toolbar->addAction( actionCopy );
+}
+

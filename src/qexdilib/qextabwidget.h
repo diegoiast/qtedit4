@@ -7,31 +7,22 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-class QexTabWidget : public QWidget
+class QexTabWidget : public QTabWidget
 {
 	Q_OBJECT
 public:
 	QexTabWidget();
 	~QexTabWidget();
 	
-	int addTab( QWidget * child, const QString & label );
-	int addTab( QWidget * child, const QIcon & icon, const QString & label );
-	void removeTab ( int index );	
-	const int currentIndex();
-	QWidget* currentWidget();
-	const QWidget * widget ( int index );
-	const int count();
-
 public slots:
-	void setCurrentWidget ( QWidget * widget );
-	void setCurrentIndex( int index );
 	void tabChanged( int i );
 
+protected:
+	virtual void tabInserted ( int index );
+	virtual void tabRemoved ( int index );
+
 private:
-	QVBoxLayout *mainLayout;
-	QTabWidget *mainTab;
-	QWidget *activeWidget;	
-	QToolButton *openButton, *closeButton;
+	QWidget *activeWidget;
 };
 
 

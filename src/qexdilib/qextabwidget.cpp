@@ -14,27 +14,7 @@
  */
 QexTabWidget::QexTabWidget()
 {
-	mainLayout = new QVBoxLayout( this );
-	mainLayout->setSpacing( 0 );
-	mainLayout->setMargin( 0 );
-	this->setLayout( mainLayout );
-
-	mainTab = new QTabWidget( this);
-	mainLayout->addWidget( mainTab );
-
-	openButton = new QToolButton( mainTab );
-	openButton->setAutoRaise( true );
-	openButton->setIcon( QIcon(":images/tab_new.png") );
-	openButton->setToolTip( tr("New file") );
-	mainTab->setCornerWidget( openButton, Qt::TopLeftCorner );
-
-	closeButton = new QToolButton( mainTab );
-	closeButton->setAutoRaise( true );
-	closeButton->setIcon( QIcon(":images/tab_remove.png") );
-	closeButton->setToolTip( tr("Close tab") );
-	mainTab->setCornerWidget( closeButton, Qt::TopRightCorner );
-
-	connect( mainTab, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)) );
+	connect( this, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)) );
 	activeWidget = NULL;
 }
 
@@ -55,50 +35,18 @@ QexTabWidget::~QexTabWidget()
 			iface->hideMe();
 		activeWidget = NULL;
 	}
-
-	delete openButton;
-	delete closeButton;
-	delete mainTab;
-	delete mainLayout;
 }
 
-int QexTabWidget::addTab( QWidget * child, const QString & label )
+void QexTabWidget::tabInserted ( int index )
 {
-	int i = mainTab->addTab( child, label );
-	
-	// if more then one tab is available, the currentChanged() signal
-	// will be emmited, when one, we need to hack
-	if (mainTab->count() == 1)
-	{
-		activeWidget = child;
-		QITabInterface *iface = dynamic_cast<QITabInterface*>(activeWidget);
-		if (iface != NULL)
-			iface->showMe();
-		iface = NULL;
-	}
+	QWidget *deletedWidget = (QWidget*) widget( index );	
+	QITabInterface *iface = dynamic_cast<QITabInterface*>(deletedWidget);
 
-	return i;
+	if (iface != NULL)
+		iface->showMe();
 }
 
-int QexTabWidget::addTab( QWidget * child, const QIcon & icon, const QString & label )
-{
-	int i = mainTab->addTab( child, icon, label );
-
-	// if more then one tab is available, the currentChanged() signal
-	// will be emmited, when one, we need to hack
-	if (mainTab->count() == 1)
-	{
-		activeWidget = child;
-		QITabInterface *iface = dynamic_cast<QITabInterface*>(activeWidget);
-		if (iface != NULL)
-			iface->showMe();
-	}
-
-	return i;
-}
-
-
-void QexTabWidget::removeTab ( int index )
+void QexTabWidget::tabRemoved ( int index )
 {
 	// this is ugly... why do i need to use C casts here?
 	QWidget *deletedWidget = (QWidget*) widget( index );	
@@ -107,43 +55,12 @@ void QexTabWidget::removeTab ( int index )
 	if (iface != NULL)
 		iface->hideMe();
 
-	mainTab->removeTab( index );
-}
-
-const int QexTabWidget::currentIndex()
-{
-	return mainTab->currentIndex();
-}
-
-QWidget* QexTabWidget::currentWidget()
-{
-	return mainTab->currentWidget();
-}
-
-const QWidget * QexTabWidget::widget ( int index )
-{
-	return mainTab->widget( index );
-}
-
-const int QexTabWidget::count()
-{
-	return mainTab->count();
-}
-
-void QexTabWidget::setCurrentWidget ( QWidget * widget )
-{
-	mainTab->setCurrentWidget( widget );
-}
-
-void QexTabWidget::setCurrentIndex( int index )
-{
-	mainTab->setCurrentIndex( index );
 }
 
 void QexTabWidget::tabChanged( int i )
 {
 	QITabInterface *iface = NULL;
-	QWidget *w = mainTab->widget( i );
+	QWidget *w = widget( i );
 
 	// nothing to do, if the same tab has been selected twise
 	if ( w == activeWidget)
