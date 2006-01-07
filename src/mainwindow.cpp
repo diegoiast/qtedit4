@@ -318,7 +318,6 @@ void MainWindow::createToolbar()
 	fileToolBar->setObjectName( "File" );
 	fileToolBar->addAction(actionNew);
 	fileToolBar->addAction(actionOpen);
-// 	fileToolBar->addAction(actionSave);
 	fileToolBar->addAction(actionClose);
 }
 
@@ -339,13 +338,18 @@ QString MainWindow::getFileName( QString fileName )
 void MainWindow::loadFile( QString fileName )
 {
 
-	QECPPHighlighter *h = new QECPPHighlighter( &defColors );
-	QECodeEditor *edit = new QECodeEditor( NULL, NULL );
-	QString tabName;
+#define _OLD_SH
 
+#ifdef _OLD_SH_
+	QECPPHighlighter *h = new QECPPHighlighter( &defColors );
+	QECodeEditor *edit = new QECodeEditor( NULL, h );
+#else
+	QECodeEditor *edit = new QECodeEditor( NULL, NULL );
 	QeGtkSourceViewLangDef *langC = new QeGtkSourceViewLangDef( "data/gtksourceview/cpp.lang" );
 	QeGTK_Highlighter *highlight = new QeGTK_Highlighter( edit, &defColors );
 	highlight->setHighlight( langC );
+#endif
+	QString tabName;
 
 	if (!fileName.isEmpty())
 	{

@@ -2,7 +2,7 @@
 #include <QStringList>
 #include <QDomDocument>
 #include <QDomNode>
-              #               include <QFile>
+#include <QFile>
 
 #include <QtDebug>
 
@@ -162,11 +162,11 @@ bool	QeGtkSourceViewLangDef::loadEntity(QDomNode node, QeEntityDef &entity )
 bool	QeGtkSourceViewLangDef::loadLineComments( QDomNodeList nodes )
 {
 	QDomNode node;
-	QeEntityLineComment e;
 	int i, size = nodes.size();
 
 	for( i=0; i<size; i++ )
 	{
+		QeEntityLineComment e;
 		node = nodes.at( i );
 
 		if (!loadEntity( node, e )) return false;
@@ -182,12 +182,12 @@ bool	QeGtkSourceViewLangDef::loadLineComments( QDomNodeList nodes )
 bool	QeGtkSourceViewLangDef::loadStrings( QDomNodeList nodes )
 {
 	QDomNode node;
-	QeEntityString e;
 	QString s;
 	int i, size = nodes.size();
 
 	for( i=0; i<size; i++ )
 	{
+		QeEntityString e;
 		node = nodes.at( i );
 
 		if (!loadEntity( node, e )) return false;
@@ -196,8 +196,6 @@ bool	QeGtkSourceViewLangDef::loadStrings( QDomNodeList nodes )
 		e.startRegex = node.toElement().elementsByTagName("start-regex").item(0).toElement().text();
 		e.endRegex   = node.toElement().elementsByTagName("end-regex").item(0).toElement().text();
 
-// 		qDebug("loaded string: %s  %s", qPrintable(e.startRegex), qPrintable(e.endRegex) );
-		
 		stringsDefs << e;
 	}
 
@@ -207,7 +205,6 @@ bool	QeGtkSourceViewLangDef::loadStrings( QDomNodeList nodes )
 bool	QeGtkSourceViewLangDef::loadPatternItems( QDomNodeList nodes )
 {
 	QDomNode node;
-	QeEntityPatternItem e;
 	int i, size = nodes.size();
 
 	i = patternItems.size();
@@ -216,6 +213,7 @@ bool	QeGtkSourceViewLangDef::loadPatternItems( QDomNodeList nodes )
 	{
 		node = nodes.at( i );
 
+		QeEntityPatternItem e;
 		if (!loadEntity( node, e )) return false;
 		e.regex = node.toElement().elementsByTagName("regex").item(0).toElement().text();
 
@@ -228,7 +226,6 @@ bool	QeGtkSourceViewLangDef::loadPatternItems( QDomNodeList nodes )
 bool	QeGtkSourceViewLangDef::loadBlockComments( QDomNodeList nodes, QList<QeEntityBlockComment> &list )
 {
 	QDomNode node;
-	QeEntityBlockComment e;
 	int i, size = nodes.size();
 
 	i = list.size();
@@ -237,6 +234,7 @@ bool	QeGtkSourceViewLangDef::loadBlockComments( QDomNodeList nodes, QList<QeEnti
 	{
 		node = nodes.at( i );
 
+		QeEntityBlockComment e;
 		if (!loadEntity( node, e )) return false;
 		e.startRegex = node.toElement().elementsByTagName("start-regex").item(0).toElement().text();
 		e.endRegex   = node.toElement().elementsByTagName("end-regex").item(0).toElement().text();
@@ -251,17 +249,19 @@ bool	QeGtkSourceViewLangDef::loadBlockComments( QDomNodeList nodes, QList<QeEnti
 bool	QeGtkSourceViewLangDef::loadKeywordList( QDomNodeList nodes )
 {
 	QDomNodeList strs;
-	QDomNode node, str;
-	QeEntityKeywordList e;
+	QDomNode str;
 	QString s;
 
 	int i, size = nodes.size();
 	int j;
-
+	
 	for( i=0; i<size; i++ )
 	{
-		node = nodes.at( i );
+		QeEntityKeywordList e;
+		QDomNode node = nodes.at( i );
+		
 		if (!loadEntity( node, e )) return false;
+		e.list.clear();
 
 		e.caseSensitive               = isTrue( node.attributes().namedItem("case-sensitive").nodeValue() );
 		e.matchEmptyStringAtBeginning = isTrue( node.attributes().namedItem("match-empty-string-at-beginning").nodeValue() );
@@ -278,7 +278,6 @@ bool	QeGtkSourceViewLangDef::loadKeywordList( QDomNodeList nodes )
 		}
 		
 		keywordListDefs << e;
-		
 	}	
 
 	return true;

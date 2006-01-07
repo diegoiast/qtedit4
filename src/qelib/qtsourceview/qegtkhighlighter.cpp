@@ -31,20 +31,15 @@ void QeGTK_Highlighter::setHighlight( QeGtkSourceViewLangDef *lang )
 	{
 		foreach( QString s, l.list )
 		{			
-			if (l.matchEmptyStringAtBeginning)
-				s = l.startRegex + s;
 
-			if (l.matchEmptyStringAtEnd)
-				s = l.endRegex + s;
+//			TODO use these defintions
+// 			if (l.matchEmptyStringAtBeginning)
+// 			if (l.matchEmptyStringAtEnd)
 
+			s = l.startRegex + s;
+			s = l.endRegex + s;
 			addMapping( s, l.style, true );
 		}
-	}
-
-	// later, pattern items
-	foreach( QeEntityPatternItem l, lang->patternItems )
-	{
-		addMapping( l.regex, l.style, !true );
 	}
 
 	// syntax itmes...
@@ -54,8 +49,14 @@ void QeGTK_Highlighter::setHighlight( QeGtkSourceViewLangDef *lang )
 // 		QString s = l.startRegex + QString("[^%s]+").arg(l.endRegex);// + l.endRegex;
 		
 		// FIXME endRegex is generally "\n"... which is bad for us... 
-		QString s = l.startRegex + ".+";//  + l.endRegex;
+		QString s = l.startRegex;//  + l.endRegex;
 		addMapping( s, l.style );
+	}
+
+	// later, pattern items
+	foreach( QeEntityPatternItem l, lang->patternItems )
+	{
+		addMapping( l.regex, l.style, !true );
 	}
 
 	// strings...
@@ -87,7 +88,6 @@ void QeGTK_Highlighter::highlightBlock(const QString &text)
 		QRegExp expression(pattern.key);
 		int index = text.indexOf(expression);
 		
-			
 		while (index >= 0) 
 		{
 			int length = expression.matchedLength();
@@ -96,8 +96,12 @@ void QeGTK_Highlighter::highlightBlock(const QString &text)
 		}
 	}
 
-
 	setCurrentBlockState(0);
+
+	// what if not block comments defined...?
+	if (language->blockCommentsDefs.count() == 0)
+		return;
+
 	QRegExp startExpression( language->blockCommentsDefs.at(0).startRegex );
 	QRegExp endExpression  ( language->blockCommentsDefs.at(0).endRegex );
 	
