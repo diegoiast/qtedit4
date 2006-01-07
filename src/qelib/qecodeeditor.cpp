@@ -50,6 +50,8 @@ QECodeEditor::QECodeEditor( QWidget *p, QECodeHighlighter *h ):QTextEdit(p)
 		codeHighlighter->addToDocument( document() );
 
 	setHighlight( "1.cpp" );
+	setFontFamily( "Misc Console" );
+	setFontPointSize( 12 );
 }
 
 
@@ -159,6 +161,9 @@ bool QECodeEditor::saveFile( QString fileName, QTextCodec *c )
  */
 void QECodeEditor::setHighlight( QString fileName )
 {
+	if (codeHighlighter == NULL)
+		return;
+
 	// set default color and background
 	setTextColor( codeHighlighter->getDefaultColor() );
 

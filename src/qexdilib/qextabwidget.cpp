@@ -1,5 +1,8 @@
+#include <QStackedWidget>
+
 #include "qextabwidget.h"
 #include "qexitabwidget.h"
+
 
 /**
  * \brief Default constructor
@@ -16,6 +19,11 @@ QexTabWidget::QexTabWidget()
 {
 	connect( this, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)) );
 	activeWidget = NULL;
+
+	// this ugly trick has been stollen from "assistant"
+	QStackedWidget *stack = qFindChild<QStackedWidget*>(this);
+	Q_ASSERT(stack);
+	stack->setContentsMargins(0, 0, 0, 0);
 }
 
 /**

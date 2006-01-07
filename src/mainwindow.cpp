@@ -10,13 +10,16 @@
 #include "textdisplay.h"
 #include "helpdisplay.h"
 
+#include "qelib/qtsourceview/qegtkhighlighter.h"
+#include "qelib/qtsourceview/qegtklangdef.h"
+
 
 /**
  * \file    mainwindow.cpp
  * \brief   Implementation of the main window class
  * \author  Diego Iastrubni (elcuco@kde.org)
  * \date    11-11-2005
- * \
+ * 
  */
 
 
@@ -26,7 +29,6 @@
  * 
  * This is the main window seen on screen. When this window
  * is closed, this means the application has been terminated.
- * 
  * 
  */
 
@@ -336,9 +338,14 @@ QString MainWindow::getFileName( QString fileName )
 
 void MainWindow::loadFile( QString fileName )
 {
+
 	QECPPHighlighter *h = new QECPPHighlighter( &defColors );
-	QECodeEditor *edit = new QECodeEditor( NULL, h );
+	QECodeEditor *edit = new QECodeEditor( NULL, NULL );
 	QString tabName;
+
+	QeGtkSourceViewLangDef *langC = new QeGtkSourceViewLangDef( "data/gtksourceview/cpp.lang" );
+	QeGTK_Highlighter *highlight = new QeGTK_Highlighter( edit, &defColors );
+	highlight->setHighlight( langC );
 
 	if (!fileName.isEmpty())
 	{
@@ -417,12 +424,13 @@ void MainWindow::loadStatus()
 	
 	move( settings.value("main/position", QPoint(200, 200)).toPoint() );
 	resize( settings.value("main/size", QSize(400, 400)).toSize() );
-	restoreState( settings.value("main/state").toByteArray() );
 
 	QStringList sl = settings.value("editor/files").toString().split( ';' );
 	for ( int i=0; i<sl.count(); i++)
 		if (! sl[i].isEmpty() )
 			loadFile( sl[i] );
+
+	restoreState( settings.value("main/state").toByteArray() );
 }
 
 bool MainWindow::canCloseEditor( QTextEdit *e )

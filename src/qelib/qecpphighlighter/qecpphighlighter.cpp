@@ -109,20 +109,22 @@ void QECPPHighlighter::addMappings_cpp()
 {
 	mappings.clear();
 	// reserved words
-	addMapping( "case"    , "dsKeyword", true );
-	addMapping( "class"   , "dsKeyword", true );
-	addMapping( "delete"  , "dsKeyword", true );
-	addMapping( "else"    , "dsKeyword", true );
-	addMapping( "for"     , "dsKeyword", true );
-	addMapping( "if"      , "dsKeyword", true );
-	addMapping( "private" , "dsKeyword", true );
-	addMapping( "protected","dsKeyword", true );
-	addMapping( "public"  , "dsKeyword", true );
-	addMapping( "new"     , "dsKeyword", true );
-	addMapping( "return"  , "dsKeyword", true );
-	addMapping( "struct"  , "dsKeyword", true );
-	addMapping( "switch"  , "dsKeyword", true );
-	addMapping( "while"   , "dsKeyword", true );
+	addMapping( "case"	, "dsKeyword", true );
+	addMapping( "class"	, "dsKeyword", true );
+	addMapping( "delete"	, "dsKeyword", true );
+	addMapping( "else"	, "dsKeyword", true );
+	addMapping( "for"	, "dsKeyword", true );
+	addMapping( "if"	, "dsKeyword", true );
+	addMapping( "private"	, "dsKeyword", true );
+	addMapping( "protected"	, "dsKeyword", true );
+	addMapping( "public"	, "dsKeyword", true );
+	addMapping( "new"	, "dsKeyword", true );
+	addMapping( "return"	, "dsKeyword", true );
+	addMapping( "struct"	, "dsKeyword", true );
+	addMapping( "switch"	, "dsKeyword", true );
+	addMapping( "while"	, "dsKeyword", true );
+	addMapping( "virtual"	, "dsKeyword", true );
+	addMapping( "static"	, "dsKeyword", true );
 
 	// some types
 	addMapping( "int"     , "dsDataType", true );

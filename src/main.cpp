@@ -4,6 +4,7 @@
 
 // #include "qehighlightmanager.h"
 #include "mainwindow.h"
+#include "qelib/qtsourceview/qegtklangdef.h"
 
 /**
  * \file    main.cpp
@@ -12,9 +13,12 @@
  * \date    11-11-2005
  */
 
+void test_order_map();
 
 int main(int argc, char *argv[])
 {
+	QeGtkSourceViewLangDef langC( "data/gtksourceview/c.lang" );
+
 	QApplication app(argc, argv);
 	app.setOrganizationName("Trolltech");
 	app.setApplicationName("QtEdit");

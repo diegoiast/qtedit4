@@ -53,3 +53,10 @@ src/qexdilib/qextabwidget.h
 src/qrc_qtedit4.cpp
 src/textdisplay.cpp
 src/textdisplay.h
+src/qelib/qtsourceview/qegtklangdef.h
+src/qelib/qtsourceview/qegtklangdef.cpp
+
+
+src/qelib/qtsourceview/qegtkhighlighter.h
+src/qelib/qtsourceview/qegtkhighlighter.cpp
+test.cpp
