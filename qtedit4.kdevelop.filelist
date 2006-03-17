@@ -60,3 +60,15 @@ src/qelib/qtsourceview/qegtklangdef.cpp
 src/qelib/qtsourceview/qegtkhighlighter.h
 src/qelib/qtsourceview/qegtkhighlighter.cpp
 test.cpp
+src/qmdilib/actiongroup.cpp
+src/qmdilib/actiongroup.h
+src/qmdilib/actiongrouplist.cpp
+src/qmdilib/actiongrouplist.h
+src/qmdilib/qmdiclient.cpp
+src/qmdilib/qmdiclient.h
+src/qmdilib/qmdihost.cpp
+src/qmdilib/qmdihost.h
+src/qmdilib/qmdiserver.cpp
+src/qmdilib/qmdiserver.h
+src/qmdilib/qmditabwidget.cpp
+src/qmdilib/qmditabwidget.h

@@ -2,7 +2,9 @@
 #include <QtDebug>
 #include <QUrl>
 
-#include "qexdilib/qextabwidget.h"
+// #include "qexdilib/qextabwidget.h"
+// #include "qmdilib/qmdihost.h"
+#include "qmdilib/qmditabwidget.h"
 
 #include "qecpphighlighter.h"
 #include "qecodeeditor.h"
@@ -46,7 +48,8 @@
 MainWindow::MainWindow()
 {
 	defColors.load( "data/default/kate.xml" );
-	mainTab = new QexTabWidget();
+// 	mainTab = new QexTabWidget();
+	mainTab = new qmdiTabWidget( this );
 	setCentralWidget( mainTab );
 	
 	createActions();
@@ -293,33 +296,38 @@ void MainWindow::createActions()
 void MainWindow::createMenus()
 {
 	// create own menus
-	menus["&File"]->add( actionOpen );
-	menus["&File"]->add( actionExit );
+	menus["&File"]->addAction( actionOpen );
+	menus["&File"]->addAction( actionExit );
 	
 	menus["&Edit"];
 	menus["&Search"];
 	menus["&Project"];
 	menus["&Tools"];
-	menus["&Options"]->add( actionConfig );
+	menus["&Options"]->addAction( actionConfig );
 	menus["&Settings"];
 	
-	menus["&Help"]->add( actionBrowseQtDocs );
-	menus["&Help"]->add( actionBrowseQtEditDocs );
+	menus["&Help"]->addAction( actionBrowseQtDocs );
+	menus["&Help"]->addAction( actionBrowseQtEditDocs );
 	menus["&Help"]->addSeparator();
-	menus["&Help"]->add( actionAbout );
-	menus["&Help"]->add( actionAboutQt );
-	menus.makeMenuBar( menuBar() );
-	
+	menus["&Help"]->addAction( actionAbout );
+	menus["&Help"]->addAction( actionAboutQt );
+// 	menus.makeMenuBar( menuBar() );
+	menus.updateMenu( menuBar() );
 }
 
 void MainWindow::createToolbar()
 {
-	fileToolBar = addToolBar( tr("File") );
+/*	fileToolBar = addToolBar( tr("File") );
 	fileToolBar->setObjectName( "File" );
 	fileToolBar->addAction(actionNew);
 	fileToolBar->addAction(actionOpen);
-	fileToolBar->addAction(actionClose);
+	fileToolBar->addAction(actionClose);*/
+	toolbars["File"]->addAction(actionNew);
+	toolbars["File"]->addAction(actionOpen);
+	toolbars["File"]->addAction(actionClose);
+	toolBarList = toolbars.updateToolBar( toolBarList, this );
 }
+
 
 QString MainWindow::getFileName( QString fileName )
 {

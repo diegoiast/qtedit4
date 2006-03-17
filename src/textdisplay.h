@@ -7,8 +7,8 @@
 #include <QVBoxLayout>
 #include <QTextBrowser>
 
-#include "qexdilib/qexitabwidget.h"
-
+// #include "qexdilib/qexitabwidget.h"
+#include "qmdilib/qmdiclient.h"
 
 #include "ui_inlinefind.h"
 #include "ui_inlinereplace.h"
@@ -21,7 +21,8 @@
  * \date    11-11-2005
  */
 
-class TextDisplay: public QWidget, public QITabInterface
+class TextDisplay: public QWidget, /*public QITabInterface*/
+	public qmdiClient
 {
 Q_OBJECT
 public:

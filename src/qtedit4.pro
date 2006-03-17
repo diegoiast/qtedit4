@@ -24,11 +24,15 @@ HEADERS += \
 	qelib/qecodehighlighter.h \
 	qelib/qecpphighlighter/kateitemdata.h \
 	qelib/qecpphighlighter/kateitemdatamanager.h \
-	qexdilib/qexitabwidget.h \
-	qexdilib/qextabwidget.h \
 	qelib/qtsourceview/qegtklangdef.h \
 	qelib/qtsourceview/qorderedmap.h \
-	qelib/qtsourceview/qegtkhighlighter.h
+	qelib/qtsourceview/qegtkhighlighter.h \
+	qmdilib/actiongroup.cpp \
+	qmdilib/actiongrouplist.cpp \
+	qmdilib/qmdiclient.h \
+	qmdilib/qmdihost.h \
+	qmdilib/qmdiserver.h \
+	qmdilib/qmditabwidget.h
 
 SOURCES += \
 	main.cpp \
@@ -42,8 +46,12 @@ SOURCES += \
 	qelib/qecpphighlighter/qecpphighlighter.cpp \
 	qelib/qecpphighlighter/kateitemdata.cpp \
 	qelib/qecpphighlighter/kateitemdatamanager.cpp \
-	qexdilib/qexitabwidget.cpp \
-	qexdilib/qextabwidget.cpp \
 	qelib/qtsourceview/qegtklangdef.cpp \
 	qelib/qtsourceview/qorderedmap.cpp \
-	qelib/qtsourceview/qegtkhighlighter.cpp
+	qelib/qtsourceview/qegtkhighlighter.cpp \
+	qmdilib/actiongroup.cpp \
+	qmdilib/actiongrouplist.cpp \
+	qmdilib/qmdiclient.cpp \
+	qmdilib/qmdihost.cpp \ 
+	qmdilib/qmdiserver.cpp \
+	qmdilib/qmditabwidget.cpp 

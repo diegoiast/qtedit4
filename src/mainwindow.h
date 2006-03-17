@@ -5,8 +5,9 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
-#include "qexdilib/qexitabwidget.h"
-#include "qexdilib/qextabwidget.h"
+// #include "qexdilib/qexitabwidget.h"
+// #include "qexdilib/qextabwidget.h"
+#include "qmdilib/qmdihost.h"
 
 #include "kateitemdatamanager.h"
 #include "optionsdialog.h"
@@ -24,7 +25,7 @@ class QLabel;
 class QMenu;
 class QString;
 
-class MainWindow : public QMainWindow, public QITabWinInterface
+class MainWindow : public QMainWindow, public /*QITabWinInterface*/ qmdiHost
 {
     Q_OBJECT
 
@@ -63,7 +64,7 @@ private:
 	QTextEdit* getCurrentEditor();
 	bool canCloseEditor( QTextEdit *e );
 	
-	QToolBar *fileToolBar;
+// 	QToolBar *fileToolBar;
 
 	// internal actions
 	QAction *actionSelectEditor;

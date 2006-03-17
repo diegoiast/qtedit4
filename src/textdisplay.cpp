@@ -120,9 +120,10 @@ void TextDisplay::createActions()
 
 void	TextDisplay::createToolbar()
 {
+/*
 	// generate the toolbar for this widget
 	toolbar = new QToolBar( "Text operations" );
- 	toolbar->setObjectName( "Text operations" );
+	toolbar->setObjectName( "Text operations" );
 
 	// menus used by this widget
 	if (editor->isReadOnly())
@@ -140,6 +141,20 @@ void	TextDisplay::createToolbar()
 		toolbar->addAction( actionReplace );
 		toolbar->addAction( actionGotoLine );
 	}
+	*/
+
+	if (editor->isReadOnly())
+	{
+	}
+	else
+	{
+		toolbars["Text operations"]->addAction( actionCopy );
+		toolbars["Text operations"]->addAction( actionCut );
+		toolbars["Text operations"]->addAction( actionPaste );
+		toolbars["Text operations"]->addAction( actionFind );
+		toolbars["Text operations"]->addAction( actionReplace );
+		toolbars["Text operations"]->addAction( actionGotoLine );
+	}
 }
 
 void    TextDisplay::setEditor( QTextEdit *e )
@@ -154,10 +169,10 @@ void    TextDisplay::setEditor( QTextEdit *e )
 	if (layout)
 		delete layout;
 	
-	if (toolbar)
-		delete toolbar;
+// 	if (toolbar)
+// 		delete toolbar;
 
-	menus.clear();
+// 	menus.clear();
 
 	editor = e;
  	actionCopy->setEnabled( false );
@@ -183,28 +198,28 @@ void    TextDisplay::setEditor( QTextEdit *e )
 	// menus used by this widget
 	if (editor->isReadOnly())
 	{
-		menus["&Edit"]->add( actionCopy );
-		menus["&Search"]->add( actionFind );
-		menus["&Search"]->add( actionGotoLine );
+		menus["&Edit"]->addAction( actionCopy );
+		menus["&Search"]->addAction( actionFind );
+		menus["&Search"]->addAction( actionGotoLine );
 		menus["&Search"]->addSeparator();
-		menus["&Search"]->add( actionFindNext );
-		menus["&Search"]->add( actionFindPrev );
+		menus["&Search"]->addAction( actionFindNext );
+		menus["&Search"]->addAction( actionFindPrev );
 	}
 	else
 	{
-		menus["&Edit"]->add( actionUndo );
-		menus["&Edit"]->add( actionRedo );
+		menus["&Edit"]->addAction( actionUndo );
+		menus["&Edit"]->addAction( actionRedo );
 		menus["&Edit"]->addSeparator();
-		menus["&Edit"]->add( actionCut );
-		menus["&Edit"]->add( actionCopy );
-		menus["&Edit"]->add( actionPaste );
+		menus["&Edit"]->addAction( actionCut );
+		menus["&Edit"]->addAction( actionCopy );
+		menus["&Edit"]->addAction( actionPaste );
 	
-		menus["&Search"]->add( actionFind );
-		menus["&Search"]->add( actionReplace );
-		menus["&Search"]->add( actionGotoLine );
+		menus["&Search"]->addAction( actionFind );
+		menus["&Search"]->addAction( actionReplace );
+		menus["&Search"]->addAction( actionGotoLine );
 		menus["&Search"]->addSeparator();
-		menus["&Search"]->add( actionFindNext );
-		menus["&Search"]->add( actionFindPrev );
+		menus["&Search"]->addAction( actionFindNext );
+		menus["&Search"]->addAction( actionFindPrev );
 	}
 	createToolbar();
 

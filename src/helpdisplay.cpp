@@ -63,6 +63,7 @@ void HelpDisplay::goHome()
 
 void	HelpDisplay::createToolbar()
 {
+/*
 	if (toolbar)
 		delete toolbar;
 
@@ -76,5 +77,13 @@ void	HelpDisplay::createToolbar()
 	toolbar->addAction( actionZoomOut );
 	toolbar->addSeparator();
 	toolbar->addAction( actionCopy );
+	*/
+	toolbars["Help browser operations"]->addAction( actionBackward );
+	toolbars["Help browser operations"]->addAction( actionForward );
+	toolbars["Help browser operations"]->addSeparator();
+	toolbars["Help browser operations"]->addAction( actionZoomIn );
+	toolbars["Help browser operations"]->addAction( actionZoomOut );
+	toolbars["Help browser operations"]->addSeparator();
+	toolbars["Help browser operations"]->addAction( actionCopy );
 }
 
