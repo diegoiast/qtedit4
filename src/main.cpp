@@ -4,7 +4,6 @@
 
 // #include "qehighlightmanager.h"
 #include "mainwindow.h"
-#include "qelib/qtsourceview/qegtklangdef.h"
 
 /**
  * \file    main.cpp
@@ -21,8 +20,6 @@ int main(int argc, char *argv[])
 	app.setOrganizationName("Trolltech");
 	app.setApplicationName("QtEdit");
 
-//	QEHighlightManager::loadDirectory( QDir::current().absolutePath()+"/data/" );
-	
 	MainWindow window;
 	window.show();
 	return app.exec();

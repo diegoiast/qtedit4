@@ -44,11 +44,11 @@ HelpDisplay::HelpDisplay( QString helpSource, QWidget *parent )
 
 	editor = helpBrowser;
 	setEditor( helpBrowser, true, false );
-// 	setGotoLineEnabled( false );
 	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
 
 	toolbars["Help browser operations"]->addAction( actionBackward );
 	toolbars["Help browser operations"]->addAction( actionForward );
+	toolbars["Help browser operations"]->addAction( actionGoHome );
 	toolbars["Help browser operations"]->addSeparator();
 	toolbars["Help browser operations"]->addAction( actionZoomIn );
 	toolbars["Help browser operations"]->addAction( actionZoomOut );

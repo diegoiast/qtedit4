@@ -135,6 +135,16 @@ void qmdiActionGroupList::unmergeGroupList( qmdiActionGroupList *group )
 }
 
 
+void qmdiActionGroupList::clear()
+{
+	foreach( qmdiActionGroup* i, actionGroups )
+	{
+		i->clear();
+	}
+
+	actionGroups.clear();
+}
+
 /**
  * \brief update a QMenuBar from the definitions on this action group list
  * \param menubar a QMenuBar to be updated

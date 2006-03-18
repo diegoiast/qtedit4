@@ -1,11 +1,12 @@
 #ifndef __QE_CPP_HIGHLIGHTER_H__
 #define __QE_CPP_HIGHLIGHTER_H__
 
+#include <QSyntaxHighlighter>
+
 #include "kateitemdatamanager.h"
-#include "qecodehighlighter.h"
 #include "qemymap.h"
 
-class QECPPHighlighter: public QECodeHighlighter
+class QECPPHighlighter: public QSyntaxHighlighter
 {
 public:
 	QECPPHighlighter( kateItemDataManager *d=NULL );

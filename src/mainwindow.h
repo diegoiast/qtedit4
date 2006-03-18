@@ -5,12 +5,10 @@
 #include <QTabWidget>
 #include <QTextEdit>
 
-// #include "qexdilib/qexitabwidget.h"
-// #include "qexdilib/qextabwidget.h"
 #include "qmdilib/qmdihost.h"
 
 #include "kateitemdatamanager.h"
-#include "optionsdialog.h"
+#include "configdialog.h"
 
 /**
  * \file    mainwindow.h
@@ -25,7 +23,7 @@ class QLabel;
 class QMenu;
 class QString;
 
-class MainWindow : public QMainWindow, public /*QITabWinInterface*/ qmdiHost
+class MainWindow : public QMainWindow, public qmdiHost
 {
     Q_OBJECT
 
@@ -55,23 +53,17 @@ private:
 	QString getFileName( QString fileName );
 	void loadFile( QString fileName );
 	
-	// internal actions
-// 	QAction *actionSelectEditor;
-
-	// menus and toolbars - file
 	QAction *actionNew;
 	QAction *actionOpen;
 	QAction *actionClose;
 	QAction *actionExit;
-	// menus and toolbars - options
 	QAction *actionConfig;
-	// menus and toolbars - about
 	QAction *actionBrowseQtDocs;
 	QAction *actionBrowseQtEditDocs;
 	QAction *actionAbout;
 	QAction *actionAboutQt;
 	
-	OptionsDialog *optionsDialog;
+        ConfigurationDialog *configDialog;
 	QTabWidget *mainTab;
 	kateItemDataManager defColors;
 };

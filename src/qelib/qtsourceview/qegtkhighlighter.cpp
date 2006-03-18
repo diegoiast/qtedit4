@@ -223,12 +223,19 @@ void QeGTK_Highlighter::drawKeywords( QString text, QString s, QTextCharFormat &
 	
 	while (index >= 0)
 	{
-		// paint keyword, only if its suoorunded by white chars
+		// paint keyword, only if its sorrounded by white chars
 		// regexp are bad :)
+#if 1		
 		if (
-		   ((index==0) || (!text[index-1].isLetterOrNumber())) &&
+		   ((index==0)             || (!text[index-1].isLetterOrNumber())) &&
 		   ((index+length>=txtLen) || (!text[index+length].isLetterOrNumber()))
 		   )
+#else
+		if (
+		   ((index==0)             || (!text[index-1].isLetterOrNumber())) &&
+		   ((index+length>=txtLen) || (!text[index+length].isLetterOrNumber()))
+		   )
+#endif		   
 			setFormat(index, length, format );
 		index = text.indexOf(s, index + length);
 	}

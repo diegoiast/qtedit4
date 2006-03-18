@@ -57,7 +57,6 @@ class QeGTK_Highlighter;
 class QeGtkSourceViewLangDef
 {
 friend class QeGTK_Highlighter;
-// friend class QeLangDefFactory;
 
 public:
 	QeGtkSourceViewLangDef( QDomDocument doc );
@@ -96,4 +95,3 @@ private:
 };
 
 #endif // __QE_GTK_LANG_DEF_H__
-

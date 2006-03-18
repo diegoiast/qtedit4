@@ -21,5 +21,7 @@
         <file>images/gohome.png</file>
 	<file>images/viewmag+.png</file>
 	<file>images/viewmag-.png</file>
+	<file>images/undo.png</file>
+	<file>images/redo.png</file>
     </qresource>
 </RCC>

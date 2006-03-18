@@ -22,11 +22,12 @@ class qmdiActionGroupList
 {
 public:
 	qmdiActionGroupList();
-	
+		
 	qmdiActionGroup* operator[]( const QString name );
 	qmdiActionGroup* getActionGroup( const QString name );
 	void mergeGroupList( qmdiActionGroupList *group );
 	void unmergeGroupList( qmdiActionGroupList *group );
+	void clear();
 	
 	QMenuBar*		updateMenu( QMenuBar *menubar );
 	QList<QToolBar*>*	updateToolBar( QList<QToolBar*> *toolbars, QMainWindow *window );

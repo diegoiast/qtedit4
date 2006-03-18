@@ -13,53 +13,49 @@ INCLUDEPATH += qelib qelib/qecpphighlighter
 #LIB        += kate-qt
 RESOURCES   += qtedit4.qrc
 
-FORMS+= ui/optionsdialog.ui ui/inlinefind.ui ui/inlinereplace.ui ui/inlinegotoline.ui 
+FORMS+= ui/configdialog.ui ui/inlinefind.ui ui/inlinereplace.ui ui/inlinegotoline.ui 
 
 HEADERS += \
-	mainwindow.h \
-	textdisplay.h \
-	optionsdialog.h \
-	helpdisplay.h \
-	qelib/qecodeeditor.h \
-	qelib/qecodehighlighter.h \
-	qelib/qecpphighlighter/kateitemdata.h \
-	qelib/qecpphighlighter/kateitemdatamanager.h \
-	qelib/qtsourceview/qegtklangdef.h \
-	qelib/qtsourceview/qorderedmap.h \
-	qelib/qtsourceview/qegtkhighlighter.h \
 	qmdilib/actiongroup.cpp \
 	qmdilib/actiongrouplist.cpp \
 	qmdilib/qmdiclient.h \
 	qmdilib/qmdihost.h \
 	qmdilib/qmdiserver.h \
 	qmdilib/qmditabwidget.h \
+	qelib/qecodeeditor.h \
+	qelib/qecpphighlighter/kateitemdata.h \
+	qelib/qecpphighlighter/kateitemdatamanager.h \
+	qelib/qtsourceview/qegtklangdef.h \
+	qelib/qtsourceview/qorderedmap.h \
+	qelib/qtsourceview/qegtkhighlighter.h \
+	qelib/qtsourceview/qelangdeffactory.h \
+	editorsettings.h \ 
+	textdisplay.h \
 	texteditorex.h \
-	editorsettings.h \
 	linenumberwidget.h \
-	qelib/qtsourceview/qelangdeffactory.h
+	configdialog.h \
+	mainwindow.h \
+	helpdisplay.h \
 	
 SOURCES += \
-	main.cpp \
-	mainwindow.cpp \
-	optionsdialog.cpp \
-	helpdisplay.cpp \
-	qelib/qecodeeditor.cpp \
-	qelib/qecodehighlighter.cpp \
-	qelib/qecpphighlighter/qemymap.cpp \
-	qelib/qecpphighlighter/qecpphighlighter.cpp \
-	qelib/qecpphighlighter/kateitemdata.cpp \
-	qelib/qecpphighlighter/kateitemdatamanager.cpp \
-	qelib/qtsourceview/qegtklangdef.cpp \
-	qelib/qtsourceview/qorderedmap.cpp \
-	qelib/qtsourceview/qegtkhighlighter.cpp \
 	qmdilib/actiongroup.cpp \
 	qmdilib/actiongrouplist.cpp \
 	qmdilib/qmdiclient.cpp \
 	qmdilib/qmdihost.cpp \ 
 	qmdilib/qmdiserver.cpp \
 	qmdilib/qmditabwidget.cpp \
+	qelib/qecodeeditor.cpp \
+	qelib/qecpphighlighter/qemymap.cpp \
+	qelib/qecpphighlighter/kateitemdata.cpp \
+	qelib/qecpphighlighter/kateitemdatamanager.cpp \
+	qelib/qtsourceview/qegtklangdef.cpp \
+	qelib/qtsourceview/qegtkhighlighter.cpp \
+	qelib/qtsourceview/qelangdeffactory.cpp \
+	editorsettings.cpp \ 
 	textdisplay.cpp \
 	texteditorex.cpp \
-	editorsettings.cpp \
+	helpdisplay.cpp \
 	linenumberwidget.cpp \
-	qelib/qtsourceview/qelangdeffactory.cpp
+	configdialog.cpp \
+	mainwindow.cpp \
+	main.cpp \

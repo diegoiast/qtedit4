@@ -1,9 +1,8 @@
 #include <QtGui>
 #include <QtDebug>
 #include <QUrl>
+#include <QToolButton>
 
-// #include "qexdilib/qextabwidget.h"
-// #include "qmdilib/qmdihost.h"
 #include "qmdilib/qmditabwidget.h"
 
 #include "qecpphighlighter.h"
@@ -51,7 +50,21 @@ MainWindow::MainWindow()
 	QeLangDefFactory::getInstanse()->loadDirectory( QApplication::applicationDirPath() + "/../data/gtksourceview/" );
 	defColors.load( QApplication::applicationDirPath() + "/../data/default/kate.xml" );
 	mainTab = new qmdiTabWidget( this );
+
+	QToolButton *tabNewBtn = new QToolButton(mainTab);
+	tabNewBtn->setAutoRaise( true );
+	connect( tabNewBtn, SIGNAL(clicked()), this, SLOT(fileNew()));
+	tabNewBtn->setIcon(QIcon(":images/filenew.png"));
+
+	QToolButton *tabCloseBtn = new QToolButton(mainTab);
+	tabCloseBtn->setAutoRaise( true );
+	connect( tabCloseBtn, SIGNAL(clicked()), this, SLOT(fileClose()));
+	tabCloseBtn->setIcon(QIcon(":images/fileclose.png"));
+	
+        mainTab->setCornerWidget( tabNewBtn, Qt::TopLeftCorner );
+        mainTab->setCornerWidget( tabCloseBtn, Qt::TopRightCorner  );
 	setCentralWidget( mainTab );
+
 	
 	createActions();
 	createMenus();
@@ -61,8 +74,10 @@ MainWindow::MainWindow()
 	statusBar()->showMessage( tr("Welcome"), 5000 );
 	loadStatus();
 
-	optionsDialog = new OptionsDialog( this );
-	optionsDialog->hide();
+	configDialog = new ConfigurationDialog();
+	configDialog->hide();
+
+	loadFile( "src/main.cpp" );
 }
 
 
@@ -77,6 +92,7 @@ MainWindow::MainWindow()
  */
 void MainWindow::closeEvent( QCloseEvent *event )
 {
+	configDialog->close();
 	saveStatus();
 
 	// ugly hack to shut up warnings from gcc...
@@ -131,7 +147,13 @@ void MainWindow::fileClose()
 
 void MainWindow::optionsConfiguration()
 {
-	optionsDialog->show();
+	if (configDialog->isHidden())
+	{
+		configDialog->updateWidgetsFromSettings();
+		configDialog->show();
+	}
+	else
+		configDialog->hide();
 }
 
 void MainWindow::helpBrowseQtDocs()

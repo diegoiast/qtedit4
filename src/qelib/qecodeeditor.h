@@ -1,18 +1,19 @@
 #ifndef __QE_CODE_EDITOR_H__
 #define __QE_CODE_EDITOR_H__
 
+#include <QTextEdit>
+
 // forward declarations instead of including headers
 class QWidget;
 class QTextCodec;
 class QString;
 class QAction;
-
-class QECodeHighlighter;
+class QSyntaxHighlighter;
 
 class QECodeEditor: public QTextEdit
 {
 public:
-	QECodeEditor( QWidget *p, QECodeHighlighter *h=NULL );
+	QECodeEditor( QWidget *p, QSyntaxHighlighter *h=NULL );
 	virtual ~QECodeEditor();
 	QString getFileName();
 	
@@ -25,7 +26,7 @@ public:
 private:
 	
 	QString    fileName;
-	QECodeHighlighter *codeHighlighter;
+	QSyntaxHighlighter *codeHighlighter;
 };
 
 

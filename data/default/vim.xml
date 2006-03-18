@@ -15,4 +15,8 @@
 	<itemData defStyleNum="dsFunction" name="Function"       color="#0000b0" selColor="#ffffff" bold="0" italic="0" />
 	<itemData defStyleNum="dsRegion"   name="Region marker"  color="#ffffff" selColor="#A0A0A4" bold="0" italic="0" />
 	<itemData defStyleNum="dsError"    name="Error "         color="#ff0000" selColor="#ff0000" bold="0" italic="0" underline="1" />
+	
+ 	<itemData defStyleNum="dsOthers2"  name="Diff added"     color="#00FF00" selColor="#00ff00" bold="0" italic="0" />
+ 	<itemData defStyleNum="dsOthers3"  name="Diff removed"   color="#FF0000" selColor="#00ff00" bold="0" italic="0" />
+	
 </itemDatas>

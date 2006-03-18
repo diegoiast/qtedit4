@@ -3,7 +3,6 @@
 
 class QString;
 class QTextBrowser;
-//class TextDisplay;
 
 #include "textdisplay.h"
 

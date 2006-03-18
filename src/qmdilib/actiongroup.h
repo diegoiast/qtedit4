@@ -34,6 +34,8 @@ public:
 	void		mergeGroup( qmdiActionGroup *group );
 	void		unmergeGroup( qmdiActionGroup *group );
 
+	void		clear();
+
 	QMenu*		updateMenu( QMenu *menu=NULL );
 	QToolBar*	updateToolBar( QToolBar *toolbar );
 	

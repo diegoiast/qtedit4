@@ -6,8 +6,9 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QAction>
+#include <QSyntaxHighlighter>
 
-#include "qecodehighlighter.h"
+// #include "qecodehighlighter.h"
 #include "qecodeeditor.h"
 
 
@@ -39,7 +40,7 @@
  *  - sets fileName to "";
  *  - sets codeHighlighter to show C++
  */
-QECodeEditor::QECodeEditor( QWidget *p, QECodeHighlighter *h ):QTextEdit(p)
+QECodeEditor::QECodeEditor( QWidget *p, QSyntaxHighlighter *h ):QTextEdit(p)
 {
 	setLineWrapMode( QTextEdit::NoWrap );
 
@@ -47,11 +48,11 @@ QECodeEditor::QECodeEditor( QWidget *p, QECodeHighlighter *h ):QTextEdit(p)
 	codeHighlighter = h;
 
 	if (codeHighlighter)
-		codeHighlighter->addToDocument( document() );
+		codeHighlighter->setDocument( document() );
 
-	setHighlight( "1.cpp" );
-	setFontFamily( "Misc Console" );
-	setFontPointSize( 12 );
+// 	setHighlight( "1.cpp" );
+// 	setFontFamily( "Misc Console" );
+// 	setFontPointSize( 12 );
 }
 
 
@@ -165,16 +166,16 @@ void QECodeEditor::setHighlight( QString fileName )
 		return;
 
 	// set default color and background
-	setTextColor( codeHighlighter->getDefaultColor() );
+// 	setTextColor( codeHighlighter->getDefaultColor() );
 
 	// set default background
-	QPalette p( palette() );
-	p.setColor( QPalette::Base, codeHighlighter->getDefaultBackground() );
-	setPalette( p );
+// 	QPalette p( palette() );
+// 	p.setColor( QPalette::Base, codeHighlighter->getDefaultBackground() );
+// 	setPalette( p );
 	
 	//	qDebug("QECodeEditor::setHighlight(%x)", h );
-	if (codeHighlighter)
-		codeHighlighter->setHighlight( fileName );
+// 	if (codeHighlighter)
+// 		codeHighlighter->setHighlight( fileName );
 
-	update();
+// 	update();
 }

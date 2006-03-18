@@ -276,29 +276,54 @@ void    TextDisplay::setEditor( QTextEdit *e, bool ignoreConf, bool isGotoLineEn
 	if (!ignoreConf)
 		updateConfiguration();
 
+	toolbars.clear();
+	menus.clear();
 	// menus used by this widget
 	if (editor->isReadOnly())
 	{
-		toolbars["Text operations"]->addAction( actionPaste );
+		menus["&Edit"]->addAction( actionCopy );
+		menus["&Search"]->addAction( actionFind );
+		menus["&Search"]->addAction( actionFindNext );
+		menus["&Search"]->addAction( actionFindPrev );
+	
+		toolbars["Text operations"]->addAction( actionCopy );
 		toolbars["Text operations"]->addAction( actionFind );
-		toolbars["Text operations"]->addAction( actionGotoLine );
+
+		if (isGotoLineEnabled)
+		{
+			menus["&Search"]->addSeparator();
+			menus["&Search"]->addAction( actionGotoLine );
+		}
 	}
 	else
 	{
+		menus["&Edit"]->addAction( actionUndo );
+		menus["&Edit"]->addAction( actionRedo );
+		menus["&Edit"]->addSeparator();
+		menus["&Edit"]->addAction( actionCut );
 		menus["&Edit"]->addAction( actionCopy );
+		menus["&Edit"]->addAction( actionPaste );
+		
 		menus["&Search"]->addAction( actionFind );
-		menus["&Search"]->addAction( actionGotoLine );
-		menus["&Search"]->addSeparator();
 		menus["&Search"]->addAction( actionFindNext );
 		menus["&Search"]->addAction( actionFindPrev );
-
+		menus["&Search"]->addAction( actionReplace );
+		
+		toolbars["Text operations"]->addAction( actionUndo );
+		toolbars["Text operations"]->addAction( actionRedo );
+		toolbars["Text operations"]->addSeparator();
 		toolbars["Text operations"]->addAction( actionCopy );
 		toolbars["Text operations"]->addAction( actionCut );
 		toolbars["Text operations"]->addAction( actionPaste );
 		toolbars["Text operations"]->addAction( actionFind );
 		toolbars["Text operations"]->addAction( actionReplace );
-		toolbars["Text operations"]->addAction( actionGotoLine );
-	}
+	
+		if (isGotoLineEnabled)
+		{
+			menus["&Search"]->addSeparator();
+			menus["&Search"]->addAction( actionGotoLine );
+		}
+}
 
 }
 

@@ -174,6 +174,10 @@ void qmdiActionGroup::mergeGroup( qmdiActionGroup *group )
 	}	
 }
 
+void qmdiActionGroup::clear()
+{
+	actionGroupItems.clear();
+}
 
 /**
  * \brief unmerges another action group actions into this action group
