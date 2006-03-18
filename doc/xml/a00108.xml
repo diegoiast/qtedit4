@@ -1,93 +1,97 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
-  <compounddef id="a00108" kind="class" prot="public">
-    <compoundname>OptionsDialog</compoundname>
-      <sectiondef kind="public-func">
-      <memberdef kind="function" id="a00108_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>OptionsDialog::OptionsDialog</definition>
-        <argsstring>(QWidget *owner)</argsstring>
-        <name>OptionsDialog</name>
-        <param>
-          <type>QWidget *</type>
-          <declname>owner</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="26" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.cpp" bodystart="12" bodyend="45"/>
-      </memberdef>
-      <memberdef kind="function" id="a00108_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>OptionsDialog::~OptionsDialog</definition>
-        <argsstring>()</argsstring>
-        <name>~OptionsDialog</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="27" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.cpp" bodystart="47" bodyend="49"/>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="public-slot">
-      <memberdef kind="slot" id="a00108_1i0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void OptionsDialog::chooseFont</definition>
-        <argsstring>()</argsstring>
-        <name>chooseFont</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="30" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.cpp" bodystart="51" bodyend="63"/>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="a00108_1r0" prot="private" static="no" mutable="no">
-        <type>Ui::OptionsDialog</type>
-        <definition>Ui::OptionsDialog OptionsDialog::optionsDialogUI</definition>
-        <argsstring></argsstring>
-        <name>optionsDialogUI</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="33" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" bodystart="33" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00108_1r1" prot="private" static="no" mutable="no">
-        <type>QFont</type>
-        <definition>QFont OptionsDialog::editorFont</definition>
-        <argsstring></argsstring>
-        <name>editorFont</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="34" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" bodystart="34" bodyend="-1"/>
-      </memberdef>
-      </sectiondef>
+  <compounddef id="a00108" kind="file">
+    <compoundname>qegtkhighlighter.h</compoundname>
+    <includes local="no">QSyntaxHighlighter</includes>
+    <includes refid="a00114" local="yes">qorderedmap.h</includes>
+    <includedby refid="a00064" local="yes">src/mainwindow.cpp</includedby>
+    <includedby refid="a00107" local="yes">src/qelib/qtsourceview/qegtkhighlighter.cpp</includedby>
+    <includedby refid="a00127" local="yes">src/textdisplay.cpp</includedby>
+    <incdepgraph>
+      <node id="640">
+        <label>QTextCharFormat</label>
+      </node>
+      <node id="639">
+        <label>QList</label>
+      </node>
+      <node id="635">
+        <label>src/qelib/qtsourceview/qegtkhighlighter.h</label>
+        <link refid="qegtkhighlighter.h"/>
+        <childnode refid="636" relation="include">
+        </childnode>
+        <childnode refid="637" relation="include">
+        </childnode>
+      </node>
+      <node id="637">
+        <label>qorderedmap.h</label>
+        <link refid="a00114-source"/>
+        <childnode refid="638" relation="include">
+        </childnode>
+        <childnode refid="639" relation="include">
+        </childnode>
+        <childnode refid="640" relation="include">
+        </childnode>
+      </node>
+      <node id="638">
+        <label>QString</label>
+      </node>
+      <node id="636">
+        <label>QSyntaxHighlighter</label>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="642">
+        <label>src/mainwindow.cpp</label>
+        <link refid="a00064"/>
+      </node>
+      <node id="641">
+        <label>src/qelib/qtsourceview/qegtkhighlighter.h</label>
+        <link refid="qegtkhighlighter.h"/>
+        <childnode refid="642" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="a00198">QeGTK_Highlighter</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" line="23" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/optionsdialog.h" bodystart="23" bodyend="35"/>
-    <listofallmembers>
-      <member refid="a00108_1i0" prot="public" virt="non-virtual"><scope>OptionsDialog</scope><name>chooseFont</name></member>
-      <member refid="a00108_1r1" prot="private" virt="non-virtual"><scope>OptionsDialog</scope><name>editorFont</name></member>
-      <member refid="a00108_1a0" prot="public" virt="non-virtual"><scope>OptionsDialog</scope><name>OptionsDialog</name></member>
-      <member refid="a00108_1r0" prot="private" virt="non-virtual"><scope>OptionsDialog</scope><name>optionsDialogUI</name></member>
-      <member refid="a00108_1a1" prot="public" virt="non-virtual"><scope>OptionsDialog</scope><name>~OptionsDialog</name></member>
-    </listofallmembers>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__QE_GTK_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__QE_GTK_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QSyntaxHighlighter&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qorderedmap.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QTextCharFormat;</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="a00051" kindref="compound">QeGtkSourceViewLangDef</ref>;</highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">kateItemDataManager;</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QeGTK_Highlighter:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QSyntaxHighlighter</highlight></codeline>
+<codeline lineno="12"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QeGTK_Highlighter(<sp/>QTextDocument<sp/>*parent<sp/>=<sp/>0,<sp/>kateItemDataManager<sp/>*manager=0<sp/>);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QeGTK_Highlighter(<sp/>QTextEdit<sp/>*parent<sp/>=<sp/>0,<sp/>kateItemDataManager<sp/>*manager=0<sp/>);</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setHighlight(<sp/><ref refid="a00051" kindref="compound">QeGtkSourceViewLangDef</ref><sp/>*lang<sp/>);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keyword">protected</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>highlightBlock(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;text);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"></highlight></codeline>
+<codeline lineno="21"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QTextCharFormat<sp/>&amp;format,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>formatName,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>drawText<sp/><sp/><sp/><sp/>(<sp/>QString<sp/>text,<sp/>QString<sp/>s,<sp/>QTextCharFormat<sp/>&amp;format<sp/>);</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>drawRegExp<sp/><sp/>(<sp/>QString<sp/>text,<sp/>QString<sp/>s,<sp/>QTextCharFormat<sp/>&amp;format<sp/>);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>drawKeywords(<sp/>QString<sp/>text,<sp/>QString<sp/>s,<sp/>QTextCharFormat<sp/>&amp;format<sp/>);</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight></codeline>
+<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00055" kindref="compound">QOrderedMap&lt;QString,QTextCharFormat&gt;</ref><sp/>mappings;</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager<sp/>*manager;</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00051" kindref="compound">QeGtkSourceViewLangDef</ref><sp/>*language;</highlight></codeline>
+<codeline lineno="32"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"></highlight></codeline>
+<codeline lineno="34"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/><sp/>//<sp/>__QE_GTK_HIGHLIGHTER_H__</highlight></codeline>
+    </programlisting>
+    <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtkhighlighter.h"/>
   </compounddef>
 </doxygen>

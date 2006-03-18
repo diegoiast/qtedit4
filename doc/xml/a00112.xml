@@ -1,524 +1,66 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
-  <compounddef id="a00112" kind="class" prot="public">
-    <compoundname>TextDisplay</compoundname>
-      <sectiondef kind="public-func">
-      <memberdef kind="function" id="a00112_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>TextDisplay::TextDisplay</definition>
-        <argsstring>(QTextEdit *editor, QWidget *parent=NULL)</argsstring>
-        <name>TextDisplay</name>
-        <param>
-          <type>QTextEdit *</type>
-          <declname>editor</declname>
-        </param>
-        <param>
-          <type>QWidget *</type>
-          <declname>parent</declname>
-          <defval>NULL</defval>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="23" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="15" bodyend="60"/>
-      </memberdef>
-      <memberdef kind="function" id="a00112_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>TextDisplay::~TextDisplay</definition>
-        <argsstring>()</argsstring>
-        <name>~TextDisplay</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="24" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="62" bodyend="67"/>
-      </memberdef>
-      <memberdef kind="function" id="a00112_1a2" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
-        <type>QTextEdit *</type>
-        <definition>QTextEdit* TextDisplay::getEditor</definition>
-        <argsstring>()</argsstring>
-        <name>getEditor</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="26" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="26" bodyend="26"/>
-      </memberdef>
-      <memberdef kind="function" id="a00112_1a3" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
-        <type>QWidget *</type>
-        <definition>QWidget* TextDisplay::getInternalFind</definition>
-        <argsstring>()</argsstring>
-        <name>getInternalFind</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="27" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="27" bodyend="27"/>
-      </memberdef>
-      <memberdef kind="function" id="a00112_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>QTextDocument *</type>
-        <definition>QTextDocument * TextDisplay::document</definition>
-        <argsstring>()</argsstring>
-        <name>document</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="28" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="69" bodyend="72"/>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="public-slot">
-      <memberdef kind="slot" id="a00112_1i0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::hideInternalWidgets</definition>
-        <argsstring>()</argsstring>
-        <name>hideInternalWidgets</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="31" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="74" bodyend="79"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::undo</definition>
-        <argsstring>()</argsstring>
-        <name>undo</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="32" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="81" bodyend="84"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::redo</definition>
-        <argsstring>()</argsstring>
-        <name>redo</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="33" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="86" bodyend="89"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::copy</definition>
-        <argsstring>()</argsstring>
-        <name>copy</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="34" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="91" bodyend="94"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::cut</definition>
-        <argsstring>()</argsstring>
-        <name>cut</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="35" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="96" bodyend="99"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::paste</definition>
-        <argsstring>()</argsstring>
-        <name>paste</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="36" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="101" bodyend="104"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::find</definition>
-        <argsstring>()</argsstring>
-        <name>find</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="37" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="106" bodyend="120"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::replace</definition>
-        <argsstring>()</argsstring>
-        <name>replace</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="38" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="122" bodyend="135"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::gotoLine</definition>
-        <argsstring>()</argsstring>
-        <name>gotoLine</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="39" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="137" bodyend="157"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::findNext</definition>
-        <argsstring>()</argsstring>
-        <name>findNext</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="40" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="205" bodyend="217"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i10" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::findPrev</definition>
-        <argsstring>()</argsstring>
-        <name>findPrev</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="41" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="219" bodyend="232"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::incrementalSearch</definition>
-        <argsstring>(QString s)</argsstring>
-        <name>incrementalSearch</name>
-        <param>
-          <type>QString</type>
-          <declname>s</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="42" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="234" bodyend="240"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::findString</definition>
-        <argsstring>(QString s, bool wholeDocument=false, QTextDocument::FindFlags findOptions=0)</argsstring>
-        <name>findString</name>
-        <param>
-          <type>QString</type>
-          <declname>s</declname>
-        </param>
-        <param>
-          <type>bool</type>
-          <declname>wholeDocument</declname>
-          <defval>false</defval>
-        </param>
-        <param>
-          <type>QTextDocument::FindFlags</type>
-          <declname>findOptions</declname>
-          <defval>0</defval>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="43" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="303" bodyend="332"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::doReplace</definition>
-        <argsstring>()</argsstring>
-        <name>doReplace</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="44" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="159" bodyend="203"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i14" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::gotoLine</definition>
-        <argsstring>(int i)</argsstring>
-        <name>gotoLine</name>
-        <param>
-          <type>int</type>
-          <declname>i</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="45" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="334" bodyend="337"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i15" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>QPoint</type>
-        <definition>QPoint TextDisplay::getCursorLocation</definition>
-        <argsstring>()</argsstring>
-        <name>getCursorLocation</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="47" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="242" bodyend="259"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i16" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::setCursorLocation</definition>
-        <argsstring>(QPoint p)</argsstring>
-        <name>setCursorLocation</name>
-        <param>
-          <type>QPoint</type>
-          <declname>p</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="48" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="261" bodyend="283"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i17" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>void</type>
-        <definition>void TextDisplay::setCursorLocation</definition>
-        <argsstring>(int x, int y)</argsstring>
-        <name>setCursorLocation</name>
-        <param>
-          <type>int</type>
-          <declname>x</declname>
-        </param>
-        <param>
-          <type>int</type>
-          <declname>y</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="49" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="285" bodyend="288"/>
-      </memberdef>
-      <memberdef kind="slot" id="a00112_1i18" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>uint</type>
-        <definition>uint TextDisplay::getLineCount</definition>
-        <argsstring>()</argsstring>
-        <name>getLineCount</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="50" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.cpp" bodystart="290" bodyend="300"/>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="a00112_1r0" prot="private" static="no" mutable="no">
-        <type>QTextEdit *</type>
-        <definition>QTextEdit* TextDisplay::editor</definition>
-        <argsstring></argsstring>
-        <name>editor</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="53" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="53" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r1" prot="private" static="no" mutable="no">
-        <type>QVBoxLayout *</type>
-        <definition>QVBoxLayout* TextDisplay::layout</definition>
-        <argsstring></argsstring>
-        <name>layout</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="54" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="54" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r2" prot="private" static="no" mutable="no">
-        <type>QString</type>
-        <definition>QString TextDisplay::fileName</definition>
-        <argsstring></argsstring>
-        <name>fileName</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="55" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="55" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r3" prot="private" static="no" mutable="no">
-        <type>QWidget *</type>
-        <definition>QWidget* TextDisplay::internalFind</definition>
-        <argsstring></argsstring>
-        <name>internalFind</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="56" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="56" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r4" prot="private" static="no" mutable="no">
-        <type>QWidget *</type>
-        <definition>QWidget* TextDisplay::internalReplace</definition>
-        <argsstring></argsstring>
-        <name>internalReplace</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="57" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="57" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r5" prot="private" static="no" mutable="no">
-        <type>QWidget *</type>
-        <definition>QWidget* TextDisplay::internalGotoLine</definition>
-        <argsstring></argsstring>
-        <name>internalGotoLine</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="58" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="58" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r6" prot="private" static="no" mutable="no">
-        <type>Ui::InlineFind</type>
-        <definition>Ui::InlineFind TextDisplay::uiInlineFind</definition>
-        <argsstring></argsstring>
-        <name>uiInlineFind</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="60" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="60" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r7" prot="private" static="no" mutable="no">
-        <type>Ui::InlineReplace</type>
-        <definition>Ui::InlineReplace TextDisplay::uiInlineReplace</definition>
-        <argsstring></argsstring>
-        <name>uiInlineReplace</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="61" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="61" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00112_1r8" prot="private" static="no" mutable="no">
-        <type>Ui::InlineGotoLine</type>
-        <definition>Ui::InlineGotoLine TextDisplay::uiInlineGotoLine</definition>
-        <argsstring></argsstring>
-        <name>uiInlineGotoLine</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="62" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="62" bodyend="-1"/>
-      </memberdef>
-      </sectiondef>
+  <compounddef id="a00112" kind="file">
+    <compoundname>qelangdeffactory.h</compoundname>
+    <includes local="no">QMap</includes>
+    <includedby refid="a00064" local="yes">src/mainwindow.cpp</includedby>
+    <includedby refid="a00111" local="yes">src/qelib/qtsourceview/qelangdeffactory.cpp</includedby>
+    <includedby refid="a00127" local="yes">src/textdisplay.cpp</includedby>
+    <incdepgraph>
+      <node id="668">
+        <label>QMap</label>
+      </node>
+      <node id="667">
+        <label>src/qelib/qtsourceview/qelangdeffactory.h</label>
+        <link refid="qelangdeffactory.h"/>
+        <childnode refid="668" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="670">
+        <label>src/mainwindow.cpp</label>
+        <link refid="a00064"/>
+      </node>
+      <node id="669">
+        <label>src/qelib/qtsourceview/qelangdeffactory.h</label>
+        <link refid="qelangdeffactory.h"/>
+        <childnode refid="670" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="a00199">QeLangDefFactory</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" line="20" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/textdisplay.h" bodystart="20" bodyend="63"/>
-    <listofallmembers>
-      <member refid="a00112_1i3" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>copy</name></member>
-      <member refid="a00112_1i4" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>cut</name></member>
-      <member refid="a00112_1a4" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>document</name></member>
-      <member refid="a00112_1i13" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>doReplace</name></member>
-      <member refid="a00112_1r0" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>editor</name></member>
-      <member refid="a00112_1r2" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>fileName</name></member>
-      <member refid="a00112_1i6" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>find</name></member>
-      <member refid="a00112_1i9" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>findNext</name></member>
-      <member refid="a00112_1i10" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>findPrev</name></member>
-      <member refid="a00112_1i12" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>findString</name></member>
-      <member refid="a00112_1i15" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>getCursorLocation</name></member>
-      <member refid="a00112_1a2" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>getEditor</name></member>
-      <member refid="a00112_1a3" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>getInternalFind</name></member>
-      <member refid="a00112_1i18" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>getLineCount</name></member>
-      <member refid="a00112_1i8" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>gotoLine</name></member>
-      <member refid="a00112_1i14" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>gotoLine</name></member>
-      <member refid="a00112_1i0" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>hideInternalWidgets</name></member>
-      <member refid="a00112_1i11" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>incrementalSearch</name></member>
-      <member refid="a00112_1r3" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>internalFind</name></member>
-      <member refid="a00112_1r5" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>internalGotoLine</name></member>
-      <member refid="a00112_1r4" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>internalReplace</name></member>
-      <member refid="a00112_1r1" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>layout</name></member>
-      <member refid="a00112_1i5" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>paste</name></member>
-      <member refid="a00112_1i2" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>redo</name></member>
-      <member refid="a00112_1i7" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>replace</name></member>
-      <member refid="a00112_1i16" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>setCursorLocation</name></member>
-      <member refid="a00112_1i17" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>setCursorLocation</name></member>
-      <member refid="a00112_1a0" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>TextDisplay</name></member>
-      <member refid="a00112_1r6" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>uiInlineFind</name></member>
-      <member refid="a00112_1r8" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>uiInlineGotoLine</name></member>
-      <member refid="a00112_1r7" prot="private" virt="non-virtual"><scope>TextDisplay</scope><name>uiInlineReplace</name></member>
-      <member refid="a00112_1i1" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>undo</name></member>
-      <member refid="a00112_1a1" prot="public" virt="non-virtual"><scope>TextDisplay</scope><name>~TextDisplay</name></member>
-    </listofallmembers>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__QE_LANGDEF_FACTORY_H__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__QE_LANGDEF_FACTORY_H__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMap&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal"><ref refid="a00051" kindref="compound">QeGtkSourceViewLangDef</ref>;</highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QString;</highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QeLangDefFactory</highlight></codeline>
+<codeline lineno="10"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QeLangDefFactory<sp/>*getInstanse();</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00051" kindref="compound">QeGtkSourceViewLangDef</ref><sp/>*getHighlight(<sp/>QString<sp/>fileName<sp/>);</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>loadDirectory(<sp/>QString<sp/>directory<sp/>);</highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight></codeline>
+<codeline lineno="16"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:<sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QeLangDefFactory(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>~QeLangDefFactory(</highlight><highlight class="keywordtype">void</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">static</highlight><highlight class="normal"><sp/>QeLangDefFactory<sp/>*LangFactory;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;QeGtkSourceViewLangDef*&gt;<sp/>langList;</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QMap&lt;QString,QStringList&gt;<sp/>mimeTypes;</highlight></codeline>
+<codeline lineno="23"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__QE_LANGDEF_FACTORY_H__</highlight></codeline>
+    </programlisting>
+    <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qelangdeffactory.h"/>
   </compounddef>
 </doxygen>

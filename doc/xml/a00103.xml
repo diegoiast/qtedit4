@@ -1,281 +1,160 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
-  <compounddef id="a00103" kind="class" prot="public">
-    <compoundname>kateItemDataManager</compoundname>
-      <sectiondef kind="public-func">
-      <memberdef kind="function" id="a00103_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>()</argsstring>
-        <name>kateItemDataManager</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="12" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="5" bodyend="7"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>(QDomDocument doc)</argsstring>
-        <name>kateItemDataManager</name>
-        <param>
-          <type>QDomDocument</type>
-          <declname>doc</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="13" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="9" bodyend="12"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>(QString fileName)</argsstring>
-        <name>kateItemDataManager</name>
-        <param>
-          <type>QString</type>
-          <declname>fileName</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="14" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="14" bodyend="17"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
-        <type>virtual</type>
-        <definition>kateItemDataManager::~kateItemDataManager</definition>
-        <argsstring>()</argsstring>
-        <name>~kateItemDataManager</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="15" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="19" bodyend="21"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type><ref refid="a00023" kindref="compound">kateItemData</ref></type>
-        <definition>kateItemData kateItemDataManager::getItemData</definition>
-        <argsstring>(QString name)</argsstring>
-        <name>getItemData</name>
-        <param>
-          <type>QString</type>
-          <declname>name</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="17" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="23" bodyend="34"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool kateItemDataManager::load</definition>
-        <argsstring>(QDomDocument doc)</argsstring>
-        <name>load</name>
-        <param>
-          <type>QDomDocument</type>
-          <declname>doc</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="18" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="36" bodyend="50"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool kateItemDataManager::load</definition>
-        <argsstring>(QString fileName)</argsstring>
-        <name>load</name>
-        <param>
-          <type>QString</type>
-          <declname>fileName</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="19" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp" bodystart="52" bodyend="69"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a7" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>()</argsstring>
-        <name>kateItemDataManager</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="12"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a8" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>(QDomDocument doc)</argsstring>
-        <name>kateItemDataManager</name>
-        <param>
-          <type>QDomDocument</type>
-          <declname>doc</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="13"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a9" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type></type>
-        <definition>kateItemDataManager::kateItemDataManager</definition>
-        <argsstring>(QString fileName)</argsstring>
-        <name>kateItemDataManager</name>
-        <param>
-          <type>QString</type>
-          <declname>fileName</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="14"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a10" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
-        <type>virtual</type>
-        <definition>virtual kateItemDataManager::~kateItemDataManager</definition>
-        <argsstring>()</argsstring>
-        <name>~kateItemDataManager</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="15"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a11" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type><ref refid="a00023" kindref="compound">kateItemData</ref></type>
-        <definition>kateItemData kateItemDataManager::getItemData</definition>
-        <argsstring>(QString name)</argsstring>
-        <name>getItemData</name>
-        <param>
-          <type>QString</type>
-          <declname>name</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="17"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a12" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool kateItemDataManager::load</definition>
-        <argsstring>(QDomDocument doc)</argsstring>
-        <name>load</name>
-        <param>
-          <type>QDomDocument</type>
-          <declname>doc</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="18"/>
-      </memberdef>
-      <memberdef kind="function" id="a00103_1a13" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
-        <type>bool</type>
-        <definition>bool kateItemDataManager::load</definition>
-        <argsstring>(QString fileName)</argsstring>
-        <name>load</name>
-        <param>
-          <type>QString</type>
-          <declname>fileName</declname>
-        </param>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="19"/>
-      </memberdef>
-      </sectiondef>
-      <sectiondef kind="private-attrib">
-      <memberdef kind="variable" id="a00103_1r0" prot="private" static="no" mutable="no">
-        <type>QList&lt; <ref refid="a00023" kindref="compound">kateItemData</ref> &gt;</type>
-        <definition>QList&lt;kateItemData&gt; kateItemDataManager::itemDatas</definition>
-        <argsstring></argsstring>
-        <name>itemDatas</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="21" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" bodystart="21" bodyend="-1"/>
-      </memberdef>
-      <memberdef kind="variable" id="a00103_1r1" prot="private" static="no" mutable="no">
-        <type>QList&lt; <ref refid="a00023" kindref="compound">kateItemData</ref> &gt;</type>
-        <definition>QList&lt;kateItemData&gt; kateItemDataManager::itemDatas</definition>
-        <argsstring></argsstring>
-        <name>itemDatas</name>
-        <briefdescription>
-        </briefdescription>
-        <detaileddescription>
-        </detaileddescription>
-        <inbodydescription>
-        </inbodydescription>
-        <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" line="21" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/kateitemdatamanager.h" bodystart="21" bodyend="-1"/>
-      </memberdef>
-      </sectiondef>
+  <compounddef id="a00103" kind="file">
+    <compoundname>qecpphighlighter.h</compoundname>
+    <includes refid="a00089" local="yes">kateitemdatamanager.h</includes>
+    <includes refid="a00101" local="yes">qecodehighlighter.h</includes>
+    <includes refid="a00105" local="yes">qemymap.h</includes>
+    <includedby refid="a00064" local="yes">src/mainwindow.cpp</includedby>
+    <includedby refid="a00102" local="yes">src/qelib/qecpphighlighter/qecpphighlighter.cpp</includedby>
+    <incdepgraph>
+      <node id="594">
+        <label>QMap</label>
+      </node>
+      <node id="590">
+        <label>QDomNode</label>
+      </node>
+      <node id="598">
+        <label>QTextEdit</label>
+      </node>
+      <node id="596">
+        <label>QObject</label>
+      </node>
+      <node id="592">
+        <label>QTextCharFormat</label>
+      </node>
+      <node id="588">
+        <label>QList</label>
+      </node>
+      <node id="600">
+        <label>qemymap.h</label>
+        <link refid="a00105-source"/>
+        <childnode refid="587" relation="include">
+        </childnode>
+        <childnode refid="588" relation="include">
+        </childnode>
+        <childnode refid="592" relation="include">
+        </childnode>
+      </node>
+      <node id="593">
+        <label>kateqtglobal.h</label>
+        <link refid="a00095-source"/>
+        <childnode refid="587" relation="include">
+        </childnode>
+        <childnode refid="594" relation="include">
+        </childnode>
+      </node>
+      <node id="586">
+        <label>QDomDocument</label>
+      </node>
+      <node id="587">
+        <label>QString</label>
+      </node>
+      <node id="591">
+        <label>QColor</label>
+      </node>
+      <node id="584">
+        <label>src/qelib/qecpphighlighter/qecpphighlighter.h</label>
+        <link refid="qecpphighlighter.h"/>
+        <childnode refid="585" relation="include">
+        </childnode>
+        <childnode refid="595" relation="include">
+        </childnode>
+        <childnode refid="600" relation="include">
+        </childnode>
+      </node>
+      <node id="585">
+        <label>kateitemdatamanager.h</label>
+        <link refid="a00089-source"/>
+        <childnode refid="586" relation="include">
+        </childnode>
+        <childnode refid="587" relation="include">
+        </childnode>
+        <childnode refid="588" relation="include">
+        </childnode>
+        <childnode refid="589" relation="include">
+        </childnode>
+      </node>
+      <node id="595">
+        <label>qecodehighlighter.h</label>
+        <link refid="a00101-source"/>
+        <childnode refid="587" relation="include">
+        </childnode>
+        <childnode refid="596" relation="include">
+        </childnode>
+        <childnode refid="597" relation="include">
+        </childnode>
+        <childnode refid="598" relation="include">
+        </childnode>
+        <childnode refid="599" relation="include">
+        </childnode>
+      </node>
+      <node id="599">
+        <label>QTextBlock</label>
+      </node>
+      <node id="597">
+        <label>QTextDocument</label>
+      </node>
+      <node id="589">
+        <label>kateitemdata.h</label>
+        <link refid="a00085-source"/>
+        <childnode refid="590" relation="include">
+        </childnode>
+        <childnode refid="591" relation="include">
+        </childnode>
+        <childnode refid="592" relation="include">
+        </childnode>
+        <childnode refid="593" relation="include">
+        </childnode>
+      </node>
+    </incdepgraph>
+    <invincdepgraph>
+      <node id="602">
+        <label>src/mainwindow.cpp</label>
+        <link refid="a00064"/>
+      </node>
+      <node id="601">
+        <label>src/qelib/qecpphighlighter/qecpphighlighter.h</label>
+        <link refid="qecpphighlighter.h"/>
+        <childnode refid="602" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="a00191">QECPPHighlighter</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" line="10" bodyfile="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h" bodystart="9" bodyend="22"/>
-    <listofallmembers>
-      <member refid="a00103_1a4" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>getItemData</name></member>
-      <member refid="a00103_1a11" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>getItemData</name></member>
-      <member refid="a00103_1r0" prot="private" virt="non-virtual"><scope>kateItemDataManager</scope><name>itemDatas</name></member>
-      <member refid="a00103_1r1" prot="private" virt="non-virtual"><scope>kateItemDataManager</scope><name>itemDatas</name></member>
-      <member refid="a00103_1a0" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a1" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a2" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a7" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a8" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a9" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>kateItemDataManager</name></member>
-      <member refid="a00103_1a5" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>load</name></member>
-      <member refid="a00103_1a6" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>load</name></member>
-      <member refid="a00103_1a12" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>load</name></member>
-      <member refid="a00103_1a13" prot="public" virt="non-virtual"><scope>kateItemDataManager</scope><name>load</name></member>
-      <member refid="a00103_1a3" prot="public" virt="virtual"><scope>kateItemDataManager</scope><name>~kateItemDataManager</name></member>
-      <member refid="a00103_1a10" prot="public" virt="virtual"><scope>kateItemDataManager</scope><name>~kateItemDataManager</name></member>
-    </listofallmembers>
+    <programlisting>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateitemdatamanager.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qecodehighlighter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qemymap.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">QECPPHighlighter:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/><ref refid="a00050" kindref="compound">QECodeHighlighter</ref></highlight></codeline>
+<codeline lineno="9"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QECPPHighlighter(<sp/>kateItemDataManager<sp/>*d=NULL<sp/>);</highlight></codeline>
+<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QColor<sp/>getDefaultColor();</highlight></codeline>
+<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QColor<sp/>getDefaultBackground();</highlight></codeline>
+<codeline lineno="14"><highlight class="normal"></highlight></codeline>
+<codeline lineno="15"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>highlightBlock(<sp/>QTextBlock<sp/>block<sp/>);</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>setHighlight(<sp/>QString<sp/>fileName<sp/>);</highlight></codeline>
+<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QTextCharFormat<sp/>&amp;format,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/><sp/>);</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMapping(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;formatName,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord=</highlight><highlight class="keyword">false</highlight><highlight class="normal"><sp/>);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMappings_cpp();</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>addMappings_pro();</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QEMyMap<sp/>mappings;</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager<sp/>*defaultColors;</highlight></codeline>
+<codeline lineno="26"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"></highlight></codeline>
+<codeline lineno="28"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__QE_CPP_HIGHLIGHTER_H__</highlight></codeline>
+    </programlisting>
+    <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qecpphighlighter/qecpphighlighter.h"/>
   </compounddef>
 </doxygen>

@@ -1,97 +1,234 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
   <compounddef id="a00062" kind="file">
-    <compoundname>katewordlist.h</compoundname>
-    <includes local="no">QDomNode</includes>
-    <includes local="no">QStringList</includes>
-    <includes refid="a00059" local="yes">kateqtglobal.h</includes>
-    <includedby refid="a00044" local="yes">src/qelib/kate-qt/katehighlight.h</includedby>
-    <includedby refid="a00061" local="yes">src/qelib/kate-qt/katewordlist.cpp</includedby>
+    <compoundname>main.cpp</compoundname>
+    <includes local="no">QApplication</includes>
+    <includes local="no">QMessageBox</includes>
+    <includes local="no">QDir</includes>
+    <includes refid="a00065" local="yes">mainwindow.h</includes>
+    <includes refid="a00110" local="yes">qelib/qtsourceview/qegtklangdef.h</includes>
     <incdepgraph>
-      <node id="451">
+      <node id="71">
         <label>QMap</label>
       </node>
-      <node id="447">
+      <node id="67">
         <label>QDomNode</label>
       </node>
-      <node id="449">
+      <node id="57">
+        <label>QTabWidget</label>
+      </node>
+      <node id="58">
+        <label>QTextEdit</label>
+      </node>
+      <node id="53">
+        <label>QMessageBox</label>
+      </node>
+      <node id="69">
+        <label>QTextCharFormat</label>
+      </node>
+      <node id="61">
+        <label>QList</label>
+      </node>
+      <node id="77">
+        <label>qelib/qtsourceview/qegtklangdef.h</label>
+        <link refid="a00110-source"/>
+      </node>
+      <node id="62">
+        <label>actiongroup.h</label>
+        <link refid="a00116"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+      </node>
+      <node id="75">
+        <label>QFont</label>
+      </node>
+      <node id="56">
+        <label>QMainWindow</label>
+      </node>
+      <node id="70">
         <label>kateqtglobal.h</label>
-        <link refid="a00059-source"/>
-        <childnode refid="450" relation="include">
+        <link refid="a00095-source"/>
+        <childnode refid="63" relation="include">
         </childnode>
-        <childnode refid="451" relation="include">
-        </childnode>
-      </node>
-      <node id="446">
-        <label>src/qelib/kate-qt/katewordlist.h</label>
-        <link refid="katewordlist.h"/>
-        <childnode refid="447" relation="include">
-        </childnode>
-        <childnode refid="448" relation="include">
-        </childnode>
-        <childnode refid="449" relation="include">
+        <childnode refid="71" relation="include">
         </childnode>
       </node>
-      <node id="450">
+      <node id="52">
+        <label>QApplication</label>
+      </node>
+      <node id="74">
+        <label>QDialog</label>
+      </node>
+      <node id="51">
+        <label>src/main.cpp</label>
+        <link refid="main.cpp"/>
+        <childnode refid="52" relation="include">
+        </childnode>
+        <childnode refid="53" relation="include">
+        </childnode>
+        <childnode refid="54" relation="include">
+        </childnode>
+        <childnode refid="55" relation="include">
+        </childnode>
+        <childnode refid="77" relation="include">
+        </childnode>
+      </node>
+      <node id="76">
+        <label>ui_optionsdialog.h</label>
+      </node>
+      <node id="65">
+        <label>QDomDocument</label>
+      </node>
+      <node id="73">
+        <label>QWidget</label>
+      </node>
+      <node id="63">
         <label>QString</label>
       </node>
-      <node id="448">
-        <label>QStringList</label>
+      <node id="68">
+        <label>QColor</label>
+      </node>
+      <node id="72">
+        <label>optionsdialog.h</label>
+        <link refid="a00067-source"/>
+        <childnode refid="73" relation="include">
+        </childnode>
+        <childnode refid="74" relation="include">
+        </childnode>
+        <childnode refid="75" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="76" relation="include">
+        </childnode>
+      </node>
+      <node id="64">
+        <label>kateitemdatamanager.h</label>
+        <link refid="a00089-source"/>
+        <childnode refid="65" relation="include">
+        </childnode>
+        <childnode refid="63" relation="include">
+        </childnode>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="66" relation="include">
+        </childnode>
+      </node>
+      <node id="59">
+        <label>qmdilib/qmdihost.h</label>
+        <link refid="a00122"/>
+        <childnode refid="60" relation="include">
+        </childnode>
+      </node>
+      <node id="60">
+        <label>actiongrouplist.h</label>
+        <link refid="a00118"/>
+        <childnode refid="61" relation="include">
+        </childnode>
+        <childnode refid="62" relation="include">
+        </childnode>
+      </node>
+      <node id="54">
+        <label>QDir</label>
+      </node>
+      <node id="55">
+        <label>mainwindow.h</label>
+        <link refid="a00065"/>
+        <childnode refid="56" relation="include">
+        </childnode>
+        <childnode refid="57" relation="include">
+        </childnode>
+        <childnode refid="58" relation="include">
+        </childnode>
+        <childnode refid="59" relation="include">
+        </childnode>
+        <childnode refid="64" relation="include">
+        </childnode>
+        <childnode refid="72" relation="include">
+        </childnode>
+      </node>
+      <node id="66">
+        <label>kateitemdata.h</label>
+        <link refid="a00085-source"/>
+        <childnode refid="67" relation="include">
+        </childnode>
+        <childnode refid="68" relation="include">
+        </childnode>
+        <childnode refid="69" relation="include">
+        </childnode>
+        <childnode refid="70" relation="include">
+        </childnode>
       </node>
     </incdepgraph>
-    <invincdepgraph>
-      <node id="455">
-        <label>src/qelib/kate-qt/katelanguage.h</label>
-        <link refid="a00058-source"/>
-      </node>
-      <node id="453">
-        <label>src/qelib/kate-qt/katehighlight.h</label>
-        <link refid="a00044-source"/>
-        <childnode refid="454" relation="include">
-        </childnode>
-        <childnode refid="455" relation="include">
-        </childnode>
-      </node>
-      <node id="452">
-        <label>src/qelib/kate-qt/katewordlist.h</label>
-        <link refid="katewordlist.h"/>
-        <childnode refid="453" relation="include">
-        </childnode>
-      </node>
-      <node id="454">
-        <label>src/qelib/kate-qt/katecolorfile.h</label>
-        <link refid="a00034-source"/>
-      </node>
-    </invincdepgraph>
-    <innerclass refid="a00106">kateWordList</innerclass>
+      <sectiondef kind="func">
+      <memberdef kind="function" id="a00062_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void test_order_map</definition>
+        <argsstring>()</argsstring>
+        <name>test_order_map</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/main.cpp" line="16" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qorderedmap.cpp" bodystart="6" bodyend="24"/>
+      </memberdef>
+      <memberdef kind="function" id="a00062_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>int</type>
+        <definition>int main</definition>
+        <argsstring>(int argc, char *argv[])</argsstring>
+        <name>main</name>
+        <param>
+          <type>int</type>
+          <declname>argc</declname>
+        </param>
+        <param>
+          <type>char *</type>
+          <declname>argv</declname>
+          <array>[]</array>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/main.cpp" line="19" bodyfile="/home/elcuco/src/svn/qtedit4/src/main.cpp" bodystart="18" bodyend="29"/>
+      </memberdef>
+      </sectiondef>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
     <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__KATE_WORD_LIST_H__</highlight></codeline>
-<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__KATE_WORD_LIST_H__</highlight></codeline>
-<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDomNode&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QStringList&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="6"><highlight class="normal"></highlight></codeline>
-<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateqtglobal.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;QApplication&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QMessageBox&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDir&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="comment">//<sp/>#include<sp/>&quot;qehighlightmanager.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;<ref refid="a00065" kindref="compound">mainwindow.h</ref>&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qelib/qtsourceview/qegtklangdef.h&quot;</highlight><highlight class="normal"></highlight></codeline>
 <codeline lineno="8"><highlight class="normal"></highlight></codeline>
-<codeline lineno="9"><highlight class="normal"></highlight></codeline>
-<codeline lineno="10"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">kateWordList</highlight></codeline>
-<codeline lineno="11"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="12"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateWordList();</highlight></codeline>
-<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateWordList(<sp/>QDomNode<sp/>node<sp/>);</highlight></codeline>
-<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>load(<sp/>QDomNode<sp/>node<sp/>);</highlight></codeline>
-<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>save(<sp/>QDomNode<sp/>node<sp/>);</highlight></codeline>
-<codeline lineno="17"><highlight class="normal"></highlight><highlight class="comment">//<sp/>private:</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QString<sp/><sp/><sp/><sp/><sp/>name;</highlight></codeline>
-<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QStringList<sp/>items;</highlight></codeline>
-<codeline lineno="20"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="21"><highlight class="normal"></highlight></codeline>
-<codeline lineno="22"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__KATE_WORD_LIST_H__</highlight></codeline>
+<codeline lineno="16"><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>test_order_map();</highlight></codeline>
+<codeline lineno="17"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="normal"></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>main(</highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>argc,<sp/></highlight><highlight class="keywordtype">char</highlight><highlight class="normal"><sp/>*argv[])</highlight></codeline>
+<codeline lineno="19"><highlight class="normal">{</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QApplication<sp/>app(argc,<sp/>argv);</highlight></codeline>
+<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>app.setOrganizationName(</highlight><highlight class="stringliteral">&quot;Trolltech&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>app.setApplicationName(</highlight><highlight class="stringliteral">&quot;QtEdit&quot;</highlight><highlight class="normal">);</highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight></codeline>
+<codeline lineno="24"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>QEHighlightManager::loadDirectory(<sp/>QDir::current().absolutePath()+&quot;/data/&quot;<sp/>);</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00048" kindref="compound">MainWindow</ref><sp/>window;</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>window.show();</highlight></codeline>
+<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>app.exec();</highlight></codeline>
+<codeline lineno="29"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"></highlight></codeline>
+<codeline lineno="31"><highlight class="normal"></highlight></codeline>
     </programlisting>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/katewordlist.h"/>
+    <location file="/home/elcuco/src/svn/qtedit4/src/main.cpp"/>
   </compounddef>
 </doxygen>

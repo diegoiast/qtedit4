@@ -3,17 +3,26 @@
   <compounddef id="dir_000000" kind="dir">
     <compoundname>src/</compoundname>
     <innerdir refid="dir_000001">src/qelib/</innerdir>
-    <innerfile refid="a00027">main.cpp</innerfile>
-    <innerfile refid="a00029">mainwindow.cpp</innerfile>
-    <innerfile refid="a00030">mainwindow.h</innerfile>
-    <innerfile refid="a00031">optionsdialog.cpp</innerfile>
-    <innerfile refid="a00032">optionsdialog.h</innerfile>
-    <innerfile refid="a00071">textdisplay.cpp</innerfile>
-    <innerfile refid="a00072">textdisplay.h</innerfile>
+    <innerdir refid="dir_000005">src/qmdilib/</innerdir>
+    <innerfile refid="a00056">editorsettings.cpp</innerfile>
+    <innerfile refid="a00057">editorsettings.h</innerfile>
+    <innerfile refid="a00058">helpdisplay.cpp</innerfile>
+    <innerfile refid="a00059">helpdisplay.h</innerfile>
+    <innerfile refid="a00060">linenumberwidget.cpp</innerfile>
+    <innerfile refid="a00061">linenumberwidget.h</innerfile>
+    <innerfile refid="a00062">main.cpp</innerfile>
+    <innerfile refid="a00064">mainwindow.cpp</innerfile>
+    <innerfile refid="a00065">mainwindow.h</innerfile>
+    <innerfile refid="a00066">optionsdialog.cpp</innerfile>
+    <innerfile refid="a00067">optionsdialog.h</innerfile>
+    <innerfile refid="a00127">textdisplay.cpp</innerfile>
+    <innerfile refid="a00128">textdisplay.h</innerfile>
+    <innerfile refid="a00129">texteditorex.cpp</innerfile>
+    <innerfile refid="a00130">texteditorex.h</innerfile>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/"/>
+    <location file="/home/elcuco/src/svn/qtedit4/src/"/>
   </compounddef>
 </doxygen>

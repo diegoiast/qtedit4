@@ -1,309 +1,107 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
   <compounddef id="a00067" kind="file">
-    <compoundname>qecpphighlighter.cpp</compoundname>
+    <compoundname>optionsdialog.h</compoundname>
+    <includes local="no">QWidget</includes>
+    <includes local="no">QDialog</includes>
+    <includes local="no">QFont</includes>
     <includes local="no">QList</includes>
-    <includes local="no">QDir</includes>
-    <includes local="no">QTextLayout</includes>
-    <includes refid="a00068" local="yes">qecpphighlighter.h</includes>
+    <includes local="yes">ui_optionsdialog.h</includes>
+    <includedby refid="a00065" local="yes">src/mainwindow.h</includedby>
+    <includedby refid="a00066" local="yes">src/optionsdialog.cpp</includedby>
     <incdepgraph>
-      <node id="506">
-        <label>QMap</label>
-      </node>
-      <node id="502">
-        <label>QDomNode</label>
-      </node>
-      <node id="493">
-        <label>src/qelib/qecpphighlighter/qecpphighlighter.cpp</label>
-        <link refid="qecpphighlighter.cpp"/>
-        <childnode refid="494" relation="include">
-        </childnode>
-        <childnode refid="495" relation="include">
-        </childnode>
-        <childnode refid="496" relation="include">
-        </childnode>
-        <childnode refid="497" relation="include">
-        </childnode>
-      </node>
-      <node id="510">
-        <label>QTextEdit</label>
-      </node>
-      <node id="505">
-        <label>kateqtglobal.h</label>
-        <link refid="a00060-source"/>
-        <childnode refid="500" relation="include">
-        </childnode>
-        <childnode refid="506" relation="include">
-        </childnode>
-      </node>
-      <node id="497">
-        <label>qecpphighlighter.h</label>
-        <link refid="a00068-source"/>
-        <childnode refid="498" relation="include">
-        </childnode>
-        <childnode refid="507" relation="include">
-        </childnode>
-        <childnode refid="512" relation="include">
-        </childnode>
-      </node>
-      <node id="508">
-        <label>QObject</label>
-      </node>
-      <node id="504">
-        <label>QTextCharFormat</label>
-      </node>
-      <node id="494">
+      <node id="185">
         <label>QList</label>
       </node>
-      <node id="507">
-        <label>qecodehighlighter.h</label>
-        <link refid="a00066-source"/>
-        <childnode refid="500" relation="include">
-        </childnode>
-        <childnode refid="508" relation="include">
-        </childnode>
-        <childnode refid="509" relation="include">
-        </childnode>
-        <childnode refid="510" relation="include">
-        </childnode>
-        <childnode refid="511" relation="include">
-        </childnode>
+      <node id="184">
+        <label>QFont</label>
       </node>
-      <node id="498">
-        <label>kateitemdatamanager.h</label>
-        <link refid="a00054-source"/>
-        <childnode refid="499" relation="include">
-        </childnode>
-        <childnode refid="500" relation="include">
-        </childnode>
-        <childnode refid="494" relation="include">
-        </childnode>
-        <childnode refid="501" relation="include">
-        </childnode>
+      <node id="183">
+        <label>QDialog</label>
       </node>
-      <node id="501">
-        <label>kateitemdata.h</label>
-        <link refid="a00050-source"/>
-        <childnode refid="502" relation="include">
+      <node id="186">
+        <label>ui_optionsdialog.h</label>
+      </node>
+      <node id="182">
+        <label>QWidget</label>
+      </node>
+      <node id="181">
+        <label>src/optionsdialog.h</label>
+        <link refid="optionsdialog.h"/>
+        <childnode refid="182" relation="include">
         </childnode>
-        <childnode refid="503" relation="include">
+        <childnode refid="183" relation="include">
         </childnode>
-        <childnode refid="504" relation="include">
+        <childnode refid="184" relation="include">
         </childnode>
-        <childnode refid="505" relation="include">
+        <childnode refid="185" relation="include">
         </childnode>
-      </node>
-      <node id="499">
-        <label>QDomDocument</label>
-      </node>
-      <node id="500">
-        <label>QString</label>
-      </node>
-      <node id="503">
-        <label>QColor</label>
-      </node>
-      <node id="511">
-        <label>QTextBlock</label>
-      </node>
-      <node id="495">
-        <label>QDir</label>
-      </node>
-      <node id="509">
-        <label>QTextDocument</label>
-      </node>
-      <node id="512">
-        <label>qemymap.h</label>
-        <link refid="a00070-source"/>
-        <childnode refid="500" relation="include">
+        <childnode refid="186" relation="include">
         </childnode>
-        <childnode refid="494" relation="include">
-        </childnode>
-        <childnode refid="504" relation="include">
-        </childnode>
-      </node>
-      <node id="496">
-        <label>QTextLayout</label>
       </node>
     </incdepgraph>
+    <invincdepgraph>
+      <node id="189">
+        <label>src/mainwindow.cpp</label>
+        <link refid="a00064"/>
+      </node>
+      <node id="190">
+        <label>src/optionsdialog.cpp</label>
+        <link refid="a00066"/>
+      </node>
+      <node id="187">
+        <label>src/optionsdialog.h</label>
+        <link refid="optionsdialog.h"/>
+        <childnode refid="188" relation="include">
+        </childnode>
+        <childnode refid="190" relation="include">
+        </childnode>
+      </node>
+      <node id="188">
+        <label>src/mainwindow.h</label>
+        <link refid="a00065"/>
+        <childnode refid="189" relation="include">
+        </childnode>
+      </node>
+    </invincdepgraph>
+    <innerclass refid="a00189">MyCodecListEntry</innerclass>
+    <innerclass refid="a00190">OptionsDialog</innerclass>
     <briefdescription>
     </briefdescription>
     <detaileddescription>
     </detaileddescription>
     <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;QList&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDir&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QTextLayout&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;qecpphighlighter.h&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="5"><highlight class="normal"></highlight></codeline>
-<codeline lineno="6"><highlight class="normal">QECPPHighlighter::QECPPHighlighter(<sp/>kateItemDataManager<sp/>*d<sp/>)</highlight></codeline>
-<codeline lineno="7"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>:<ref refid="a00026" kindref="compound">QECodeHighlighter</ref>()</highlight></codeline>
-<codeline lineno="8"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="9"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>defaultColors<sp/>=<sp/>d;</highlight></codeline>
-<codeline lineno="10"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="11"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="12"><highlight class="normal"></highlight></codeline>
-<codeline lineno="13"><highlight class="normal">QColor<sp/>QECPPHighlighter::getDefaultColor()</highlight></codeline>
-<codeline lineno="14"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(defaultColors)</highlight></codeline>
-<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>defaultColors-&gt;getItemData(</highlight><highlight class="stringliteral">&quot;dsNormal&quot;</highlight><highlight class="normal">).getColor();</highlight></codeline>
-<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>Qt::black;</highlight></codeline>
-<codeline lineno="19"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="20"><highlight class="normal"></highlight></codeline>
-<codeline lineno="21"><highlight class="normal">QColor<sp/>QECPPHighlighter::getDefaultBackground()</highlight></codeline>
-<codeline lineno="22"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="23"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(defaultColors)</highlight></codeline>
-<codeline lineno="24"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>defaultColors-&gt;getItemData(</highlight><highlight class="stringliteral">&quot;dsNormal&quot;</highlight><highlight class="normal">).getBackground();</highlight></codeline>
-<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>Qt::white;</highlight></codeline>
-<codeline lineno="27"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__OPTIONS_DIALOG_H__</highlight></codeline>
+<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__OPTIONS_DIALOG_H__</highlight></codeline>
+<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QWidget&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDialog&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QFont&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QList&gt;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="8"><highlight class="normal"></highlight></codeline>
+<codeline lineno="9"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;ui_optionsdialog.h&quot;</highlight><highlight class="normal"></highlight></codeline>
+<codeline lineno="10"><highlight class="normal"></highlight></codeline>
+<codeline lineno="18"><highlight class="keyword">struct<sp/></highlight><highlight class="normal">MyCodecListEntry{</highlight></codeline>
+<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/>CodecName;</highlight></codeline>
+<codeline lineno="20"><highlight class="normal"><sp/><sp/><sp/><sp/>QString<sp/>Encoding;</highlight></codeline>
+<codeline lineno="21"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="22"><highlight class="normal"></highlight></codeline>
+<codeline lineno="23"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">OptionsDialog:<sp/></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>QDialog<sp/>{</highlight></codeline>
+<codeline lineno="24"><highlight class="normal">Q_OBJECT</highlight></codeline>
+<codeline lineno="25"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>OptionsDialog(<sp/>QWidget<sp/>*owner<sp/>);</highlight></codeline>
+<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>~OptionsDialog();</highlight></codeline>
 <codeline lineno="28"><highlight class="normal"></highlight></codeline>
-<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::highlightBlock(QTextBlock<sp/>block)</highlight></codeline>
-<codeline lineno="30"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QTextLayout<sp/>*layout<sp/>=<sp/>block.layout();</highlight></codeline>
-<codeline lineno="32"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>text<sp/>=<sp/>block.text();</highlight></codeline>
-<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;QTextLayout::FormatRange&gt;<sp/>overrides;</highlight></codeline>
-<codeline lineno="35"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="36"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>foreach<sp/>(QEMyMapNode<sp/>pattern,<sp/>mappings.keys())</highlight></codeline>
-<codeline lineno="37"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QRegExp<sp/>expression(pattern.key);</highlight></codeline>
-<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">int</highlight><highlight class="normal"><sp/>i<sp/>=<sp/>text.indexOf(expression);</highlight></codeline>
-<codeline lineno="40"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="41"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">while</highlight><highlight class="normal"><sp/>(i<sp/>&gt;=<sp/>0)<sp/></highlight></codeline>
-<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QTextLayout::FormatRange<sp/>range;</highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>range.start<sp/><sp/>=<sp/>i;</highlight></codeline>
-<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>range.length<sp/>=<sp/>expression.matchedLength();</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>range.format<sp/>=<sp/>pattern.value;</highlight></codeline>
-<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>overrides<sp/>&lt;&lt;<sp/>range;</highlight></codeline>
-<codeline lineno="48"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>i<sp/>=<sp/>text.indexOf(expression,<sp/>i<sp/>+<sp/>expression.matchedLength());</highlight></codeline>
-<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="50"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="51"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="52"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>layout-&gt;setAdditionalFormats(overrides);</highlight></codeline>
-<codeline lineno="53"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>const_cast&lt;QTextDocument<sp/>*&gt;(block.document())-&gt;markContentsDirty(<sp/>block.position(),<sp/>block.length()<sp/>);</highlight></codeline>
-<codeline lineno="54"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"></highlight></codeline>
-<codeline lineno="56"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::setHighlight(<sp/>QString<sp/>fileName<sp/>)</highlight></codeline>
-<codeline lineno="57"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.cpp&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="60"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.cpp&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.c&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.cxx&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.h&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="67"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_cpp();</highlight></codeline>
-<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(QDir::match(<sp/></highlight><highlight class="stringliteral">&quot;*.pro&quot;</highlight><highlight class="normal">,fileName<sp/>)<sp/>)</highlight></codeline>
-<codeline lineno="69"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMappings_pro();</highlight></codeline>
-<codeline lineno="70"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="71"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mappings.clear();</highlight></codeline>
-<codeline lineno="72"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>else<sp/>if<sp/>(QDir::match(<sp/>&quot;*.cpp&quot;,fileName<sp/>)<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="73"><highlight class="normal"></highlight></codeline>
-<codeline lineno="74"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>highlight(<sp/>0,<sp/>0,<sp/>0<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="75"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="76"><highlight class="normal"></highlight></codeline>
-<codeline lineno="77"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::addMapping(</highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QTextCharFormat<sp/>&amp;format,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord<sp/>)</highlight></codeline>
-<codeline lineno="78"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="79"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QString<sp/>p<sp/>=<sp/>pattern;</highlight></codeline>
-<codeline lineno="80"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(fullWord)</highlight></codeline>
-<codeline lineno="81"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>p<sp/>=<sp/></highlight><highlight class="stringliteral">&quot;\\b&quot;</highlight><highlight class="normal"><sp/>+<sp/>p<sp/>+<sp/></highlight><highlight class="stringliteral">&quot;\\b&quot;</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="82"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="83"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mappings.add(<sp/>p,<sp/>format<sp/>);</highlight></codeline>
-<codeline lineno="84"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="85"><highlight class="normal"></highlight></codeline>
-<codeline lineno="86"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::addMapping(<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;pattern,<sp/></highlight><highlight class="keyword">const</highlight><highlight class="normal"><sp/>QString<sp/>&amp;formatName,<sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>fullWord<sp/>)</highlight></codeline>
-<codeline lineno="87"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="88"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!defaultColors)</highlight></codeline>
-<codeline lineno="89"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="90"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QTextCharFormat<sp/>t;</highlight></codeline>
-<codeline lineno="91"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t.setBackground(<sp/>Qt::white<sp/>);</highlight></codeline>
-<codeline lineno="92"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>t.setForeground(<sp/>Qt::black<sp/>);</highlight></codeline>
-<codeline lineno="93"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>pattern,<sp/>t,<sp/>fullWord<sp/>);</highlight></codeline>
-<codeline lineno="94"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="95"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">else</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="96"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>pattern,<sp/>defaultColors-&gt;getItemData(formatName).toCharFormat(),<sp/>fullWord<sp/>);</highlight></codeline>
-<codeline lineno="97"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="98"><highlight class="normal"></highlight></codeline>
-<codeline lineno="99"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::addMappings_cpp()</highlight></codeline>
-<codeline lineno="100"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="101"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mappings.clear();</highlight></codeline>
-<codeline lineno="102"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>reserved<sp/>words</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="103"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;struct&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="104"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;class&quot;</highlight><highlight class="normal"><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="105"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;private&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="106"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;public&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="107"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;protected&quot;</highlight><highlight class="normal">,</highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="108"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;for&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="109"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;while&quot;</highlight><highlight class="normal"><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="110"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;return&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="111"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;if&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="112"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;else&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="113"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;case&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="114"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;switch&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="115"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;new&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="116"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;delete&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsKeyword&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="117"><highlight class="normal"></highlight></codeline>
-<codeline lineno="118"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>some<sp/>types</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="119"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;int&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="120"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;float&quot;</highlight><highlight class="normal"><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="121"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;double&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="122"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;void&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="123"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;char&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="124"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;unsigned&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="125"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="126"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QString&quot;<sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="127"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QWidget&quot;<sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="128"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QPoint&quot;<sp/><sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="129"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QTextBrowser&quot;,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="130"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QMainWindow&quot;<sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="131"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QLayout&quot;<sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="132"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QMenu&quot;<sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="133"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QAction&quot;<sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="134"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QToolBar&quot;<sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="135"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QToolButton&quot;<sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="136"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;QObject&quot;<sp/><sp/><sp/><sp/><sp/>,<sp/>&quot;dsDataType&quot;,<sp/>true<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="137"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>addMapping(&quot;&quot;,<sp/>&quot;dsDataType&quot;<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="138"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="139"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>numbers</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="140"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;[0-9]+&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDecVal&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="141"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;0x[\\da-fA-F]+&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsDecVal&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="142"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;0[0-7]+&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsBaseN&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="143"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;[\\d]*\\.[\\d]*&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsFloat&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="144"><highlight class="normal"></highlight></codeline>
-<codeline lineno="145"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>Qt4<sp/>extentions</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="146"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;Q_OBJECT&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="147"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;SLOT&quot;</highlight><highlight class="normal"><sp/><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="148"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;connect&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="149"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;SIGNAL&quot;</highlight><highlight class="normal"><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="150"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;slots&quot;</highlight><highlight class="normal"><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="151"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;foreach&quot;</highlight><highlight class="normal"><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="152"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="153"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>strings</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="154"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;&apos;[^&apos;]+&apos;&quot;</highlight><highlight class="normal"><sp/><sp/><sp/>,<sp/></highlight><highlight class="stringliteral">&quot;dsChar&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="155"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;\&quot;[^\&quot;]*\&quot;&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsString&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="156"><highlight class="normal"></highlight></codeline>
-<codeline lineno="157"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>comments<sp/><sp/><sp/><sp/><sp/></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="158"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>QString(</highlight><highlight class="stringliteral">&quot;%1[^\n]*&quot;</highlight><highlight class="normal">).arg(</highlight><highlight class="stringliteral">&quot;#&quot;</highlight><highlight class="normal">),<sp/></highlight><highlight class="stringliteral">&quot;dsOthers&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="159"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>QString(</highlight><highlight class="stringliteral">&quot;%1[^\n]*&quot;</highlight><highlight class="normal">).arg(</highlight><highlight class="stringliteral">&quot;//&quot;</highlight><highlight class="normal">),<sp/></highlight><highlight class="stringliteral">&quot;dsComment&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="160"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>QString(</highlight><highlight class="stringliteral">&quot;%1[^\n]*&quot;</highlight><highlight class="normal">).arg(</highlight><highlight class="stringliteral">&quot;/\\*&quot;</highlight><highlight class="normal">),<sp/></highlight><highlight class="stringliteral">&quot;dsComment&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="161"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>QString(</highlight><highlight class="stringliteral">&quot;%1[^\n]*&quot;</highlight><highlight class="normal">).arg(</highlight><highlight class="stringliteral">&quot;///&quot;</highlight><highlight class="normal">),<sp/></highlight><highlight class="stringliteral">&quot;dsError&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="162"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(<sp/>QString(</highlight><highlight class="stringliteral">&quot;%1[^\n]*&quot;</highlight><highlight class="normal">).arg(</highlight><highlight class="stringliteral">&quot;/\\*\\*&quot;</highlight><highlight class="normal">),<sp/></highlight><highlight class="stringliteral">&quot;dsAlerts&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="163"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="164"><highlight class="normal"></highlight></codeline>
-<codeline lineno="165"><highlight class="normal"></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>QECPPHighlighter::addMappings_pro()</highlight></codeline>
-<codeline lineno="166"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="167"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>mappings.clear();</highlight></codeline>
-<codeline lineno="168"><highlight class="normal"></highlight></codeline>
-<codeline lineno="169"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;[A-Z_]+&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsDataType&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="170"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;#[^\n]*&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsComment&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="171"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;\&quot;.*\&quot;&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsString&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="172"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>addMapping(</highlight><highlight class="stringliteral">&quot;\\b[a-z0-9_]+\\(.*\\)&quot;</highlight><highlight class="normal">,<sp/></highlight><highlight class="stringliteral">&quot;dsFunction&quot;</highlight><highlight class="normal"><sp/>);</highlight></codeline>
-<codeline lineno="173"><highlight class="normal">}</highlight></codeline>
+<codeline lineno="29"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal"><sp/>slots:</highlight></codeline>
+<codeline lineno="30"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">void</highlight><highlight class="normal"><sp/>chooseFont();</highlight></codeline>
+<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
+<codeline lineno="32"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
+<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>Ui::OptionsDialog<sp/>optionsDialogUI;</highlight></codeline>
+<codeline lineno="34"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QFont<sp/>editorFont;</highlight></codeline>
+<codeline lineno="35"><highlight class="normal">};</highlight></codeline>
+<codeline lineno="36"><highlight class="normal"></highlight></codeline>
+<codeline lineno="37"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__OPTIONS_DIALOG_H__</highlight></codeline>
     </programlisting>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/qecpphighlighter/qecpphighlighter.cpp"/>
+    <location file="/home/elcuco/src/svn/qtedit4/src/optionsdialog.h"/>
   </compounddef>
 </doxygen>

@@ -1,98 +1,215 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
-  <compounddef id="a00053" kind="file">
-    <compoundname>kateitemdatamanager.h</compoundname>
-    <includes local="no">QDomDocument</includes>
-    <includes local="no">QString</includes>
-    <includes local="no">QList</includes>
-    <includes refid="a00049" local="yes">kateitemdata.h</includes>
-    <includedby refid="a00051" local="yes">src/qelib/kate-qt/kateitemdatamanager.cpp</includedby>
-    <incdepgraph>
-      <node id="346">
-        <label>QMap</label>
-      </node>
-      <node id="342">
-        <label>QDomNode</label>
-      </node>
-      <node id="344">
-        <label>QTextCharFormat</label>
-      </node>
-      <node id="340">
-        <label>QList</label>
-      </node>
-      <node id="345">
-        <label>kateqtglobal.h</label>
-        <link refid="a00059-source"/>
-        <childnode refid="339" relation="include">
-        </childnode>
-        <childnode refid="346" relation="include">
-        </childnode>
-      </node>
-      <node id="341">
-        <label>kateitemdata.h</label>
-        <link refid="a00049-source"/>
-        <childnode refid="342" relation="include">
-        </childnode>
-        <childnode refid="343" relation="include">
-        </childnode>
-        <childnode refid="344" relation="include">
-        </childnode>
-        <childnode refid="345" relation="include">
-        </childnode>
-      </node>
-      <node id="338">
-        <label>QDomDocument</label>
-      </node>
-      <node id="339">
-        <label>QString</label>
-      </node>
-      <node id="343">
-        <label>QColor</label>
-      </node>
-      <node id="337">
-        <label>src/qelib/kate-qt/kateitemdatamanager.h</label>
-        <link refid="kate-qt/kateitemdatamanager.h"/>
-        <childnode refid="338" relation="include">
-        </childnode>
-        <childnode refid="339" relation="include">
-        </childnode>
-        <childnode refid="340" relation="include">
-        </childnode>
-        <childnode refid="341" relation="include">
-        </childnode>
-      </node>
-    </incdepgraph>
-    <innerclass refid="a00103">kateItemDataManager</innerclass>
+  <compounddef id="a00053" kind="class" prot="public">
+    <compoundname>qmdiActionGroupList</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="a00053_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>qmdiActionGroupList::qmdiActionGroupList</definition>
+        <argsstring>()</argsstring>
+        <name>qmdiActionGroupList</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+<para>Build an empty action group list. If you generate a menubar from this empty class, you will get a NIL menu. Generating a toolbar set from this empty class will generate no toolbars.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="24" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="36" bodyend="38"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="a00052" kindref="compound">qmdiActionGroup</ref> *</type>
+        <definition>qmdiActionGroup * qmdiActionGroupList::operator[]</definition>
+        <argsstring>(const QString name)</argsstring>
+        <name>operator[]</name>
+        <param>
+          <type>const QString</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>overloaded operator for getting the instance of a action group </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the action group name you want to get </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>an instace to an action group</para></simplesect>
+This is just an overloaded function which calls <ref refid="a00053_1a2" kindref="member">getActionGroup()</ref>.</para><para><simplesect kind="see"><para><ref refid="a00053_1a2" kindref="member">getActionGroup()</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="26" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="50" bodyend="53"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type><ref refid="a00052" kindref="compound">qmdiActionGroup</ref> *</type>
+        <definition>qmdiActionGroup * qmdiActionGroupList::getActionGroup</definition>
+        <argsstring>(const QString name)</argsstring>
+        <name>getActionGroup</name>
+        <param>
+          <type>const QString</type>
+          <declname>name</declname>
+        </param>
+        <briefdescription>
+<para>get the instance of a action group </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>name</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the action group name you want to get </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>an instace to an action group</para></simplesect>
+This function returns an instace to a action group. Action groups are abstractions of QMenu and QToolBar.</para><para>If the action group requested is not available, a new instace will be created.</para><para><simplesect kind="see"><para><ref refid="a00053_1a5" kindref="member">updateMenu()</ref> </para><para><ref refid="a00053_1a6" kindref="member">updateToolBar()</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="27" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="70" bodyend="84"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void qmdiActionGroupList::mergeGroupList</definition>
+        <argsstring>(qmdiActionGroupList *group)</argsstring>
+        <name>mergeGroupList</name>
+        <param>
+          <type><ref refid="a00053" kindref="compound">qmdiActionGroupList</ref> *</type>
+          <declname>group</declname>
+        </param>
+        <briefdescription>
+<para>merge another action group list </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>group</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the new group to merge into this one</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+This function merges an action group list definition into this action group list:<itemizedlist>
+<listitem><para>If in the new group there are action groups, the items will be appended to the existing ones</para></listitem><listitem><para>If in the new group there are new actions groups, those groups will be added to this action group list</para></listitem></itemizedlist>
+</para><para>Note that just merging is not enough, and you might need also to update the real widget which this action group list represents.</para><para><simplesect kind="see"><para><ref refid="a00053_1a4" kindref="member">unmergeGroupList</ref> </para><para><ref refid="a00053_1a5" kindref="member">updateMenu</ref> </para><para><ref refid="a00053_1a6" kindref="member">updateToolBar</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="28" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="102" bodyend="109"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>void</type>
+        <definition>void qmdiActionGroupList::unmergeGroupList</definition>
+        <argsstring>(qmdiActionGroupList *group)</argsstring>
+        <name>unmergeGroupList</name>
+        <param>
+          <type><ref refid="a00053" kindref="compound">qmdiActionGroupList</ref> *</type>
+          <declname>group</declname>
+        </param>
+        <briefdescription>
+<para>unmerge an action group list </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>group</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the old group to remove from this action group list</para></parameterdescription>
+</parameteritem>
+</parameterlist>
+This function removes external definitions from this action group list. If at the end of the unmerge, some action groups are empty, <bold>they</bold> <bold>will</bold> <bold>not</bold> <bold>be</bold> <bold>removed</bold> <bold>from</bold> <bold>this</bold> <bold>class</bold>. Since the generation of menus (using <ref refid="a00053_1a5" kindref="member">updateMenu()</ref> ) does not include empty menus, this is totally accepatable.</para><para>Note that just unmerging an action group list will not totally reflect the GUI, and you might also need to update the real widget which this action group list represents.</para><para><simplesect kind="see"><para><ref refid="a00053_1a3" kindref="member">mergeGroupList</ref> </para><para><ref refid="a00053_1a5" kindref="member">updateMenu</ref> </para><para><ref refid="a00053_1a6" kindref="member">updateToolBar</ref></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="29" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="128" bodyend="135"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a5" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QMenuBar *</type>
+        <definition>QMenuBar * qmdiActionGroupList::updateMenu</definition>
+        <argsstring>(QMenuBar *menubar)</argsstring>
+        <name>updateMenu</name>
+        <param>
+          <type>QMenuBar *</type>
+          <declname>menubar</declname>
+        </param>
+        <briefdescription>
+<para>update a QMenuBar from the definitions on this action group list </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>menubar</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>a QMenuBar to be updated </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>the updated menubar (same instace which was passed)</para></simplesect>
+This function generates from the definitions on this class a valid QMenuBar which will be showed on a QMainWindow.</para><para>If <computeroutput>menubar</computeroutput> is NULL, a new QMenuBar will be allocated for you, and will be returned.</para><para>You cannot generate items into a QMenuBar &quot;by hand&quot; and then &quot;add&quot; the definitions on this class.</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="31" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="152" bodyend="168"/>
+      </memberdef>
+      <memberdef kind="function" id="a00053_1a6" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>QList&lt; QToolBar * &gt; *</type>
+        <definition>QList&lt; QToolBar * &gt; * qmdiActionGroupList::updateToolBar</definition>
+        <argsstring>(QList&lt; QToolBar * &gt; *toolbars, QMainWindow *window)</argsstring>
+        <name>updateToolBar</name>
+        <param>
+          <type>QList&lt; QToolBar * &gt; *</type>
+          <declname>toolbars</declname>
+        </param>
+        <param>
+          <type>QMainWindow *</type>
+          <declname>window</declname>
+        </param>
+        <briefdescription>
+<para>update a list of QToolBars from the definitions on this action group list </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>window</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>the window in which the toolbars should be placed </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para></para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="32" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.cpp" bodystart="177" bodyend="211"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="a00053_1r0" prot="private" static="no" mutable="no">
+        <type>QList&lt; <ref refid="a00052" kindref="compound">qmdiActionGroup</ref> * &gt;</type>
+        <definition>QList&lt;qmdiActionGroup*&gt; qmdiActionGroupList::actionGroups</definition>
+        <argsstring></argsstring>
+        <name>actionGroups</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="35" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" bodystart="35" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
     <briefdescription>
-    </briefdescription>
+<para>abstraction layer for QMenuBar and a list of toolbars </para>    </briefdescription>
     <detaileddescription>
-    </detaileddescription>
-    <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#ifndef<sp/>__KATE_ITEM_DATA_MANAGER__</highlight></codeline>
-<codeline lineno="2"><highlight class="preprocessor"></highlight><highlight class="preprocessor">#define<sp/>__KATE_ITEM_DATA_MANAGER__</highlight></codeline>
-<codeline lineno="3"><highlight class="preprocessor"></highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QDomDocument&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="5"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QString&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="6"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QList&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="7"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateitemdata.h&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="8"><highlight class="normal"></highlight></codeline>
-<codeline lineno="9"><highlight class="normal"></highlight><highlight class="keyword">class<sp/></highlight><highlight class="normal">kateItemDataManager</highlight></codeline>
-<codeline lineno="10"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="11"><highlight class="normal"></highlight><highlight class="keyword">public</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="12"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager();</highlight></codeline>
-<codeline lineno="13"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager(<sp/>QDomDocument<sp/>doc<sp/>);</highlight></codeline>
-<codeline lineno="14"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>kateItemDataManager(<sp/>QString<sp/>fileName<sp/>);</highlight></codeline>
-<codeline lineno="15"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keyword">virtual</highlight><highlight class="normal"><sp/>~kateItemDataManager();</highlight></codeline>
-<codeline lineno="16"><highlight class="normal"></highlight></codeline>
-<codeline lineno="17"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00023" kindref="compound">kateItemData</ref><sp/>getItemData(<sp/>QString<sp/>name<sp/>);</highlight></codeline>
-<codeline lineno="18"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>load(<sp/>QDomDocument<sp/>doc<sp/>);</highlight></codeline>
-<codeline lineno="19"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>load(<sp/>QString<sp/>fileName<sp/>);</highlight></codeline>
-<codeline lineno="20"><highlight class="normal"></highlight><highlight class="keyword">private</highlight><highlight class="normal">:</highlight></codeline>
-<codeline lineno="21"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QList&lt;kateItemData&gt;<sp/>itemDatas;</highlight></codeline>
-<codeline lineno="22"><highlight class="normal">};</highlight></codeline>
-<codeline lineno="23"><highlight class="normal"></highlight></codeline>
-<codeline lineno="24"><highlight class="normal"></highlight><highlight class="preprocessor">#endif<sp/>//<sp/>__KATE_ITEM_DATA_MANAGER__</highlight></codeline>
-    </programlisting>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.h"/>
+<para>This class defines a QMenuBar and the list of toolbars available on a tipical application. Each submenu or toolbar is defined by one <ref refid="a00052" kindref="compound">qmdiActionGroup</ref>.</para><para>This class has also the ability to merge other qmdiActionGroupList (this enables widgets to add their partial menus to the menus supplied by the main application).</para>    </detaileddescription>
+    <location file="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" line="22" bodyfile="/home/elcuco/src/svn/qtedit4/src/qmdilib/actiongrouplist.h" bodystart="21" bodyend="36"/>
+    <listofallmembers>
+      <member refid="a00053_1r0" prot="private" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>actionGroups</name></member>
+      <member refid="a00053_1a2" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>getActionGroup</name></member>
+      <member refid="a00053_1a3" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>mergeGroupList</name></member>
+      <member refid="a00053_1a1" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>operator[]</name></member>
+      <member refid="a00053_1a0" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>qmdiActionGroupList</name></member>
+      <member refid="a00053_1a4" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>unmergeGroupList</name></member>
+      <member refid="a00053_1a5" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>updateMenu</name></member>
+      <member refid="a00053_1a6" prot="public" virt="non-virtual"><scope>qmdiActionGroupList</scope><name>updateToolBar</name></member>
+    </listofallmembers>
   </compounddef>
 </doxygen>

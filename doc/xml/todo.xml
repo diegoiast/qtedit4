@@ -5,8 +5,8 @@
     <title>Todo List</title>
     <detaileddescription>
 <para><anchor id="todo_1_todo000001"/> <variablelist>
-<varlistentry><term>Member <ref refid="a00024_1a0" kindref="member">MainWindow::MainWindow</ref> () </term></varlistentry>
-<listitem><para>This class also loads the default highlight mode, shuold be move to another class? </para><para>Do we need to modify the title of the main window? </para></listitem>
+<varlistentry><term>Member <ref refid="a00048_1a0" kindref="member">MainWindow::MainWindow</ref> () </term></varlistentry>
+<listitem><para>This class also loads the default highlight mode, should be move to another class? </para><para>Do we need to modify the title of the main window? </para></listitem>
 </variablelist>
 </para>    </detaileddescription>
   </compounddef>

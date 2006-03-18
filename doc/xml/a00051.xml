@@ -1,156 +1,460 @@
 <?xml version='1.0' encoding='iso-8859-1' standalone='no'?>
 <doxygen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="compound.xsd" version="1.4.4">
-  <compounddef id="a00051" kind="file">
-    <compoundname>kateitemdatamanager.cpp</compoundname>
-    <includes local="no">QtDebug</includes>
-    <includes local="no">QFile</includes>
-    <includes refid="a00053" local="yes">kateitemdatamanager.h</includes>
-    <incdepgraph>
-      <node id="321">
-        <label>QMap</label>
-      </node>
-      <node id="310">
-        <label>QtDebug</label>
-      </node>
-      <node id="317">
-        <label>QDomNode</label>
-      </node>
-      <node id="319">
-        <label>QTextCharFormat</label>
-      </node>
-      <node id="315">
-        <label>QList</label>
-      </node>
-      <node id="320">
-        <label>kateqtglobal.h</label>
-        <link refid="a00059-source"/>
-        <childnode refid="314" relation="include">
-        </childnode>
-        <childnode refid="321" relation="include">
-        </childnode>
-      </node>
-      <node id="316">
-        <label>kateitemdata.h</label>
-        <link refid="a00049-source"/>
-        <childnode refid="317" relation="include">
-        </childnode>
-        <childnode refid="318" relation="include">
-        </childnode>
-        <childnode refid="319" relation="include">
-        </childnode>
-        <childnode refid="320" relation="include">
-        </childnode>
-      </node>
-      <node id="309">
-        <label>src/qelib/kate-qt/kateitemdatamanager.cpp</label>
-        <link refid="kate-qt/kateitemdatamanager.cpp"/>
-        <childnode refid="310" relation="include">
-        </childnode>
-        <childnode refid="311" relation="include">
-        </childnode>
-        <childnode refid="312" relation="include">
-        </childnode>
-      </node>
-      <node id="313">
-        <label>QDomDocument</label>
-      </node>
-      <node id="314">
-        <label>QString</label>
-      </node>
-      <node id="311">
-        <label>QFile</label>
-      </node>
-      <node id="318">
-        <label>QColor</label>
-      </node>
-      <node id="312">
-        <label>kateitemdatamanager.h</label>
-        <link refid="a00053-source"/>
-        <childnode refid="313" relation="include">
-        </childnode>
-        <childnode refid="314" relation="include">
-        </childnode>
-        <childnode refid="315" relation="include">
-        </childnode>
-        <childnode refid="316" relation="include">
-        </childnode>
-      </node>
-    </incdepgraph>
+  <compounddef id="a00051" kind="class" prot="public">
+    <compoundname>QeGtkSourceViewLangDef</compoundname>
+      <sectiondef kind="public-func">
+      <memberdef kind="function" id="a00051_1a0" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>QeGtkSourceViewLangDef::QeGtkSourceViewLangDef</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>QeGtkSourceViewLangDef</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for the QeGtkSourceViewLangDef class. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="63" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="39" bodyend="42"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a1" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type></type>
+        <definition>QeGtkSourceViewLangDef::QeGtkSourceViewLangDef</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>QeGtkSourceViewLangDef</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Constructor for the QeGtkSourceViewLangDef class. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="64" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="49" bodyend="52"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a2" prot="public" static="no" const="no" explicit="no" inline="no" virt="virtual">
+        <type>virtual</type>
+        <definition>QeGtkSourceViewLangDef::~QeGtkSourceViewLangDef</definition>
+        <argsstring>()</argsstring>
+        <name>~QeGtkSourceViewLangDef</name>
+        <briefdescription>
+<para>Destructor for the QeGtkSourceViewLangDef class. </para>        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="65" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="59" bodyend="61"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a3" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::load</definition>
+        <argsstring>(QString fileName)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QString</type>
+          <declname>fileName</declname>
+        </param>
+        <briefdescription>
+<para>Loads a language definition from an XML file stored on the disk. </para>        </briefdescription>
+        <detaileddescription>
+<para><parameterlist kind="param"><parameteritem>
+<parameternamelist>
+<parametername>fileName</parametername>
+</parameternamelist>
+<parameterdescription>
+<para>The file from which the synatx should be loads </para></parameterdescription>
+</parameteritem>
+</parameterlist>
+<simplesect kind="return"><para>true on sucess, false on any error</para></simplesect>
+</para>        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="67" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="71" bodyend="88"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a4" prot="public" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::load</definition>
+        <argsstring>(QDomDocument doc)</argsstring>
+        <name>load</name>
+        <param>
+          <type>QDomDocument</type>
+          <declname>doc</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="68" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="90" bodyend="132"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a5" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>QString</type>
+        <definition>QString QeGtkSourceViewLangDef::getName</definition>
+        <argsstring>()</argsstring>
+        <name>getName</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="70" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="70" bodyend="70"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1a6" prot="public" static="no" const="no" explicit="no" inline="yes" virt="non-virtual">
+        <type>QStringList</type>
+        <definition>QStringList QeGtkSourceViewLangDef::getMimeTypes</definition>
+        <argsstring>()</argsstring>
+        <name>getMimeTypes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="71" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="71" bodyend="71"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-func">
+      <memberdef kind="function" id="a00051_1d0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::isTrue</definition>
+        <argsstring>(QString s)</argsstring>
+        <name>isTrue</name>
+        <param>
+          <type>QString</type>
+          <declname>s</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="74" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="134" bodyend="144"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d1" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadEntity</definition>
+        <argsstring>(QDomNode node, QeEntityDef &amp;entity)</argsstring>
+        <name>loadEntity</name>
+        <param>
+          <type>QDomNode</type>
+          <declname>node</declname>
+        </param>
+        <param>
+          <type>QeEntityDef &amp;</type>
+          <declname>entity</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="76" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="146" bodyend="160"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d2" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadLineComments</definition>
+        <argsstring>(QDomNodeList nodes)</argsstring>
+        <name>loadLineComments</name>
+        <param>
+          <type>QDomNodeList</type>
+          <declname>nodes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="77" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="162" bodyend="182"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d3" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadStrings</definition>
+        <argsstring>(QDomNodeList nodes)</argsstring>
+        <name>loadStrings</name>
+        <param>
+          <type>QDomNodeList</type>
+          <declname>nodes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="78" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="185" bodyend="210"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d4" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadPatternItems</definition>
+        <argsstring>(QDomNodeList nodes)</argsstring>
+        <name>loadPatternItems</name>
+        <param>
+          <type>QDomNodeList</type>
+          <declname>nodes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="79" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="212" bodyend="235"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d5" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadBlockComments</definition>
+        <argsstring>(QDomNodeList nodes, QList&lt; QeEntityBlockComment &gt; &amp;list)</argsstring>
+        <name>loadBlockComments</name>
+        <param>
+          <type>QDomNodeList</type>
+          <declname>nodes</declname>
+        </param>
+        <param>
+          <type>QList&lt; QeEntityBlockComment &gt; &amp;</type>
+          <declname>list</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="80" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="237" bodyend="261"/>
+      </memberdef>
+      <memberdef kind="function" id="a00051_1d6" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>bool</type>
+        <definition>bool QeGtkSourceViewLangDef::loadKeywordList</definition>
+        <argsstring>(QDomNodeList nodes)</argsstring>
+        <name>loadKeywordList</name>
+        <param>
+          <type>QDomNodeList</type>
+          <declname>nodes</declname>
+        </param>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="81" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" bodystart="264" bodyend="303"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="private-attrib">
+      <memberdef kind="variable" id="a00051_1r0" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString QeGtkSourceViewLangDef::name</definition>
+        <argsstring></argsstring>
+        <name>name</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="83" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="83" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r1" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString QeGtkSourceViewLangDef::version</definition>
+        <argsstring></argsstring>
+        <name>version</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="84" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="84" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r2" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString QeGtkSourceViewLangDef::section</definition>
+        <argsstring></argsstring>
+        <name>section</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="85" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="85" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r3" prot="private" static="no" mutable="no">
+        <type>QStringList</type>
+        <definition>QStringList QeGtkSourceViewLangDef::mimeTypes</definition>
+        <argsstring></argsstring>
+        <name>mimeTypes</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="86" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="86" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r4" prot="private" static="no" mutable="no">
+        <type>QStringList</type>
+        <definition>QStringList QeGtkSourceViewLangDef::extensions</definition>
+        <argsstring></argsstring>
+        <name>extensions</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="87" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="87" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r5" prot="private" static="no" mutable="no">
+        <type>QString</type>
+        <definition>QString QeGtkSourceViewLangDef::escapeChar</definition>
+        <argsstring></argsstring>
+        <name>escapeChar</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="89" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="89" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r6" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityString &gt;</type>
+        <definition>QList&lt;QeEntityString&gt; QeGtkSourceViewLangDef::stringsDefs</definition>
+        <argsstring></argsstring>
+        <name>stringsDefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="90" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="90" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r7" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityLineComment &gt;</type>
+        <definition>QList&lt;QeEntityLineComment&gt; QeGtkSourceViewLangDef::lineCommentsDefs</definition>
+        <argsstring></argsstring>
+        <name>lineCommentsDefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="91" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="91" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r8" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityBlockComment &gt;</type>
+        <definition>QList&lt;QeEntityBlockComment&gt; QeGtkSourceViewLangDef::blockCommentsDefs</definition>
+        <argsstring></argsstring>
+        <name>blockCommentsDefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="92" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="92" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r9" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityKeywordList &gt;</type>
+        <definition>QList&lt;QeEntityKeywordList&gt; QeGtkSourceViewLangDef::keywordListDefs</definition>
+        <argsstring></argsstring>
+        <name>keywordListDefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="93" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="93" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r10" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityPatternItem &gt;</type>
+        <definition>QList&lt;QeEntityPatternItem&gt; QeGtkSourceViewLangDef::patternItems</definition>
+        <argsstring></argsstring>
+        <name>patternItems</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="94" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="94" bodyend="-1"/>
+      </memberdef>
+      <memberdef kind="variable" id="a00051_1r11" prot="private" static="no" mutable="no">
+        <type>QList&lt; QeEntityBlockComment &gt;</type>
+        <definition>QList&lt;QeEntityBlockComment&gt; QeGtkSourceViewLangDef::syntaxItemDefs</definition>
+        <argsstring></argsstring>
+        <name>syntaxItemDefs</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="95" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="95" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
+      <sectiondef kind="friend">
+      <memberdef kind="friend" id="a00051_1n0" prot="private" static="no" const="no" explicit="no" inline="no" virt="non-virtual">
+        <type>friend class</type>
+        <definition>friend class QeGTK_Highlighter</definition>
+        <argsstring></argsstring>
+        <name>QeGTK_Highlighter</name>
+        <briefdescription>
+        </briefdescription>
+        <detaileddescription>
+        </detaileddescription>
+        <inbodydescription>
+        </inbodydescription>
+        <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="59" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="59" bodyend="-1"/>
+      </memberdef>
+      </sectiondef>
     <briefdescription>
-    </briefdescription>
+<para>A container class for GtkSourceView syntax definitions. </para>    </briefdescription>
     <detaileddescription>
-    </detaileddescription>
-    <programlisting>
-<codeline lineno="1"><highlight class="preprocessor">#include<sp/>&lt;QtDebug&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="2"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&lt;QFile&gt;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="3"><highlight class="normal"></highlight><highlight class="preprocessor">#include<sp/>&quot;kateitemdatamanager.h&quot;</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="4"><highlight class="normal"></highlight></codeline>
-<codeline lineno="5"><highlight class="normal">kateItemDataManager::kateItemDataManager()</highlight></codeline>
-<codeline lineno="6"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="7"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="8"><highlight class="normal"></highlight></codeline>
-<codeline lineno="9"><highlight class="normal">kateItemDataManager::kateItemDataManager(<sp/>QDomDocument<sp/>doc<sp/>)</highlight></codeline>
-<codeline lineno="10"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="11"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>load(<sp/>doc<sp/>);</highlight></codeline>
-<codeline lineno="12"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="13"><highlight class="normal"></highlight></codeline>
-<codeline lineno="14"><highlight class="normal">kateItemDataManager::kateItemDataManager(<sp/>QString<sp/>fileName<sp/>)</highlight></codeline>
-<codeline lineno="15"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="16"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>load(<sp/>fileName<sp/>);</highlight></codeline>
-<codeline lineno="17"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="18"><highlight class="normal"></highlight></codeline>
-<codeline lineno="19"><highlight class="normal">kateItemDataManager::~kateItemDataManager()</highlight></codeline>
-<codeline lineno="20"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="21"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="22"><highlight class="normal"></highlight></codeline>
-<codeline lineno="23"><highlight class="normal"><ref refid="a00023" kindref="compound">kateItemData</ref><sp/>kateItemDataManager::getItemData(<sp/>QString<sp/>name<sp/>)</highlight></codeline>
-<codeline lineno="24"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="25"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>foreach(<ref refid="a00023" kindref="compound">kateItemData</ref><sp/>item,<sp/>itemDatas)</highlight></codeline>
-<codeline lineno="26"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{<sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight></codeline>
-<codeline lineno="27"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(item.<ref refid="a00023_1a10" kindref="member">getStyleNum</ref>()<sp/>==<sp/>name<sp/>)</highlight></codeline>
-<codeline lineno="28"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>item;</highlight></codeline>
-<codeline lineno="29"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="30"><highlight class="normal"></highlight></codeline>
-<codeline lineno="31"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">//<sp/>new<sp/>empthy<sp/>one</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="32"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>qDebug(<sp/>&quot;kateItemDataManager::getItemData()<sp/>-<sp/>could<sp/>not<sp/>find<sp/>an<sp/>item<sp/>data&quot;<sp/>);</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="33"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/><ref refid="a00023" kindref="compound">kateItemData</ref>();</highlight></codeline>
-<codeline lineno="34"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="35"><highlight class="normal"></highlight></codeline>
-<codeline lineno="36"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>kateItemDataManager::load(<sp/>QDomDocument<sp/>doc<sp/>)</highlight></codeline>
-<codeline lineno="37"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="38"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="comment">/*<sp/>load<sp/>the<sp/>attributes<sp/>of<sp/>this<sp/>language<sp/>*/</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="39"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QDomNodeList<sp/>list<sp/>=<sp/>doc.elementsByTagName(</highlight><highlight class="stringliteral">&quot;itemData&quot;</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="40"><highlight class="normal"></highlight></codeline>
-<codeline lineno="41"><highlight class="normal"></highlight><highlight class="comment">//<sp/><sp/><sp/><sp/><sp/><sp/>qDebug(<sp/>&quot;kateItemDataManager::load(QDomDocument)<sp/>-<sp/>Found<sp/>%i<sp/>elements&quot;,<sp/>list.length());</highlight><highlight class="normal"></highlight></codeline>
-<codeline lineno="42"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">for</highlight><highlight class="normal">(<sp/>uint<sp/>n=0<sp/>;n&lt;list.length();<sp/>n++<sp/>)</highlight></codeline>
-<codeline lineno="43"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="44"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><ref refid="a00023" kindref="compound">kateItemData</ref><sp/>item;</highlight></codeline>
-<codeline lineno="45"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(item.<ref refid="a00023_1a2" kindref="member">load</ref>(list.item(n)))</highlight></codeline>
-<codeline lineno="46"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>itemDatas.append(<sp/>item<sp/>);</highlight></codeline>
-<codeline lineno="47"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="48"><highlight class="normal"></highlight></codeline>
-<codeline lineno="49"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">true</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="50"><highlight class="normal">}</highlight></codeline>
-<codeline lineno="51"><highlight class="normal"></highlight></codeline>
-<codeline lineno="52"><highlight class="normal"></highlight><highlight class="keywordtype">bool</highlight><highlight class="normal"><sp/>kateItemDataManager::load(<sp/>QString<sp/>fileName<sp/>)</highlight></codeline>
-<codeline lineno="53"><highlight class="normal">{</highlight></codeline>
-<codeline lineno="54"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QDomDocument<sp/>doc(</highlight><highlight class="stringliteral">&quot;language&quot;</highlight><highlight class="normal">);</highlight></codeline>
-<codeline lineno="55"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QFile<sp/>file(fileName);</highlight></codeline>
-<codeline lineno="56"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>QString<sp/>s;</highlight></codeline>
-<codeline lineno="57"><highlight class="normal"></highlight></codeline>
-<codeline lineno="58"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!file.open(QIODevice::ReadOnly))</highlight></codeline>
-<codeline lineno="59"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="60"><highlight class="normal"></highlight></codeline>
-<codeline lineno="61"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">if</highlight><highlight class="normal"><sp/>(!doc.setContent(&amp;file))</highlight></codeline>
-<codeline lineno="62"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>{</highlight></codeline>
-<codeline lineno="63"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>file.close();</highlight></codeline>
-<codeline lineno="64"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/></highlight><highlight class="keyword">false</highlight><highlight class="normal">;</highlight></codeline>
-<codeline lineno="65"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>}</highlight></codeline>
-<codeline lineno="66"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/>file.close();</highlight></codeline>
-<codeline lineno="67"><highlight class="normal"></highlight></codeline>
-<codeline lineno="68"><highlight class="normal"><sp/><sp/><sp/><sp/><sp/><sp/><sp/><sp/></highlight><highlight class="keywordflow">return</highlight><highlight class="normal"><sp/>load(<sp/>doc<sp/>);</highlight></codeline>
-<codeline lineno="69"><highlight class="normal">}</highlight></codeline>
-    </programlisting>
-    <location file="/home/elcuco/mysources/designer/qtedit4/src/qelib/kate-qt/kateitemdatamanager.cpp"/>
+<para>GtkSourceView is a text widget that extends the standard gtk+ 2.x text widget: <ulink url="http://gtksourceview.sourceforge.net/">http://gtksourceview.sourceforge.net/</ulink></para><para>The syntax definitions used by that library are stored as XML files. This class provides an OO way of loading those definitions, and later on use them for syntax highlighter classes.</para>    </detaileddescription>
+    <location file="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" line="58" bodyfile="/home/elcuco/src/svn/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" bodystart="57" bodyend="96"/>
+    <listofallmembers>
+      <member refid="a00051_1r8" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>blockCommentsDefs</name></member>
+      <member refid="a00051_1r5" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>escapeChar</name></member>
+      <member refid="a00051_1r4" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>extensions</name></member>
+      <member refid="a00051_1a6" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>getMimeTypes</name></member>
+      <member refid="a00051_1a5" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>getName</name></member>
+      <member refid="a00051_1d0" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>isTrue</name></member>
+      <member refid="a00051_1r9" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>keywordListDefs</name></member>
+      <member refid="a00051_1r7" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>lineCommentsDefs</name></member>
+      <member refid="a00051_1a3" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>load</name></member>
+      <member refid="a00051_1a4" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>load</name></member>
+      <member refid="a00051_1d5" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadBlockComments</name></member>
+      <member refid="a00051_1d1" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadEntity</name></member>
+      <member refid="a00051_1d6" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadKeywordList</name></member>
+      <member refid="a00051_1d2" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadLineComments</name></member>
+      <member refid="a00051_1d4" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadPatternItems</name></member>
+      <member refid="a00051_1d3" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>loadStrings</name></member>
+      <member refid="a00051_1r3" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>mimeTypes</name></member>
+      <member refid="a00051_1r0" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>name</name></member>
+      <member refid="a00051_1r10" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>patternItems</name></member>
+      <member refid="a00051_1n0" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>QeGTK_Highlighter</name></member>
+      <member refid="a00051_1a0" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>QeGtkSourceViewLangDef</name></member>
+      <member refid="a00051_1a1" prot="public" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>QeGtkSourceViewLangDef</name></member>
+      <member refid="a00051_1r2" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>section</name></member>
+      <member refid="a00051_1r6" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>stringsDefs</name></member>
+      <member refid="a00051_1r11" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>syntaxItemDefs</name></member>
+      <member refid="a00051_1r1" prot="private" virt="non-virtual"><scope>QeGtkSourceViewLangDef</scope><name>version</name></member>
+      <member refid="a00051_1a2" prot="public" virt="virtual"><scope>QeGtkSourceViewLangDef</scope><name>~QeGtkSourceViewLangDef</name></member>
+    </listofallmembers>
   </compounddef>
 </doxygen>
