@@ -1,16 +1,20 @@
-#include "qelib/qtsourceview/qegtkhighlighter.h"
-#include "qelib/qtsourceview/qegtklangdef.h"
+#include "qegtkhighlighter.h"
+#include "qegtklangdef.h"
 #include "kateitemdatamanager.h"
+
+#include "debug_info.h"
 
 QeGTK_Highlighter::QeGTK_Highlighter( QTextDocument *parent, kateItemDataManager *manager  )
 	:QSyntaxHighlighter(parent)
 {
+	language = NULL;
 	this->manager = manager;
 }
 
 QeGTK_Highlighter::QeGTK_Highlighter( QTextEdit *parent, kateItemDataManager *manager )
 	:QSyntaxHighlighter(parent)
 {
+	language = NULL;
 	this->manager = manager;
 }
 
@@ -27,33 +31,34 @@ void QeGTK_Highlighter::setHighlight( QeGtkSourceViewLangDef *lang )
 		return;
 
 	//first match keyword lists
+	// TODO: optimizations
 	foreach( QeEntityKeywordList l, lang->keywordListDefs )
 	{
 		foreach( QString s, l.list )
-		{			
-
+		{
 //			TODO use these defintions
 // 			if (l.matchEmptyStringAtBeginning)
 // 			if (l.matchEmptyStringAtEnd)
 
-			s = l.startRegex + s;
-			s = l.endRegex + s;
-			addMapping( s, l.style, true );
+			s = l.startRegex + s + l.endRegex;
+// 			qDebug( qPrintable(s) );
+			addMapping( s, l.style );
 		}
 	}
 
 	// syntax itmes...
 	foreach( QeEntityBlockComment l, lang->syntaxItemDefs )
 	{
-// 		QString s = l.startRegex + QString("[^%1]*").arg(l.startRegex) + l.endRegex;
-// 		QString s = l.startRegex + QString("[^%s]+").arg(l.endRegex);// + l.endRegex;
-		
-		// FIXME endRegex is generally "\n"... which is bad for us... 
-		QString s = l.startRegex;//  + l.endRegex;
-		addMapping( s, l.style );
+		QString s;
+		if (l.endRegex == "\\n")
+			s  = l.startRegex + ".*$";
+		else
+			s  = l.startRegex + ".*" + l.endRegex;
+ 		addMapping( s, l.style );
 	}
 
 	// later, pattern items
+	// TODO: optimizations
 	foreach( QeEntityPatternItem l, lang->patternItems )
 	{
 		addMapping( l.regex, l.style, !true );
@@ -70,34 +75,41 @@ void QeGTK_Highlighter::setHighlight( QeGtkSourceViewLangDef *lang )
 	}
 
 	// and finally... line comments...
-	// block comments are handeled in the draing function	
+	// block comments are handeled in the drawing function	
 	foreach( QeEntityLineComment l, lang->lineCommentsDefs )
 	{
-		addMapping( QString("%1[^\n]*").arg(l.start), l.style );
+		addMapping( QString("%1.*").arg(l.start), l.style );
 	}
-	
 }
 
 // called when need to update a paragraph
 void QeGTK_Highlighter::highlightBlock(const QString &text)
 {
-	// this code draws each line
+	if (language == NULL)
+		return;
+
 	QOrderedMapNode<QString,QTextCharFormat> pattern;
-	foreach ( pattern, mappings.keys())
+	
+	// optimizations...
+	if (text.simplified().isEmpty())
+		goto HANDLE_BLOCK_COMMENTS;
+
+	foreach( QeEntityLineComment l, language->lineCommentsDefs )
 	{
-		QRegExp expression(pattern.key);
-		int index = text.indexOf(expression);
-		
-		while (index >= 0) 
+		if (text.startsWith( l.start ))
 		{
-			int length = expression.matchedLength();
-			setFormat(index, length, pattern.value );
-			index = text.indexOf(expression, index + length);
+			setFormat( 0, text.length(), manager->getItemData("dsComment").toCharFormat() );
+			return;
 		}
 	}
 
+	// this code draws each line
+	foreach ( pattern, mappings.keys())
+		drawText( text, pattern.key, pattern.value );
+
 	setCurrentBlockState(0);
 
+HANDLE_BLOCK_COMMENTS:
 	// what if not block comments defined...?
 	if (language->blockCommentsDefs.count() == 0)
 		return;
@@ -129,11 +141,15 @@ void QeGTK_Highlighter::highlightBlock(const QString &text)
 }
 
 void QeGTK_Highlighter::addMapping(const QString &pattern, const QTextCharFormat &format, bool fullWord )
-{
+{	
 	QString p = pattern;
 	if (fullWord)
 		p = "\\b" + p + "\\b";
 		
+#ifdef __DEBUG_ADD_MAPPING__
+	qDebug( "QeGTK_Highlighter::addMapping - [%s]", qPrintable(pattern) );
+#endif
+
 	mappings.add( p, format );
 }
 
@@ -160,6 +176,61 @@ void QeGTK_Highlighter::addMapping(const QString &pattern, const QString formatN
 		s = "dsFloat";
 	else if (s == "Base-N Integer")
 		s = "dsBaseN";
+	else if (s == "Function")
+		s = "dsFunction";
+	else if (s == "Others 2")
+		s = "dsOthers2";
+	else if (s == "Others 3")
+		s = "dsOthers3";
 
 	addMapping( pattern, manager->getItemData(s).toCharFormat(), fullWord );
 }
+
+void QeGTK_Highlighter::drawText( QString text, QString s, QTextCharFormat &format )
+{
+	if (s.contains( QRegExp("[^*+()?]") ))
+		drawRegExp( text, s, format );
+	else
+		drawKeywords( text, s, format );
+}
+
+void QeGTK_Highlighter::drawRegExp( QString text, QString s, QTextCharFormat &format )
+{	
+	QRegExp expression(s);
+	int index = text.indexOf(expression);
+
+#ifdef __DEBUG_HIGHLIGHT__
+	qDebug( "QeGTK_Highlighter::drawRegExp( [%s] )", qPrintable(s) );
+#endif
+
+	while (index >= 0)
+	{
+		int length = expression.matchedLength();
+		setFormat(index, length, format );
+		index = text.indexOf(expression, index + length);
+	}
+}
+
+void QeGTK_Highlighter::drawKeywords( QString text, QString s, QTextCharFormat &format )
+{
+#ifdef __DEBUG_HIGHLIGHT__
+	qDebug( "QeGTK_Highlighter::drawKeywords( [%s] )", qPrintable(s) );
+#endif
+
+	int index = text.indexOf(s);
+	int length = s.length();
+	int txtLen = text.length();
+	
+	while (index >= 0)
+	{
+		// paint keyword, only if its suoorunded by white chars
+		// regexp are bad :)
+		if (
+		   ((index==0) || (!text[index-1].isLetterOrNumber())) &&
+		   ((index+length>=txtLen) || (!text[index+length].isLetterOrNumber()))
+		   )
+			setFormat(index, length, format );
+		index = text.indexOf(s, index + length);
+	}
+}
+

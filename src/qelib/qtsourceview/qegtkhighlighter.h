@@ -2,13 +2,13 @@
 #define __QE_GTK_HIGHLIGHTER_H__
 
 #include <QSyntaxHighlighter>
-#include "qelib/qtsourceview/qorderedmap.h"
+#include "qorderedmap.h"
 
 class QTextCharFormat;
 class QeGtkSourceViewLangDef;
 class kateItemDataManager;
 
-class QeGTK_Highlighter: QSyntaxHighlighter
+class QeGTK_Highlighter: public QSyntaxHighlighter
 {
 public:
 	QeGTK_Highlighter( QTextDocument *parent = 0, kateItemDataManager *manager=0 );
@@ -21,6 +21,10 @@ protected:
 private:
 	void addMapping(const QString &pattern, const QTextCharFormat &format, bool fullWord=false );
 	void addMapping(const QString &pattern, const QString formatName, bool fullWord=false );
+
+	void drawText    ( QString text, QString s, QTextCharFormat &format );
+	void drawRegExp  ( QString text, QString s, QTextCharFormat &format );
+	void drawKeywords( QString text, QString s, QTextCharFormat &format );
 
 	QOrderedMap<QString,QTextCharFormat> mappings;
 	kateItemDataManager *manager;

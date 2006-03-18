@@ -14,6 +14,7 @@
 
 #include "qelib/qtsourceview/qegtkhighlighter.h"
 #include "qelib/qtsourceview/qegtklangdef.h"
+#include "qelib/qtsourceview/qelangdeffactory.h"
 
 
 /**
@@ -47,16 +48,14 @@
  */
 MainWindow::MainWindow()
 {
-	defColors.load( "data/default/kate.xml" );
-// 	mainTab = new QexTabWidget();
+	QeLangDefFactory::getInstanse()->loadDirectory( QApplication::applicationDirPath() + "/../data/gtksourceview/" );
+	defColors.load( QApplication::applicationDirPath() + "/../data/default/kate.xml" );
 	mainTab = new qmdiTabWidget( this );
 	setCentralWidget( mainTab );
 	
 	createActions();
 	createMenus();
 	createToolbar();
-	
-	addAction( actionSelectEditor );
 	
 	setWindowTitle( tr("QtEdit 4 [*]") );
 	statusBar()->showMessage( tr("Welcome"), 5000 );
@@ -96,28 +95,6 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 }
 */
 
-
-/**
- * \brief set the focus on the editor (SLOT)
- *
- * This function restores the focus to the current editor,
- * to the editor in the mainTab.
- */
-void MainWindow::selectEditor()
-{
-	QWidget *w = getCurrentEditor();
-	
-	if (w)
-		w->setFocus();
-}
-
-void MainWindow::editorCursorPositionChanged()
-{
-// 	QPoint p = qobject_cast<TextDisplay*>(mainTab->currentWidget())->getCursorLocation();
-// 	statusBar()->showMessage( QString("line: %1, culumn %2").arg(p.y()).arg(p.x() ) );
-}
-
-
 void MainWindow::fileNew()
 {
 	loadFile( "" );
@@ -141,73 +118,13 @@ void MainWindow::fileOpen()
 	loadFile( s );
 }
 
-bool MainWindow::fileSave()
-{
-	return fileSave( (QECodeEditor*) getCurrentEditor() );
-}
-
-bool MainWindow::fileSave( QTextEdit *edit )
-{
-	if (!edit)
-		return false;
-
-	QECodeEditor *e = qobject_cast<QECodeEditor*>(edit);
-	if (!e)
-		return fileSaveAs();
-		
-	QString fileName = e->getFileName();
-
-	if (fileName.isEmpty())
-		return fileSaveAs();
-	
-	e->saveFile( fileName );
-	setWindowModified( false );
-	
-	return true;
-}
-
-bool MainWindow::fileSaveAs()
-{
-	return fileSaveAs( (QECodeEditor*) getCurrentEditor() );
-}
-
-bool MainWindow::fileSaveAs( QTextEdit *edit )
-{
-	if (!edit)
-		return false;
-		
-	QECodeEditor *e = qobject_cast<QECodeEditor*>(edit);
-	if (!e)
-		return false;
-
-	
-	QString s = QFileDialog::getSaveFileName(
-		this,
-		"Choose a file to save",
-		"",
-		"C/C++ cources (*.c *.c++ *.cpp *.h *.moc);;"
-		"C/C++ headers (*.h *.hxx);;"
-		"Qt Project files (*.pro *.pri);;"
-		"All files (*.*)"
-	);
-	
-	if ( s.isEmpty() )
-		return false;
-
-	e->saveFile( s );
-	setWindowModified( false );
-
-	return true;
-}
-
 void MainWindow::fileClose()
 {
-	if (!canCloseEditor(getCurrentEditor()) )
-		return;
-		
+// 	if (!canCloseEditor(getCurrentEditor()) )
+// 		return;
+// 		
 	QWidget *w = mainTab->currentWidget();
 	mainTab->removeTab( mainTab->currentIndex() );
-
 	delete w;
 }
 
@@ -220,8 +137,9 @@ void MainWindow::optionsConfiguration()
 void MainWindow::helpBrowseQtDocs()
 {
 	QString helpFile = QLibraryInfo::location(QLibraryInfo::DocumentationPath) + QLatin1String("/html/index.html");
-	
-	HelpDisplay *t = new HelpDisplay( helpFile );	
+
+	HelpDisplay *t = new HelpDisplay( helpFile );
+	t->hide();
 	int i = mainTab->addTab( t, "Qt - doc" );
 	mainTab->setCurrentWidget( t );
 	mainTab->setCurrentIndex( i );
@@ -232,6 +150,7 @@ void MainWindow::helpBrowseQtEditDocs()
 	QString helpFile = QApplication::applicationDirPath()  + QLatin1String("/../doc/html/index.html");
 	
 	HelpDisplay *t = new HelpDisplay( helpFile );
+	t->hide();
 	int i = mainTab->addTab( t, "QtEdit - doc" );
 	mainTab->setCurrentWidget( t );
 	mainTab->setCurrentIndex( i );
@@ -246,9 +165,11 @@ void MainWindow::about()
 
 void MainWindow::createActions()
 {
+#if 0
 	actionSelectEditor = new QAction( tr("Select editor"), this);
 	actionSelectEditor->setShortcut( tr("Esc") );
 	connect( actionSelectEditor, SIGNAL(triggered()), this, SLOT(selectEditor()) );
+#endif
 	
 	// file menu
 	actionNew = new QAction( QIcon(":images/filenew.png"), tr("&New"), this);
@@ -279,9 +200,9 @@ void MainWindow::createActions()
 	// help menu
 	actionBrowseQtDocs = new QAction(tr("&Browse Qt documentation"), this);
 	connect(actionBrowseQtDocs, SIGNAL(triggered()), this, SLOT(helpBrowseQtDocs()));
+	actionBrowseQtDocs->setShortcut(tr("F1"));
 	
 	actionBrowseQtEditDocs = new QAction(tr("&Browse QtEdit documentation"), this);
-	actionBrowseQtEditDocs->setShortcut(tr("F1"));
 	connect(actionBrowseQtEditDocs, SIGNAL(triggered()), this, SLOT(helpBrowseQtEditDocs()));
 	
 	actionAbout = new QAction(tr("&About"), this);
@@ -301,6 +222,7 @@ void MainWindow::createMenus()
 	
 	menus["&Edit"];
 	menus["&Search"];
+	menus["&Go"];
 	menus["&Project"];
 	menus["&Tools"];
 	menus["&Options"]->addAction( actionConfig );
@@ -311,17 +233,11 @@ void MainWindow::createMenus()
 	menus["&Help"]->addSeparator();
 	menus["&Help"]->addAction( actionAbout );
 	menus["&Help"]->addAction( actionAboutQt );
-// 	menus.makeMenuBar( menuBar() );
 	menus.updateMenu( menuBar() );
 }
 
 void MainWindow::createToolbar()
 {
-/*	fileToolBar = addToolBar( tr("File") );
-	fileToolBar->setObjectName( "File" );
-	fileToolBar->addAction(actionNew);
-	fileToolBar->addAction(actionOpen);
-	fileToolBar->addAction(actionClose);*/
 	toolbars["File"]->addAction(actionNew);
 	toolbars["File"]->addAction(actionOpen);
 	toolbars["File"]->addAction(actionClose);
@@ -346,58 +262,25 @@ QString MainWindow::getFileName( QString fileName )
 void MainWindow::loadFile( QString fileName )
 {
 
-#define _OLD_SH
-
-#ifdef _OLD_SH_
-	QECPPHighlighter *h = new QECPPHighlighter( &defColors );
-	QECodeEditor *edit = new QECodeEditor( NULL, h );
-#else
-	QECodeEditor *edit = new QECodeEditor( NULL, NULL );
-	QeGtkSourceViewLangDef *langC = new QeGtkSourceViewLangDef( "data/gtksourceview/cpp.lang" );
-	QeGTK_Highlighter *highlight = new QeGTK_Highlighter( edit, &defColors );
-	highlight->setHighlight( langC );
-#endif
 	QString tabName;
 
+	TextDisplay *t = new TextDisplay( NULL, NULL, &defColors );
 	if (!fileName.isEmpty())
 	{
-		edit->loadFile( fileName );
+		t->loadFile( fileName );
 		tabName = getFileName( fileName );
 	}
 	else
 		tabName = tr("NONAME");
 
-	TextDisplay *t = new TextDisplay( edit );
+	t->hide();
 	int i = mainTab->addTab( t, tabName );
 	mainTab->setCurrentWidget( t );
 	mainTab->setCurrentIndex( i );
-	edit->setFocus();
 	
 	if ( !fileName.isEmpty() )
 		statusBar()->showMessage( tr("File \"%1\" loaded").arg(fileName), 5000 );
 }
-
-QTextEdit* MainWindow::getCurrentEditor()
-{
-	QWidget *w = mainTab->currentWidget();
-
-	if (!w)
-		return NULL;
-
-	if (!w->inherits("TextDisplay"))
-		return NULL;
-
-	w = qobject_cast<TextDisplay*>(w)->getEditor();
-
-	if (!w)
-		return NULL;
-	else
-		if (w->inherits("QTextEdit") )
-			return (QTextEdit*)w;
-		else
-			return NULL;
-}
-
 
 void MainWindow::saveStatus()
 {
@@ -443,34 +326,4 @@ void MainWindow::loadStatus()
 			loadFile( sl[i] );
 
 	restoreState( settings.value("main/state").toByteArray() );
-}
-
-bool MainWindow::canCloseEditor( QTextEdit *e )
-{
-	if (!e)
-		return true;
-		
-	if ( !e->document()->isModified() )
-		return true;
-
-	switch(QMessageBox::information(this, "QtEdit4",
-		tr("The document contains unsaved changes\n"
-		"Do you want to save the changes before exiting?" ),
-		tr("&Save"), tr("&Don't save"), tr("Cancel"),
-		0,    // Enter == button 0
-		2)
-		)  // Escape == button 2
-	{
-		case 0: // Save clicked or Alt+S pressed or Enter pressed.
-			return fileSave();
-			break;
-
-		case 1: // Discard clicked or Alt+D pressed don't save but exit
-			return true;
-
-		case 2: // Cancel clicked or Escape pressed, don't exit
-			return false;
-	}
-
-	return false;
 }

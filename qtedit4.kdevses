@@ -1,35 +1,28 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="7" >
-  <Doc0 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qelib/qtsourceview/qegtklangdef.h" >
-   <View0 Type="Source" />
+ <DocsAndViews NumberOfDocuments="3" >
+  <Doc0 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/src/mainwindow.cpp" >
+   <View0 line="141" Type="Source" />
   </Doc0>
-  <Doc1 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/qelib/qtsourceview/qegtklangdef.cpp" >
-   <View0 line="245" Type="Source" />
+  <Doc1 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/src/textdisplay.cpp" >
+   <View0 line="61" Type="Source" />
   </Doc1>
-  <Doc2 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/data/gtksourceview/cpp.lang" >
-   <View0 line="59" Type="Source" />
+  <Doc2 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/src/helpdisplay.cpp" >
+   <View0 line="47" Type="Source" />
   </Doc2>
-  <Doc3 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/data/gtksourceview/csharp.lang" >
-   <View0 line="30" Type="Source" />
-  </Doc3>
-  <Doc4 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/data/gtksourceview/c.lang" >
-   <View0 line="111" Type="Source" />
-  </Doc4>
-  <Doc5 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/src/main.cpp" >
-   <View0 line="18" Type="Source" />
-  </Doc5>
-  <Doc6 NumberOfViews="1" URL="file:///home/elcuco/src/qtedit4/data/gtksourceview/perl.lang" >
-   <View0 line="22" Type="Source" />
-  </Doc6>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
    <breakpointList/>
   </kdevdebugger>
   <kdevbookmarks>
-   <bookmarks/>
+   <bookmarks>
+    <bookmark url="/home/elcuco/src/svn/qtedit4/src/mainwindow.cpp" >
+     <mark line="276" />
+     <mark line="143" />
+    </bookmark>
+   </bookmarks>
   </kdevbookmarks>
   <kdevvalgrind>
    <executable path="" params="" />

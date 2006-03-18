@@ -2,13 +2,20 @@
 #define __TEXT_DISPLAY_H__
 
 #include <QTextDocument>
-#include <QTextEdit>
-#include <QAction>
-#include <QVBoxLayout>
-#include <QTextBrowser>
-
-// #include "qexdilib/qexitabwidget.h"
 #include "qmdilib/qmdiclient.h"
+
+class QTextEdit;
+class QAction;
+class QSplitter;
+class QVBoxLayout;
+class QTextBrowser;
+class QSyntaxHighlighter;
+
+class kateItemDataManager;
+class QeGtkSourceViewLangDef;
+class QeGTK_Highlighter;
+class LineNumberWidget;
+
 
 #include "ui_inlinefind.h"
 #include "ui_inlinereplace.h"
@@ -21,22 +28,24 @@
  * \date    11-11-2005
  */
 
-class TextDisplay: public QWidget, /*public QITabInterface*/
-	public qmdiClient
+class TextDisplay: public QWidget, public qmdiClient
 {
 Q_OBJECT
+friend class MainWindow;
 public:
-	TextDisplay( QTextEdit *editor, QWidget *parent=NULL );
+	TextDisplay( QTextEdit *editor, QWidget *parent=NULL, kateItemDataManager *colors=NULL, bool ignoreConf=false );
 	~TextDisplay();
 
 	QTextEdit*	getEditor() {return editor; };
-	void    	setEditor( QTextEdit *e );
+	void    	setEditor( QTextEdit *e, bool ignoreConf=false, bool isGotoLineEnabled=true );
 	QWidget*	getInternalFind() { return internalFind; };
 	QTextDocument*	document();
 
+	void setColorDef( kateItemDataManager *newColors );
+	kateItemDataManager* getColorDef() { return defColors; };
+
 protected:
-	void		createActions();
-	virtual void	createToolbar();
+	void	createActions();
 	
 public slots:
 	void	hideInternalWidgets();
@@ -60,8 +69,14 @@ public slots:
 	void	setCursorLocation( int x, int y );
 	uint	getLineCount();
 	
-	bool getGotoLineEnabled(){ return gotoLineEnabled; };
-	void setGotoLineEnabled( bool enabled );
+	bool	loadFile( QString fileName );
+
+	bool	getGotoLineEnabled(){ return gotoLineEnabled; };
+	void	setGotoLineEnabled( bool enabled );
+
+	void	loadingTimer();
+	void	updateConfiguration();
+
 protected:
 	QAction *actionUndo;
 	QAction *actionRedo;
@@ -75,10 +90,25 @@ protected:
 	QAction *actionFindPrev;
 
 	bool gotoLineEnabled;
+	kateItemDataManager	*defColors;
+	QeGtkSourceViewLangDef	*myLang;
+	QeGTK_Highlighter	*highlight;
 
 	QString			fileName;
+
 	QTextEdit		*editor;
-	QVBoxLayout		*layout;
+	QWidget			*lineNumber;
+	QFrame			*editorContainer;
+	QLayout			*editorLayout;
+
+	QTextEdit		*editor2;
+	QWidget			*lineNumber2;
+	QFrame			*editorContainer2;
+	QLayout			*editorLayout2;
+
+	QSplitter		*splitter;
+
+	QGridLayout		*layout;
 	QWidget			*internalFind;
 	QWidget			*internalReplace;
 	QWidget			*internalGotoLine;

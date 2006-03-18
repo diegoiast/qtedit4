@@ -32,12 +32,15 @@ HEADERS += \
 	qmdilib/qmdiclient.h \
 	qmdilib/qmdihost.h \
 	qmdilib/qmdiserver.h \
-	qmdilib/qmditabwidget.h
-
+	qmdilib/qmditabwidget.h \
+	texteditorex.h \
+	editorsettings.h \
+	linenumberwidget.h \
+	qelib/qtsourceview/qelangdeffactory.h
+	
 SOURCES += \
 	main.cpp \
 	mainwindow.cpp \
-	textdisplay.cpp \
 	optionsdialog.cpp \
 	helpdisplay.cpp \
 	qelib/qecodeeditor.cpp \
@@ -54,4 +57,9 @@ SOURCES += \
 	qmdilib/qmdiclient.cpp \
 	qmdilib/qmdihost.cpp \ 
 	qmdilib/qmdiserver.cpp \
-	qmdilib/qmditabwidget.cpp 
+	qmdilib/qmditabwidget.cpp \
+	textdisplay.cpp \
+	texteditorex.cpp \
+	editorsettings.cpp \
+	linenumberwidget.cpp \
+	qelib/qtsourceview/qelangdeffactory.cpp

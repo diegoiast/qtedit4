@@ -8,7 +8,7 @@
 
 
 HelpDisplay::HelpDisplay( QString helpSource, QWidget *parent )
-	:TextDisplay( NULL, parent )
+	:TextDisplay( NULL, parent, NULL, true ) // do not attach to global configuration
 {
 	homeURL = helpSource;
 	helpBrowser = new QTextBrowser;
@@ -43,9 +43,19 @@ HelpDisplay::HelpDisplay( QString helpSource, QWidget *parent )
 	connect( actionGoHome, SIGNAL(triggered()), this, SLOT(goHome()) );
 
 	editor = helpBrowser;
-	setEditor( helpBrowser );
+	setEditor( helpBrowser, true, false );
+// 	setGotoLineEnabled( false );
 	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
-	setGotoLineEnabled( false );
+
+	toolbars["Help browser operations"]->addAction( actionBackward );
+	toolbars["Help browser operations"]->addAction( actionForward );
+	toolbars["Help browser operations"]->addSeparator();
+	toolbars["Help browser operations"]->addAction( actionZoomIn );
+	toolbars["Help browser operations"]->addAction( actionZoomOut );
+
+	menus["&Go"]->addAction( actionBackward );
+	menus["&Go"]->addAction( actionForward );
+	menus["&Go"]->addAction( actionGoHome );
 }
 
 HelpDisplay::~HelpDisplay()
@@ -60,30 +70,3 @@ void HelpDisplay::goHome()
 {
 	helpBrowser->setSource( QUrl::fromLocalFile(homeURL) );
 }
-
-void	HelpDisplay::createToolbar()
-{
-/*
-	if (toolbar)
-		delete toolbar;
-
-	toolbar = new QToolBar( "Help browser operations" );
-	toolbar->setObjectName( "Help browser operations" );
-	toolbar->addAction( actionBackward );
-	toolbar->addAction( actionForward );
-	toolbar->addAction( actionGoHome );
-	toolbar->addSeparator();
-	toolbar->addAction( actionZoomIn );
-	toolbar->addAction( actionZoomOut );
-	toolbar->addSeparator();
-	toolbar->addAction( actionCopy );
-	*/
-	toolbars["Help browser operations"]->addAction( actionBackward );
-	toolbars["Help browser operations"]->addAction( actionForward );
-	toolbars["Help browser operations"]->addSeparator();
-	toolbars["Help browser operations"]->addAction( actionZoomIn );
-	toolbars["Help browser operations"]->addAction( actionZoomOut );
-	toolbars["Help browser operations"]->addSeparator();
-	toolbars["Help browser operations"]->addAction( actionCopy );
-}
-

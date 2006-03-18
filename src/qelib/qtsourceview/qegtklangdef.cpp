@@ -103,7 +103,7 @@ bool QeGtkSourceViewLangDef::load( QDomDocument doc )
 	name		= n.attributes().namedItem("_name").nodeValue();
 	version		= n.attributes().namedItem("_version").nodeValue();
 	section		= n.attributes().namedItem("_section").nodeValue();
-	mimeTypes	= n.attributes().namedItem("mimetypes").nodeValue().split(";");
+	mimeTypes	= n.attributes().namedItem("mimetypes").nodeValue().split(QRegExp("[;,]"));
 	extensions	= n.attributes().namedItem("extensions").nodeValue().split(";");
 
 	// read the entities which define this syntax
@@ -172,6 +172,9 @@ bool	QeGtkSourceViewLangDef::loadLineComments( QDomNodeList nodes )
 		if (!loadEntity( node, e )) return false;
 		e.start = node.toElement().elementsByTagName("start-regex").item(0).toElement().text();
 
+		// WTF???
+		e.start.replace( "\\\\", "\\" );
+		
 		lineCommentsDefs << e;
 	}
 
@@ -196,6 +199,10 @@ bool	QeGtkSourceViewLangDef::loadStrings( QDomNodeList nodes )
 		e.startRegex = node.toElement().elementsByTagName("start-regex").item(0).toElement().text();
 		e.endRegex   = node.toElement().elementsByTagName("end-regex").item(0).toElement().text();
 
+		// WTF???
+		e.startRegex.replace( "\\\\", "\\" );
+		e.endRegex.replace( "\\\\", "\\" );
+		
 		stringsDefs << e;
 	}
 
@@ -217,6 +224,10 @@ bool	QeGtkSourceViewLangDef::loadPatternItems( QDomNodeList nodes )
 		if (!loadEntity( node, e )) return false;
 		e.regex = node.toElement().elementsByTagName("regex").item(0).toElement().text();
 
+		// WTF???
+// 		e.regex.replace( "\\\\", "\\" );
+		e.regex.replace( "\\n", "$" );
+		
 		patternItems << e;
 	}
 
@@ -239,6 +250,10 @@ bool	QeGtkSourceViewLangDef::loadBlockComments( QDomNodeList nodes, QList<QeEnti
 		e.startRegex = node.toElement().elementsByTagName("start-regex").item(0).toElement().text();
 		e.endRegex   = node.toElement().elementsByTagName("end-regex").item(0).toElement().text();
 
+		// WTF???
+		e.startRegex.replace( "\\\\", "\\" );
+		e.endRegex.replace( "\\\\", "\\" );
+		
 		list << e;
 	}
 
@@ -269,6 +284,10 @@ bool	QeGtkSourceViewLangDef::loadKeywordList( QDomNodeList nodes )
 		e.startRegex                  = node.attributes().namedItem("beginning-regex").nodeValue();
 		e.endRegex                    = node.attributes().namedItem("end-regex").nodeValue();
 
+		// WTF???
+		e.startRegex.replace( "\\\\", "\\" );
+		e.endRegex.replace( "\\\\", "\\" );
+		
 		// read strings
 		strs = node.toElement().elementsByTagName("keyword");
 		for( j=0; j<strs.size(); j++ )

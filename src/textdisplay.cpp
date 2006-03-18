@@ -1,10 +1,23 @@
 #include <QtDebug>
+
+#include <QSplitter>
+#include <QFile>
 #include <QTextCursor>
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QClipboard>
+#include <QTextEdit>
+#include <QTimer>
+#include <QThread>
 
+#include "kateitemdatamanager.h"
+#include "editorsettings.h"
+#include "texteditorex.h"
+#include "linenumberwidget.h"
 #include "textdisplay.h"
+#include "qtsourceview/qegtklangdef.h"
+#include "qtsourceview/qelangdeffactory.h"
+#include "qtsourceview/qegtkhighlighter.h"
 
 /**
  * \file    textdisplaycpp
@@ -13,24 +26,46 @@
  * \date    11-11-2005
  */
 
-TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent ):
+TextDisplay::TextDisplay( QTextEdit *editor, QWidget *parent, kateItemDataManager *colors, bool ignoreConf ):
 	QWidget(parent)
 {
-	internalFind= new QWidget();
+	defColors = colors;
+
+	internalFind = new QWidget();
 	uiInlineFind.setupUi( internalFind );
 	internalFind->hide();
 	
-	internalReplace= new QWidget();
+	internalReplace = new QWidget();
 	uiInlineReplace.setupUi( internalReplace );
 	internalReplace->hide();
 
 	internalGotoLine = new QWidget;
 	uiInlineGotoLine.setupUi( internalGotoLine );
 	internalGotoLine->hide();
-	
+
+	highlight	= NULL;
+	layout		= NULL;
+	splitter	= NULL;
+
+	this->editor	= NULL;
+	lineNumber	= NULL;
+	editorContainer	= NULL;
+	editorLayout	= NULL;
+
+	editor2		= NULL;
+	lineNumber2	= NULL;
+	editorContainer2= NULL;
+	editorLayout2	= NULL;
+
 	createActions();
-	layout = NULL;
 	setEditor( editor );
+	this->editor->setFocus();
+
+	if (!ignoreConf)
+	{
+		EditorSettings *editSettings = EditorSettings::getInstance();
+		connect( editSettings, SIGNAL(updateSettings()), this, SLOT(updateConfiguration()));
+	}
 }
 
 TextDisplay::~TextDisplay()
@@ -118,36 +153,145 @@ void TextDisplay::createActions()
 	connect( uiInlineGotoLine.sbLineNumber, SIGNAL(valueChanged ( int )), this, SLOT(gotoLine(int )) );
 }
 
-void	TextDisplay::createToolbar()
+void    TextDisplay::setEditor( QTextEdit *e, bool ignoreConf, bool isGotoLineEnabled )
 {
-/*
-	// generate the toolbar for this widget
-	toolbar = new QToolBar( "Text operations" );
-	toolbar->setObjectName( "Text operations" );
+	// clean ups
+	delete editorLayout;
+	delete editorLayout2;
+	delete layout;
+	delete splitter;
+
+	layout		= NULL;
+	splitter	= NULL;
+	editor		= NULL;
+	lineNumber	= NULL;
+	editorContainer	= NULL;
+	editorLayout	= NULL;
+	editor2		= NULL;
+	lineNumber2	= NULL;
+	editorContainer2= NULL;
+	editorLayout2	= NULL;
+
+
+	layout		= new QGridLayout;
+	splitter	= new QSplitter;
+	layout->setMargin( 0 );
+	layout->setSpacing( 0 );
+
+	// if no editor has been passed, generate a twin set of editors
+	// which share the same document. connect them using a splitter.
+	// 
+	// otherwise, just insert that editor (aside a line numbers widget)
+	if (e == NULL)
+	{
+		// bottom editor - this one leads
+		editorContainer = new QFrame;
+		editorLayout	= new QHBoxLayout;
+		editor		= new TextEditorEx;
+		lineNumber	= new LineNumberWidget( editor );
+
+		editorContainer->setFrameShape( QFrame::StyledPanel );
+		editor->setLineWrapMode( QTextEdit::NoWrap );
+		editorLayout->setMargin( 0 );
+		editorLayout->setSpacing( 0 );
+		editorLayout->addWidget( lineNumber );
+		editorLayout->addWidget( editor );
+		editorContainer->setLayout( editorLayout );
+	
+		// upper editor - hidden by default
+		editorContainer2 = new QFrame;
+		editorLayout2	= new QHBoxLayout;
+		editor2		= new TextEditorEx;
+		lineNumber2	= new LineNumberWidget( editor2 );
+
+		editorContainer2->setFrameShape( QFrame::StyledPanel );
+		editor2->setLineWrapMode( QTextEdit::NoWrap );
+		editorLayout2->setMargin( 0 );
+		editorLayout2->setSpacing( 0 );
+		editorLayout2->addWidget( lineNumber2 );
+		editorLayout2->addWidget( editor2 );
+		editorContainer2->setLayout( editorLayout2 );
+		editor2->setDocument( editor->document() );
+
+		splitter->setOrientation( Qt::Vertical );
+		splitter->setFrameShape( QFrame::NoFrame );
+		splitter->addWidget( editorContainer2 );
+		splitter->addWidget( editorContainer );
+
+		// this code just hides the upper editor, and
+		// shows the bottom one
+		QList<int> n;
+		n << 0;
+		n << 1;
+		splitter->setSizes( n );
+		layout->addWidget( splitter );
+
+		if (defColors!=NULL)
+		{
+			QPalette p( editor->palette() );
+			p.setColor( QPalette::Base, defColors->getItemData("dsNormal").getBackground() );
+			editor->setTextColor( defColors->getItemData("dsNormal").getColor() );
+			editor2->setTextColor( defColors->getItemData("dsNormal").getColor() );
+			editor->setPalette( p );
+			editor2->setPalette( p );
+		}
+	}
+	else
+	{
+		editor = e;
+		actionGotoLine->setEnabled( isGotoLineEnabled );
+		actionGotoLine->setVisible( isGotoLineEnabled );
+		if (isGotoLineEnabled)
+		{
+			lineNumber = new LineNumberWidget( editor );
+			layout->addWidget( lineNumber, 1, 0 );
+			layout->addWidget( editor    , 1, 1 );
+		}
+		else
+			layout->addWidget( editor );
+
+		if (defColors!=NULL)
+		{
+			QPalette p( editor->palette() );
+			p.setColor( QPalette::Base, defColors->getItemData("dsNormal").getBackground() );
+			editor->setTextColor( defColors->getItemData("dsNormal").getColor() );
+			editor->setPalette( p );
+		}
+	}
+	
+	actionCopy->setEnabled( false );
+	actionCut->setEnabled( false );
+
+	layout->addWidget( this->internalFind );
+	layout->addWidget( this->internalReplace );
+	layout->addWidget( this->internalGotoLine );
+
+	connect( editor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)) );
+	connect( editor, SIGNAL(copyAvailable(bool)), actionCut , SLOT(setEnabled(bool)) );
+	connect( actionRedo, SIGNAL(triggered()), this, SLOT(undo()) );
+
+	this->setLayout( layout );
+	editor->setFocus();
+
+	if (!ignoreConf)
+		updateConfiguration();
 
 	// menus used by this widget
 	if (editor->isReadOnly())
 	{
-		toolbar->addAction( actionPaste );
-		toolbar->addAction( actionFind );
-		toolbar->addAction( actionGotoLine );
+		toolbars["Text operations"]->addAction( actionPaste );
+		toolbars["Text operations"]->addAction( actionFind );
+		toolbars["Text operations"]->addAction( actionGotoLine );
 	}
 	else
 	{
-		toolbar->addAction( actionCopy );
-		toolbar->addAction( actionCut );
-		toolbar->addAction( actionPaste );
-		toolbar->addAction( actionFind );
-		toolbar->addAction( actionReplace );
-		toolbar->addAction( actionGotoLine );
-	}
-	*/
+		menus["&Edit"]->addAction( actionCopy );
+		menus["&Search"]->addAction( actionFind );
+		menus["&Search"]->addAction( actionGotoLine );
+		menus["&Search"]->addSeparator();
+		menus["&Search"]->addAction( actionFindNext );
+		menus["&Search"]->addAction( actionFindPrev );
 
-	if (editor->isReadOnly())
-	{
-	}
-	else
-	{
 		toolbars["Text operations"]->addAction( actionCopy );
 		toolbars["Text operations"]->addAction( actionCut );
 		toolbars["Text operations"]->addAction( actionPaste );
@@ -155,82 +299,20 @@ void	TextDisplay::createToolbar()
 		toolbars["Text operations"]->addAction( actionReplace );
 		toolbars["Text operations"]->addAction( actionGotoLine );
 	}
-}
 
-void    TextDisplay::setEditor( QTextEdit *e )
-{
-#if 0
-	// wtf? this should not crash
-	if (editor)
-	{
-		editor->disconnect();
-	}
-#endif
-	if (layout)
-		delete layout;
-	
-// 	if (toolbar)
-// 		delete toolbar;
-
-// 	menus.clear();
-
-	editor = e;
- 	actionCopy->setEnabled( false );
-	actionCut->setEnabled( false );
-
-	layout = new QVBoxLayout;
-	layout->setMargin( 0 );
-	layout->setSpacing( 0 );
-
-	if (!editor) 
-		goto SET_LAYOUT;
-
- 	connect( editor, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)) );
-	connect( editor, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)) );
-
-	layout->addWidget( this->editor );
-	layout->addWidget( this->internalFind );
-	layout->addWidget( this->internalReplace );
-	layout->addWidget( this->internalGotoLine );
-
-	connect( actionRedo, SIGNAL(triggered()), this, SLOT(undo()) );
-
-	// menus used by this widget
-	if (editor->isReadOnly())
-	{
-		menus["&Edit"]->addAction( actionCopy );
-		menus["&Search"]->addAction( actionFind );
-		menus["&Search"]->addAction( actionGotoLine );
-		menus["&Search"]->addSeparator();
-		menus["&Search"]->addAction( actionFindNext );
-		menus["&Search"]->addAction( actionFindPrev );
-	}
-	else
-	{
-		menus["&Edit"]->addAction( actionUndo );
-		menus["&Edit"]->addAction( actionRedo );
-		menus["&Edit"]->addSeparator();
-		menus["&Edit"]->addAction( actionCut );
-		menus["&Edit"]->addAction( actionCopy );
-		menus["&Edit"]->addAction( actionPaste );
-	
-		menus["&Search"]->addAction( actionFind );
-		menus["&Search"]->addAction( actionReplace );
-		menus["&Search"]->addAction( actionGotoLine );
-		menus["&Search"]->addSeparator();
-		menus["&Search"]->addAction( actionFindNext );
-		menus["&Search"]->addAction( actionFindPrev );
-	}
-	createToolbar();
-
-SET_LAYOUT:
-	this->setLayout( layout );
 }
 
 
 QTextDocument *TextDisplay::document()
 {
 	return editor->document();
+}
+
+void	TextDisplay::setColorDef( kateItemDataManager *newColors )
+{
+	defColors = newColors;
+	delete( highlight );
+	highlight = new QeGTK_Highlighter( editor, defColors );
 }
 
 void TextDisplay::hideInternalWidgets()
@@ -498,10 +580,117 @@ void TextDisplay::gotoLine( int i )
 	setCursorLocation( 0, i );
 }
 
+bool	TextDisplay::loadFile( QString fileName )
+{
+	this->fileName = fileName;	
+	myLang = NULL;
+	delete ( highlight );
+	highlight = NULL;
+
+	editor->clear();
+
+	QTimer::singleShot( 0, this, SLOT(loadingTimer()));
+
+	return true;
+}
+
 void TextDisplay::setGotoLineEnabled( bool enabled )
 {
 	gotoLineEnabled = enabled;
-	
 	actionGotoLine->setEnabled( enabled );
 	actionGotoLine->setVisible( enabled );
+
+	lineNumber->setVisible( enabled );
+	lineNumber2->setVisible( enabled );
+}
+
+void TextDisplay::loadingTimer()
+{
+#if 1
+	// this code loads the file in 2 timers:
+	//  - the first will load the text, and then will issue a new timer
+	//  - on second timer, the syntax highlighter will be applied
+	if (highlight == NULL)
+	{
+		QFile f( fileName );
+		if (!f.open( QIODevice::ReadOnly ) )
+		{
+			QTimer::singleShot( 0, this, SLOT(loadingTimer()));
+			return;
+		}
+	
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		QTextStream t(&f);
+		editor->setPlainText( t.readAll() );
+		f.close();
+		highlight = new QeGTK_Highlighter( editor, defColors );
+		QTimer::singleShot( 0, this, SLOT(loadingTimer()));
+	}
+	else
+	{
+		myLang = QeLangDefFactory::getInstanse()->getHighlight( fileName );
+		highlight->setHighlight( myLang );
+		highlight->setDocument( editor->document() );
+
+		QApplication::restoreOverrideCursor();
+	}
+#endif
+
+#if 0
+	// this code loads the file in a single timer
+	QFile f( fileName );
+	
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	if (f.open( QIODevice::ReadOnly|QIODevice::Text) )
+	{
+		QTextStream t(&f);
+		editor->setPlainText( t.readAll() );
+		f.close();
+	}
+	myLang = QeLangDefFactory::getInstanse()->getHighlight( fileName );
+	highlight = new QeGTK_Highlighter( editor, defColors );
+	highlight->setHighlight( myLang );
+	QApplication::restoreOverrideCursor();
+
+#endif
+
+#if 0
+//	the difference beteewn those 2 methods, is that after a very small timers
+//	you will see the text on screen, even tough it's not ready yet.
+//	it feels faster :)
+#endif
+
+}
+
+void	TextDisplay::updateConfiguration()
+{
+	EditorSettings *editSettings = EditorSettings::getInstance();
+
+	// line numbers
+	lineNumber->setVisible( editSettings->showLineNumbers );
+	if (lineNumber2)
+		lineNumber2->setVisible( editSettings->showLineNumbers );
+
+	TextEditorEx *e = qobject_cast<TextEditorEx*>(editor);
+	if (e)
+	{
+		// highlight current line
+		e->setHightlighCurrentLine( editSettings->markCurrentLine );
+		// wrapping	
+		e->setLineWrapMode( editSettings->lineWrap? QTextEdit::WidgetWidth : QTextEdit::NoWrap );
+	}
+
+	e = qobject_cast<TextEditorEx*>(editor2);
+	if (e)
+	{
+		// highlight current line
+		e->setHightlighCurrentLine( editSettings->markCurrentLine );
+		// wrapping	
+		e->setLineWrapMode( editSettings->lineWrap? QTextEdit::WidgetWidth : QTextEdit::NoWrap );
+	}
+
+	// set font for editors	
+	editor->setFont( editSettings->font );
+	if (editor2)
+		editor2->setFont( editSettings->font );
 }

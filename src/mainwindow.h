@@ -37,15 +37,8 @@ protected:
 // 	void contextMenuEvent(QContextMenuEvent *event);
 
 public slots:
-	void selectEditor();
-	void editorCursorPositionChanged();
-	
 	void fileNew();
 	void fileOpen();
-	bool fileSave();
-	bool fileSave( QTextEdit *e );
-	bool fileSaveAs();
-	bool fileSaveAs( QTextEdit *e );
 	void fileClose();
 	
 	void optionsConfiguration();
@@ -61,13 +54,9 @@ private:
 	void loadStatus();
 	QString getFileName( QString fileName );
 	void loadFile( QString fileName );
-	QTextEdit* getCurrentEditor();
-	bool canCloseEditor( QTextEdit *e );
 	
-// 	QToolBar *fileToolBar;
-
 	// internal actions
-	QAction *actionSelectEditor;
+// 	QAction *actionSelectEditor;
 
 	// menus and toolbars - file
 	QAction *actionNew;

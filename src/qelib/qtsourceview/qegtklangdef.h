@@ -57,6 +57,7 @@ class QeGTK_Highlighter;
 class QeGtkSourceViewLangDef
 {
 friend class QeGTK_Highlighter;
+// friend class QeLangDefFactory;
 
 public:
 	QeGtkSourceViewLangDef( QDomDocument doc );
@@ -65,6 +66,9 @@ public:
 
 	bool	load( QString fileName );
 	bool	load( QDomDocument doc );
+
+	QString	getName(){ return name; };
+	QStringList	getMimeTypes(){ return mimeTypes; };
 	
 private:
 	bool	isTrue( QString s );
@@ -83,12 +87,12 @@ private:
 	QStringList	extensions;
 
 	QString				escapeChar;
-	QList<QeEntityString>		stringsDefs; //
-	QList<QeEntityLineComment>	lineCommentsDefs; //
+	QList<QeEntityString>		stringsDefs; 
+	QList<QeEntityLineComment>	lineCommentsDefs; 
 	QList<QeEntityBlockComment>	blockCommentsDefs;
-	QList<QeEntityKeywordList>	keywordListDefs; //
-	QList<QeEntityPatternItem>	patternItems; //
-	QList<QeEntityBlockComment>	syntaxItemDefs; //
+	QList<QeEntityKeywordList>	keywordListDefs; 
+	QList<QeEntityPatternItem>	patternItems; 
+	QList<QeEntityBlockComment>	syntaxItemDefs; 
 };
 
 #endif // __QE_GTK_LANG_DEF_H__
