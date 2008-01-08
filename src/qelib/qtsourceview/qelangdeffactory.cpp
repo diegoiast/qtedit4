@@ -35,7 +35,8 @@ QeGtkSourceViewLangDef *QeLangDefFactory::getHighlight( QString fileName )
 			// if do we recognize the mime type defined in that
 			// syntax highligh definition, check if matches this file
 
-			if ( mimeTypes.find(langMimeType) )
+			//if ( mimeTypes.find(langMimeType) )
+			if ( mimeTypes.contains(langMimeType) )
 			{
 				for ( int j=0; j<mimeTypes[langMimeType].count(); j ++ ) 
 				{
