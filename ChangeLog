@@ -1,6 +1,0 @@
-qtedit-4 (0.5.0)
-  * Rewite, using Qt4
-  * New synatx highlighter engine
-  * Inline search and replace (ala Firefox)
-  * New mdi library
-  -- Diego Iastrubni <elcuco@kde.org> Fri, 17 Mar 2006  Sep 21:00
