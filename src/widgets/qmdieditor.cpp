@@ -78,7 +78,7 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): LinesEditor(p)
 	menus["&Search"]->addAction( actionGotoLine );
 
 	loadFile( fName );
-	name = getShortFileName();
+	mdiClientName = getShortFileName();
 }
 
 

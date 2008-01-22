@@ -1,0 +1,116 @@
+<ui version="4.0" >
+ <author>Diego Iastrubni &lt;diegoiast@gmail.com></author>
+ <class>FileSystemBrowser</class>
+ <widget class="QWidget" name="FileSystemBrowser" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>173</width>
+    <height>572</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>0</number>
+   </property>
+   <property name="leftMargin" >
+    <number>0</number>
+   </property>
+   <property name="topMargin" >
+    <number>0</number>
+   </property>
+   <property name="rightMargin" >
+    <number>0</number>
+   </property>
+   <property name="bottomMargin" >
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <item>
+      <widget class="QToolButton" name="backButton" >
+       <property name="toolTip" >
+        <string>Back</string>
+       </property>
+       <property name="text" >
+        <string>Back</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="upButton" >
+       <property name="toolTip" >
+        <string>Go one directory up</string>
+       </property>
+       <property name="text" >
+        <string>Up</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="homeButton" >
+       <property name="toolTip" >
+        <string>Reload</string>
+       </property>
+       <property name="text" >
+        <string>Home</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="reloadButton" >
+       <property name="toolTip" >
+        <string>Go to your home directory</string>
+       </property>
+       <property name="text" >
+        <string>Reload</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="forwardButton" >
+       <property name="toolTip" >
+        <string>Forward</string>
+       </property>
+       <property name="text" >
+        <string>Forward</string>
+       </property>
+       <property name="autoRaise" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="locationLineEdit" />
+   </item>
+   <item>
+    <widget class="QTreeView" name="treeView" />
+   </item>
+   <item>
+    <widget class="QListView" name="listView" />
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="0" margin="0" />
+ <includes/>
+ <resources/>
+ <connections/>
+</ui>
