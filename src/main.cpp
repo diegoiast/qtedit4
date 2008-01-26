@@ -21,8 +21,6 @@ int main( int argc, char *argv[] )
 	QApplication app( argc, argv );
 	PluginManager pluginManager;
 	
-// 	pluginManager.addPlugin( new HelpPlugin );
-// 	pluginManager.addPlugin( new EditorPlugin );
 // 	pluginManager.addPlugin( new RichTextPlugin );
 	pluginManager.addPlugin( new TextEditorPlugin );
 	pluginManager.addPlugin( new FSBrowserPlugin );

@@ -4,82 +4,82 @@ TMP_DIR = build
 UI_DIR = build
 MOC_DIR = build
 OBJECTS_DIR = build
-SOURCES += lib/qmdilib/src/actiongroup.cpp \
- lib/qmdilib/src/actiongrouplist.cpp \
- lib/qmdilib/src/qmdiclient.cpp \
- lib/qmdilib/src/qmdihost.cpp \
- lib/qmdilib/src/qmdiserver.cpp \
- lib/qmdilib/src/qmditabwidget.cpp \
- lib/qmdilib/src/qmdiworkspace.cpp \
- lib/qtsourceview/src/qsvcolordef.cpp \
- lib/qtsourceview/src/qsvcolordeffactory.cpp \
- lib/qtsourceview/src/qsvlangdef.cpp \
- lib/qtsourceview/src/qsvlangdeffactory.cpp \
- lib/qtsourceview/src/qsvsyntaxhighlighter.cpp \
- lib/qtsourceview/demos/demo4/colorsmodel.cpp \
- lib/qtsourceview/demos/demo4/editorconfig.cpp \
- lib/qtsourceview/demos/demo4/lineseditor.cpp \
- lib/qtsourceview/demos/demo4/mainwindowimpl.cpp \
- lib/qtsourceview/demos/demo4/newlineedit.cpp \
- lib/qtsourceview/demos/demo4/privateblockdata.cpp \
- lib/qtsourceview/demos/demo4/samplepanel.cpp \
- lib/qtsourceview/demos/demo4/transparentwidget.cpp \
- lib/qmdilib/demos/plugin-demo/configdialog.cpp \
- lib/qmdilib/demos/plugin-demo/iplugin.cpp \
- lib/qmdilib/demos/plugin-demo/pluginmanager.cpp \
- lib/qmdilib/demos/plugin-demo/pluginmodel.cpp \
+SOURCES += ../tools/qmdilib/src/actiongroup.cpp \
+ ../tools/qmdilib/src/actiongrouplist.cpp \
+ ../tools/qmdilib/src/qmdiclient.cpp \
+ ../tools/qmdilib/src/qmdihost.cpp \
+ ../tools/qmdilib/src/qmdiserver.cpp \
+ ../tools/qmdilib/src/qmditabwidget.cpp \
+ ../tools/qmdilib/src/qmdiworkspace.cpp \
+ ../tools/qtsourceview/src/qsvcolordef.cpp \
+ ../tools/qtsourceview/src/qsvcolordeffactory.cpp \
+ ../tools/qtsourceview/src/qsvlangdef.cpp \
+ ../tools/qtsourceview/src/qsvlangdeffactory.cpp \
+ ../tools/qtsourceview/src/qsvsyntaxhighlighter.cpp \
+ ../tools/qtsourceview/demos/demo4/colorsmodel.cpp \
+ ../tools/qtsourceview/demos/demo4/editorconfig.cpp \
+ ../tools/qtsourceview/demos/demo4/lineseditor.cpp \
+ ../tools/qtsourceview/demos/demo4/mainwindowimpl.cpp \
+ ../tools/qtsourceview/demos/demo4/newlineedit.cpp \
+ ../tools/qtsourceview/demos/demo4/privateblockdata.cpp \
+ ../tools/qtsourceview/demos/demo4/samplepanel.cpp \
+ ../tools/qtsourceview/demos/demo4/transparentwidget.cpp \
+ ../tools/qmdilib/demos/plugin-demo/configdialog.cpp \
+ ../tools/qmdilib/demos/plugin-demo/iplugin.cpp \
+ ../tools/qmdilib/demos/plugin-demo/pluginmanager.cpp \
+ ../tools/qmdilib/demos/plugin-demo/pluginmodel.cpp \
  src/main.cpp \
  plugins/texteditor/texteditor_plg.cpp \
  src/widgets/qmdieditor.cpp \
  plugins/systembrowser/systembrowser_plg.cpp \
  src/widgets/filesystembrowser.cpp \
  plugins/help/help_plg.cpp
-HEADERS += lib/qmdilib/src/actiongroup.h \
- lib/qmdilib/src/actiongrouplist.h \
- lib/qmdilib/src/qmdiclient.h \
- lib/qmdilib/src/qmdihost.h \
- lib/qmdilib/src/qmdimainwindow.h \
- lib/qmdilib/src/qmdiserver.h \
- lib/qmdilib/src/qmditabwidget.h \
- lib/qmdilib/src/qmdiworkspace.h \
- lib/qtsourceview/src/debug_info.h \
- lib/qtsourceview/src/qorderedmap.h \
- lib/qtsourceview/src/qsvcolordeffactory.h \
- lib/qtsourceview/src/qsvcolordef.h \
- lib/qtsourceview/src/qsvlangdeffactory.h \
- lib/qtsourceview/src/qsvlangdef.h \
- lib/qtsourceview/src/qsvsyntaxhighlighter.h \
- lib/qtsourceview/demos/demo4/colorsmodel.h \
- lib/qtsourceview/demos/demo4/editorconfig.h \
- lib/qtsourceview/demos/demo4/lineseditor.h \
- lib/qtsourceview/demos/demo4/mainwindowimpl.h \
- lib/qtsourceview/demos/demo4/newlineedit.h \
- lib/qtsourceview/demos/demo4/privateblockdata.h \
- lib/qtsourceview/demos/demo4/samplepanel.h \
- lib/qtsourceview/demos/demo4/transparentwidget.h \
- lib/qmdilib/demos/plugin-demo/configdialog.h \
- lib/qmdilib/demos/plugin-demo/iplugin.h \
- lib/qmdilib/demos/plugin-demo/pluginmanager.h \
- lib/qmdilib/demos/plugin-demo/pluginmodel.h \
+HEADERS += ../tools/qmdilib/src/actiongroup.h \
+ ../tools/qmdilib/src/actiongrouplist.h \
+ ../tools/qmdilib/src/qmdiclient.h \
+ ../tools/qmdilib/src/qmdihost.h \
+ ../tools/qmdilib/src/qmdimainwindow.h \
+ ../tools/qmdilib/src/qmdiserver.h \
+ ../tools/qmdilib/src/qmditabwidget.h \
+ ../tools/qmdilib/src/qmdiworkspace.h \
+ ../tools/qtsourceview/src/debug_info.h \
+ ../tools/qtsourceview/src/qorderedmap.h \
+ ../tools/qtsourceview/src/qsvcolordeffactory.h \
+ ../tools/qtsourceview/src/qsvcolordef.h \
+ ../tools/qtsourceview/src/qsvlangdeffactory.h \
+ ../tools/qtsourceview/src/qsvlangdef.h \
+ ../tools/qtsourceview/src/qsvsyntaxhighlighter.h \
+ ../tools/qtsourceview/demos/demo4/colorsmodel.h \
+ ../tools/qtsourceview/demos/demo4/editorconfig.h \
+ ../tools/qtsourceview/demos/demo4/lineseditor.h \
+ ../tools/qtsourceview/demos/demo4/mainwindowimpl.h \
+ ../tools/qtsourceview/demos/demo4/newlineedit.h \
+ ../tools/qtsourceview/demos/demo4/privateblockdata.h \
+ ../tools/qtsourceview/demos/demo4/samplepanel.h \
+ ../tools/qtsourceview/demos/demo4/transparentwidget.h \
+ ../tools/qmdilib/demos/plugin-demo/configdialog.h \
+ ../tools/qmdilib/demos/plugin-demo/iplugin.h \
+ ../tools/qmdilib/demos/plugin-demo/pluginmanager.h \
+ ../tools/qmdilib/demos/plugin-demo/pluginmodel.h \
  plugins/texteditor/texteditor_plg.h \
  src/widgets/qmdieditor.h \
  plugins/systembrowser/systembrowser_plg.h \
  src/widgets/filesystembrowser.h \
  plugins/help/help_plg.h
-FORMS += lib/qtsourceview/demos/demo4/configdialog.ui \
- lib/qtsourceview/demos/demo4/filemessage.ui \
- lib/qtsourceview/demos/demo4/findwidget.ui \
- lib/qtsourceview/demos/demo4/gotolinewidget.ui \
- lib/qtsourceview/demos/demo4/mainwindow.ui \
- lib/qtsourceview/demos/demo4/replacewidget.ui \
- lib/qmdilib/demos/plugin-demo/plugin_list.ui \
+FORMS += ../tools/qtsourceview/demos/demo4/configdialog.ui \
+ ../tools/qtsourceview/demos/demo4/filemessage.ui \
+ ../tools/qtsourceview/demos/demo4/findwidget.ui \
+ ../tools/qtsourceview/demos/demo4/gotolinewidget.ui \
+ ../tools/qtsourceview/demos/demo4/mainwindow.ui \
+ ../tools/qtsourceview/demos/demo4/replacewidget.ui \
+ ../tools/qmdilib/demos/plugin-demo/plugin_list.ui \
  src/widgets/filesystembrowser.ui
 TEMPLATE = app
 CONFIG += debug_and_release rtti stl
 QT += xml
-INCLUDEPATH += lib/qtsourceview/src \
- lib/qmdilib/src \
- lib/qmdilib/demos/plugin-demo/ \
- lib/qtsourceview/demos/demo4/ \
+INCLUDEPATH += ../tools/qtsourceview/src \
+ ../tools/qmdilib/src \
+ ../tools/qmdilib/demos/plugin-demo/ \
+ ../tools/qtsourceview/demos/demo4/ \
  src/widgets
 RESOURCES += ../tools/qmdilib/demos/common/common.qrc
