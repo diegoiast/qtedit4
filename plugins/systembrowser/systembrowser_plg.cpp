@@ -32,7 +32,8 @@ FSBrowserPlugin::FSBrowserPlugin()
 	autoEnabled = true;
 	alwaysEnabled = false;
 
-	m_dockWidget = NULL;
+	m_dockWidget	= NULL;
+	m_fsBrowser	= NULL;
 }
 
 FSBrowserPlugin::~FSBrowserPlugin()
@@ -70,9 +71,18 @@ void	FSBrowserPlugin::on_client_unmerged( qmdiHost* host )
 	Q_UNUSED( host );
 }
 
-void	FSBrowserPlugin::on_fileClick( QModelIndex index )
+void	FSBrowserPlugin::on_fileClick( const QModelIndex &index )
 {
-	if (! m_fsBrowser->getDirModel()->fileInfo(index).isFile())
+	if (!index.isValid())
+		return;
+	
+	if (!m_fsBrowser)
+		return;
+
+	if (!m_fsBrowser->getDirModel())
+		return;
+	
+	if (!m_fsBrowser->getDirModel()->fileInfo(index).isFile())
 		return;
 
 	PluginManager *pluginManager = dynamic_cast<PluginManager*>(mdiServer->mdiHost);

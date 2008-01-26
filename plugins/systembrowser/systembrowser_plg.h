@@ -24,7 +24,7 @@ public:
 	void	on_client_unmerged( qmdiHost* host );
 
 public slots:
-	void	on_fileClick( QModelIndex index );
+	void	on_fileClick( const QModelIndex &index );
 	
 private:
 	QDockWidget	*m_dockWidget;
