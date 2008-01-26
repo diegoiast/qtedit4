@@ -6,7 +6,7 @@
  */
 
 #include <QApplication>
-#include "pluginmanager.h"
+#include <pluginmanager.h>
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 #include "plugins/systembrowser/systembrowser_plg.h"

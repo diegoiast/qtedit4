@@ -9,6 +9,7 @@
 #include "iplugin.h"
 
 class QDockWidget;
+class QModelIndex;
 class FileSystemBrowser;
 
 class FSBrowserPlugin: public IPlugin
@@ -21,6 +22,10 @@ public:
 	void	showAbout();
 	void	on_client_merged( qmdiHost* host );
 	void	on_client_unmerged( qmdiHost* host );
+
+public slots:
+	void	on_fileClick( QModelIndex index );
+	
 private:
 	QDockWidget	*m_dockWidget;
 	FileSystemBrowser *m_fsBrowser;

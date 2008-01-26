@@ -9,20 +9,26 @@
 #ifndef FILESYSTEMBROWSER_H
 #define FILESYSTEMBROWSER_H
 
-#include <QString>
 #include <QWidget>
 #include <QStack>
 
 #include "ui_filesystembrowser.h"
 
+class QString;
 class QDirModel;
 class QCompleter;
+class QTreeView;
+class QListView;
 
 class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser
 {
 	Q_OBJECT
 public:
 	FileSystemBrowser( QWidget * parent = 0, Qt::WFlags f = 0 );
+	QTreeView* getTreeView();
+	QListView* getListView();
+	QDirModel* getDirModel();
+	
 
 private slots:
 	void on_upButton_clicked();
@@ -31,6 +37,7 @@ private slots:
 	void on_reloadButton_clicked();
 	void on_forwardButton_clicked();
 	void on_treeView_clicked(QModelIndex index);
+	void on_filterEdit_textChanged(QString);
 
 	void setRootPath(const QString& path = QString(), bool remember = true);
 	void setRootIndex(const QModelIndex& index, bool remember = true);

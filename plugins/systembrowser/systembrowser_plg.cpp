@@ -14,9 +14,11 @@
 #include <QDockWidget>
 #include <QDirModel>
 #include <QTreeView>
+#include <QModelIndex>
 
 #include <qmdiserver.h>
 #include <qmdihost.h>
+#include <pluginmanager.h>
 
 #include "systembrowser_plg.h"
 #include "filesystembrowser.h"
@@ -54,6 +56,9 @@ void	FSBrowserPlugin::on_client_merged( qmdiHost* host )
 	m_dockWidget->setWindowTitle( tr("File system") );
 	m_dockWidget->setWidget( m_fsBrowser );
 	window->addDockWidget( Qt::LeftDockWidgetArea, m_dockWidget );
+
+	connect( m_fsBrowser->getTreeView(), SIGNAL(activated(QModelIndex)), this, SLOT(on_fileClick(QModelIndex)));
+	connect( m_fsBrowser->getListView(), SIGNAL(activated(QModelIndex)), this, SLOT(on_fileClick(QModelIndex)));
 }
 
 void	FSBrowserPlugin::on_client_unmerged( qmdiHost* host )
@@ -61,7 +66,20 @@ void	FSBrowserPlugin::on_client_unmerged( qmdiHost* host )
 	delete( m_dockWidget );
 	m_dockWidget	= NULL;
 	m_fsBrowser	= NULL;
+
+	Q_UNUSED( host );
 }
+
+void	FSBrowserPlugin::on_fileClick( QModelIndex index )
+{
+	if (! m_fsBrowser->getDirModel()->fileInfo(index).isFile())
+		return;
+
+	PluginManager *pluginManager = dynamic_cast<PluginManager*>(mdiServer->mdiHost);
+	if (pluginManager)
+		pluginManager->openFile( m_fsBrowser->getDirModel()->fileInfo(index).filePath() );
+}
+
 
 // kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 
 // kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix

@@ -1,19 +1,31 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
 <!DOCTYPE KDevPrjSession>
 <KDevPrjSession>
- <DocsAndViews NumberOfDocuments="4" >
+ <DocsAndViews NumberOfDocuments="8" >
   <Doc0 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/src/main.cpp" >
-   <View0 Encoding="UTF-8" line="25" Type="Source" />
+   <View0 Encoding="UTF-8" line="28" Type="Source" />
   </Doc0>
   <Doc1 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/plugins/systembrowser/systembrowser_plg.cpp" >
-   <View0 Encoding="" line="47" Type="Source" />
+   <View0 Encoding="" line="8" Type="Source" />
   </Doc1>
   <Doc2 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/plugins/systembrowser/systembrowser_plg.h" >
-   <View0 Encoding="" line="22" Type="Source" />
+   <View0 Encoding="" line="17" Type="Source" />
   </Doc2>
   <Doc3 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/tools/qmdilib/src/qmdiclient.h" >
-   <View0 Encoding="UTF-8" line="31" Type="Source" />
+   <View0 Encoding="UTF-8" line="0" Type="Source" />
   </Doc3>
+  <Doc4 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/src/widgets/filesystembrowser.cpp" >
+   <View0 Encoding="UTF-8" line="69" Type="Source" />
+  </Doc4>
+  <Doc5 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/plugins/help/help_plg.cpp" >
+   <View0 Encoding="UTF-8" line="13" Type="Source" />
+  </Doc5>
+  <Doc6 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/plugins/help/help_plg.h" >
+   <View0 Encoding="" line="19" Type="Source" />
+  </Doc6>
+  <Doc7 NumberOfViews="1" URL="file:///home/elcuco/src/svn/qtedit4/trunk/plugins/texteditor/texteditor_plg.cpp" >
+   <View0 Encoding="UTF-8" line="11" Type="Source" />
+  </Doc7>
  </DocsAndViews>
  <pluginList>
   <kdevdebugger>
@@ -21,6 +33,9 @@
     <breakpoint0 location="/home/elcuco/src/svn/qtedit4/tools/qmdilib/demos/plugin-demo/plugins/editor/editor_plg.cpp:153" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
      <tracedExpressions/>
     </breakpoint0>
+    <breakpoint1 location="/home/elcuco/src/svn/qtedit4/trunk/plugins/help/help_plg.cpp:6" type="1" tracingFormatString="" traceFormatStringEnabled="0" condition="" tracingEnabled="0" enabled="1" >
+     <tracedExpressions/>
+    </breakpoint1>
    </breakpointList>
    <showInternalCommands value="0" />
   </kdevdebugger>

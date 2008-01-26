@@ -6,6 +6,7 @@
  * \see FileSystemBrowser
  */
 
+#include <QFileInfo>
 #include <QCompleter>
 #include <QDirModel>
 #include <QTimer>
@@ -16,8 +17,8 @@ FileSystemBrowser::FileSystemBrowser( QWidget * parent, Qt::WFlags f)
 {
 	setupUi(this);
 	
-	m_dirModel = new QDirModel(this);
-	m_dirModel->setReadOnly(false);
+	m_dirModel = new QDirModel( QStringList(), QDir::AllEntries|QDir::AllDirs, QDir::DirsFirst|QDir::Name, this );
+// 	m_dirModel->setReadOnly(false);
 
 	listView->setModel(m_dirModel);
 	treeView->setModel(m_dirModel);
@@ -28,18 +29,35 @@ FileSystemBrowser::FileSystemBrowser( QWidget * parent, Qt::WFlags f)
 	m_completer->setModel(m_dirModel);
 	locationLineEdit->setCompleter(m_completer);
 
-	connect(m_completer, SIGNAL(activated(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
-	connect(locationLineEdit,  SIGNAL(returnPressed()),        this, SLOT(setRootPath()));
-// 	connect(treeView, SIGNAL(clicked(QModelIndex)),       this, SLOT(setRootIndex(QModelIndex)));
-  	connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
-// 	QTimer::singleShot( 1000, this, SLOT(init()));
-	m_currentPath = QDir::homePath();
-	setRootPath(m_currentPath, false);
+	connect(m_completer, SIGNAL(activated(QModelIndex)),  this, SLOT(setRootIndex(QModelIndex)));
+	connect(locationLineEdit,  SIGNAL(returnPressed()),   this, SLOT(setRootPath()));
+	connect(listView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(on_treeView_clicked(QModelIndex)));
+
+	QList<int> l;
+	l << 0 << splitter->height();
+	splitter->setSizes( l );
+	QTimer::singleShot( 0, this, SLOT(init()));
+}
+
+QTreeView* FileSystemBrowser::getTreeView()
+{
+	return treeView;
+}
+
+QListView* FileSystemBrowser::getListView()
+{
+	return listView;
+}
+
+QDirModel* FileSystemBrowser::getDirModel()
+{
+	return m_dirModel;
 }
 
 void FileSystemBrowser::on_treeView_clicked(QModelIndex index)
 {
-	setRootIndex(index);
+	if (m_dirModel->fileInfo(index).isDir())
+		setRootIndex(index);
 }
 
 void FileSystemBrowser::on_backButton_clicked()
@@ -70,6 +88,15 @@ void FileSystemBrowser::on_upButton_clicked()
 {
 // 	setRootIndex(treeView->rootIndex().parent());
 	setRootIndex(listView->rootIndex().parent());
+}
+
+void FileSystemBrowser::on_filterEdit_textChanged(QString s)
+{
+	s = s.simplified();
+	if (s.isEmpty())
+			filterEdit->setText( "*.*" );
+	else
+		m_dirModel->setNameFilters( s.split(';') );
 }
 
 void FileSystemBrowser::setRootPath(const QString& path, bool remember)
