@@ -10,11 +10,6 @@
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 #include "plugins/systembrowser/systembrowser_plg.h"
-// #include "texteditor_plg.h"
-
-#include <QDockWidget>
-#include <QDirModel>
-#include <QTreeView>
 
 int main( int argc, char *argv[] )
 {

@@ -75,11 +75,12 @@ FORMS += ../tools/qtsourceview/demos/demo4/configdialog.ui \
  ../tools/qmdilib/demos/plugin-demo/plugin_list.ui \
  src/widgets/filesystembrowser.ui
 TEMPLATE = app
-CONFIG += debug_and_release rtti stl
+CONFIG += rtti stl release
 QT += xml
 INCLUDEPATH += ../tools/qtsourceview/src \
  ../tools/qmdilib/src \
  ../tools/qmdilib/demos/plugin-demo/ \
  ../tools/qtsourceview/demos/demo4/ \
- src/widgets
+ src/widgets \
+ .
 RESOURCES += ../tools/qmdilib/demos/common/common.qrc
