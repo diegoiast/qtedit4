@@ -18,11 +18,11 @@ SOURCES += ../tools/qmdilib/src/actiongroup.cpp \
  ../tools/qtsourceview/src/qsvsyntaxhighlighter.cpp \
  ../tools/qtsourceview/demos/demo4/colorsmodel.cpp \
  ../tools/qtsourceview/demos/demo4/editorconfig.cpp \
- ../tools/qtsourceview/demos/demo4/lineseditor.cpp \
+ ../tools/qtsourceview/demos/demo4/qsveditor.cpp \
  ../tools/qtsourceview/demos/demo4/mainwindowimpl.cpp \
- ../tools/qtsourceview/demos/demo4/newlineedit.cpp \
- ../tools/qtsourceview/demos/demo4/privateblockdata.cpp \
- ../tools/qtsourceview/demos/demo4/samplepanel.cpp \
+ ../tools/qtsourceview/demos/demo4/qsvlineedit.cpp \
+ ../tools/qtsourceview/demos/demo4/qsvprivateblockdata.cpp \
+ ../tools/qtsourceview/demos/demo4/qsveditorpanel.cpp \
  ../tools/qtsourceview/demos/demo4/transparentwidget.cpp \
  ../tools/qmdilib/demos/plugin-demo/configdialog.cpp \
  ../tools/qmdilib/demos/plugin-demo/iplugin.cpp \
@@ -51,11 +51,11 @@ HEADERS += ../tools/qmdilib/src/actiongroup.h \
  ../tools/qtsourceview/src/qsvsyntaxhighlighter.h \
  ../tools/qtsourceview/demos/demo4/colorsmodel.h \
  ../tools/qtsourceview/demos/demo4/editorconfig.h \
- ../tools/qtsourceview/demos/demo4/lineseditor.h \
  ../tools/qtsourceview/demos/demo4/mainwindowimpl.h \
- ../tools/qtsourceview/demos/demo4/newlineedit.h \
- ../tools/qtsourceview/demos/demo4/privateblockdata.h \
- ../tools/qtsourceview/demos/demo4/samplepanel.h \
+ ../tools/qtsourceview/demos/demo4/qsveditor.h \
+ ../tools/qtsourceview/demos/demo4/qsvlineedit.h \
+ ../tools/qtsourceview/demos/demo4/qsvprivateblockdata.h \
+ ../tools/qtsourceview/demos/demo4/qsveditorpanel.h \
  ../tools/qtsourceview/demos/demo4/transparentwidget.h \
  ../tools/qmdilib/demos/plugin-demo/configdialog.h \
  ../tools/qmdilib/demos/plugin-demo/iplugin.h \

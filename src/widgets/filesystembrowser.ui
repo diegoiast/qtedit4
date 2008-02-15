@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>324</width>
+    <width>176</width>
     <height>529</height>
    </rect>
   </property>
@@ -14,23 +14,20 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" >
+   <property name="margin" >
+    <number>0</number>
+   </property>
    <property name="spacing" >
-    <number>0</number>
-   </property>
-   <property name="leftMargin" >
-    <number>0</number>
-   </property>
-   <property name="topMargin" >
-    <number>0</number>
-   </property>
-   <property name="rightMargin" >
-    <number>0</number>
-   </property>
-   <property name="bottomMargin" >
     <number>0</number>
    </property>
    <item>
     <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>0</number>
+     </property>
      <item>
       <widget class="QToolButton" name="backButton" >
        <property name="toolTip" >
@@ -38,6 +35,9 @@
        </property>
        <property name="text" >
         <string>Back</string>
+       </property>
+       <property name="icon" >
+        <iconset>:/trolltech/styles/commonstyle/images/left-32.png</iconset>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -52,6 +52,9 @@
        <property name="text" >
         <string>Up</string>
        </property>
+       <property name="icon" >
+        <iconset>:/trolltech/styles/commonstyle/images/parentdir-32.png</iconset>
+       </property>
        <property name="autoRaise" >
         <bool>true</bool>
        </property>
@@ -65,18 +68,8 @@
        <property name="text" >
         <string>Home</string>
        </property>
-       <property name="autoRaise" >
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="reloadButton" >
-       <property name="toolTip" >
-        <string>Go to your home directory</string>
-       </property>
-       <property name="text" >
-        <string>Reload</string>
+       <property name="icon" >
+        <iconset>:/trolltech/styles/commonstyle/images/computer-32.png</iconset>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -90,6 +83,9 @@
        </property>
        <property name="text" >
         <string>Forward</string>
+       </property>
+       <property name="icon" >
+        <iconset>:/trolltech/styles/commonstyle/images/right-32.png</iconset>
        </property>
        <property name="autoRaise" >
         <bool>true</bool>
@@ -112,6 +108,12 @@
    </item>
    <item>
     <layout class="QHBoxLayout" >
+     <property name="margin" >
+      <number>0</number>
+     </property>
+     <property name="spacing" >
+      <number>0</number>
+     </property>
      <item>
       <spacer>
        <property name="orientation" >

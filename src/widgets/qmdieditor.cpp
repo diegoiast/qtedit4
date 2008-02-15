@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include "qmdieditor.h"
 
-qmdiEditor::qmdiEditor( QString fName, QWidget* p ): LinesEditor(p)
+qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvEditor(p)
 {
 	setupActions();
 	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
