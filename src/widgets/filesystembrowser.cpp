@@ -72,7 +72,7 @@ void FileSystemBrowser::on_homeButton_clicked()
 	setRootPath(QDir::homePath());
 }
 
-void FileSystemBrowser::on_reloadButton_clicked()
+void FileSystemBrowser::reloadButton_clicked()
 {
 	m_dirModel->refresh( treeView->rootIndex() );
 }

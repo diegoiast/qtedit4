@@ -34,7 +34,7 @@ private slots:
 	void on_upButton_clicked();
 	void on_backButton_clicked();
 	void on_homeButton_clicked();
-	void on_reloadButton_clicked();
+	void reloadButton_clicked();
 	void on_forwardButton_clicked();
 	void on_treeView_clicked(QModelIndex index);
 	void on_filterEdit_textChanged(QString);

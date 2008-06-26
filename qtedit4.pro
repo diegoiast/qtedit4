@@ -4,8 +4,8 @@ TMP_DIR = build
 UI_DIR = build
 MOC_DIR = build
 OBJECTS_DIR = build
-SOURCES += ../tools/qmdilib/src/actiongroup.cpp \
- ../tools/qmdilib/src/actiongrouplist.cpp \
+SOURCES += ../tools/qmdilib/src/qmdiactiongroup.cpp \
+ ../tools/qmdilib/src/qmdiactiongrouplist.cpp \
  ../tools/qmdilib/src/qmdiclient.cpp \
  ../tools/qmdilib/src/qmdihost.cpp \
  ../tools/qmdilib/src/qmdiserver.cpp \
