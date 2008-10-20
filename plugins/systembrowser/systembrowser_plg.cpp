@@ -54,6 +54,7 @@ void	FSBrowserPlugin::on_client_merged( qmdiHost* host )
 	m_dockWidget	= new QDockWidget(window);
 	m_fsBrowser	= new FileSystemBrowser(m_dockWidget); 
 	
+	m_dockWidget->setObjectName("m_dockWidget");
 	m_dockWidget->setWindowTitle( tr("File system") );
 	m_dockWidget->setWidget( m_fsBrowser );
 	window->addDockWidget( Qt::LeftDockWidgetArea, m_dockWidget );
