@@ -1,12 +1,14 @@
 /**
  * \file main.cpp
- * \brief Entry point of application - QtEdit4 
+ * \brief Entry point of application - QtEdit4
  * \author Diego Iastrubni elcuco@kde.org
  * License GPL 2008
  */
 
 #include <QApplication>
 #include <pluginmanager.h>
+
+#include "Qtedit4MainWindow.h"
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 #include "plugins/systembrowser/systembrowser_plg.h"
@@ -15,6 +17,7 @@ int main( int argc, char *argv[] )
 {
 	QApplication app( argc, argv );
 	PluginManager pluginManager;
+//	Qtedit4MainWindow pluginManager;
 	
 	pluginManager.setFileSettingsManager( "qtedit4.ini" );
 	
