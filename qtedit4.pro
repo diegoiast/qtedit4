@@ -29,7 +29,6 @@ SOURCES += ../tools/qmdilib/src/qmdiactiongroup.cpp \
  ../tools/qmdilib/demos/plugin-demo/pluginmanager.cpp \
  ../tools/qmdilib/demos/plugin-demo/pluginmodel.cpp \
  src/main.cpp \
- src/Qtedit4MainWindow.cpp \
  plugins/texteditor/texteditor_plg.cpp \
  src/widgets/qmdieditor.cpp \
  plugins/systembrowser/systembrowser_plg.cpp \
@@ -62,7 +61,6 @@ HEADERS += ../tools/qmdilib/src/actiongroup.h \
  ../tools/qmdilib/demos/plugin-demo/iplugin.h \
  ../tools/qmdilib/demos/plugin-demo/pluginmanager.h \
  ../tools/qmdilib/demos/plugin-demo/pluginmodel.h \
- src/Qtedit4MainWindow.h \
  plugins/texteditor/texteditor_plg.h \
  src/widgets/qmdieditor.h \
  plugins/systembrowser/systembrowser_plg.h \
