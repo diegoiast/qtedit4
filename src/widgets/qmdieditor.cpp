@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include "qmdieditor.h"
 
-qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvEditor(p)
+qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 {
 	setupActions();
 	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
@@ -68,14 +68,14 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvEditor(p)
 // 	menus["&Edit"]->addAction( actionTogglebreakpoint );
 	menus["&Edit"]->addAction( actionFindMatchingBracket );
 	
-	menus["&Search"]->addAction( actionFind );
-	menus["&Search"]->addAction( actionFindNext );
-	menus["&Search"]->addAction( actionFindPrev );
-	menus["&Search"]->addAction( actionClearSearchHighlight );
-	menus["&Search"]->addSeparator();
-	menus["&Search"]->addAction( actionReplace );
-	menus["&Search"]->addSeparator();
-	menus["&Search"]->addAction( actionGotoLine );
+//	menus["&Search"]->addAction( actionFind );
+//	menus["&Search"]->addAction( actionFindNext );
+//	menus["&Search"]->addAction( actionFindPrev );
+//	menus["&Search"]->addAction( actionClearSearchHighlight );
+//	menus["&Search"]->addSeparator();
+//	menus["&Search"]->addAction( actionReplace );
+//	menus["&Search"]->addSeparator();
+//	menus["&Search"]->addAction( actionGotoLine );
 
 	loadFile( fName );
 	mdiClientName = getShortFileName();

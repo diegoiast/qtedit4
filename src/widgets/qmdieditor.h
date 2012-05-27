@@ -10,7 +10,7 @@
 #define QMDIEDITOR_H
 
 #include <qmdiclient.h>
-#include <qsveditor.h>
+#include <qsvtextedit.h>
 
 /**
 A source editor with MDI interface.
@@ -18,7 +18,7 @@ This class will be a very rich text editor which will also have a set of toolbar
 
 	@author Diego Iastrubni <elcuco@kde.org>
 */
-class qmdiEditor : public QsvEditor, public qmdiClient
+class qmdiEditor : public QsvTextEdit, public qmdiClient
 {
 	Q_OBJECT
 	
