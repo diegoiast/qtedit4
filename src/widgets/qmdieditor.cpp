@@ -8,10 +8,14 @@
 
 #include <QMenu>
 #include <QMessageBox>
+#include <QStyle>
 #include "qmdieditor.h"
+#include <qsvtextoperationswidget.h>
 
 qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 {
+	operationsWidget = new QsvTextOperationsWidget(this);
+
 	setupActions();
 	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
 	actionUndo	= new QAction( QIcon(":images/redo.png"), tr("&Redo"), this );
@@ -19,6 +23,17 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	actionCopy	= new QAction( QIcon(":images/copy.png"), tr("&Copy"), this );
 	actionCut	= new QAction( QIcon(":images/cut.png"), tr("&Cut"), this );
 	actionPaste	= new QAction( QIcon(":images/paste.png"), tr("&Paste"), this  );
+	actionFind = new QAction( tr("&Find"),this);
+	actionFindNext = new QAction( tr("Find &next"),this);
+	actionFindPrev = new QAction( tr("Find &previous"),this);
+	actionReplace = new QAction( tr("&Replace"),this);
+	actionGotoLine = new QAction( tr("&Goto line"),this);
+
+	actionFind->setShortcut(QKeySequence::Find);
+	actionFindNext->setShortcut(QKeySequence::FindNext);
+	actionFindPrev->setShortcut(QKeySequence::FindPrevious);
+	actionReplace->setShortcut(QKeySequence::Replace);
+	actionGotoLine->setShortcut(QKeySequence("Ctrl+G"));
 
 	actionSave->setObjectName( "qmdiEditor::actionSave" );
 	actionUndo->setObjectName( "qmdiEditor::actionUndo" );
@@ -26,6 +41,11 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	actionCopy->setObjectName( "qmdiEditor::actionCopy" );
 	actionCut->setObjectName( "qmdiEditor::actionCut" );
 	actionPaste->setObjectName( "qmdiEditor::actionPaste" );
+	actionFind->setObjectName("qmdiEditor::actionFind");
+	actionFindNext->setObjectName("qmdiEditor::actionFindNext");
+	actionFindPrev->setObjectName("qmdiEditor::actionFindPrev");
+	actionReplace->setObjectName("qmdiEditor::actionReplace");
+	actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
 
 	
 	connect( this, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)) );
@@ -39,12 +59,19 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	connect( actionCut, SIGNAL(triggered()), this, SLOT(cut()) );
 	connect( actionPaste, SIGNAL(triggered()), this, SLOT(paste()) );
 // 	connect( actiohAskHelp, SIGNAL(triggered()), this, SLOT(helpShowHelp()));
+	connect( actionFind, SIGNAL(triggered()), operationsWidget, SLOT(showSearch()));
+	connect( actionFindNext, SIGNAL(triggered()), operationsWidget, SLOT(searchNext()));
+	connect( actionFindPrev, SIGNAL(triggered()), operationsWidget, SLOT(searchPrev()));
+	connect( actionReplace, SIGNAL(triggered()), operationsWidget, SLOT(showReplace()));
+	connect( actionGotoLine, SIGNAL(triggered()), operationsWidget, SLOT(showGotoLine()));
+
 
 	textOperationsMenu = new QMenu( tr("Text actions"), this );
 	textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
 	textOperationsMenu->addAction( actionCapitalize );
 	textOperationsMenu->addAction( actionLowerCase );
 	textOperationsMenu->addAction( actionChangeCase );
+
 	
 	bookmarksMenu = new QMenu( tr("Bookmarks"), this );
 	bookmarksMenu ->setObjectName("qmdiEditor::bookmarksMenu ");
@@ -68,14 +95,14 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 // 	menus["&Edit"]->addAction( actionTogglebreakpoint );
 	menus["&Edit"]->addAction( actionFindMatchingBracket );
 	
-//	menus["&Search"]->addAction( actionFind );
-//	menus["&Search"]->addAction( actionFindNext );
-//	menus["&Search"]->addAction( actionFindPrev );
+	menus["&Search"]->addAction( actionFind );
+	menus["&Search"]->addAction( actionFindNext );
+	menus["&Search"]->addAction( actionFindPrev );
 //	menus["&Search"]->addAction( actionClearSearchHighlight );
-//	menus["&Search"]->addSeparator();
-//	menus["&Search"]->addAction( actionReplace );
-//	menus["&Search"]->addSeparator();
-//	menus["&Search"]->addAction( actionGotoLine );
+	menus["&Search"]->addSeparator();
+	menus["&Search"]->addAction( actionReplace );
+	menus["&Search"]->addSeparator();
+	menus["&Search"]->addAction( actionGotoLine );
 
 	loadFile( fName );
 	mdiClientName = getShortFileName();

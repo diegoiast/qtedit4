@@ -12,6 +12,7 @@
 #include <qmdiclient.h>
 #include <qsvtextedit.h>
 
+class QsvTextOperationsWidget;
 /**
 A source editor with MDI interface.
 This class will be a very rich text editor which will also have a set of toolbars and menus available for the qmdiHost
@@ -30,6 +31,7 @@ public:
 	QString mdiClientFileName();
 	
 private:
+    QsvTextOperationsWidget *operationsWidget;
 	QString getShortFileName();
 	
 	QMenu *bookmarksMenu;
@@ -42,6 +44,11 @@ private:
 	QAction *actionCut;
 	QAction *actionPaste;
 	QAction *actiohAskHelp;
+	QAction *actionFind;
+	QAction *actionFindNext;
+	QAction *actionFindPrev;
+	QAction *actionReplace;
+	QAction *actionGotoLine;
 };
 
 #endif

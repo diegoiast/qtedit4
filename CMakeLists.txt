@@ -24,6 +24,7 @@ set( QTEDIT4_SOURCES
 	lib/qmdilib/demos/plugin-demo/pluginmanager.cpp
 	lib/qmdilib/demos/plugin-demo/iplugin.cpp
 	lib/qmdilib/demos/plugin-demo/configdialog.cpp
+	lib/qtsourceview/demos/demo4/qsvtextoperationswidget.cpp
 	lib/qtsourceview/demos/demo4/qsvtextedit.cpp
 	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.cpp
 	src/widgets/filesystembrowser.cpp
@@ -38,6 +39,7 @@ set( QTEDIT4_HEADERS
 	lib/qmdilib/demos/plugin-demo/iplugin.h
 	lib/qmdilib/demos/plugin-demo/pluginmanager.h
 	lib/qmdilib/demos/plugin-demo/configdialog.h
+	lib/qtsourceview/demos/demo4/qsvtextoperationswidget.h
 	lib/qtsourceview/demos/demo4/qsvtextedit.h
 	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
 	src/widgets/filesystembrowser.h
@@ -47,10 +49,15 @@ set( QTEDIT4_HEADERS
 	plugins/texteditor/texteditor_plg.h
 )
 set( QTEDIT4_UIS
+	lib/qtsourceview/demos/demo4/searchform.ui
+	lib/qtsourceview/demos/demo4/replaceform.ui
 	lib/qtsourceview/demos/demo4/bannermessage.ui
 	lib/qmdilib/demos/plugin-demo/plugin_list.ui
 	lib/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
 	src/widgets/filesystembrowser.ui
+)
+SET( QTEDIT4_RESOURCES
+	lib/qmdilib/demos/common/common.qrc
 )
 
 add_definitions(-DCORE_EXPORT=)
@@ -66,9 +73,11 @@ include_directories(
 	.
 )
 
+
 # QT4_WRAP_UI ( QTEDIT4_UI  ${QTEDIT4_UIS} )
-QT4_WRAP_UI ( QTEDIT4_UI  ${QTEDIT4_UIS} )
+QT4_ADD_RESOURCES( QTEDIT4_RCC ${QTEDIT4_RESOURCES})
+QT4_WRAP_UI( QTEDIT4_UI  ${QTEDIT4_UIS} )
 QT4_WRAP_CPP( QTEDIT4_MOC ${QTEDIT4_HEADERS})
-add_executable(qtedit4 ${QTEDIT4_SOURCES} ${QTEDIT4_MOC} ${QTEDIT4_UI})
+add_executable(qtedit4 ${QTEDIT4_SOURCES} ${QTEDIT4_MOC} ${QTEDIT4_UI} ${QTEDIT4_RCC})
 add_dependencies(qtedit4 QMDILIB_STATIC QATE_STATIC)
 target_link_libraries(qtedit4 ${QT_LIBRARIES} QMDILIB_STATIC QATE_STATIC)
