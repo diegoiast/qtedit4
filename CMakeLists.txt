@@ -1,6 +1,13 @@
 # $Id$
 cmake_minimum_required(VERSION 2.6) 
 
+# http://www.cmake.org/Wiki/CMake_FAQ#How_can_I_change_the_default_build_mode_and_see_it_reflected_in_the_GUI.3F
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
 # 3rd party libs
 add_subdirectory( lib/qmdilib      qmdi )
 add_subdirectory( lib/qtsourceview qate )
@@ -27,12 +34,13 @@ set( QTEDIT4_SOURCES
 	lib/qtsourceview/demos/demo4/qsvtextoperationswidget.cpp
 	lib/qtsourceview/demos/demo4/qsvtextedit.cpp
 	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.cpp
+	lib/qtsourceview/demos/demo4/qsvdefaulthighlighter.cpp
 	src/widgets/filesystembrowser.cpp
 	src/widgets/qmdieditor.cpp
 	src/main.cpp
-	plugins/systembrowser/systembrowser_plg.cpp
-	plugins/help/help_plg.cpp
-	plugins/texteditor/texteditor_plg.cpp
+	src/plugins/systembrowser/systembrowser_plg.cpp
+	src/plugins/help/help_plg.cpp
+	src/plugins/texteditor/texteditor_plg.cpp
 )
 set( QTEDIT4_HEADERS 
 	lib/qmdilib/demos/plugin-demo/pluginmodel.h
@@ -44,9 +52,9 @@ set( QTEDIT4_HEADERS
 	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
 	src/widgets/filesystembrowser.h
 	src/widgets/qmdieditor.h
-	plugins/systembrowser/systembrowser_plg.h
-	plugins/help/help_plg.h
-	plugins/texteditor/texteditor_plg.h
+	src/plugins/systembrowser/systembrowser_plg.h
+	src/plugins/help/help_plg.h
+	src/plugins/texteditor/texteditor_plg.h
 )
 set( QTEDIT4_UIS
 	lib/qtsourceview/demos/demo4/searchform.ui

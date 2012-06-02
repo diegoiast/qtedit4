@@ -8,6 +8,7 @@
 
 #include "texteditor_plg.h"
 #include "src/widgets/qmdieditor.h"
+#include "qsvdefaulthighlighter.h"
 
 
 TextEditorPlugin::TextEditorPlugin()
@@ -94,7 +95,11 @@ int	TextEditorPlugin::canOpenFile( const QString fileName )
 bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 {
 	qmdiEditor *editor = new qmdiEditor( fileName, dynamic_cast<QMainWindow*>(mdiServer) );
-	mdiServer->addClient( editor );
+	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
+	editor->setHighlighter(highlighter);
+	highlighter->rehighlight();
+	editor->removeModifications();
+	mdiServer->addClient(editor);
 
 	// TODO
 	// 1) move the cursor as specified in the parameters
@@ -116,5 +121,7 @@ void	TextEditorPlugin::setData()
 void TextEditorPlugin::fileNew( QAction * )
 {
 	qmdiEditor *editor = new qmdiEditor( tr("NO NAME"), dynamic_cast<QMainWindow*>(mdiServer) );
+	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
+	editor->setHighlighter(highlighter);
 	mdiServer->addClient( editor );
 }
