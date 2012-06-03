@@ -35,6 +35,7 @@ set( QTEDIT4_SOURCES
 	lib/qtsourceview/demos/demo4/qsvtextedit.cpp
 	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.cpp
 	lib/qtsourceview/demos/demo4/qsvdefaulthighlighter.cpp
+	lib/qtsourceview/demos/demo-qate4/qatehighlighter.cpp
 	src/widgets/filesystembrowser.cpp
 	src/widgets/qmdieditor.cpp
 	src/main.cpp
@@ -76,6 +77,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/src/
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/src/qate
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/demos/demo4
+	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/demos/demo-qate4
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/demos/plugin-demo
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/demos/plugin-demo/plugins/editor
 	.

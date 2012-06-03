@@ -8,6 +8,9 @@
 
 #include "iplugin.h"
 
+#include "qate/mimedatabase.h"
+#include "qate/highlightdefinitionmanager.h"
+
 class TextEditorPlugin: public IPlugin
 {
 	Q_OBJECT
@@ -24,7 +27,9 @@ public:
 	void		getData();
 	void		setData();
 
-public slots:
+	QString findDefinitionId(const Qate::MimeType &mimeType, bool considerParents) const;
+	Qate::MimeType getMimeByExt(const QString &fileName) const;
+	public slots:
 	void fileNew( QAction * );
 
 private:
@@ -32,6 +37,9 @@ private:
 	QAction		*actionNewFile;
 	QAction		*actionNewCPP;
 	QAction		*actionNewHeader;
+
+	Qate::MimeDatabase                                        *mimes;
+	Qate::HighlightDefinitionManager                          *hl_manager;
 };
 
 // kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 

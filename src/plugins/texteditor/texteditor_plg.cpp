@@ -28,6 +28,11 @@ TextEditorPlugin::TextEditorPlugin()
 	myNewActions->addAction( actionNewCPP );
 	myNewActions->addAction( actionNewHeader );
 
+	hl_manager = Qate::HighlightDefinitionManager::instance();
+	mimes = new Qate::MimeDatabase();
+	hl_manager->setMimeDatabase(mimes);
+	hl_manager->registerMimeTypes();
+
 	connect( myNewActions, SIGNAL(triggered(QAction*)), this, SLOT(fileNew(QAction*)));
 }
 
@@ -44,6 +49,36 @@ QWidget*	TextEditorPlugin::getConfigDialog()
 {
 	return NULL;
 }
+
+Qate::MimeType TextEditorPlugin::getMimeByExt(const QString &fileName) const
+{
+	QFileInfo fi(fileName);
+	QString extension = QString("*.%1").arg(fi.suffix());
+	foreach(Qate::MimeType mime, mimes->mimeTypes() ) {
+		foreach(Qate::MimeGlobPattern pattern, mime.globPatterns() ) {
+			if (extension == pattern.regExp().pattern())
+				return mime;
+		}
+	}
+	return Qate::MimeType();
+}
+
+
+QString		TextEditorPlugin::findDefinitionId(const Qate::MimeType &mimeType, bool considerParents) const
+{
+    QString definitionId = hl_manager->definitionIdByAnyMimeType(mimeType.aliases());
+    if (definitionId.isEmpty() && considerParents) {
+	definitionId = hl_manager->definitionIdByAnyMimeType(mimeType.subClassesOf());
+	if (definitionId.isEmpty()) {
+	    foreach (const QString &parent, mimeType.subClassesOf()) {
+		const Qate::MimeType &parentMimeType =  mimes->findByType(parent);
+		definitionId = findDefinitionId(parentMimeType, considerParents);
+	    }
+	}
+    }
+    return definitionId;
+}
+
 
 QActionGroup*	TextEditorPlugin::newFileActions()
 {
@@ -92,12 +127,53 @@ int	TextEditorPlugin::canOpenFile( const QString fileName )
 	else return 1;
 }
 
+#include "highlighter.h"
+#include "highlightdefinition.h"
+#include "defaultcolors.h"
+#include "qatehighlighter.h"
+#include "context.h"
+
 bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 {
 	qmdiEditor *editor = new qmdiEditor( fileName, dynamic_cast<QMainWindow*>(mdiServer) );
+
+#if 0
 	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
 	editor->setHighlighter(highlighter);
 	highlighter->rehighlight();
+#else
+	Qate::MimeType m = mimes->findByFile(fileName);
+
+	if (m.isNull())
+		m = getMimeByExt(fileName);
+
+	QSharedPointer<TextEditor::Internal::HighlightDefinition>  highlight_definition;
+	QateHighlighter *highlighter = new QateHighlighter;
+	Qate::DefaultColors::ApplyToHighlighter(highlighter);
+
+	QString definitionId = hl_manager->definitionIdByMimeType(m.type());
+	if (definitionId.isEmpty())
+		definitionId = findDefinitionId(m,true);
+	if (!definitionId.isEmpty()) {
+		qDebug("Using %s", qPrintable(definitionId));
+		highlight_definition = hl_manager->definition(hl_manager->definitionIdByMimeType(m.type()));
+		if (!highlight_definition.isNull()) {
+			highlighter->setDefaultContext(highlight_definition->initialContext());
+		} else {
+			delete highlighter;
+			highlighter = new QateHighlighter;
+			Qate::DefaultColors::ApplyToHighlighter(highlighter);
+			qDebug("Error loading %s", qPrintable(definitionId));
+		}
+	} else {
+		delete highlighter;
+		highlighter = new QateHighlighter;
+		Qate::DefaultColors::ApplyToHighlighter(highlighter);
+		qDebug("No definition found for %s", qPrintable(fileName));
+	}
+	editor->setHighlighter(highlighter);
+#endif
+
 	editor->removeModifications();
 	mdiServer->addClient(editor);
 
