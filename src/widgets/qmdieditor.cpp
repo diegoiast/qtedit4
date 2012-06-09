@@ -23,11 +23,22 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	actionCopy	= new QAction( QIcon(":images/copy.png"), tr("&Copy"), this );
 	actionCut	= new QAction( QIcon(":images/cut.png"), tr("&Cut"), this );
 	actionPaste	= new QAction( QIcon(":images/paste.png"), tr("&Paste"), this  );
-	actionFind = new QAction( tr("&Find"),this);
-	actionFindNext = new QAction( tr("Find &next"),this);
-	actionFindPrev = new QAction( tr("Find &previous"),this);
-	actionReplace = new QAction( tr("&Replace"),this);
-	actionGotoLine = new QAction( tr("&Goto line"),this);
+	actionFind      = new QAction( tr("&Find"),this);
+	actionFindNext  = new QAction( tr("Find &next"),this);
+	actionFindPrev  = new QAction( tr("Find &previous"),this);
+	actionReplace   = new QAction( tr("&Replace"),this);
+	actionGotoLine  = new QAction( tr("&Goto line"),this);
+
+	addAction(actionFind);
+	addAction(actionFindNext);
+	addAction(actionFindPrev);
+	addAction(actionReplace);
+	addAction(actionGotoLine);
+	addAction(actionSave);
+	addAction(actionUndo);
+	addAction(actionCopy);
+	addAction(actionCut);
+	addAction(actionPaste);
 
 	actionFind->setShortcut(QKeySequence::Find);
 	actionFindNext->setShortcut(QKeySequence::FindNext);
@@ -46,7 +57,6 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	actionFindPrev->setObjectName("qmdiEditor::actionFindPrev");
 	actionReplace->setObjectName("qmdiEditor::actionReplace");
 	actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
-
 	
 	connect( this, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)) );
 	connect( this, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)) );
