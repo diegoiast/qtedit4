@@ -53,7 +53,13 @@ QWidget*	TextEditorPlugin::getConfigDialog()
 Qate::MimeType TextEditorPlugin::getMimeByExt(const QString &fileName) const
 {
 	QFileInfo fi(fileName);
-	QString extension = QString("*.%1").arg(fi.suffix());
+	QString extension;
+
+	if (fi.suffix().isEmpty())
+		extension = fi.fileName();
+	else
+		extension = QString("*.%1").arg(fi.suffix());
+
 	foreach(Qate::MimeType mime, mimes->mimeTypes() ) {
 		foreach(Qate::MimeGlobPattern pattern, mime.globPatterns() ) {
 			if (extension == pattern.regExp().pattern())
@@ -142,39 +148,35 @@ bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 	editor->setHighlighter(highlighter);
 	highlighter->rehighlight();
 #else
-	Qate::MimeType m = mimes->findByFile(fileName);
+	Qate::MimeType m;
+	QSharedPointer<TextEditor::Internal::HighlightDefinition>  highlight_definition;
+	QateHighlighter *highlighter = new QateHighlighter;
+	Qate::DefaultColors::ApplyToHighlighter(highlighter);
+	QString definitionId;
+
+	mimes->findByFile(fileName);
 
 	if (m.isNull())
 		m = getMimeByExt(fileName);
 
-	QSharedPointer<TextEditor::Internal::HighlightDefinition>  highlight_definition;
-	QateHighlighter *highlighter = new QateHighlighter;
-	Qate::DefaultColors::ApplyToHighlighter(highlighter);
-
-	QString definitionId = hl_manager->definitionIdByMimeType(m.type());
+	definitionId = hl_manager->definitionIdByMimeType(m.type());
 	if (definitionId.isEmpty())
 		definitionId = findDefinitionId(m,true);
+
 	if (!definitionId.isEmpty()) {
-		qDebug("Using %s", qPrintable(definitionId));
+		qDebug("Using %s for %s" , qPrintable(definitionId), qPrintable(fileName));
 		highlight_definition = hl_manager->definition(hl_manager->definitionIdByMimeType(m.type()));
 		if (!highlight_definition.isNull()) {
 			highlighter->setDefaultContext(highlight_definition->initialContext());
-		} else {
-			delete highlighter;
-			highlighter = new QateHighlighter;
-			Qate::DefaultColors::ApplyToHighlighter(highlighter);
-			qDebug("Error loading %s", qPrintable(definitionId));
 		}
 	} else {
-		delete highlighter;
-		highlighter = new QateHighlighter;
-		Qate::DefaultColors::ApplyToHighlighter(highlighter);
-		qDebug("No definition found for %s", qPrintable(fileName));
+		qDebug("No highlighter found for %s" , qPrintable(fileName));
 	}
-	editor->setHighlighter(highlighter);
-#endif
 
+	editor->setHighlighter(highlighter);
+	highlighter->rehighlight();
 	editor->removeModifications();
+#endif
 	mdiServer->addClient(editor);
 
 	// TODO
