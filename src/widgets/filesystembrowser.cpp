@@ -16,6 +16,10 @@ FileSystemBrowser::FileSystemBrowser( QWidget * parent, Qt::WFlags f)
 	: QWidget(parent, f)
 {
 	setupUi(this);
+	this->backButton->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
+	this->forwardButton->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
+	this->homeButton->setIcon(style()->standardIcon(QStyle::SP_DirHomeIcon));
+	this->upButton->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
 	
 	m_dirModel = new QDirModel( QStringList(), QDir::AllEntries|QDir::AllDirs, QDir::DirsFirst|QDir::Name, this );
 // 	m_dirModel->setReadOnly(false);
