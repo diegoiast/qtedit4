@@ -75,7 +75,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/src/widgets
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/src/
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/src/
-	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/src/qate
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/demos/demo4
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/demos/demo-qate4
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/demos/plugin-demo

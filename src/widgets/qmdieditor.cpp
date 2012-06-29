@@ -17,16 +17,23 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	operationsWidget = new QsvTextOperationsWidget(this);
 
 	setupActions();
-	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
-	actionUndo	= new QAction( QIcon(":images/redo.png"), tr("&Redo"), this );
-	actionRedo	= new QAction( QIcon(":images/undo.png"), tr("&Undo"), this );
-	actionCopy	= new QAction( QIcon(":images/copy.png"), tr("&Copy"), this );
-	actionCut	= new QAction( QIcon(":images/cut.png"), tr("&Cut"), this );
-	actionPaste	= new QAction( QIcon(":images/paste.png"), tr("&Paste"), this  );
-	actionFind      = new QAction( tr("&Find"),this);
-	actionFindNext  = new QAction( tr("Find &next"),this);
-	actionFindPrev  = new QAction( tr("Find &previous"),this);
-	actionReplace   = new QAction( tr("&Replace"),this);
+//	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
+//	actionUndo	= new QAction( QIcon(":images/redo.png"), tr("&Redo"), this );
+//	actionRedo	= new QAction( QIcon(":images/undo.png"), tr("&Undo"), this );
+//	actionCopy	= new QAction( QIcon(":images/copy.png"), tr("&Copy"), this );
+//	actionCut	= new QAction( QIcon(":images/cut.png"), tr("&Cut"), this );
+//	actionPaste	= new QAction( QIcon(":images/paste.png"), tr("&Paste"), this  );
+
+	actionSave	= new QAction( QIcon::fromTheme("document-save"), tr("&Save"), this );
+	actionUndo	= new QAction( QIcon::fromTheme("edit-undo"), tr("&Undo"), this );
+	actionRedo	= new QAction( QIcon::fromTheme("edit-redo"), tr("&Redo"), this );
+	actionCopy	= new QAction( QIcon::fromTheme("edit-copy"), tr("&Copy"), this );
+	actionCut	= new QAction( QIcon::fromTheme("edit-cut"), tr("&Cut"), this );
+	actionPaste	= new QAction( QIcon::fromTheme("edit-paste"), tr("&Paste"), this  );
+	actionFind      = new QAction( QIcon::fromTheme("edit-find"), tr("&Find"),this);
+	actionFindNext  = new QAction( QIcon::fromTheme("go-next"), tr("Find &next"),this);
+	actionFindPrev  = new QAction( QIcon::fromTheme("go-previous"), tr("Find &previous"),this);
+	actionReplace   = new QAction( QIcon::fromTheme("edit-find-replace"), tr("&Replace"),this);
 	actionGotoLine  = new QAction( tr("&Goto line"),this);
 
 	addAction(actionFind);
