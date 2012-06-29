@@ -121,6 +121,14 @@ qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 	menus["&Search"]->addSeparator();
 	menus["&Search"]->addAction( actionGotoLine );
 
+	this->toolbars[tr("main")]->addSeparator();
+	this->toolbars[tr("main")]->addAction(actionSave);
+	this->toolbars[tr("main")]->addAction(actionFind);
+	this->toolbars[tr("main")]->addAction(actionReplace);
+	this->toolbars[tr("main")]->addAction(actionFindPrev);
+	this->toolbars[tr("main")]->addAction(actionFindNext);
+	this->toolbars[tr("main")]->addAction(actionGotoLine);
+
 	loadFile( fName );
 	mdiClientName = getShortFileName();
 }
