@@ -133,11 +133,11 @@ int	TextEditorPlugin::canOpenFile( const QString fileName )
 	else return 1;
 }
 
-#include "highlighter.h"
-#include "highlightdefinition.h"
-#include "defaultcolors.h"
+#include "qate/highlighter.h"
+#include "qate/highlightdefinition.h"
+#include "qate/defaultcolors.h"
+#include "qate/context.h"
 #include "qatehighlighter.h"
-#include "context.h"
 
 bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 {
