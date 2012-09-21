@@ -9,8 +9,8 @@ IF(NOT CMAKE_BUILD_TYPE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
 # 3rd party libs
-add_subdirectory( lib/qmdilib      qmdi )
-add_subdirectory( lib/qtsourceview qate )
+add_subdirectory( ../tools/qmdilib      qmdi )
+add_subdirectory( ../tools/qtsourceview qate )
 
 # main application
 project (qtedit4) 
@@ -27,15 +27,15 @@ set(QTEDIT4_SOVERSION "0")
 
 
 set( QTEDIT4_SOURCES 
-	lib/qmdilib/demos/plugin-demo/pluginmodel.cpp
-	lib/qmdilib/demos/plugin-demo/pluginmanager.cpp
-	lib/qmdilib/demos/plugin-demo/iplugin.cpp
-	lib/qmdilib/demos/plugin-demo/configdialog.cpp
-	lib/qtsourceview/demos/demo4/qsvtextoperationswidget.cpp
-	lib/qtsourceview/demos/demo4/qsvtextedit.cpp
-	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.cpp
-	lib/qtsourceview/demos/demo4/qsvdefaulthighlighter.cpp
-	lib/qtsourceview/demos/demo-qate4/qatehighlighter.cpp
+	../tools/qmdilib/demos/plugin-demo/pluginmodel.cpp
+	../tools/qmdilib/demos/plugin-demo/pluginmanager.cpp
+	../tools/qmdilib/demos/plugin-demo/iplugin.cpp
+	../tools/qmdilib/demos/plugin-demo/configdialog.cpp
+	../tools/qtsourceview/demos/demo4/qsvtextoperationswidget.cpp
+	../tools/qtsourceview/demos/demo4/qsvtextedit.cpp
+	../tools/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.cpp
+	../tools/qtsourceview/demos/demo4/qsvdefaulthighlighter.cpp
+	../tools/qtsourceview/demos/demo-qate4/qatehighlighter.cpp
 	src/widgets/filesystembrowser.cpp
 	src/widgets/qmdieditor.cpp
 	src/main.cpp
@@ -44,13 +44,13 @@ set( QTEDIT4_SOURCES
 	src/plugins/texteditor/texteditor_plg.cpp
 )
 set( QTEDIT4_HEADERS 
-	lib/qmdilib/demos/plugin-demo/pluginmodel.h
-	lib/qmdilib/demos/plugin-demo/iplugin.h
-	lib/qmdilib/demos/plugin-demo/pluginmanager.h
-	lib/qmdilib/demos/plugin-demo/configdialog.h
-	lib/qtsourceview/demos/demo4/qsvtextoperationswidget.h
-	lib/qtsourceview/demos/demo4/qsvtextedit.h
-	lib/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
+	../tools/qmdilib/demos/plugin-demo/pluginmodel.h
+	../tools/qmdilib/demos/plugin-demo/iplugin.h
+	../tools/qmdilib/demos/plugin-demo/pluginmanager.h
+	../tools/qmdilib/demos/plugin-demo/configdialog.h
+	../tools/qtsourceview/demos/demo4/qsvtextoperationswidget.h
+	../tools/qtsourceview/demos/demo4/qsvtextedit.h
+	../tools/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
 	src/widgets/filesystembrowser.h
 	src/widgets/qmdieditor.h
 	src/plugins/systembrowser/systembrowser_plg.h
@@ -58,15 +58,15 @@ set( QTEDIT4_HEADERS
 	src/plugins/texteditor/texteditor_plg.h
 )
 set( QTEDIT4_UIS
-	lib/qtsourceview/demos/demo4/searchform.ui
-	lib/qtsourceview/demos/demo4/replaceform.ui
-	lib/qtsourceview/demos/demo4/bannermessage.ui
-	lib/qmdilib/demos/plugin-demo/plugin_list.ui
-	lib/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
+	../tools/qtsourceview/demos/demo4/searchform.ui
+	../tools/qtsourceview/demos/demo4/replaceform.ui
+	../tools/qtsourceview/demos/demo4/bannermessage.ui
+	../tools/qmdilib/demos/plugin-demo/plugin_list.ui
+	../tools/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
 	src/widgets/filesystembrowser.ui
 )
 SET( QTEDIT4_RESOURCES
-	lib/qmdilib/demos/common/common.qrc
+	../tools/qmdilib/demos/common/common.qrc
 )
 
 add_definitions(-DCORE_EXPORT=)
@@ -79,6 +79,11 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qtsourceview/demos/demo-qate4
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/demos/plugin-demo
 	${CMAKE_CURRENT_SOURCE_DIR}/lib/qmdilib/demos/plugin-demo/plugins/editor
+	../tools/qmdilib/src/
+	../tools/qmdilib/demos/plugin-demo/
+	../tools/qtsourceview/src/
+	../tools/qtsourceview/demos/demo4/
+	../tools/qtsourceview/demos/demo-qate4
 	.
 )
 
