@@ -42,20 +42,22 @@ set( QTEDIT4_SOURCES
 	src/plugins/systembrowser/systembrowser_plg.cpp
 	src/plugins/help/help_plg.cpp
 	src/plugins/texteditor/texteditor_plg.cpp
+        src/plugins/ProjectManager/ProjectManagerPlg.cpp
 )
+        #../tools/qmdilib/demos/plugin-demo/iplugin.h
+#	../tools/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
 set( QTEDIT4_HEADERS 
 	../tools/qmdilib/demos/plugin-demo/pluginmodel.h
-	../tools/qmdilib/demos/plugin-demo/iplugin.h
 	../tools/qmdilib/demos/plugin-demo/pluginmanager.h
 	../tools/qmdilib/demos/plugin-demo/configdialog.h
 	../tools/qtsourceview/demos/demo4/qsvtextoperationswidget.h
 	../tools/qtsourceview/demos/demo4/qsvtextedit.h
-	../tools/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
 	src/widgets/filesystembrowser.h
 	src/widgets/qmdieditor.h
 	src/plugins/systembrowser/systembrowser_plg.h
 	src/plugins/help/help_plg.h
 	src/plugins/texteditor/texteditor_plg.h
+        src/plugins/ProjectManager/ProjectManagerPlg.h
 )
 set( QTEDIT4_UIS
 	../tools/qtsourceview/demos/demo4/searchform.ui

@@ -11,6 +11,7 @@
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 #include "plugins/systembrowser/systembrowser_plg.h"
+#include "plugins/ProjectManager/ProjectManagerPlg.h"
 
 int main( int argc, char *argv[] )
 {
@@ -23,6 +24,7 @@ int main( int argc, char *argv[] )
 	pluginManager.addPlugin( new TextEditorPlugin );
 	pluginManager.addPlugin( new FSBrowserPlugin );
 	pluginManager.addPlugin( new HelpPlugin );
+    pluginManager.addPlugin(new ProjectManagerPlugin);
 	pluginManager.updateGUI();
 	
 	// start the application
