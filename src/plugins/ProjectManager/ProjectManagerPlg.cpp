@@ -1,3 +1,4 @@
+#include "pluginmanager.h"
 #include "ProjectManagerPlg.h"
 #include "qmdiserver.h"
 #include "qmdihost.h"
@@ -142,7 +143,7 @@ void ProjectManagerPlugin::showAbout()
     QMessageBox::information( dynamic_cast<QMainWindow*>(mdiServer), "About", "The project manager plugin" );
 }
 
-void ProjectManagerPlugin::onClientMerged(qmdiHost *host)
+void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
 {
 	if (m_dockWidget)
 		return;
@@ -152,38 +153,43 @@ void ProjectManagerPlugin::onClientMerged(qmdiHost *host)
 	m_dockWidget->setObjectName("m_dockWidget");
 	m_dockWidget->setWindowTitle( tr("Project") );
 	m_treeView = new QTreeView(m_dockWidget);
+	m_treeView->setAlternatingRowColors(true);
 	m_dockWidget->setWidget(m_treeView);
-#if 0
-	m_projectModel = new GenericItemModel(m_treeView);
-	GenericItem *item;
-	item = m_projectModel->addItem(new GenericItem("item1"));
-	item = m_projectModel->addItem(new GenericItem("item2"));
-	item = m_projectModel->addItem(new GenericItem("item3"));
-	m_projectModel->addItem(new GenericItem("sub-item3-1"), item);
-	m_projectModel->addItem(new GenericItem("sub-item3-2"), item);
-	m_projectModel->addItem(new GenericItem("sub-item3-3"), item);
-#else
 	m_projectModel = new FoldersModel(m_treeView);
 	//((FoldersModel*)(m_projectModel))->processDir("/home/elcuco/src/qtedit4/");
-	((FoldersModel*)(m_projectModel))->processDir("/home/elcuco/src/qt-creator/");
-#endif
+//	((FoldersModel*)(m_projectModel))->processDir("/home/elcuco/src/qt-creator/");
+	((FoldersModel*)(m_projectModel))->processDir("c:\\Users\\elcuco\\Source\\qtedit4");
 	m_treeView->setModel(m_projectModel);
 	window->addDockWidget( Qt::LeftDockWidgetArea, m_dockWidget );
+	connect(m_treeView,SIGNAL(clicked(QModelIndex)),this,SLOT(onItemClicked(QModelIndex)));
 }
 
-void ProjectManagerPlugin::onClientUnmerged(qmdiHost *host)
+void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
 {
 	delete(m_dockWidget);
 	m_dockWidget = NULL;
 	Q_UNUSED( host );
 }
 
-FileItem::FileItem(const QString &path, GenericItem *parent)
+void ProjectManagerPlugin::onItemClicked(const QModelIndex &index)
+{
+	FileItem* item = static_cast<FileItem*>(index.internalPointer());
+	if (item->isDirectory)
+		return;
+	PluginManager *pluginManager = dynamic_cast<PluginManager*>(mdiServer->mdiHost);
+	if (pluginManager)
+		pluginManager->openFile(item->fullPath);
+}
+
+FileItem::FileItem(const QString &path, GenericItem *parent, bool isDir)
 {
 	parentItem = parent;
 	fullPath = path;
+	isDirectory = isDir;
 
 	int i=fullPath.lastIndexOf(QDir::separator());
+	if (i==-1)
+		i=fullPath.lastIndexOf('/');
 	if (i==fullPath.length())
 		fullPath.lastIndexOf(QDir::separator(),i-1);
 	if (i == -1)
@@ -196,10 +202,9 @@ int FoldersModel::processDir(const QString &path)
 {
 	QTime t;
 	t.start();
-	int i = processDir(path, rootItem);
+	int i = processDir(path, (FileItem*)addItem(new FileItem(path),rootItem));
 	qDebug("Loading took %d msec (loaded %d items)", t.elapsed(), i);
 	return i;
-
 }
 
 int FoldersModel::processDir(const QString &path,  GenericItem *parent)
@@ -225,6 +230,7 @@ int FoldersModel::processDir(const QString &path,  GenericItem *parent)
 		item = (FileItem*)addItem(new FileItem(s),parent);
 		count++;
 		if (fileInfo.isDir()) {
+			item->isDirectory = true;
 			count += processDir(s,item);
 		}
 	}

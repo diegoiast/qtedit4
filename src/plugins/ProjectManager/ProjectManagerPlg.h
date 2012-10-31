@@ -59,8 +59,9 @@ public:
 
 class FileItem : public GenericItem {
 public:
+	bool isDirectory;
 	QString fullPath;
-	FileItem(const QString &path, GenericItem *parent=NULL);
+	FileItem(const QString &path, GenericItem *parent=NULL, bool isDir=false);
 };
 
 class FoldersModel: public GenericItemModel {
@@ -75,12 +76,16 @@ public:
 //////////////////////////////////////
 class ProjectManagerPlugin : public IPlugin
 {
+	Q_OBJECT
 public:
 	ProjectManagerPlugin();
 
 	virtual void	showAbout();
-	virtual void	onClientMerged( qmdiHost* host );
-	virtual void	onClientUnmerged( qmdiHost* host );
+	virtual void	on_client_merged( qmdiHost* host );
+	virtual void	on_client_unmerged( qmdiHost* host );
+public slots:
+	// our code
+	void onItemClicked(const QModelIndex &index);
 
 private:
 	QDockWidget *m_dockWidget;
