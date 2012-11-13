@@ -43,6 +43,7 @@ set( QTEDIT4_SOURCES
 	src/plugins/help/help_plg.cpp
 	src/plugins/texteditor/texteditor_plg.cpp
         src/plugins/ProjectManager/ProjectManagerPlg.cpp
+	src/plugins/ProjectManager/GenericItems.cpp
 )
         #../tools/qmdilib/demos/plugin-demo/iplugin.h
 #	../tools/qtsourceview/demos/demo4/qsvsyntaxhighlighterbase.h
@@ -58,6 +59,7 @@ set( QTEDIT4_HEADERS
 	src/plugins/help/help_plg.h
 	src/plugins/texteditor/texteditor_plg.h
         src/plugins/ProjectManager/ProjectManagerPlg.h
+	src/plugins/ProjectManager/GenericItems.h
 )
 set( QTEDIT4_UIS
 	../tools/qtsourceview/demos/demo4/searchform.ui
@@ -66,6 +68,7 @@ set( QTEDIT4_UIS
 	../tools/qmdilib/demos/plugin-demo/plugin_list.ui
 	../tools/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
 	src/widgets/filesystembrowser.ui
+	src/plugins/ProjectManager/ProjectManagerGUI.ui
 )
 SET( QTEDIT4_RESOURCES
 	../tools/qmdilib/demos/common/common.qrc
@@ -97,3 +100,14 @@ QT4_WRAP_CPP( QTEDIT4_MOC ${QTEDIT4_HEADERS})
 add_executable(qtedit4 ${QTEDIT4_SOURCES} ${QTEDIT4_MOC} ${QTEDIT4_UI} ${QTEDIT4_RCC})
 add_dependencies(qtedit4 QMDILIB_STATIC QATE_STATIC)
 target_link_libraries(qtedit4 ${QT_LIBRARIES} QMDILIB_STATIC QATE_STATIC)
+
+######################
+
+QT4_WRAP_CPP(generic-item-complete_MOC tests/generic-item-complete-window.h)
+add_executable(generic-item-complete
+	tests/generic-item-complete-window.cpp
+	tests/generic-item-complete-test.cpp
+	src/plugins/ProjectManager/GenericItems.cpp
+	${generic-item-complete_MOC}
+)
+target_link_libraries(generic-item-complete ${QT_LIBRARIES})
