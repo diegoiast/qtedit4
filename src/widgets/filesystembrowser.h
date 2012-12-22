@@ -24,7 +24,7 @@ class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser
 {
 	Q_OBJECT
 public:
-	FileSystemBrowser( QWidget * parent = 0, Qt::WFlags f = 0 );
+	FileSystemBrowser( QWidget * parent = 0, Qt::WindowFlags f = 0 );
 	QTreeView* getTreeView();
 	QListView* getListView();
 	QDirModel* getDirModel();

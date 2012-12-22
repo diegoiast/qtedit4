@@ -12,7 +12,7 @@
 #include <QTimer>
 #include "filesystembrowser.h"
 
-FileSystemBrowser::FileSystemBrowser( QWidget * parent, Qt::WFlags f) 
+FileSystemBrowser::FileSystemBrowser(QWidget * parent, Qt::WindowFlags f)
 	: QWidget(parent, f)
 {
 	setupUi(this);
