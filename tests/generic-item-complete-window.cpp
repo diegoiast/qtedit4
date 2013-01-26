@@ -98,7 +98,8 @@ void GenericItemWindow::initGUI()
 }
 void GenericItemWindow::initFolders()
 {
-	m_model->processDir("/home/elcuco/src/googlecode/qtedit4/");
+//	m_model->processDir("/home/elcuco/src/googlecode/qtedit4/");
+	m_model->processDir("/home/elcuco/src/qtedit4/trunk");
 }
 
 int LevenshteinDistance(QString s, QString t);
@@ -150,11 +151,10 @@ void GenericItemWindow::fillSuggestions(QString requestedSuggestion, const FileI
 			else if (itemName.contains(requestedSuggestion))
 				ss.value *= 1.5;
 
-			if (d<3 &&
-				(itemName.endsWith(".c") || itemName.endsWith(".cpp") ||
-				(itemName.endsWith(".h") || itemName.endsWith(".so"))
-				 ))
-				 ss.value *= 1.2;
+			if (d<10 && (itemName.endsWith(".c") || itemName.endsWith(".cpp") || itemName.endsWith(".cxx")) )
+				ss.value = ss.value * 1.2 + 20;
+			if (d<10 && (itemName.endsWith(".h") || itemName.endsWith(".hpp")))
+				ss.value = ss.value * 1.2 - 10;
 			if (itemName.endsWith(".o") || itemName.endsWith(".so") ||
 				 itemName.endsWith(".obj") || itemName.endsWith(".dll")  ||
 				 itemName.endsWith(".lib") || itemName.endsWith(".a") ||
