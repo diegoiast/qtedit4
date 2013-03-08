@@ -9,6 +9,7 @@
 
 #include "src/plugins/ProjectManager/GenericItems.h"
 #include "generic-item-complete-window.h"
+#include <QMouseEvent>
 
 
 SuggestionModel::SuggestionModel(QObject *parent)
@@ -79,6 +80,7 @@ void GenericItemWindow::initGUI()
 	m_suggestionsList->horizontalHeader()->hide();
 	m_suggestionsList->verticalHeader()->hide();
 	m_suggestionsList->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
+	m_suggestionsList->setSelectionBehavior(QAbstractItemView::SelectRows);
 	m_tv->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 	m_edit->setFocus();
 	QTimer::singleShot(0,m_edit,SLOT(setFocus()));
@@ -93,13 +95,63 @@ void GenericItemWindow::initGUI()
 	w->setLayout(l);
 	setCentralWidget(w);
 	QTimer::singleShot(0,this,SLOT(initFolders()));
-
+	m_edit->installEventFilter(this);
 	connect(m_edit,SIGNAL(textEdited(QString)),this,SLOT(fillSuggestions(QString)));
 }
+
+bool GenericItemWindow::eventFilter(QObject *obj, QEvent *event)
+{
+	if (event->type() != QEvent::KeyPress) {
+		return QObject::eventFilter(obj, event);
+	}
+	QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+	QModelIndex i = m_suggestionsList->currentIndex();
+	int step = 0;
+	int current = i.row();
+	int delta = m_suggestions.count() - current;
+
+	switch (keyEvent->key()) {
+	case Qt::Key_Down:
+	case Qt::Key_PageDown:
+		delta = m_suggestions.count() - current;
+		if (keyEvent->key() == Qt::Key_Down)
+			step = 1;
+		else
+			step =  (delta / 10) + 1;
+		if (current + step >= m_suggestions.count())
+			step = m_suggestions.count() - current - 1;
+		if (step < 0)
+			step = 0;
+		break;
+	case Qt::Key_Up:
+	case Qt::Key_PageUp:
+		delta = current;
+		if (keyEvent->key() == Qt::Key_Up)
+			step = -1;
+		else
+			step =  -(delta / 10) - 1;
+		if (current + step < 0)
+			step = -1;
+		if (current + step < 0)
+			step = 0;
+		break;
+	}
+
+	if (step != 0 ) {
+		qDebug("step is %d (delta=%d): %d/%d", step, delta, i.row(), m_suggestions.count() );
+
+		i = m_suggestionModel->index(i.row()+step, 0);
+		m_suggestionsList->setCurrentIndex(i);
+		return true;
+	}
+
+	return QObject::eventFilter(obj, event);
+}
+
 void GenericItemWindow::initFolders()
 {
-//	m_model->processDir("/home/elcuco/src/googlecode/qtedit4/");
-	m_model->processDir("/home/elcuco/src/qtedit4/trunk");
+  m_model->processDir("/home/elcuco/src/googlecode/qtedit4/");
+//	m_model->processDir("/home/elcuco/src/qtedit4/trunk");
 }
 
 int LevenshteinDistance(QString s, QString t);
@@ -122,6 +174,7 @@ void GenericItemWindow::fillSuggestions(QString s)
 	qSort(m_suggestions.begin(), m_suggestions.end(),suggestionBiggerThan);
 	m_suggestionModel->setSuggestions(m_suggestions);
 	m_suggestionsList->resizeColumnsToContents();
+	m_suggestionsList->setCurrentIndex(m_suggestionModel->index(0, 0));
 }
 
 void GenericItemWindow::fillSuggestions(QString requestedSuggestion, const FileItem *item, QList<Suggestion>&suggestions)

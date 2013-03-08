@@ -25,7 +25,6 @@ private:
 	QList<Suggestion> m_suggestions;
 };
 
-
 class GenericItemWindow: public QMainWindow {
 	Q_OBJECT
 public:
@@ -38,6 +37,8 @@ public:
 
 	GenericItemWindow();
 	void fillSuggestions(QString s1, const FileItem *item, QList<Suggestion> &m_suggestions);
+protected:
+	bool eventFilter(QObject *obj, QEvent *event);
 public slots:
 	void initGUI();
 	void initFolders();
