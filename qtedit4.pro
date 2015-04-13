@@ -99,7 +99,7 @@ HEADERS += $$QMDI_HEADERS $$QATE_HEADERS \
 	src/plugins/systembrowser/systembrowser_plg.h \
 	src/plugins/help/help_plg.h \
 	src/plugins/texteditor/texteditor_plg.h \
-        src/plugins/ProjectManager/ProjectManagerPlg.h
+        src/plugins/ProjectManager/ProjectManagerPlg.h \
 	src/plugins/ProjectManager/GenericItems.h
 FORMS += \
 	../tools/qtsourceview/demos/demo4/searchform.ui \
