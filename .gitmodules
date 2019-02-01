@@ -1,0 +1,6 @@
+[submodule "lib/qmdilib"]
+	path = lib/qmdilib
+	url = https://github.com/elcuco/qmdilib.git
+[submodule "lib/qtsourceview"]
+	path = lib/qtsourceview
+	url = https://github.com/elcuco/qtsourceview.git
