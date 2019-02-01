@@ -10,7 +10,7 @@
 #define QMDIEDITOR_H
 
 #include <qmdiclient.h>
-#include <qsvtextedit.h>
+#include <qsvte/qsvtextedit.h>
 
 class QsvTextOperationsWidget;
 /**

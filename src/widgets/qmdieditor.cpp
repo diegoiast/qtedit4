@@ -10,7 +10,7 @@
 #include <QMessageBox>
 #include <QStyle>
 #include "qmdieditor.h"
-#include <qsvtextoperationswidget.h>
+#include <qsvte/qsvtextoperationswidget.h>
 
 qmdiEditor::qmdiEditor( QString fName, QWidget* p ): QsvTextEdit(p)
 {

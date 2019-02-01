@@ -8,7 +8,7 @@
 
 #include "texteditor_plg.h"
 #include "src/widgets/qmdieditor.h"
-#include "qsvdefaulthighlighter.h"
+#include "qsvte/qsvdefaulthighlighter.h"
 
 
 TextEditorPlugin::TextEditorPlugin()
@@ -137,13 +137,13 @@ int	TextEditorPlugin::canOpenFile( const QString fileName )
 #include "qate/highlightdefinition.h"
 #include "qate/defaultcolors.h"
 #include "qate/context.h"
-#include "qatehighlighter.h"
+#include "qate/highlighter.h"
 
 bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 {
 	qmdiEditor *editor = new qmdiEditor( fileName, dynamic_cast<QMainWindow*>(mdiServer) );
 
-#if 0
+#if 1
 	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
 	editor->setHighlighter(highlighter);
 	highlighter->rehighlight();
