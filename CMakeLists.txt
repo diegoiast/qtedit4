@@ -59,11 +59,13 @@ target_link_libraries(qtedit4 qmdilib qsvte qsvsh )
 
 ######################
 
-#QT4_WRAP_CPP(generic-item-complete_MOC tests/generic-item-complete-window.h)
-#add_executable(generic-item-complete
-#	tests/generic-item-complete-window.cpp
-#	tests/generic-item-complete-test.cpp
-#	src/plugins/ProjectManager/GenericItems.cpp
-#	${generic-item-complete_MOC}
-#)
-#target_link_libraries(generic-item-complete ${QT_LIBRARIES})
+add_executable(generic-item-complete
+        tests/generic-item-complete-window.cpp
+        tests/generic-item-complete-test.cpp
+        src/plugins/ProjectManager/GenericItems.cpp
+)
+target_link_libraries(generic-item-complete Qt::Widgets)
+target_include_directories(generic-item-complete PUBLIC
+        tests/
+        .
+)

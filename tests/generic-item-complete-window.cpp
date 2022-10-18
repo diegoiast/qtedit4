@@ -55,7 +55,7 @@ void SuggestionModel::setSuggestions(QList<Suggestion> newSuggestions)
 }
 
 
-GenericItemWindow::GenericItemWindow() : QMainWindow(NULL,0)
+GenericItemWindow::GenericItemWindow() : QMainWindow(nullptr,Qt::Window)
 {
 	m_tv = NULL;
 	m_edit = NULL;
@@ -86,13 +86,11 @@ void GenericItemWindow::initGUI()
 	QTimer::singleShot(0,m_edit,SLOT(setFocus()));
 
 	layout()->setContentsMargins(0,0,0,0);
-	layout()->setMargin(0);
 	l->addWidget(m_tv);
 	l->addWidget(m_edit);
 	l->addWidget(m_suggestionsList);
 	l->setContentsMargins(0,0,0,0);
-	l->setMargin(0);
-	w->setLayout(l);
+    w->setLayout(l);
 	setCentralWidget(w);
 	QTimer::singleShot(0,this,SLOT(initFolders()));
 	m_edit->installEventFilter(this);
@@ -150,11 +148,11 @@ bool GenericItemWindow::eventFilter(QObject *obj, QEvent *event)
 
 void GenericItemWindow::initFolders()
 {
-  m_model->processDir("/home/elcuco/src/googlecode/qtedit4/");
+  m_model->processDir(".");
 //	m_model->processDir("/home/elcuco/src/qtedit4/trunk");
 }
 
-int LevenshteinDistance(QString s, QString t);
+int LevenshteinDistance(const QString &s, const QString &t);
 int DiegoDistance(QString s, QString t);
 
 bool suggestionLessThan(const Suggestion& s1, const Suggestion& s2)
@@ -171,7 +169,7 @@ void GenericItemWindow::fillSuggestions(QString s)
 {
 	m_suggestions.clear();
 	fillSuggestions(s,static_cast<const FileItem *>(m_model->getGenericRootItem()),m_suggestions);
-	qSort(m_suggestions.begin(), m_suggestions.end(),suggestionBiggerThan);
+    std::sort(m_suggestions.begin(), m_suggestions.end(),suggestionBiggerThan);
 	m_suggestionModel->setSuggestions(m_suggestions);
 	m_suggestionsList->resizeColumnsToContents();
 	m_suggestionsList->setCurrentIndex(m_suggestionModel->index(0, 0));
@@ -238,7 +236,7 @@ void GenericItemWindow::fillSuggestions(QString requestedSuggestion, const FileI
       __typeof__ (b) _b = (b); \
     _a < _b ? _a : _b; })
 
-int minimum(int a, int b, int c )
+inline int minimum(int a, int b, int c )
 {
 	if (a<b)
 		return min(c,b);
@@ -257,7 +255,7 @@ int DiegoDistance(QString s, QString t)
 }
 
 // http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C.23
-int LevenshteinDistanceIterative(QString s, QString t)
+int LevenshteinDistanceIterative(const QString &s, const QString &t)
 {
 	const size_t len1 = s.size(), len2 = t.size();
 	std::vector<unsigned int> col(len2+1), prevCol(len2+1);
@@ -274,8 +272,7 @@ int LevenshteinDistanceIterative(QString s, QString t)
 	return prevCol[len2];
 }
 
-int LevenshteinDistanceRecursive(QString s, QString t)
-
+int LevenshteinDistanceRecursive(const QString &s, const QString &t)
 {
 	int len_s = s.length(), len_t = t.length(), cost = 0;
 
@@ -300,13 +297,13 @@ int LevenshteinDistanceRecursive(QString s, QString t)
 	);
 }
 
-int LevenshteinDistance(QString s, QString t)
+int LevenshteinDistance(const QString &s, const QString &t)
 {
-	s = s.toLower();
-	t = t.toLower();
+    auto s1 = s.toLower();
+    auto t1 = t.toLower();
 #if 0
-	return LevenshteinDistanceRecursive(s,t);
+    return LevenshteinDistanceRecursive(s1,t1);
 #else
-	return LevenshteinDistanceIterative(s,t);
+    return LevenshteinDistanceIterative(s1,t1);
 #endif
 }
