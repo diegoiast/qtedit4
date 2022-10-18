@@ -25,7 +25,3 @@ public slots:
 private:
 	QAction* actionAbout;
 };
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 
-// kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix
-// kate: show-tabs on;

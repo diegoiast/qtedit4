@@ -3,18 +3,140 @@
 #include <QMessageBox>
 #include <QAction>
 #include <QStringList>
+#include <QActionGroup>
 
 #include <qmdiserver.h>
+#include <qmdiactiongroup.h>
+
+#include <qsvsh/qsvcolordeffactory.h>
+#include <qsvsh/qsvlangdeffactory.h>
+#include <qsvsh/qsvsyntaxhighlighter.h>
+#include <qsvte/qsvsyntaxhighlighterbase.h>
 
 #include "texteditor_plg.h"
-#include "src/widgets/qmdieditor.h"
-#include "qsvte/qsvdefaulthighlighter.h"
+#include "qmdieditor.h"
+
+class MyHighlighter: public QsvSyntaxHighlighter, public QsvSyntaxHighlighterBase {
+public:
+    MyHighlighter(QTextDocument *parent): QsvSyntaxHighlighter(parent) {
+        setMatchBracketList("{}()[]''\"\"");
+    }
+
+    virtual void highlightBlock(const QString &text) override;
+
+    virtual void toggleBookmark(QTextBlock &block) override;
+
+    virtual void removeModification(QTextBlock &block) override;
+
+    virtual void setBlockModified(QTextBlock &block, bool on) override;
+
+    virtual bool isBlockModified(QTextBlock &block) override;
+
+    virtual bool isBlockBookmarked(QTextBlock &block) override;
+
+    virtual Qate::BlockData::LineFlags getBlockFlags(QTextBlock &block) override;
+
+    virtual void clearMatchData(QTextBlock &block) override;
+
+    virtual void addMatchData(QTextBlock &block, Qate::MatchData m) override;
+
+    virtual QList<Qate::MatchData> getMatches(QTextBlock &block) override;
+
+    virtual QTextBlock getCurrentBlockProxy() override;
+
+    Qate::BlockData *getBlockData(QTextBlock &block);
+};
+
+void MyHighlighter::highlightBlock(const QString &text) {
+    QsvSyntaxHighlighterBase::highlightBlock(text);
+    QsvSyntaxHighlighter::highlightBlock(text);
+}
+
+void MyHighlighter::toggleBookmark(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return;
+    data->toggleBookmark();
+}
+
+void MyHighlighter::removeModification(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return;
+    data->m_isModified = false;
+}
+
+void MyHighlighter::setBlockModified(QTextBlock &block, bool on) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return;
+    data->m_isModified =  on;
+}
+
+bool MyHighlighter::isBlockModified(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return false;
+    return data->m_isModified;
+}
+
+bool MyHighlighter::isBlockBookmarked(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return 0;
+    return data->isBookmark();
+}
+
+Qate::BlockData::LineFlags MyHighlighter::getBlockFlags(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return Qate::BlockData::LineFlag::Empty;
+    return data->m_flags;
+}
+
+void MyHighlighter::clearMatchData(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return;
+}
+
+void MyHighlighter::addMatchData(QTextBlock &block, Qate::MatchData m) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return;
+    data->matches << m;
+}
+
+QList<Qate::MatchData> MyHighlighter::getMatches(QTextBlock &block) {
+    Qate::BlockData *data = getBlockData(block);
+    if (data == nullptr)
+        return QList<Qate::MatchData>();
+    return data->matches;
+}
+
+QTextBlock MyHighlighter::getCurrentBlockProxy() {
+    return currentBlock();
+}
+
+Qate::BlockData *MyHighlighter::getBlockData(QTextBlock &block) {
+    QTextBlockUserData *userData  = block.userData();
+    Qate::BlockData    *blockData = nullptr;
+
+    if (userData == nullptr){
+        blockData =  new Qate::BlockData();
+        block.setUserData(blockData);
+    } else {
+        blockData = dynamic_cast<Qate::BlockData*>(userData);
+    }
+    return blockData;
+}
+
 
 
 TextEditorPlugin::TextEditorPlugin()
 {
 	name = tr("Text editor plugin - based on QtSourceView");
-	author = tr("Diego Iastrubni <elcuco@kde.org>");
+	author = tr("Diego Iastrubni <diegoiast@gmail.com>");
 	iVersion = 0;
 	sVersion = "0.0.1";
 	autoEnabled = true;
@@ -28,10 +150,8 @@ TextEditorPlugin::TextEditorPlugin()
 	myNewActions->addAction( actionNewCPP );
 	myNewActions->addAction( actionNewHeader );
 
-	hl_manager = Qate::HighlightDefinitionManager::instance();
-	mimes = new Qate::MimeDatabase();
-	hl_manager->setMimeDatabase(mimes);
-	hl_manager->registerMimeTypes();
+    editorColors = new QsvColorDefFactory( "lib/qtsourceview/data/colors/kate.xml" );
+    QsvLangDefFactory::getInstanse()->loadDirectory( "lib/qtsourceview/data/langs/" );
 
 	connect( myNewActions, SIGNAL(triggered(QAction*)), this, SLOT(fileNew(QAction*)));
 }
@@ -48,41 +168,6 @@ void	TextEditorPlugin::showAbout()
 QWidget*	TextEditorPlugin::getConfigDialog()
 {
 	return NULL;
-}
-
-Qate::MimeType TextEditorPlugin::getMimeByExt(const QString &fileName) const
-{
-	QFileInfo fi(fileName);
-	QString extension;
-
-	if (fi.suffix().isEmpty())
-		extension = fi.fileName();
-	else
-		extension = QString("*.%1").arg(fi.suffix());
-
-	foreach(Qate::MimeType mime, mimes->mimeTypes() ) {
-		foreach(Qate::MimeGlobPattern pattern, mime.globPatterns() ) {
-			if (extension == pattern.regExp().pattern())
-				return mime;
-		}
-	}
-	return Qate::MimeType();
-}
-
-
-QString		TextEditorPlugin::findDefinitionId(const Qate::MimeType &mimeType, bool considerParents) const
-{
-    QString definitionId = hl_manager->definitionIdByAnyMimeType(mimeType.aliases());
-    if (definitionId.isEmpty() && considerParents) {
-	definitionId = hl_manager->definitionIdByAnyMimeType(mimeType.subClassesOf());
-	if (definitionId.isEmpty()) {
-	    foreach (const QString &parent, mimeType.subClassesOf()) {
-		const Qate::MimeType &parentMimeType =  mimes->findByType(parent);
-		definitionId = findDefinitionId(parentMimeType, considerParents);
-	    }
-	}
-    }
-    return definitionId;
 }
 
 
@@ -133,51 +218,17 @@ int	TextEditorPlugin::canOpenFile( const QString fileName )
 	else return 1;
 }
 
-#include "qate/highlighter.h"
-#include "qate/highlightdefinition.h"
-#include "qate/defaultcolors.h"
-#include "qate/context.h"
-#include "qate/highlighter.h"
-
 bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
 {
 	qmdiEditor *editor = new qmdiEditor( fileName, dynamic_cast<QMainWindow*>(mdiServer) );
 
-#if 1
-	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
-	editor->setHighlighter(highlighter);
-	highlighter->rehighlight();
-#else
-	Qate::MimeType m;
-	QSharedPointer<TextEditor::Internal::HighlightDefinition>  highlight_definition;
-	QateHighlighter *highlighter = new QateHighlighter;
-	Qate::DefaultColors::ApplyToHighlighter(highlighter);
-	QString definitionId;
-
-	mimes->findByFile(fileName);
-
-	if (m.isNull())
-		m = getMimeByExt(fileName);
-
-	definitionId = hl_manager->definitionIdByMimeType(m.type());
-	if (definitionId.isEmpty())
-		definitionId = findDefinitionId(m,true);
-
-	if (!definitionId.isEmpty()) {
-		qDebug("Using %s for %s" , qPrintable(definitionId), qPrintable(fileName));
-		highlight_definition = hl_manager->definition(hl_manager->definitionIdByMimeType(m.type()));
-		if (!highlight_definition.isNull()) {
-			highlighter->setDefaultContext(highlight_definition->initialContext());
-		}
-	} else {
-		qDebug("No highlighter found for %s" , qPrintable(fileName));
-	}
-
-	editor->setHighlighter(highlighter);
-	highlighter->rehighlight();
-	editor->removeModifications();
-#endif
-	mdiServer->addClient(editor);
+    auto langDefinition   = QsvLangDefFactory::getInstanse()->getHighlight(editor->mdiClientFileName());
+    auto highlighter = new MyHighlighter(editor->document());
+    highlighter->setColorsDef(editorColors);
+    highlighter->setHighlight(langDefinition);
+    highlighter->rehighlight();
+    editor->setHighlighter(highlighter);
+    mdiServer->addClient(editor);
 
 	// TODO
 	// 1) move the cursor as specified in the parameters
@@ -199,7 +250,7 @@ void	TextEditorPlugin::setData()
 void TextEditorPlugin::fileNew( QAction * )
 {
 	qmdiEditor *editor = new qmdiEditor( tr("NO NAME"), dynamic_cast<QMainWindow*>(mdiServer) );
-	DefaultHighlighter *highlighter = new DefaultHighlighter(editor);
+    auto *highlighter = new MyHighlighter(editor->document());
 	editor->setHighlighter(highlighter);
 	mdiServer->addClient( editor );
 }

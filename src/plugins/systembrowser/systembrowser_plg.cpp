@@ -26,7 +26,7 @@
 FSBrowserPlugin::FSBrowserPlugin()
 {
 	name = tr("File system browser");
-	author = tr("Diego Iastrubni <elcuco@kde.org>");
+	author = tr("Diego Iastrubni <diegoiast@gmail.com>");
 	iVersion = 0;
 	sVersion = "0.0.1";
 	autoEnabled = true;

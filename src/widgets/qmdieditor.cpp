@@ -1,7 +1,7 @@
 /**
  * \file qmdieditor
  * \brief Implementation of 
- * \author Diego Iastrubni elcuco@kde.org
+ * \author Diego Iastrubni diegoiast@gmail.com
  * License GPL 2008
  * \see class name
  */
@@ -191,7 +191,7 @@ bool qmdiEditor::canCloseClient()
 
 /**
  * \brief return the mdi file opened
- * \return the value of LinesEditor::getFileName(
+ * \return the value of LinesEditor::getFileName()
  * 
  * This function is override from qmdiClient::mdiClientFileName(),
  * and will tell the qmdiServer which file is opened by this mdi client.
@@ -201,6 +201,3 @@ QString qmdiEditor::mdiClientFileName()
 	return getFileName();
 }
 
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 
-// kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix
-// kate: show-tabs on;

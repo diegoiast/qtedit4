@@ -1,15 +1,16 @@
 /**
  * \file texteditor_plg
  * \brief Definition of 
- * \author Diego Iastrubni elcuco@kde.org
+ * \author Diego Iastrubni diegoiast@gmail.com
  * License GPL 2008
  * \see class name
  */
 
+#pragma once
+
 #include "iplugin.h"
 
-#include "qate/mimedatabase.h"
-#include "qate/highlightdefinitionmanager.h"
+class QsvColorDefFactory;
 
 class TextEditorPlugin: public IPlugin
 {
@@ -27,8 +28,6 @@ public:
 	void		getData();
 	void		setData();
 
-	QString findDefinitionId(const Qate::MimeType &mimeType, bool considerParents) const;
-	Qate::MimeType getMimeByExt(const QString &fileName) const;
 	public slots:
 	void fileNew( QAction * );
 
@@ -38,10 +37,5 @@ private:
 	QAction		*actionNewCPP;
 	QAction		*actionNewHeader;
 
-	Qate::MimeDatabase                                        *mimes;
-	Qate::HighlightDefinitionManager                          *hl_manager;
+    QsvColorDefFactory *editorColors;
 };
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 
-// kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix
-// kate: show-tabs on;

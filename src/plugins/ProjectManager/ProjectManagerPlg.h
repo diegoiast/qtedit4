@@ -1,5 +1,4 @@
-#ifndef PROJECTMANAGER_H
-#define PROJECTMANAGER_H
+#pragma once
 
 #include "iplugin.h"
 #include <QList>
@@ -35,5 +34,3 @@ private:
 	FoldersModel *m_projectModel;
 	Ui::ProjectManagerGUI *m_gui;
 };
-
-#endif // PROJECTMANAGER_H

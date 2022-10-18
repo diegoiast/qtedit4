@@ -16,7 +16,7 @@
 HelpPlugin::HelpPlugin()
 {
 	name = tr("Help system browser");
-	author = tr("Diego Iastrubni <elcuco@kde.org>");
+	author = tr("Diego Iastrubni <diegoiast@gmail.com>");
 	iVersion = 0;
 	sVersion = "0.0.1";
 	autoEnabled = true;
@@ -41,7 +41,3 @@ void	HelpPlugin::on_actionAbout_triggered()
 {
 	QMessageBox::information( dynamic_cast<QMainWindow*>(mdiServer), "About", "QtEdit4 - a text editor" );
 }
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode cstyle; 
-// kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix
-// kate: show-tabs on;

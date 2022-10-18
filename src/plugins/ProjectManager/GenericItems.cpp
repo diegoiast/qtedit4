@@ -1,4 +1,5 @@
 #include <QDir>
+#include <QElapsedTimer>
 #include <QTime>
 #include "GenericItems.h"
 
@@ -27,7 +28,7 @@ QVariant GenericItemModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags GenericItemModel::flags(const QModelIndex &index) const
 {
 	if (!index.isValid())
-		return 0;
+        return Qt::NoItemFlags;
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
@@ -145,10 +146,10 @@ FileItem::FileItem(const QString &path, GenericItem *parent, bool isDir)
 
 int FoldersModel::processDir(const QString &path)
 {
-	QTime t;
+    QElapsedTimer t;
 	t.start();
 	int i = processDir(path, (FileItem*)addItem(new FileItem(path,NULL,true),rootItem));
-	qDebug("Loading took %d msec (loaded %d items)", t.elapsed(), i);
+    qDebug("Loading took %lld msec (loaded %d items)", t.elapsed(), i);
 	return i;
 }
 

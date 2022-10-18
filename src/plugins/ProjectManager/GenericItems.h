@@ -1,5 +1,4 @@
-#ifndef GENERICITEMS_H
-#define GENERICITEMS_H
+#pragma once
 
 #include <QAbstractItemModel>
 #include <QString>
@@ -72,6 +71,3 @@ public:
 	int processDir(const QString &path);
 	int processDir(const QString &path, GenericItem *parent);
 };
-
-
-#endif // GENERICITEMS_H
