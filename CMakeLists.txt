@@ -3,6 +3,7 @@ project (qtedit4)
 
 
 # 3rd party libs
+set(QMDILIB_BUILD_EXAMPLES Off)
 set(QTSOURCEVIEW_BUILD_EXAMPLES Off)
 add_subdirectory( lib/qmdilib      )
 add_subdirectory( lib/qtsourceview )
