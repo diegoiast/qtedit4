@@ -5,11 +5,13 @@
 #include <QListView>
 #include <QTableView>
 #include <QHeaderView>
-#include <vector>
-
-#include "src/plugins/ProjectManager/GenericItems.h"
-#include "generic-item-complete-window.h"
 #include <QMouseEvent>
+#include <vector>
+#include <QDir>
+#include <QCompleter>
+
+#include "generic-item-complete-window.h"
+
 
 
 SuggestionModel::SuggestionModel(QObject *parent)
@@ -25,7 +27,7 @@ int SuggestionModel::rowCount(const QModelIndex &parent) const
 
 int SuggestionModel::columnCount(const QModelIndex &parent) const
 {
-	return 3;
+    return 2;
 }
 
 QVariant SuggestionModel::data(const QModelIndex &index, int role) const
@@ -39,8 +41,7 @@ QVariant SuggestionModel::data(const QModelIndex &index, int role) const
 
 	switch (index.column()) {
 	case 0:	return m_suggestions.at(index.row()).value;
-	case 1:	return m_suggestions.at(index.row()).item->getDisplay(0);
-	case 2:	return m_suggestions.at(index.row()).item->fullPath;
+    case 1:	return m_suggestions.at(index.row()).fileName;
 	default:
 		return QVariant();
 		break;
@@ -54,13 +55,12 @@ void SuggestionModel::setSuggestions(QList<Suggestion> newSuggestions)
 	endResetModel();
 }
 
-
 GenericItemWindow::GenericItemWindow() : QMainWindow(nullptr,Qt::Window)
 {
-	m_tv = NULL;
-	m_edit = NULL;
+    filesList = NULL;
+    filesFilterEx = NULL;
 	m_suggestionsList = NULL;
-	m_model = NULL;
+    directoryModel = NULL;
 	m_suggestionModel = NULL;
 	QTimer::singleShot(0,this,SLOT(initGUI()));
 }
@@ -69,32 +69,47 @@ void GenericItemWindow::initGUI()
 {
 	QWidget *w = new QWidget;
 	QVBoxLayout *l = new QVBoxLayout;
-	m_model = new FoldersModel;
-	m_suggestionModel = new SuggestionModel;
-	m_suggestionsList = new QTableView;
-	m_edit = new QLineEdit;
-	m_tv = new QTreeView;
-	m_tv->setModel(m_model);
-	m_suggestionsList->setModel(m_suggestionModel);
-	m_suggestionsList->setShowGrid(false);
-	m_suggestionsList->horizontalHeader()->hide();
-	m_suggestionsList->verticalHeader()->hide();
-	m_suggestionsList->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
-	m_suggestionsList->setSelectionBehavior(QAbstractItemView::SelectRows);
-	m_tv->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	m_edit->setFocus();
-	QTimer::singleShot(0,m_edit,SLOT(setFocus()));
+
+    m_files_filter = new QLineEdit(this);
+    m_files_filter->setPlaceholderText("Filter files");
+
+    directoryModel = new DirectoryModel(this);
+    filesFilterModel = new QSortFilterProxyModel(this);
+    filesFilterModel->setSourceModel(directoryModel);
+    filesFilterModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+//    filesFilterModel->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+
+    filesList = new QListView;
+    filesList->setModel(filesFilterModel);
+
+    m_suggestionModel = new SuggestionModel;
+    m_suggestionsList = new QTableView;
+    filesFilterEx = new QLineEdit;
+    m_suggestionsList->setModel(m_suggestionModel);
+    m_suggestionsList->setShowGrid(false);
+    m_suggestionsList->horizontalHeader()->hide();
+    m_suggestionsList->verticalHeader()->hide();
+    m_suggestionsList->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::MinimumExpanding);
+    m_suggestionsList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_suggestionsList->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    filesFilterEx->setFocus();
+    QTimer::singleShot(0,filesFilterEx,SLOT(setFocus()));
 
 	layout()->setContentsMargins(0,0,0,0);
-	l->addWidget(m_tv);
-	l->addWidget(m_edit);
-	l->addWidget(m_suggestionsList);
+    l->addWidget(m_files_filter);
+    l->addWidget(filesList);
+    l->addWidget(filesFilterEx);
+    l->addWidget(m_suggestionsList);
 	l->setContentsMargins(0,0,0,0);
     w->setLayout(l);
 	setCentralWidget(w);
 	QTimer::singleShot(0,this,SLOT(initFolders()));
-	m_edit->installEventFilter(this);
-	connect(m_edit,SIGNAL(textEdited(QString)),this,SLOT(fillSuggestions(QString)));
+    filesFilterEx->installEventFilter(this);
+    connect(filesFilterEx,SIGNAL(textEdited(QString)),this,SLOT(fillSuggestions(QString)));
+
+    connect(m_files_filter, &QLineEdit::textEdited, [this](){
+        filesFilterModel->setFilterFixedString(m_files_filter->text());
+    });
 }
 
 bool GenericItemWindow::eventFilter(QObject *obj, QEvent *event)
@@ -136,7 +151,7 @@ bool GenericItemWindow::eventFilter(QObject *obj, QEvent *event)
 	}
 
 	if (step != 0 ) {
-		qDebug("step is %d (delta=%d): %d/%d", step, delta, i.row(), m_suggestions.count() );
+        qDebug("step is %d (delta=%d): %d/%lld", step, delta, i.row(), m_suggestions.count() );
 
 		i = m_suggestionModel->index(i.row()+step, 0);
 		m_suggestionsList->setCurrentIndex(i);
@@ -148,8 +163,7 @@ bool GenericItemWindow::eventFilter(QObject *obj, QEvent *event)
 
 void GenericItemWindow::initFolders()
 {
-  m_model->processDir(".");
-//	m_model->processDir("/home/elcuco/src/qtedit4/trunk");
+    directoryModel->addDirectory(QDir::currentPath());
 }
 
 int LevenshteinDistance(const QString &s, const QString &t);
@@ -165,63 +179,70 @@ bool suggestionBiggerThan(const Suggestion& s1, const Suggestion& s2)
     return s1.value > s2.value;
 }
 
-void GenericItemWindow::fillSuggestions(QString s)
+void GenericItemWindow::fillSuggestions(QString filter)
 {
 	m_suggestions.clear();
-	fillSuggestions(s,static_cast<const FileItem *>(m_model->getGenericRootItem()),m_suggestions);
+    fillSuggestions(filter, m_suggestions);
     std::sort(m_suggestions.begin(), m_suggestions.end(),suggestionBiggerThan);
 	m_suggestionModel->setSuggestions(m_suggestions);
 	m_suggestionsList->resizeColumnsToContents();
 	m_suggestionsList->setCurrentIndex(m_suggestionModel->index(0, 0));
 }
 
-void GenericItemWindow::fillSuggestions(QString requestedSuggestion, const FileItem *item, QList<Suggestion>&suggestions)
+void GenericItemWindow::fillSuggestions(QString requestedSuggestion, QList<Suggestion>&suggestions)
 {
-	if (requestedSuggestion.isEmpty())
+    if (requestedSuggestion.isEmpty()) {
+        auto max = directoryModel->rowCount();
+        for (int i = 0; i<max; i++) {
+            Suggestion ss;
+            ss.fileName = directoryModel->getItem(i);
+            ss.value = 0;
+            suggestions<<ss;
+        }
+
 		return;
+    }
 
-	foreach(GenericItem *child,item->subChildren){
-		const FileItem *i = static_cast<const FileItem*>(child);
+    auto max = directoryModel->rowCount();
+    for (int i = 0; i<max; i++) {
+        auto itemName = directoryModel->displayForItem(i);
+        auto fileName = directoryModel->fileNameForItem(i);
 
-		if (!i->isDirectory) {
-			QString itemName = i->getDisplay(0);
-			int d = 100;
-//			d = DiegoDistance(s1,s2);
-			if (d>90) {
-				d = LevenshteinDistance(requestedSuggestion,itemName);
-				if (d>10) {
-					continue;
-				}
-			}
-			Suggestion ss;
-			ss.item  = i;
-			ss.value = 100 - d;
+        int d = 100;
+        d = DiegoDistance(requestedSuggestion,itemName);
+        if (d>90) {
+            d = LevenshteinDistance(requestedSuggestion,itemName);
+            if (d / requestedSuggestion.length() < 0.1 ) {
+                continue;
+            }
+        }
 
-			if (itemName.startsWith(requestedSuggestion))
-				ss.value *= 2;
-			else if (itemName.contains(requestedSuggestion))
-				ss.value *= 1.5;
+        Suggestion ss;
+        ss.fileName = directoryModel->getItem(i);
+        ss.value = 100 - d;
 
-			if (d<10 && (itemName.endsWith(".c") || itemName.endsWith(".cpp") || itemName.endsWith(".cxx")) )
-				ss.value = ss.value * 1.2 + 20;
-			if (d<10 && (itemName.endsWith(".h") || itemName.endsWith(".hpp")))
-				ss.value = ss.value * 1.2 - 10;
-			if (itemName.endsWith(".o") || itemName.endsWith(".so") ||
-				 itemName.endsWith(".obj") || itemName.endsWith(".dll")  ||
-				 itemName.endsWith(".lib") || itemName.endsWith(".a") ||
-				 itemName.endsWith(".exe") || itemName.endsWith("a.out")
-				 )
-				ss.value *= 0.7;
+        if (itemName.startsWith(requestedSuggestion))
+            ss.value *= 2;
+        else if (itemName.contains(requestedSuggestion))
+            ss.value *= 1.5;
 
-			if (!itemName.contains('.'))
-				ss.value *= 0.7;
+        if (d<10 && (itemName.endsWith(".c") || itemName.endsWith(".cpp") || itemName.endsWith(".cxx")) )
+            ss.value = ss.value * 1.2 + 20;
+        if (d<10 && (itemName.endsWith(".h") || itemName.endsWith(".hpp")))
+            ss.value = ss.value * 1.2 - 10;
+        if (itemName.endsWith(".o") || itemName.endsWith(".so") ||
+             itemName.endsWith(".obj") || itemName.endsWith(".dll")  ||
+             itemName.endsWith(".lib") || itemName.endsWith(".a") ||
+             itemName.endsWith(".exe") || itemName.endsWith("a.out")
+             )
+            ss.value *= 0.7;
 
-			if (ss.value >= 90)
-				suggestions<<ss;
-		}
-		else
-			fillSuggestions(requestedSuggestion,i,suggestions);
-	}
+        if (!itemName.contains('.'))
+            ss.value *= 0.7;
+
+        if (ss.value >= 90)
+            suggestions<<ss;
+    }
 }
 
 // http://stackoverflow.com/questions/3437404/min-and-max-in-c
@@ -250,23 +271,25 @@ int DiegoDistance(QString s, QString t)
 	if (t.startsWith(s,Qt::CaseInsensitive))
 		return d;
 //	if (d>5)
-		return 100;
+        return 150;
 //	return d;
 }
 
 // http://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#C.23
-int LevenshteinDistanceIterative(const QString &s, const QString &t)
+int LevenshteinDistanceIterative(const QString &ss, const QString &tt)
 {
+    auto s = ss.toStdString();
+    auto t = tt.toStdString();
 	const size_t len1 = s.size(), len2 = t.size();
 	std::vector<unsigned int> col(len2+1), prevCol(len2+1);
 
 	for (unsigned int i = 0; i < prevCol.size(); i++)
 		prevCol[i] = i;
 	for (unsigned int i = 0; i < len1; i++) {
-		col[0] = i+1;
-		for (unsigned int j = 0; j < len2; j++)
+        col[0] = i+1;
+        for (unsigned int j = 0; j < len2; j++)
 			col[j+1] = min( min( 1 + col[j], 1 + prevCol[1 + j]),
-								prevCol[j] + (s[i]==t[j] ? 0 : 1) );
+                                prevCol[j] + (s[i]==t[j] ? 0 : 1) );
 		col.swap(prevCol);
 	}
 	return prevCol[len2];

@@ -8,7 +8,10 @@
 class QDockWidget;
 class QTreeView;
 class QCompleter;
+class QSortFilterProxyModel;
+
 class FoldersModel;
+class DirectoryModel;
 
 namespace Ui{
 	class ProjectManagerGUI;
@@ -26,11 +29,12 @@ public:
 public slots:
 	// our code
 	void onItemClicked(const QModelIndex &index);
-	void onAddDirectoryClicked();
+    void on_addDirectory_clicked(bool checked);
+    void on_removeDirectory_clicked(bool checked);
 
 private:
-	QCompleter *m_completer;
-	QDockWidget *m_dockWidget;
-	FoldersModel *m_projectModel;
-	Ui::ProjectManagerGUI *m_gui;
+    QDockWidget *m_dockWidget;
+    QSortFilterProxyModel *filesFilterModel;
+    DirectoryModel *directoryModel;
+    Ui::ProjectManagerGUI *gui;
 };

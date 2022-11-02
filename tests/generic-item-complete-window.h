@@ -1,5 +1,10 @@
 #include <QMainWindow>
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
+#include <QStringList>
+#include <QDir>
+
+#include <src/plugins/ProjectManager/GenericItems.h>
 
 class QTreeView;
 class QLineEdit;
@@ -9,9 +14,10 @@ class FileItem;
 class QTableView;
 
 struct Suggestion {
-	const FileItem* item;
+    QString fileName;
 	int value;
 };
+
 
 class SuggestionModel : public QAbstractTableModel {
 public:
@@ -21,6 +27,7 @@ public:
 	virtual QVariant data(const QModelIndex &index, int role) const;
 
 	void setSuggestions(QList<Suggestion> newSuggestions);
+    const Suggestion& getItem(size_t i) const { return m_suggestions[i]; }
 private:
 	QList<Suggestion> m_suggestions;
 };
@@ -28,15 +35,18 @@ private:
 class GenericItemWindow: public QMainWindow {
 	Q_OBJECT
 public:
-	QTreeView *m_tv;
-	QLineEdit *m_edit;
+    QLineEdit *m_files_filter;
+    QListView *filesList;
+    QLineEdit *filesFilterEx;
 	QTableView *m_suggestionsList;
-	FoldersModel *m_model;
+
+    QSortFilterProxyModel *filesFilterModel;
+    DirectoryModel *directoryModel;
 	QList<Suggestion> m_suggestions;
 	SuggestionModel *m_suggestionModel;
 
 	GenericItemWindow();
-	void fillSuggestions(QString s1, const FileItem *item, QList<Suggestion> &m_suggestions);
+    void fillSuggestions(QString s1, QList<Suggestion> &m_suggestions);
 protected:
 	bool eventFilter(QObject *obj, QEvent *event);
 public slots:
