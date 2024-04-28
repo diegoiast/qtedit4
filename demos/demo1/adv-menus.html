@@ -1,0 +1,84 @@
+<html>
+
+<!-- $Id$ -->
+
+<head>
+	<title>qtmdi library - Advanced menus example</title>
+</head>
+
+<body>
+<h1 style=" display: block; background-color: rgb(166,206,57); ">Target</h1>
+<p>
+	This application demostrates how to generate 2 sets of 
+	menus with qmdilib. With qmdilib, you will see that it's very simple to scale this application
+	into more depths of complexity.
+	<br>
+	To see the advanced menus, click the <b>Advanced menus</b> button on the toolbar. This will add new menus
+	to the menu bar, a new toolbar and it will also add new commands to the existing menus and toolbars.
+</p>
+
+<h1 style=" display: block; background-color: rgb(166,206,57); ">The code</h1>
+<p> Given this main window declaration:
+<pre style="width: 70%; display: block; margin-left: 15%; margin-right: 15%; border:1px solid gray; background-color: silver; font-family: monospace;">
+class MainWindow: public QMainWindow, public qmdiHost
+{
+	Q_OBJECT
+public:
+        MainWindow( QWidget *owner=NULL );
+...
+private:
+	qmdiClient *advanced;
+};
+</pre>
+
+<p>This code is used to generate the normal menus:</p>
+<pre style="width: 70%; display: block; margin-left: 15%; margin-right: 15%; border:1px solid gray; background-color: silver; font-family: monospace;">
+MainWindow::MainWindow()
+{
+	menus["&amp;File"]->addAction( actionFileNew );
+	menus["&amp;File"]->addAction( actionFileSave );
+	menus["&amp;File"]->addSeparator();
+	menus["&amp;File"]->addAction( actionQuit );
+	
+	// save location for advanced menus
+	menus["&amp;Edit"];	
+	menus["&amp;Test"];
+	menus["&amp;Settings"]->addAction( actionShowAll );
+	menus["&amp;Help"]->addAction( actionAbout );
+</pre>
+
+<p>This code is used to generate the advanced menus:</p>
+<pre style="width: 70%; display: block; margin-left: 15%; margin-right: 15%; border:1px solid gray; background-color: silver; font-family: monospace;">
+	advanced = new qmdiClient("advanced");
+	advanced->menus["&amp;File"]->addAction( actionFileSaveAs );
+	advanced->menus["&amp;Test"]->addAction( test1 );
+	advanced->menus["&amp;Test"]->addAction( test2 );
+	advanced->menus["&amp;Help"]->addAction( actionAboutQt );
+}
+</pre>
+
+<p>
+The <code>actionShowAll</code> action is connected to a slot which merges, unmerges
+the advaced menus from the normal ones:
+</p>
+
+<pre style="width: 70%; display: block; margin-left: 15%; margin-right: 15%; border:1px solid gray; background-color: silver; font-family: monospace;">
+void MainWindow::slot_showMenus()
+{
+	bool isChecked = actionShowAll->isChecked();
+	
+	if (isChecked)
+		mergeClient( advanced );
+	else
+		unmergeClient( advanced );
+
+	// show the stuff on screen
+	updateGUI( this );
+}
+
+</pre>
+
+
+</body>
+
+</html>

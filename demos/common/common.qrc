@@ -1,0 +1,28 @@
+<RCC>
+    <qresource prefix="/" >
+		<file alias="images/qt-logo.png">images/qt-logo.png</file>
+		<file alias="images/open.png">images/open.png</file>
+		<file alias="images/quit.png">images/quit.png</file>
+		
+		<file alias="images/addtab.png">images/addtab.png</file>
+		<file alias="images/closetab.png">images/closetab.png</file>
+		<file alias="images/fileclose.png">images/fileclose.png</file>
+		<file alias="images/new.png">images/new.png</file>
+		<file alias="images/save.png">images/save.png</file>
+
+		<file alias="images/zoomin.png">images/zoomin.png</file>
+		<file alias="images/zoomout.png">images/zoomout.png</file>
+		
+		<file alias="images/undo.png">images/undo.png</file>
+		<file alias="images/redo.png">images/redo.png</file>
+		<file alias="images/copy.png">images/copy.png</file>
+		<file alias="images/cut.png">images/cut.png</file>
+		<file alias="images/paste.png">images/paste.png</file>
+		
+		<file alias="images/next.png">images/next.png</file>
+		<file alias="images/home.png">images/home.png</file>
+		<file alias="images/prev.png">images/prev.png</file>
+		<file alias="images/print.png">images/print.png</file>
+  </qresource>
+</RCC>
+
