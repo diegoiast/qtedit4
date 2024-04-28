@@ -1,0 +1,11 @@
+- Make a common code between TextEditor::Internal::Highlighter and QsvHighlighter
+- Need a shared interface between TextEditor::Internal::Highlighter and QsvHighlighter
+-- can re-hilight
+-- can create block
+- MyHighlighter in demos needs to be ported to QsvTextEdit
+- Move Qate::Theme into shared code
+- Remove custom theme loader from QsvSyntaxHighlighter
+- Move all code into Qate namespace
+- Update TextEditor::Internal::Highlighter to newer code from upstream
+- Port build system to CMake
+- Add support for Connan build system.

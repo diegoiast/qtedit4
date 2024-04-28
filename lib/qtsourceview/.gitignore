@@ -1,0 +1,7 @@
+.qmake.stash
+*.pro.autosave
+*.pro.user
+
+data/qate/*.xml
+data/colors/*.theme
+doc

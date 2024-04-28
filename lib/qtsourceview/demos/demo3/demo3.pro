@@ -1,0 +1,10 @@
+TEMPLATE	=	app
+QT		=	gui core xml widgets
+CONFIG		+=	qt warn_on silent
+DESTDIR		=	../../
+INCLUDEPATH	=	../../src .
+LIBS		=	-L../../ -lqvshl
+TARGET          =       demo3
+SOURCES		=	main3.cpp mainwindow3.cpp
+HEADERS		=	mainwindow3.h
+FORMS		=	mainwindow3.ui
