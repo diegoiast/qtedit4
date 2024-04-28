@@ -1,10 +1,12 @@
 #pragma once
 
 #include <QAbstractItemModel>
-#include <QString>
-#include <QList>
 #include <QCompleter>
 #include <QDir>
+#include <QFileSystemModel>
+#include <QList>
+#include <QSortFilterProxyModel>
+#include <QString>
 
 class DirectoryModel : public QAbstractTableModel {
 public:
@@ -25,4 +27,41 @@ private:
 
     QStringList fileList;
     QStringList directoryList;
+};
+
+class FilterOutProxyModel : public QSortFilterProxyModel
+{
+public:
+    explicit FilterOutProxyModel(QObject *parent = nullptr)
+        : QSortFilterProxyModel(parent)
+    {}
+
+    void setFilterOutWildcard(const QString &wildcard)
+    {
+        m_filterOutWildcard = wildcard;
+        invalidateFilter();
+    }
+
+protected:
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override
+    {
+        QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+        QString filePath = sourceModel()->data(index, Qt::DisplayRole).toString();
+
+        if (!m_filterOutWildcard.isEmpty()) {
+            auto list = m_filterOutWildcard.split(";");
+            for (const auto &l : list) {
+                if (l.length() < 3) {
+                    continue;
+                }
+                if (QDir::match(filePath, l) || filePath.contains(l)) {
+                    return false;
+                }
+            }
+        }
+        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+    }
+
+private:
+    QString m_filterOutWildcard;
 };

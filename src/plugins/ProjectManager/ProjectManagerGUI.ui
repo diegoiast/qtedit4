@@ -121,10 +121,33 @@
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Filter files</string>
+      <string>Files to show</string>
      </property>
      <property name="clearButtonEnabled">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Maximum</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>9</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="filterOutFiles">
+     <property name="placeholderText">
+      <string>Files to hide</string>
      </property>
     </widget>
    </item>

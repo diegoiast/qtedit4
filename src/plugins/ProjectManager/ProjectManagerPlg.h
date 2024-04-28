@@ -12,6 +12,7 @@ class QSortFilterProxyModel;
 
 class FoldersModel;
 class DirectoryModel;
+class FilterOutProxyModel;
 
 namespace Ui{
 	class ProjectManagerGUI;
@@ -34,7 +35,7 @@ public slots:
 
 private:
     QDockWidget *m_dockWidget;
-    QSortFilterProxyModel *filesFilterModel;
+    FilterOutProxyModel *filesFilterModel;
     DirectoryModel *directoryModel;
     Ui::ProjectManagerGUI *gui;
 };

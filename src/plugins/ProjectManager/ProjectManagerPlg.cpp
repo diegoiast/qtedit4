@@ -49,19 +49,26 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
 
     directoryModel = new DirectoryModel(this);
     directoryModel->addDirectory(QDir::currentPath());
-    filesFilterModel = new QSortFilterProxyModel(this);
+    filesFilterModel = new FilterOutProxyModel(this);
     filesFilterModel->setSourceModel(directoryModel);
     gui->filesView->setModel(filesFilterModel);
     connect(gui->filterFiles, &QLineEdit::textChanged, [this](const QString &newText){
         filesFilterModel->setFilterWildcard(newText);
     });
+    connect(gui->filterOutFiles, &QLineEdit::textChanged, [this](const QString &newText) {
+        filesFilterModel->setFilterOutWildcard(newText);
+    });
+
+    // TODO - save/restore
+    gui->filterOutFiles->setText("cbuild;build-;");
+    gui->filterFiles->setText("main");
 }
 
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
 {
-	delete(m_dockWidget);
-	m_dockWidget = NULL;
-	Q_UNUSED( host );
+    delete (m_dockWidget);
+    m_dockWidget = NULL;
+    Q_UNUSED(host);
 }
 
 void ProjectManagerPlugin::onItemClicked(const QModelIndex &index)
