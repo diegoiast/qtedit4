@@ -310,7 +310,7 @@ int PluginManager::tabForFileName(QString fileName) {
 }
 
 /**
- * \brief set a native settings manager to this plugin manaher
+ * \brief set a native settings manager to this plugin manager
  * \param organization the organization your application belongs to
  * \param application the name of your application
  *
@@ -433,6 +433,10 @@ void PluginManager::restoreSettings() {
 
     statusBar()->clearMessage();
     settingsManager->endGroup();
+
+    foreach (auto plugin, plugins) {
+        plugin->loadConfig(*settingsManager);
+    }
 
     updateActionsStatus();
 }
@@ -620,8 +624,6 @@ bool PluginManager::openFiles(QStringList fileNames) {
  */
 void PluginManager::addPlugin(IPlugin *newplugin) {
     plugins << newplugin;
-    if (settingsManager)
-        newplugin->loadConfig(*settingsManager);
 
     if (!newplugin)
         return;
@@ -635,6 +637,9 @@ void PluginManager::addPlugin(IPlugin *newplugin) {
 
     if (newplugin->enabled)
         enablePlugin(newplugin);
+
+    if (settingsManager)
+        newplugin->loadConfig(*settingsManager);
 }
 
 /**
