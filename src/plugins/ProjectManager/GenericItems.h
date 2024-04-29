@@ -62,6 +62,31 @@ protected:
         return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
     }
 
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override
+    {
+        QString leftData = sourceModel()->data(left).toString();
+        QString rightData = sourceModel()->data(right).toString();
+
+        auto l = countOccurrences(leftData, '/');
+        auto r = countOccurrences(rightData, '/');
+        if (l < r)
+            return true;
+        if (l > r)
+            return false;
+        return QSortFilterProxyModel::lessThan(left, right);
+    }
+
+    static int countOccurrences(const QString &str, QChar target)
+    {
+        int count = 0;
+        for (const QChar &ch : str) {
+            if (ch == target) {
+                count++;
+            }
+        }
+        return count;
+    }
+
 private:
     QString m_filterOutWildcard;
 };

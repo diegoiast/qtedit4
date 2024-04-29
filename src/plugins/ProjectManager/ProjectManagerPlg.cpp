@@ -52,6 +52,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
     directoryModel->addDirectory(QDir::currentPath());
     filesFilterModel = new FilterOutProxyModel(this);
     filesFilterModel->setSourceModel(directoryModel);
+    filesFilterModel->sort(0);
     gui->filesView->setModel(filesFilterModel);
     connect(gui->filterFiles, &QLineEdit::textChanged, [this](const QString &newText){
         filesFilterModel->setFilterWildcard(newText);
