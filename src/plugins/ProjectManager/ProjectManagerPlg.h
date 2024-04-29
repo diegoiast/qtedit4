@@ -22,13 +22,16 @@ class ProjectManagerPlugin : public IPlugin
 {
 	Q_OBJECT
 public:
-	ProjectManagerPlugin();
+    ProjectManagerPlugin();
 
-	virtual void	showAbout();
-	virtual void	on_client_merged( qmdiHost* host );
-	virtual void	on_client_unmerged( qmdiHost* host );
+    virtual void showAbout() override;
+    virtual void on_client_merged(qmdiHost *host) override;
+    virtual void on_client_unmerged(qmdiHost *host) override;
+    virtual void loadConfig(QSettings &settings) override;
+    virtual void saveConfig(QSettings &settings) override;
+
 public slots:
-	// our code
+    // our code
 	void onItemClicked(const QModelIndex &index);
     void on_addDirectory_clicked(bool checked);
     void on_removeDirectory_clicked(bool checked);

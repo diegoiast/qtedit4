@@ -1,7 +1,8 @@
-#include <QMessageBox>
-#include <QMainWindow>
 #include <QDockWidget>
 #include <QFileDialog>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QSettings>
 #include <QSortFilterProxyModel>
 
 #include "pluginmanager.h"
@@ -58,10 +59,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
     connect(gui->filterOutFiles, &QLineEdit::textChanged, [this](const QString &newText) {
         filesFilterModel->setFilterOutWildcard(newText);
     });
-
-    // TODO - save/restore
-    gui->filterOutFiles->setText("cbuild;build-;");
-    gui->filterFiles->setText("main");
 }
 
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
@@ -69,6 +66,23 @@ void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
     delete (m_dockWidget);
     m_dockWidget = NULL;
     Q_UNUSED(host);
+}
+
+void ProjectManagerPlugin::loadConfig(QSettings &settings)
+{
+    settings.beginGroup("ProjectManager");
+    gui->filterOutFiles->setText(settings.value("FilterOut", "").toString());
+    gui->filterFiles->setText(settings.value("FilterIn", "").toString());
+    filesFilterModel->invalidate();
+    settings.endGroup();
+}
+
+void ProjectManagerPlugin::saveConfig(QSettings &settings)
+{
+    settings.beginGroup("ProjectManager");
+    settings.setValue("FilterOut", gui->filterOutFiles->text());
+    settings.setValue("FilterIn", gui->filterFiles->text());
+    settings.endGroup();
 }
 
 void ProjectManagerPlugin::onItemClicked(const QModelIndex &index)
