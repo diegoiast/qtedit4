@@ -6,8 +6,6 @@
  * \see PluginManager
  */
 
-// $Id$
-
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -18,9 +16,10 @@
 #include <QMenuBar>
 #include <QSettings>
 #include <QStandardItemModel>
-#include <QStatusBar>
 #include <QTabWidget>
 #include <QToolButton>
+
+#include "ui_pluginwindow.h"
 
 #include "configdialog.h"
 #include "iplugin.h"
@@ -411,7 +410,6 @@ void PluginManager::restoreSettings() {
     settingsManager->endGroup();
 
     show();
-    statusBar()->showMessage(tr("Loading files..."), 5000);
     QApplication::restoreOverrideCursor();
     QApplication::processEvents();
 
@@ -421,7 +419,6 @@ void PluginManager::restoreSettings() {
         if (!s.startsWith("file"))
             continue;
         QString fileName = settingsManager->value(s).toString();
-        statusBar()->showMessage(tr("Loading file %1").arg(fileName), 5000);
         QApplication::processEvents();
         openFile(fileName);
     }
@@ -431,7 +428,6 @@ void PluginManager::restoreSettings() {
     if (current != -1)
         tabWidget->setCurrentIndex(current);
 
-    statusBar()->clearMessage();
     settingsManager->endGroup();
 
     foreach (auto plugin, plugins) {
@@ -804,7 +800,10 @@ void PluginManager::initGUI() {
     toolbars[tr("main")]->addAction(actionOpen);
     toolbars[tr("main")]->addAction(actionConfig);
 
-    tabWidget = new qmdiTabWidget(this);
+    //    tabWidget = new qmdiTabWidget(this);
+    this->ui = new Ui::PluginManagedWindow;
+    this->ui->setupUi(this);
+    tabWidget = this->ui->mdiTabWidget;
     updateGUI();
 
     QToolButton *tabCloseBtn = new QToolButton(tabWidget);
@@ -820,11 +819,11 @@ void PluginManager::initGUI() {
     //	addNewMdiClient->setIcon(QIcon(":images/closetab.png"));
     addNewMdiClient->setIcon(QIcon::fromTheme("document-new"));
     addNewMdiClient->setMenu(newFilePopup);
-    tabWidget->setCornerWidget(addNewMdiClient, Qt::TopLeftCorner);
+    // tabWidget->setCornerWidget(addNewMdiClient, Qt::TopLeftCorner);
 
     tabWidget->setDocumentMode(true);
     tabWidget->setMovable(true);
-    setCentralWidget(tabWidget);
+    //    setCentralWidget(tabWidget);
 }
 
 /**
@@ -1007,7 +1006,6 @@ void PluginManager::on_actionHideGUI_changed() {
 
     updateMenusAndToolBars = !actionHideGUI->isChecked();
     setUpdatesEnabled(false);
-    statusBar()->setVisible(!actionHideGUI->isChecked());
     menuBar()->setVisible(!actionHideGUI->isChecked());
     foreach (QToolBar *b, findChildren<QToolBar *>()) {
         b->setVisible(!actionHideGUI->isChecked());

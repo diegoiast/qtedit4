@@ -37,6 +37,7 @@ add_executable(qtedit4
         src/plugins/ProjectManager/GenericItems.h
         src/main.cpp
 
+        lib/qmdilib/demos/plugin-demo/pluginwindow.ui
         lib/qmdilib/demos/plugin-demo/plugin_list.ui
         lib/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
 	src/plugins/ProjectManager/ProjectManagerGUI.ui

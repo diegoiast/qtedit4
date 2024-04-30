@@ -20,6 +20,10 @@ class IPlugin;
 class ConfigDialog;
 class PluginModel;
 
+namespace Ui {
+class PluginManagedWindow;
+};
+
 class PluginManager : public QMainWindow, public qmdiHost {
     Q_OBJECT
     friend class PluginModel;
@@ -59,6 +63,7 @@ class PluginManager : public QMainWindow, public qmdiHost {
     qmdiTabWidget *tabWidget;
     ConfigDialog *configDialog;
     QSettings *settingsManager;
+    Ui::PluginManagedWindow *ui;
 
   public:
     QMenu *newFilePopup;
