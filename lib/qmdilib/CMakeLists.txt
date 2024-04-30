@@ -82,6 +82,7 @@ add_executable(pluginmanager
     demos/plugin-demo/iplugin.h
     demos/plugin-demo/main6.cpp
     demos/plugin-demo/pluginmanager.cpp
+    demos/plugin-demo/pluginwindow.ui
     demos/plugin-demo/plugin_list.ui
     demos/plugin-demo/richtext.qrc
     demos/plugin-demo/pluginmanager.cpp
