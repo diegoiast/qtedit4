@@ -599,6 +599,29 @@ bool PluginManager::openFiles(QStringList fileNames) {
     return b;
 }
 
+void PluginManager::hidePanel(Panels p) {
+    QTabWidget *t = nullptr;
+    switch (p) {
+    case Panels::East:
+        t = this->ui->eastPanel;
+        break;
+    case Panels::West:
+        t = this->ui->westPanel;
+        break;
+    case Panels::South:
+        t = this->ui->southPanel;
+        break;
+    }
+    assert(t != nullptr);
+    for (int i = 0; i < t->count(); ++i) {
+        t->widget(i)->setVisible(false);
+    }
+
+    if (t->tabBar()->count() == 0) {
+        t->hide();
+    }
+}
+
 /**
  * \brief add a new plugin to the plugin manager system
  * \param newplugin the plugin to add to the system
@@ -800,11 +823,12 @@ void PluginManager::initGUI() {
     toolbars[tr("main")]->addAction(actionOpen);
     toolbars[tr("main")]->addAction(actionConfig);
 
-    //    tabWidget = new qmdiTabWidget(this);
     this->ui = new Ui::PluginManagedWindow;
     this->ui->setupUi(this);
     tabWidget = this->ui->mdiTabWidget;
-    updateGUI();
+    hidePanel(Panels::West);
+    hidePanel(Panels::East);
+    hidePanel(Panels::South);
 
     QToolButton *tabCloseBtn = new QToolButton(tabWidget);
     connect(tabCloseBtn, SIGNAL(clicked()), this, SLOT(closeClient()));
@@ -821,9 +845,10 @@ void PluginManager::initGUI() {
     addNewMdiClient->setMenu(newFilePopup);
     // tabWidget->setCornerWidget(addNewMdiClient, Qt::TopLeftCorner);
 
+    tabWidget->mdiHost = this;
     tabWidget->setDocumentMode(true);
     tabWidget->setMovable(true);
-    //    setCentralWidget(tabWidget);
+    updateGUI();
 }
 
 /**
