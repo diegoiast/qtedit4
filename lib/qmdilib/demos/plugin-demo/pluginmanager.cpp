@@ -477,11 +477,9 @@ void PluginManager::saveSettings() {
         settingsManager->beginGroup("files");
         for (int i = 0; i < tabWidget->count(); i++) {
             c = dynamic_cast<qmdiClient *>(tabWidget->widget(i));
-            if (c)
-                s = c->mdiClientFileName();
-            else
-                s.clear();
-
+            if (!c)
+                continue;
+            s = c->mdiClientFileName();
             if (!s.isEmpty())
                 settingsManager->setValue(QString("file%1").arg(i), s);
             else {
