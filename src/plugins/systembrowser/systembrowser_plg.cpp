@@ -43,18 +43,10 @@ void FSBrowserPlugin::showAbout() {
 }
 
 void FSBrowserPlugin::on_client_merged(qmdiHost *host) {
-    if (m_dockWidget) {
-        return;
-    }
+    PluginManager *pluginManager = dynamic_cast<PluginManager *>(host);
+    m_fsBrowser = new FileSystemBrowser();
 
-    QMainWindow *window = dynamic_cast<QMainWindow *>(host);
-    m_dockWidget = new QDockWidget(window);
-    m_fsBrowser = new FileSystemBrowser(m_dockWidget);
-
-    m_dockWidget->setObjectName("m_dockWidget");
-    m_dockWidget->setWindowTitle(tr("File system"));
-    m_dockWidget->setWidget(m_fsBrowser);
-    window->addDockWidget(Qt::LeftDockWidgetArea, m_dockWidget);
+    pluginManager->createNewPanel(Panels::West, "File system", m_fsBrowser);
 
     connect(m_fsBrowser->getTreeView(), SIGNAL(activated(QModelIndex)), this,
             SLOT(on_fileClick(QModelIndex)));
@@ -63,8 +55,6 @@ void FSBrowserPlugin::on_client_merged(qmdiHost *host) {
 }
 
 void FSBrowserPlugin::on_client_unmerged(qmdiHost *host) {
-    delete (m_dockWidget);
-    m_dockWidget = NULL;
     m_fsBrowser = NULL;
 
     Q_UNUSED(host);

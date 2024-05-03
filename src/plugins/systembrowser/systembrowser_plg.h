@@ -26,7 +26,6 @@ class FSBrowserPlugin : public IPlugin {
     void on_fileClick(const QModelIndex &index);
 
   private:
-    QDockWidget *m_dockWidget;
     FileSystemBrowser *m_fsBrowser;
 };
 
