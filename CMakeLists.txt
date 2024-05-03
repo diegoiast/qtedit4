@@ -27,10 +27,16 @@ add_executable(qtedit4
 
 	src/widgets/qmdieditor.cpp
         src/widgets/qmdieditor.h
+        src/widgets/filesystembrowser.cpp
+        src/widgets/filesystembrowser.h
+        src/widgets/filesystembrowser.ui
         src/plugins/texteditor/texteditor_plg.cpp
         src/plugins/texteditor/texteditor_plg.h
 	src/plugins/help/help_plg.cpp
         src/plugins/help/help_plg.h
+
+        src/plugins/systembrowser/systembrowser_plg.h
+        src/plugins/systembrowser/systembrowser_plg.cpp
         src/plugins/ProjectManager/ProjectManagerPlg.cpp
         src/plugins/ProjectManager/ProjectManagerPlg.h
 	src/plugins/ProjectManager/GenericItems.cpp
@@ -43,11 +49,6 @@ add_executable(qtedit4
 	src/plugins/ProjectManager/ProjectManagerGUI.ui
 
 )
-#src/widgets/filesystembrowser.cpp
-#src/widgets/filesystembrowser.h
-#src/widgets/filesystembrowser.ui
-#src/plugins/systembrowser/systembrowser_plg.cpp
-#src/plugins/systembrowser/systembrowser_plg.h
 
 target_include_directories( qtedit4 PUBLIC
         src/widgets

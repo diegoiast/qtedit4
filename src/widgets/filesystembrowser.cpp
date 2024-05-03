@@ -8,20 +8,25 @@
 
 #include "filesystembrowser.h"
 #include <QCompleter>
-#include <QDirModel>
 #include <QFileInfo>
+#include <QFileSystemModel>
 #include <QTimer>
 
-FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
-    setupUi(this);
+FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f)
+    : QWidget(parent, f)
+{
+	setupUi(this);
     this->backButton->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
     this->forwardButton->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
     this->homeButton->setIcon(style()->standardIcon(QStyle::SP_DirHomeIcon));
     this->upButton->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
-
-    m_dirModel = new QDirModel(QStringList(), QDir::AllEntries | QDir::AllDirs,
-                               QDir::DirsFirst | QDir::Name, this);
+    m_dirModel = new QFileSystemModel(this);
     // 	m_dirModel->setReadOnly(false);
+
+    listView->setModel(m_dirModel);
+    treeView->setModel(m_dirModel);
+    treeView->setDragEnabled(true);
+    treeView->setAcceptDrops(true);
 
     listView->setModel(m_dirModel);
     treeView->setModel(m_dirModel);
@@ -47,7 +52,7 @@ QTreeView *FileSystemBrowser::getTreeView() { return treeView; }
 
 QListView *FileSystemBrowser::getListView() { return listView; }
 
-QDirModel *FileSystemBrowser::getDirModel() { return m_dirModel; }
+QFileSystemModel *FileSystemBrowser::getDirModel() { return m_dirModel; }
 
 void FileSystemBrowser::on_treeView_clicked(QModelIndex index) {
     if (m_dirModel->fileInfo(index).isDir()) {
@@ -63,7 +68,7 @@ void FileSystemBrowser::on_backButton_clicked() {
 
 void FileSystemBrowser::on_homeButton_clicked() { setRootPath(QDir::homePath()); }
 
-void FileSystemBrowser::reloadButton_clicked() { m_dirModel->refresh(treeView->rootIndex()); }
+void FileSystemBrowser::reloadButton_clicked() {}
 
 void FileSystemBrowser::on_forwardButton_clicked() {
     m_history.push(m_currentPath);

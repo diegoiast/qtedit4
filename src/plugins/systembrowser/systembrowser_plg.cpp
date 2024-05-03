@@ -7,8 +7,9 @@
  */
 
 #include <QAction>
-#include <QDirModel>
 #include <QDockWidget>
+#include <QDockWidget>
+#include <QFileSystemModel>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QModelIndex>
@@ -31,8 +32,7 @@ FSBrowserPlugin::FSBrowserPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-    m_dockWidget = NULL;
-    m_fsBrowser = NULL;
+	m_fsBrowser	= NULL;
 }
 
 FSBrowserPlugin::~FSBrowserPlugin() {}
@@ -92,7 +92,3 @@ void FSBrowserPlugin::on_fileClick(const QModelIndex &index) {
         pluginManager->openFile(m_fsBrowser->getDirModel()->fileInfo(index).filePath());
     }
 }
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 7; mixedindent off; indent-mode
-// cstyle; kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix kate:
-// show-tabs on;

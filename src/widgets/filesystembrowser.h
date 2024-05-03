@@ -15,20 +15,21 @@
 #include "ui_filesystembrowser.h"
 
 class QString;
-class QDirModel;
+class QFileSystemModel;
 class QCompleter;
 class QTreeView;
 class QListView;
 
-class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser {
-    Q_OBJECT
-  public:
-    FileSystemBrowser(QWidget *parent = 0, Qt::WindowFlags f = 0);
+class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser
+{
+	Q_OBJECT
+public:
+    FileSystemBrowser(QWidget *parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
     QTreeView *getTreeView();
     QListView *getListView();
-    QDirModel *getDirModel();
+    QFileSystemModel *getDirModel();
 
-  private slots:
+private slots:
     void on_upButton_clicked();
     void on_backButton_clicked();
     void on_homeButton_clicked();
@@ -44,7 +45,7 @@ class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser {
   private:
     void updateActions();
 
-    QDirModel *m_dirModel;
+    QFileSystemModel *m_dirModel;
     QString m_currentPath;
     QStack<QString> m_history;
     QStack<QString> m_future;
@@ -52,7 +53,3 @@ class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser {
 };
 
 #endif
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 8; mixedindent off; indent-mode
-// cstyle; kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix kate:
-// show-tabs on;
