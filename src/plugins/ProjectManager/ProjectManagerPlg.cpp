@@ -20,7 +20,6 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     autoEnabled = true;
     alwaysEnabled = true;
 
-    m_dockWidget = NULL;
     directoryModel = NULL;
 }
 
@@ -29,26 +28,16 @@ void ProjectManagerPlugin::showAbout() {
                              "The project manager plugin");
 }
 
-void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
-    if (m_dockWidget) {
-        return;
-    }
-
-    QMainWindow *window = dynamic_cast<QMainWindow *>(host);
-    m_dockWidget = new QDockWidget(window);
-    m_dockWidget->setObjectName("m_dockWidget");
-    m_dockWidget->setWindowTitle(tr("Project"));
-
-    QWidget *w = new QWidget(m_dockWidget);
+void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
+{
+    auto manager = dynamic_cast<PluginManager *>(host);
+    auto *w = new QWidget;
     gui = new Ui::ProjectManagerGUI;
     gui->setupUi(w);
-    connect(gui->addDirectory, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_addDirectory_clicked);
-    connect(gui->removeDirectory, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_removeDirectory_clicked);
-    connect(gui->filesView, &QAbstractItemView::clicked, this,
-            &ProjectManagerPlugin::onItemClicked);
-    m_dockWidget->setWidget(w);
+    connect(gui->addDirectory, &QAbstractButton::clicked, this, &ProjectManagerPlugin::on_addDirectory_clicked);
+    connect(gui->removeDirectory, &QAbstractButton::clicked, this, &ProjectManagerPlugin::on_removeDirectory_clicked);
+    connect(gui->filesView, &QAbstractItemView::clicked, this, &ProjectManagerPlugin::onItemClicked);
+    manager->createNewPanel(Panels::West, QString("Project"), w);
 
     directoryModel = new DirectoryModel(this);
     directoryModel->addDirectory(QDir::currentPath());
@@ -62,9 +51,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             [this](const QString &newText) { filesFilterModel->setFilterOutWildcard(newText); });
 }
 
-void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) {
-    delete (m_dockWidget);
-    m_dockWidget = NULL;
+void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
+{
     Q_UNUSED(host);
 }
 
