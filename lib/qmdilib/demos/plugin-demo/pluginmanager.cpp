@@ -597,6 +597,18 @@ bool PluginManager::openFiles(QStringList fileNames) {
     return b;
 }
 
+void PluginManager::hideUnusedPanels() {
+    if (ui->westPanel->tabBar()->count() == 0) {
+        ui->westPanel->hide();
+    }
+    if (ui->eastPanel->tabBar()->count() == 0) {
+        ui->eastPanel->hide();
+    }
+    if (ui->southPanel->tabBar()->count() == 0) {
+        ui->southPanel->hide();
+    }
+}
+
 void PluginManager::hidePanel(Panels p) {
     QTabWidget *t = nullptr;
     switch (p) {
@@ -618,6 +630,38 @@ void PluginManager::hidePanel(Panels p) {
     if (t->tabBar()->count() == 0) {
         t->hide();
     }
+}
+
+int PluginManager::createNewPanel(Panels p, QString name, QWidget *widget) {
+    QTabWidget *t = nullptr;
+    switch (p) {
+    case Panels::East:
+        t = this->ui->eastPanel;
+        break;
+    case Panels::West:
+        t = this->ui->westPanel;
+        break;
+    case Panels::South:
+        t = this->ui->southPanel;
+        break;
+    }
+    return t->addTab(widget, name);
+}
+
+QWidget *PluginManager::getPanel(Panels p, int index) {
+    QTabWidget *t = nullptr;
+    switch (p) {
+    case Panels::East:
+        t = this->ui->eastPanel;
+        break;
+    case Panels::West:
+        t = this->ui->westPanel;
+        break;
+    case Panels::South:
+        t = this->ui->southPanel;
+        break;
+    }
+    return t->widget(index);
 }
 
 /**
@@ -824,9 +868,6 @@ void PluginManager::initGUI() {
     this->ui = new Ui::PluginManagedWindow;
     this->ui->setupUi(this);
     tabWidget = this->ui->mdiTabWidget;
-    hidePanel(Panels::West);
-    hidePanel(Panels::East);
-    hidePanel(Panels::South);
 
     QToolButton *tabCloseBtn = new QToolButton(tabWidget);
     connect(tabCloseBtn, SIGNAL(clicked()), this, SLOT(closeClient()));
