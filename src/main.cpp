@@ -25,6 +25,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.updateGUI();
+    pluginManager.hideUnusedPanels();
 
     // start the application
     pluginManager.restoreSettings();
