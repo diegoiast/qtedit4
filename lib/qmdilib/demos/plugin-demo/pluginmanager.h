@@ -44,8 +44,11 @@ class PluginManager : public QMainWindow, public qmdiHost {
     bool openFile(QString fileName, int x = -1, int y = -1, int z = -1);
     bool openFiles(QStringList fileNames);
 
+    void hideUnusedPanels();
     void hidePanel(Panels p);
     void showPanel(Panels p, int index);
+    int createNewPanel(Panels p, QString name, QWidget *widget);
+    QWidget *getPanel(Panels p, int index);
 
   public slots:
     void addPlugin(IPlugin *newplugin);
