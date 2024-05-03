@@ -10,18 +10,18 @@
 
 class QAction;
 
-class HelpPlugin: public IPlugin
-{
-	Q_OBJECT
-public:
-	HelpPlugin();
-	~HelpPlugin();
+class HelpPlugin : public IPlugin {
+    Q_OBJECT
+  public:
+    HelpPlugin();
+    ~HelpPlugin();
 
-	void	showAbout();
-// 	void	on_client_merged( qmdiHost* host );
-// 	void	on_client_unmerged( qmdiHost* host );
-public slots:
-	void	on_actionAbout_triggered();
-private:
-	QAction* actionAbout;
+    void showAbout();
+    // 	void	on_client_merged( qmdiHost* host );
+    // 	void	on_client_unmerged( qmdiHost* host );
+  public slots:
+    void on_actionAbout_triggered();
+
+  private:
+    QAction *actionAbout;
 };

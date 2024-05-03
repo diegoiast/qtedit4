@@ -1,9 +1,9 @@
 #pragma once
 
 #include "iplugin.h"
-#include <QList>
 #include <QAbstractItemModel>
 #include <QCompleter>
+#include <QList>
 
 class QDockWidget;
 class QTreeView;
@@ -14,14 +14,13 @@ class FoldersModel;
 class DirectoryModel;
 class FilterOutProxyModel;
 
-namespace Ui{
-	class ProjectManagerGUI;
+namespace Ui {
+class ProjectManagerGUI;
 }
 
-class ProjectManagerPlugin : public IPlugin
-{
-	Q_OBJECT
-public:
+class ProjectManagerPlugin : public IPlugin {
+    Q_OBJECT
+  public:
     ProjectManagerPlugin();
 
     virtual void showAbout() override;
@@ -30,13 +29,13 @@ public:
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
-public slots:
+  public slots:
     // our code
-	void onItemClicked(const QModelIndex &index);
+    void onItemClicked(const QModelIndex &index);
     void on_addDirectory_clicked(bool checked);
     void on_removeDirectory_clicked(bool checked);
 
-private:
+  private:
     QDockWidget *m_dockWidget;
     FilterOutProxyModel *filesFilterModel;
     DirectoryModel *directoryModel;

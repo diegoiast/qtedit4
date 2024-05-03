@@ -1,24 +1,24 @@
-#include <QMainWindow>
-#include <QUrl>
-#include <QMessageBox>
 #include <QAction>
-#include <QStringList>
 #include <QActionGroup>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QStringList>
+#include <QUrl>
 
-#include <qmdiserver.h>
 #include <qmdiactiongroup.h>
+#include <qmdiserver.h>
 
 #include <qsvsh/qsvcolordeffactory.h>
 #include <qsvsh/qsvlangdeffactory.h>
 #include <qsvsh/qsvsyntaxhighlighter.h>
 #include <qsvte/qsvsyntaxhighlighterbase.h>
 
-#include "texteditor_plg.h"
 #include "qmdieditor.h"
+#include "texteditor_plg.h"
 
-class MyHighlighter: public QsvSyntaxHighlighter, public QsvSyntaxHighlighterBase {
-public:
-    MyHighlighter(QTextDocument *parent): QsvSyntaxHighlighter(parent) {
+class MyHighlighter : public QsvSyntaxHighlighter, public QsvSyntaxHighlighterBase {
+  public:
+    MyHighlighter(QTextDocument *parent) : QsvSyntaxHighlighter(parent) {
         setMatchBracketList("{}()[]''\"\"");
     }
 
@@ -54,175 +54,172 @@ void MyHighlighter::highlightBlock(const QString &text) {
 
 void MyHighlighter::toggleBookmark(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return;
+    }
     data->toggleBookmark();
 }
 
 void MyHighlighter::removeModification(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return;
+    }
     data->m_isModified = false;
 }
 
 void MyHighlighter::setBlockModified(QTextBlock &block, bool on) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return;
-    data->m_isModified =  on;
+    }
+    data->m_isModified = on;
 }
 
 bool MyHighlighter::isBlockModified(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return false;
+    }
     return data->m_isModified;
 }
 
 bool MyHighlighter::isBlockBookmarked(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return 0;
+    }
     return data->isBookmark();
 }
 
 Qate::BlockData::LineFlags MyHighlighter::getBlockFlags(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return Qate::BlockData::LineFlag::Empty;
+    }
     return data->m_flags;
 }
 
 void MyHighlighter::clearMatchData(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return;
+    }
 }
 
 void MyHighlighter::addMatchData(QTextBlock &block, Qate::MatchData m) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return;
+    }
     data->matches << m;
 }
 
 QList<Qate::MatchData> MyHighlighter::getMatches(QTextBlock &block) {
     Qate::BlockData *data = getBlockData(block);
-    if (data == nullptr)
+    if (data == nullptr) {
         return QList<Qate::MatchData>();
+    }
     return data->matches;
 }
 
-QTextBlock MyHighlighter::getCurrentBlockProxy() {
-    return currentBlock();
-}
+QTextBlock MyHighlighter::getCurrentBlockProxy() { return currentBlock(); }
 
 Qate::BlockData *MyHighlighter::getBlockData(QTextBlock &block) {
-    QTextBlockUserData *userData  = block.userData();
-    Qate::BlockData    *blockData = nullptr;
+    QTextBlockUserData *userData = block.userData();
+    Qate::BlockData *blockData = nullptr;
 
-    if (userData == nullptr){
-        blockData =  new Qate::BlockData();
+    if (userData == nullptr) {
+        blockData = new Qate::BlockData();
         block.setUserData(blockData);
     } else {
-        blockData = dynamic_cast<Qate::BlockData*>(userData);
+        blockData = dynamic_cast<Qate::BlockData *>(userData);
     }
     return blockData;
 }
 
+TextEditorPlugin::TextEditorPlugin() {
+    name = tr("Text editor plugin - based on QtSourceView");
+    author = tr("Diego Iastrubni <diegoiast@gmail.com>");
+    iVersion = 0;
+    sVersion = "0.0.1";
+    autoEnabled = true;
+    alwaysEnabled = false;
 
+    actionNewFile = new QAction(tr("New blank file"), this);
+    actionNewCPP = new QAction(tr("New source"), this);
+    actionNewHeader = new QAction(tr("New header"), this);
+    myNewActions = new QActionGroup(this);
+    myNewActions->addAction(actionNewFile);
+    myNewActions->addAction(actionNewCPP);
+    myNewActions->addAction(actionNewHeader);
 
-TextEditorPlugin::TextEditorPlugin()
-{
-	name = tr("Text editor plugin - based on QtSourceView");
-	author = tr("Diego Iastrubni <diegoiast@gmail.com>");
-	iVersion = 0;
-	sVersion = "0.0.1";
-	autoEnabled = true;
-	alwaysEnabled = false;
-	
-	actionNewFile	= new QAction( tr("New blank file"), this  );
-	actionNewCPP	= new QAction( tr("New source"), this );
-	actionNewHeader	= new QAction( tr("New header"), this );
-	myNewActions	= new QActionGroup(this);
-	myNewActions->addAction( actionNewFile );
-	myNewActions->addAction( actionNewCPP );
-	myNewActions->addAction( actionNewHeader );
+    editorColors = new QsvColorDefFactory("lib/qtsourceview/data/colors/kate.xml");
+    QsvLangDefFactory::getInstanse()->loadDirectory("lib/qtsourceview/data/langs/");
 
-    editorColors = new QsvColorDefFactory( "lib/qtsourceview/data/colors/kate.xml" );
-    QsvLangDefFactory::getInstanse()->loadDirectory( "lib/qtsourceview/data/langs/" );
-
-	connect( myNewActions, SIGNAL(triggered(QAction*)), this, SLOT(fileNew(QAction*)));
+    connect(myNewActions, SIGNAL(triggered(QAction *)), this, SLOT(fileNew(QAction *)));
 }
 
-TextEditorPlugin::~TextEditorPlugin()
-{
+TextEditorPlugin::~TextEditorPlugin() {}
+
+void TextEditorPlugin::showAbout() {
+    QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
+                             "This pluging gives a QtSourceView based text edito");
 }
 
-void	TextEditorPlugin::showAbout()
-{
-	QMessageBox::information( dynamic_cast<QMainWindow*>(mdiServer), "About", "This pluging gives a QtSourceView based text edito" );
+QWidget *TextEditorPlugin::getConfigDialog() { return NULL; }
+
+QActionGroup *TextEditorPlugin::newFileActions() { return myNewActions; }
+
+QStringList TextEditorPlugin::myExtensions() {
+    QStringList s;
+    s << tr("Sources", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc)";
+    s << tr("Headers", "EditorPlugin::myExtensions") + " (*.h *.hpp *.hxx *.inc)";
+    s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
+    s << tr("Qt project", "EditorPlugin::myExtensions") + " (*.pro *.pri)";
+    s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
+
+    return s;
 }
 
-QWidget*	TextEditorPlugin::getConfigDialog()
-{
-	return NULL;
+int TextEditorPlugin::canOpenFile(const QString fileName) {
+    QUrl u(fileName);
+
+    // if the scheme is a single line, lets assume this is a windows drive
+    if (u.scheme().length() != 1) {
+        if ((u.scheme().toLower() != "file") && (!u.scheme().isEmpty())) {
+            return -2;
+        }
+    }
+
+    if (fileName.endsWith(".c", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".cpp", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".cxx", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".h", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".hpp", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".hxx", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".inc", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".pro", Qt::CaseInsensitive)) {
+        return 5;
+    } else if (fileName.endsWith(".pri", Qt::CaseInsensitive)) {
+        return 5;
+    } else {
+        return 1;
+    }
 }
 
+bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
+    qmdiEditor *editor = new qmdiEditor(fileName, dynamic_cast<QMainWindow *>(mdiServer));
 
-QActionGroup*	TextEditorPlugin::newFileActions()
-{
-	return myNewActions;
-}
-
-QStringList	TextEditorPlugin::myExtensions()
-{
-	QStringList s;
-	s << tr("Sources"	, "EditorPlugin::myExtensions")	+ " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc)";
-	s << tr("Headers"	, "EditorPlugin::myExtensions")	+ " (*.h *.hpp *.hxx *.inc)";
-	s << tr("Text files"	, "EditorPlugin::myExtensions")	+ " (*.txt)";
-		s << tr("Qt project"	, "EditorPlugin::myExtensions")	+ " (*.pro *.pri)";
-	s << tr("All files"	, "EditorPlugin::myExtensions")	+ " (*.*)";
-	
-	return s;
-}
-
-int	TextEditorPlugin::canOpenFile( const QString fileName )
-{
-	QUrl u(fileName);
-
-	// if the scheme is a single line, lets assume this is a windows drive
-	if (u.scheme().length() != 1)
-		if ( (u.scheme().toLower() != "file") && (!u.scheme().isEmpty()) )
-			return -2;
-
-	if (fileName.endsWith(".c", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".cpp", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".cxx", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".h", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".hpp", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".hxx", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".inc", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".pro", Qt::CaseInsensitive))
-		return 5;
-	else if (fileName.endsWith(".pri", Qt::CaseInsensitive))
-		return 5;
-	else return 1;
-}
-
-bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
-{
-	qmdiEditor *editor = new qmdiEditor( fileName, dynamic_cast<QMainWindow*>(mdiServer) );
-
-    auto langDefinition   = QsvLangDefFactory::getInstanse()->getHighlight(editor->mdiClientFileName());
+    auto langDefinition =
+        QsvLangDefFactory::getInstanse()->getHighlight(editor->mdiClientFileName());
     auto highlighter = new MyHighlighter(editor->document());
     highlighter->setColorsDef(editorColors);
     highlighter->setHighlight(langDefinition);
@@ -230,27 +227,22 @@ bool	TextEditorPlugin::openFile( const QString fileName, int x, int y, int z )
     editor->setHighlighter(highlighter);
     mdiServer->addClient(editor);
 
-	// TODO
-	// 1) move the cursor as specified in the parameters
-	// 2) return false if the was was not open for some reason
-	return true;
-	Q_UNUSED( x );
-	Q_UNUSED( y );
-	Q_UNUSED( z );
+    // TODO
+    // 1) move the cursor as specified in the parameters
+    // 2) return false if the was was not open for some reason
+    return true;
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(z);
 }
 
-void	TextEditorPlugin::getData()
-{
-}
+void TextEditorPlugin::getData() {}
 
-void	TextEditorPlugin::setData()
-{
-}
+void TextEditorPlugin::setData() {}
 
-void TextEditorPlugin::fileNew( QAction * )
-{
-	qmdiEditor *editor = new qmdiEditor( tr("NO NAME"), dynamic_cast<QMainWindow*>(mdiServer) );
+void TextEditorPlugin::fileNew(QAction *) {
+    qmdiEditor *editor = new qmdiEditor(tr("NO NAME"), dynamic_cast<QMainWindow *>(mdiServer));
     auto *highlighter = new MyHighlighter(editor->document());
-	editor->setHighlighter(highlighter);
-	mdiServer->addClient( editor );
+    editor->setHighlighter(highlighter);
+    mdiServer->addClient(editor);
 }
