@@ -53,16 +53,13 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(gui->filterOutFiles, &QLineEdit::textChanged,
             [this](const QString &newText) { filesFilterModel->setFilterOutWildcard(newText); });
 
-    auto *w2 = new ProjectSearch(manager);
+    auto *w2 = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, "Search", w2);
 
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
-    connect(projectSearch, &QAction::triggered, [seachID, manager]() {
-        qDebug("Selecting the project search");
-        qDebug("ayay");
-        manager->showPanel(Panels::West, seachID);
-    });
+    connect(projectSearch, &QAction::triggered,
+            [seachID, manager]() { manager->showPanel(Panels::West, seachID); });
     manager->addAction(projectSearch);
 }
 
