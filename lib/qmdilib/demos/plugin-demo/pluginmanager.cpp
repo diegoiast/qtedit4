@@ -242,7 +242,6 @@ PluginManager::PluginManager() {
     addAction(actionPrevTab);
     addAction(actionHideGUI);
 
-    metaObject()->connectSlotsByName(this);
     initGUI();
 }
 
