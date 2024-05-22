@@ -674,6 +674,26 @@ void PluginManager::hidePanel(Panels p) {
     }
 }
 
+void PluginManager::showPanel(Panels p, int index) {
+    QTabWidget *t = nullptr;
+    switch (p) {
+    case Panels::East:
+        t = this->ui->eastPanel;
+        break;
+    case Panels::West:
+        t = this->ui->westPanel;
+        break;
+    case Panels::South:
+        t = this->ui->southPanel;
+        break;
+    }
+    assert(t != nullptr);
+    for (int i = 0; i < t->count(); ++i) {
+        t->setCurrentIndex(index);
+        t->widget(index)->focusWidget();
+    }
+}
+
 int PluginManager::createNewPanel(Panels p, QString name, QWidget *widget) {
     QTabWidget *t = nullptr;
     switch (p) {
