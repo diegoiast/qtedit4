@@ -6,8 +6,7 @@
  * \see FileSystemBrowser
  */
 
-#ifndef FILESYSTEMBROWSER_H
-#define FILESYSTEMBROWSER_H
+#pragma once
 
 #include <QStack>
 #include <QWidget>
@@ -45,11 +44,9 @@ private slots:
   private:
     void updateActions();
 
-    QFileSystemModel *m_dirModel;
-    QString m_currentPath;
-    QStack<QString> m_history;
-    QStack<QString> m_future;
-    QCompleter *m_completer;
+    QFileSystemModel *dirModel;
+    QString currentPath;
+    QStack<QString> history;
+    QStack<QString> future;
+    QCompleter *completer;
 };
-
-#endif
