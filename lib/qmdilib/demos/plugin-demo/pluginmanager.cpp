@@ -243,6 +243,30 @@ PluginManager::PluginManager() {
     addAction(actionHideGUI);
 
     initGUI();
+
+    for (int i = 0; i < 8; ++i) {
+        auto tabSelectShortcut = new QAction(this);
+        auto key = static_cast<Qt::Key>(Qt::Key_1 + i);
+        tabSelectShortcut->setShortcut(QKeySequence(Qt::AltModifier | key));
+        tabSelectShortcut->setShortcutContext(Qt::ApplicationShortcut);
+        connect(tabSelectShortcut, &QAction::triggered, this,
+                [=]() { tabWidget->setCurrentIndex(i); });
+        tabWidget->addAction(tabSelectShortcut);
+    }
+
+    // alt+9 will always send you to the last
+    {
+        auto tabSelectShortcut = new QAction(this);
+        tabSelectShortcut->setShortcut(QKeySequence(Qt::AltModifier | Qt::Key_9));
+        tabSelectShortcut->setShortcutContext(Qt::ApplicationShortcut);
+        connect(tabSelectShortcut, &QAction::triggered, this, [=]() {
+            auto size = tabWidget->count();
+            if (size > 0) {
+                tabWidget->setCurrentIndex(size - 1);
+            }
+        });
+        tabWidget->addAction(tabSelectShortcut);
+    }
 }
 
 /**
