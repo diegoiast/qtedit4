@@ -6,11 +6,12 @@
  * \see FileSystemBrowser
  */
 
-#include "filesystembrowser.h"
 #include <QCompleter>
 #include <QFileInfo>
 #include <QFileSystemModel>
 #include <QTimer>
+
+#include "filesystembrowser.h"
 
 FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f)
     : QWidget(parent, f)
@@ -20,29 +21,28 @@ FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f)
     this->forwardButton->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
     this->homeButton->setIcon(style()->standardIcon(QStyle::SP_DirHomeIcon));
     this->upButton->setIcon(style()->standardIcon(QStyle::SP_ArrowUp));
-    m_dirModel = new QFileSystemModel(this);
-    m_dirModel->setRootPath(QDir::rootPath());
-    m_dirModel->setReadOnly(false);
+    dirModel = new QFileSystemModel(this);
+    dirModel->setRootPath(QDir::rootPath());
+    dirModel->setReadOnly(false);
 
-    listView->setModel(m_dirModel);
-    treeView->setModel(m_dirModel);
+    listView->setModel(dirModel);
+    treeView->setModel(dirModel);
     treeView->setDragEnabled(true);
     treeView->setAcceptDrops(true);
 
-    listView->setModel(m_dirModel);
-    treeView->setModel(m_dirModel);
+    listView->setModel(dirModel);
+    treeView->setModel(dirModel);
     treeView->setDragEnabled(true);
     treeView->setAcceptDrops(true);
 
-    m_completer = new QCompleter(locationLineEdit);
-    m_completer->setModel(m_dirModel);
-    locationLineEdit->setCompleter(m_completer);
+    completer = new QCompleter(locationLineEdit);
+    completer->setModel(dirModel);
+    locationLineEdit->setCompleter(completer);
 
-    connect(m_completer, SIGNAL(activated(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
+    connect(completer, SIGNAL(activated(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(setRootPath()));
-    connect(listView, SIGNAL(doubleClicked(QModelIndex)), this,
-            SLOT(on_treeView_clicked(QModelIndex)));
-
+    connect(listView, &QAbstractItemView::clicked, this, &FileSystemBrowser::on_treeView_clicked);
+    
     QList<int> l;
     l << 0 << splitter->height();
     splitter->setSizes(l);
@@ -53,18 +53,18 @@ QTreeView *FileSystemBrowser::getTreeView() { return treeView; }
 
 QListView *FileSystemBrowser::getListView() { return listView; }
 
-QFileSystemModel *FileSystemBrowser::getDirModel() { return m_dirModel; }
+QFileSystemModel *FileSystemBrowser::getDirModel() { return dirModel; }
 
 void FileSystemBrowser::on_treeView_clicked(QModelIndex index) {
-    if (m_dirModel->fileInfo(index).isDir()) {
+    if (dirModel->fileInfo(index).isDir()) {
         setRootIndex(index);
     }
 }
 
 void FileSystemBrowser::on_backButton_clicked() {
-    m_future.push(m_currentPath);
-    m_currentPath = m_history.pop();
-    setRootPath(m_currentPath, false);
+    future.push(currentPath);
+//    currentPath = m_hist();
+    setRootPath(currentPath, false);
 }
 
 void FileSystemBrowser::on_homeButton_clicked() { setRootPath(QDir::homePath()); }
@@ -72,13 +72,12 @@ void FileSystemBrowser::on_homeButton_clicked() { setRootPath(QDir::homePath());
 void FileSystemBrowser::reloadButton_clicked() {}
 
 void FileSystemBrowser::on_forwardButton_clicked() {
-    m_history.push(m_currentPath);
-    m_currentPath = m_future.pop();
-    setRootPath(m_currentPath, false);
+    history.push(currentPath);
+    currentPath = future.pop();
+    setRootPath(currentPath, false);
 }
 
 void FileSystemBrowser::on_upButton_clicked() {
-    // 	setRootIndex(treeView->rootIndex().parent());
     setRootIndex(listView->rootIndex().parent());
 }
 
@@ -87,47 +86,47 @@ void FileSystemBrowser::on_filterEdit_textChanged(QString s) {
     if (s.isEmpty()) {
         filterEdit->setText("*.*");
     } else {
-        m_dirModel->setNameFilters(s.split(';'));
+        dirModel->setNameFilters(s.split(';'));
     }
 }
 
 void FileSystemBrowser::setRootPath(const QString &path, bool remember) {
     if (path.isNull()) {
-        setRootIndex(m_dirModel->index(locationLineEdit->text()), remember);
+        setRootIndex(dirModel->index(locationLineEdit->text()), remember);
     } else {
-        setRootIndex(m_dirModel->index(path), remember);
+        setRootIndex(dirModel->index(path), remember);
     }
 }
 
 void FileSystemBrowser::setRootIndex(const QModelIndex &index, bool remember) {
     QModelIndex dir = index.sibling(index.row(), 0);
 
-    if (!m_dirModel->isDir(dir)) {
+    if (!dirModel->isDir(dir)) {
         dir = dir.parent();
     }
 
-    if (dir != treeView->rootIndex() && m_dirModel->isDir(dir)) {
+    if (dir != treeView->rootIndex() && dirModel->isDir(dir)) {
         if (remember) {
-            m_future.clear();
-            m_history.push(m_currentPath);
-            m_currentPath = m_dirModel->filePath(dir);
+            future.clear();
+            history.push(currentPath);
+            currentPath = dirModel->filePath(dir);
         }
         listView->setRootIndex(dir);
         treeView->setCurrentIndex(index);
-        locationLineEdit->setText(m_dirModel->filePath(dir));
+        locationLineEdit->setText(dirModel->filePath(dir));
     }
 
     updateActions();
 }
 
 void FileSystemBrowser::init() {
-    m_currentPath = QDir::homePath();
-    setRootPath(m_currentPath, false);
+    currentPath = QDir::homePath();
+    setRootPath(currentPath, false);
 }
 
 void FileSystemBrowser::updateActions() {
-    backButton->setEnabled(!m_history.isEmpty());
-    forwardButton->setEnabled(!m_future.isEmpty());
+    backButton->setEnabled(!history.isEmpty());
+    forwardButton->setEnabled(!future.isEmpty());
     // 	upButton->setEnabled(m_dirModel->fileInfo(treeView->rootIndex()).isRoot());
 }
 
