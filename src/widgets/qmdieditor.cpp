@@ -164,11 +164,14 @@ bool qmdiEditor::canCloseClient() {
     }
 
     // ask for saving
-    int ret = QMessageBox::warning(
-        this, tr("Application"),
-        tr("The document has been modified.\nDo you want to save your changes?"),
-        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
-        QMessageBox::Cancel | QMessageBox::Escape);
+    QMessageBox msgBox(QMessageBox::Warning, tr("Application"),
+                       tr("The document has been modified.\nDo you want to save your changes?"),
+                       QMessageBox::Yes | QMessageBox::Default, this);
+
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+
+    int ret = msgBox.exec();
 
     if (ret == QMessageBox::Yes) {
         // 		TODO
