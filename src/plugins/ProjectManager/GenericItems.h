@@ -21,12 +21,12 @@ class DirectoryModel : public QAbstractTableModel {
     void addDirectory(const QString &path);
     void removeDirectory(const QString &path);
 
+    QStringList fileList;
+    QStringList directoryList;
+
   private:
     void addDirectoryImpl(const QDir &directory);
     void removeDirectoryImpl(const QDir &directory);
-
-    QStringList fileList;
-    QStringList directoryList;
 };
 
 class FilterOutProxyModel : public QSortFilterProxyModel {
