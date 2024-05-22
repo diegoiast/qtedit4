@@ -8,7 +8,6 @@
 
 #include <QAction>
 #include <QDockWidget>
-#include <QDockWidget>
 #include <QFileSystemModel>
 #include <QMainWindow>
 #include <QMessageBox>
@@ -32,7 +31,7 @@ FSBrowserPlugin::FSBrowserPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-	m_fsBrowser	= NULL;
+    m_fsBrowser = NULL;
 }
 
 FSBrowserPlugin::~FSBrowserPlugin() {}

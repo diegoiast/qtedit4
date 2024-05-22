@@ -263,9 +263,9 @@ PluginManager::~PluginManager() {
     }
 
     foreach (IPlugin *p, plugins) {
-        if (plugins.removeAll(p) == 1)
+        if (plugins.removeAll(p) == 1) {
             delete p;
-        else {
+        } else {
             qDebug("%s - %d: could not remove plugin from the plugin manager (%s)", __FILE__,
                    __LINE__, qPrintable(p->getName()));
             return;
@@ -294,16 +294,19 @@ PluginManager::~PluginManager() {
  * \see openFile()
  */
 int PluginManager::tabForFileName(QString fileName) {
-    if (fileName.isEmpty())
+    if (fileName.isEmpty()) {
         return -1;
+    }
 
     for (int i = 0; i < tabWidget->count(); i++) {
         qmdiClient *c = dynamic_cast<qmdiClient *>(tabWidget->widget(i));
-        if (!c)
+        if (!c) {
             continue;
+        }
 
-        if (c->mdiClientFileName() == fileName)
+        if (c->mdiClientFileName() == fileName) {
             return i;
+        }
     }
     return -1;
 }
@@ -325,8 +328,9 @@ int PluginManager::tabForFileName(QString fileName) {
  */
 void PluginManager::setNativeSettingsManager(const QString &organization,
                                              const QString &application) {
-    if (settingsManager)
+    if (settingsManager) {
         delete settingsManager;
+    }
     settingsManager = new QSettings(organization, application);
 }
 
@@ -345,8 +349,9 @@ void PluginManager::setNativeSettingsManager(const QString &organization,
  * \see QSettings
  */
 void PluginManager::setFileSettingsManager(const QString &fileName) {
-    if (settingsManager)
+    if (settingsManager) {
         delete settingsManager;
+    }
     settingsManager = new QSettings(fileName, QSettings::IniFormat);
 }
 
@@ -372,8 +377,9 @@ void PluginManager::setFileSettingsManager(const QString &fileName) {
  * \see updateActionsStatus()
  */
 void PluginManager::restoreSettings() {
-    if (!settingsManager)
+    if (!settingsManager) {
         return;
+    }
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
     QApplication::processEvents();
@@ -394,18 +400,24 @@ void PluginManager::restoreSettings() {
 		}
 	show();
 #else
-    if (settingsManager->contains("state"))
+    if (settingsManager->contains("state")) {
         restoreState(settingsManager->value("state", saveState()).toByteArray());
-    if (settingsManager->contains("geometry"))
+    }
+    if (settingsManager->contains("geometry")) {
         restoreGeometry(settingsManager->value("geometry", saveGeometry()).toByteArray());
-    if (settingsManager->value("maximized", false).toBool())
+    }
+    if (settingsManager->value("maximized", false).toBool()) {
         setWindowState(windowState() | Qt::WindowMaximized);
-    if (settingsManager->contains("size"))
+    }
+    if (settingsManager->contains("size")) {
         resize(settingsManager->value("size", size()).toSize());
-    if (settingsManager->contains("location"))
+    }
+    if (settingsManager->contains("location")) {
         move(settingsManager->value("location", pos()).toPoint());
-    if (settingsManager->contains("hidegui"))
+    }
+    if (settingsManager->contains("hidegui")) {
         actionHideGUI->setChecked(settingsManager->value("hidegui", false).toBool());
+    }
 #endif
     settingsManager->endGroup();
 
@@ -416,8 +428,9 @@ void PluginManager::restoreSettings() {
     // restore opened files
     settingsManager->beginGroup("files");
     foreach (QString s, settingsManager->childKeys()) {
-        if (!s.startsWith("file"))
+        if (!s.startsWith("file")) {
             continue;
+        }
         QString fileName = settingsManager->value(s).toString();
         QApplication::processEvents();
         openFile(fileName);
@@ -425,8 +438,9 @@ void PluginManager::restoreSettings() {
 
     // re-select the current tab
     int current = settingsManager->value("current", -1).toInt();
-    if (current != -1)
+    if (current != -1) {
         tabWidget->setCurrentIndex(current);
+    }
 
     settingsManager->endGroup();
 
@@ -456,8 +470,9 @@ void PluginManager::restoreSettings() {
  * \see QSettings::sync()
  */
 void PluginManager::saveSettings() {
-    if (!settingsManager)
+    if (!settingsManager) {
         return;
+    }
 
     // main window state
     settingsManager->beginGroup("mainwindow");
@@ -477,12 +492,13 @@ void PluginManager::saveSettings() {
         settingsManager->beginGroup("files");
         for (int i = 0; i < tabWidget->count(); i++) {
             c = dynamic_cast<qmdiClient *>(tabWidget->widget(i));
-            if (!c)
+            if (!c) {
                 continue;
+            }
             s = c->mdiClientFileName();
-            if (!s.isEmpty())
+            if (!s.isEmpty()) {
                 settingsManager->setValue(QString("file%1").arg(i), s);
-            else {
+            } else {
                 settingsManager->setValue(QString("file%1").arg(i), "@");
             }
         }
@@ -550,8 +566,9 @@ bool PluginManager::openFile(QString fileName, int x, int y, int z) {
 
     // see which plugin is the most suited for openning this file
     foreach (p, plugins) {
-        if (!p->enabled)
+        if (!p->enabled) {
             continue;
+        }
 
         // is this plugin better then the selected?
         i = p->canOpenFile(fileName);
@@ -565,13 +582,15 @@ bool PluginManager::openFile(QString fileName, int x, int y, int z) {
     // ask best plugin to open the file
     if (bestPlugin) {
         bool fileOpened = bestPlugin->openFile(fileName, x, y, z);
-        if (fileOpened)
+        if (fileOpened) {
             updateActionsStatus();
+        }
         return fileOpened;
-    } else
+    } else {
         // no plugin can handle this file,
         // this should not happen, and usually means a bug
         return false;
+    }
 }
 
 /**
@@ -686,21 +705,26 @@ QWidget *PluginManager::getPanel(Panels p, int index) {
 void PluginManager::addPlugin(IPlugin *newplugin) {
     plugins << newplugin;
 
-    if (!newplugin)
+    if (!newplugin) {
         return;
+    }
 
     newplugin->mdiServer = dynamic_cast<qmdiServer *>(tabWidget);
-    if (newplugin->alwaysEnabled)
+    if (newplugin->alwaysEnabled) {
         newplugin->autoEnabled = true;
+    }
 
-    if (newplugin->autoEnabled)
+    if (newplugin->autoEnabled) {
         newplugin->enabled = true;
+    }
 
-    if (newplugin->enabled)
+    if (newplugin->enabled) {
         enablePlugin(newplugin);
+    }
 
-    if (settingsManager)
+    if (settingsManager) {
         newplugin->loadConfig(*settingsManager);
+    }
 }
 
 /**
@@ -714,14 +738,15 @@ void PluginManager::addPlugin(IPlugin *newplugin) {
  * \see disablePlugin
  */
 void PluginManager::removePlugin(IPlugin *oldplugin) {
-    if (!oldplugin)
+    if (!oldplugin) {
         return;
+    }
 
     disablePlugin(oldplugin);
 
-    if (plugins.removeAll(oldplugin) == 1)
+    if (plugins.removeAll(oldplugin) == 1) {
         delete oldplugin;
-    else {
+    } else {
         qDebug("%s - %d: could not remove plugin from the plugin manager (%s)", __FILE__, __LINE__,
                qPrintable(oldplugin->getName()));
         return;
@@ -744,8 +769,9 @@ void PluginManager::removePlugin(IPlugin *oldplugin) {
  * \see qmdiHost::mergeClient()
  */
 void PluginManager::enablePlugin(IPlugin *plugin) {
-    if (!plugin)
+    if (!plugin) {
         return;
+    }
 
     if (!plugins.contains(plugin)) {
         qDebug("%s - %d: tried to enable a plugin which was not part of the plugin "
@@ -762,8 +788,9 @@ void PluginManager::enablePlugin(IPlugin *plugin) {
     QAction *a;
     QActionGroup *ag;
     ag = plugin->newFileActions();
-    if (!ag)
+    if (!ag) {
         return;
+    }
 
     foreach (a, ag->actions()) {
         newFilePopup->addAction(a);
@@ -788,8 +815,9 @@ void PluginManager::enablePlugin(IPlugin *plugin) {
  * \see qmdiHost::unmergeClient()
  */
 void PluginManager::disablePlugin(IPlugin *plugin) {
-    if (!plugin)
+    if (!plugin) {
         return;
+    }
 
     if (!plugins.contains(plugin)) {
         qDebug("%s - %d: tried to disable a plugin which was not part of the "
@@ -899,10 +927,11 @@ void PluginManager::initGUI() {
  */
 void PluginManager::closeClient() {
     qmdiClient *client = dynamic_cast<qmdiClient *>(tabWidget->currentWidget());
-    if (client == NULL)
+    if (client == NULL) {
         tabWidget->currentWidget()->deleteLater();
-    else
+    } else {
         client->closeClient();
+    }
 }
 
 /**
@@ -928,8 +957,9 @@ void PluginManager::on_actionOpen_triggered() {
 
     // get list of available extensions to open from each plugin
     foreach (p, plugins) {
-        if (!p->enabled)
+        if (!p->enabled) {
             continue;
+        }
         extensAvailable << p->myExtensions();
     }
 
@@ -937,8 +967,9 @@ void PluginManager::on_actionOpen_triggered() {
     for (int i = 0; i < j; ++i) {
         QString s = extensAvailable.at(i);
         extens += s;
-        if (i < j - 1)
+        if (i < j - 1) {
             extens += ";;";
+        }
 
         QRegularExpression regexp("\\((.*)\\)");
         auto m = regexp.match(s);
@@ -958,8 +989,9 @@ void PluginManager::on_actionOpen_triggered() {
 
     QStringList s = QFileDialog::getOpenFileNames(NULL, tr("Choose a file"), workingDir, extens);
 
-    if (s.isEmpty())
+    if (s.isEmpty()) {
         return;
+    }
 
     openFiles(s);
 }
@@ -1029,8 +1061,9 @@ void PluginManager::on_actionConfigure_triggered() {
  */
 void PluginManager::on_actionPrev_triggered() {
     int i = tabWidget->currentIndex();
-    if (i == 0)
+    if (i == 0) {
         return;
+    }
 
     i--;
     tabWidget->setCurrentIndex(i);
@@ -1051,8 +1084,9 @@ void PluginManager::on_actionPrev_triggered() {
  */
 void PluginManager::on_actionNext_triggered() {
     int i = tabWidget->currentIndex();
-    if (i == tabWidget->count())
+    if (i == tabWidget->count()) {
         return;
+    }
 
     i++;
     tabWidget->setCurrentIndex(i);
@@ -1076,12 +1110,13 @@ void PluginManager::on_actionHideGUI_changed() {
     }
 
     foreach (QDockWidget *d, findChildren<QDockWidget *>()) {
-        if (!actionHideGUI->isChecked())
+        if (!actionHideGUI->isChecked()) {
             d->setFeatures(d->features() | QDockWidget::DockWidgetMovable |
                            QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetFloatable);
-        else
+        } else {
             d->setFeatures(d->features() & ~QDockWidget::DockWidgetMovable &
                            ~QDockWidget::DockWidgetClosable & ~QDockWidget::DockWidgetFloatable);
+        }
     }
 
     if (currentClient && !actionHideGUI->isChecked()) {

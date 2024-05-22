@@ -19,16 +19,15 @@ class QCompleter;
 class QTreeView;
 class QListView;
 
-class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser
-{
-	Q_OBJECT
-public:
+class FileSystemBrowser : public QWidget, public Ui::FileSystemBrowser {
+    Q_OBJECT
+  public:
     FileSystemBrowser(QWidget *parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
     QTreeView *getTreeView();
     QListView *getListView();
     QFileSystemModel *getDirModel();
 
-private slots:
+  private slots:
     void on_upButton_clicked();
     void on_backButton_clicked();
     void on_homeButton_clicked();

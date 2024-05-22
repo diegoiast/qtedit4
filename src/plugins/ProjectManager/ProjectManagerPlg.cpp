@@ -28,15 +28,17 @@ void ProjectManagerPlugin::showAbout() {
                              "The project manager plugin");
 }
 
-void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
-{
+void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     auto manager = dynamic_cast<PluginManager *>(host);
     auto *w = new QWidget;
     gui = new Ui::ProjectManagerGUI;
     gui->setupUi(w);
-    connect(gui->addDirectory, &QAbstractButton::clicked, this, &ProjectManagerPlugin::on_addDirectory_clicked);
-    connect(gui->removeDirectory, &QAbstractButton::clicked, this, &ProjectManagerPlugin::on_removeDirectory_clicked);
-    connect(gui->filesView, &QAbstractItemView::clicked, this, &ProjectManagerPlugin::onItemClicked);
+    connect(gui->addDirectory, &QAbstractButton::clicked, this,
+            &ProjectManagerPlugin::on_addDirectory_clicked);
+    connect(gui->removeDirectory, &QAbstractButton::clicked, this,
+            &ProjectManagerPlugin::on_removeDirectory_clicked);
+    connect(gui->filesView, &QAbstractItemView::clicked, this,
+            &ProjectManagerPlugin::onItemClicked);
     manager->createNewPanel(Panels::West, QString("Project"), w);
 
     directoryModel = new DirectoryModel(this);
@@ -51,10 +53,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host)
             [this](const QString &newText) { filesFilterModel->setFilterOutWildcard(newText); });
 }
 
-void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host)
-{
-    Q_UNUSED(host);
-}
+void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     settings.beginGroup("ProjectManager");
