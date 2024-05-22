@@ -111,8 +111,6 @@ void qmdiTabWidget::tabChanged(int i) {
     if (w == activeWidget)
         return;
 
-    // thanks to Nox PasNox <pasnox@gmail.com> for this code
-    // it enables the usage of QWorspace as a self contained qmdiServer
     if (activeWidget) {
         mdiHost->unmergeClient(dynamic_cast<qmdiClient *>(activeWidget));
     }
@@ -121,57 +119,11 @@ void qmdiTabWidget::tabChanged(int i) {
 
     if (activeWidget) {
         mdiHost->mergeClient(dynamic_cast<qmdiClient *>(activeWidget));
-#if QT_VERSION < 0x050000 // supported on Qt4.x only
-        QWorkspace *ws = qobject_cast<QWorkspace *>(activeWidget);
-        if (ws)
-            mdiHost->mergeClient(dynamic_cast<qmdiClient *>(ws->activeWindow()));
-#endif
     }
 
     QMainWindow *m = dynamic_cast<QMainWindow *>(mdiHost);
     mdiHost->updateGUI(m);
 }
-
-#if QT_VERSION < 0x050000 // supported on Qt4.x only
-/**
- * \brief callback function for notifying of a new QWorkspace child activated
- * \param w the widget which now has the focus on the work space
- *
- * Since qmdilib 0.0.3 it's possible to insert a QWorkspace into
- * a QTabWidget and when a new child will be focused on the QWorkspace
- * it's menus will be merged, just like it a normal widget on the qmdiTabWidget.
- *
- * This slow it automatically connected by tabInserted(int).
- *
- * Thanks to Nox PasNox (pasnox@gmail.com) for this code.
- *
- * \since 0.0.3
- * \see tabInserted( int )
- * \see tabChanged( int )
- */
-void qmdiTabWidget::workSpaceWindowActivated(QWidget *w) {
-    static qmdiClient *last = nullptr;
-
-    if (mdiHost == nullptr)
-        mdiHost = dynamic_cast<qmdiHost *>(parentWidget());
-
-    if (mdiHost == nullptr)
-        return;
-
-    QWorkspace *workspace = qobject_cast<QWorkspace *>(sender());
-    if (workspace == nullptr)
-        return;
-
-    QWidgetList l = workspace->windowList();
-    qmdiClient *client = dynamic_cast<qmdiClient *>(w);
-    mdiHost->unmergeClient(last);
-    mdiHost->mergeClient(client);
-    last = client;
-
-    QMainWindow *m = dynamic_cast<QMainWindow *>(mdiHost);
-    mdiHost->updateGUI(m);
-}
-#endif
 
 /**
  * \brief mouse middle button click callback
