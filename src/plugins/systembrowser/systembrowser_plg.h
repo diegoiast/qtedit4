@@ -28,4 +28,3 @@ class FSBrowserPlugin : public IPlugin {
   private:
     FileSystemBrowser *m_fsBrowser;
 };
-

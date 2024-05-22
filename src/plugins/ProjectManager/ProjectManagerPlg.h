@@ -35,7 +35,7 @@ class ProjectManagerPlugin : public IPlugin {
     void on_addDirectory_clicked(bool checked);
     void on_removeDirectory_clicked(bool checked);
 
-private:
+  private:
     int panelIndex = -1;
     FilterOutProxyModel *filesFilterModel;
     DirectoryModel *directoryModel;

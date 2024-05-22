@@ -13,9 +13,7 @@
 
 #include "filesystembrowser.h"
 
-FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f)
-    : QWidget(parent, f)
-{
+FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
     setupUi(this);
     this->backButton->setIcon(style()->standardIcon(QStyle::SP_ArrowBack));
     this->forwardButton->setIcon(style()->standardIcon(QStyle::SP_ArrowForward));
@@ -42,7 +40,7 @@ FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f)
     connect(completer, SIGNAL(activated(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(setRootPath()));
     connect(listView, &QAbstractItemView::clicked, this, &FileSystemBrowser::on_treeView_clicked);
-    
+
     QList<int> l;
     l << 0 << splitter->height();
     splitter->setSizes(l);
@@ -63,7 +61,7 @@ void FileSystemBrowser::on_treeView_clicked(QModelIndex index) {
 
 void FileSystemBrowser::on_backButton_clicked() {
     future.push(currentPath);
-//    currentPath = m_hist();
+    //    currentPath = m_hist();
     setRootPath(currentPath, false);
 }
 
@@ -77,9 +75,7 @@ void FileSystemBrowser::on_forwardButton_clicked() {
     setRootPath(currentPath, false);
 }
 
-void FileSystemBrowser::on_upButton_clicked() {
-    setRootIndex(listView->rootIndex().parent());
-}
+void FileSystemBrowser::on_upButton_clicked() { setRootIndex(listView->rootIndex().parent()); }
 
 void FileSystemBrowser::on_filterEdit_textChanged(QString s) {
     s = s.simplified();

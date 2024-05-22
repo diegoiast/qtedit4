@@ -6,6 +6,8 @@
  * \see HelpPlugin
  */
 
+#pragma once
+
 #include "iplugin.h"
 
 class QAction;
