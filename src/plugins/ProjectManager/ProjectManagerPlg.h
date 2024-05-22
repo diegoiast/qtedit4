@@ -16,7 +16,7 @@ class FilterOutProxyModel;
 
 namespace Ui {
 class ProjectManagerGUI;
-}
+} // namespace Ui
 
 class ProjectManagerPlugin : public IPlugin {
     Q_OBJECT
