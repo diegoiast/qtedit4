@@ -27,6 +27,8 @@ class TextEditorPlugin : public IPlugin {
     void getData();
     void setData();
 
+    void gotoLine(int lineNumber, int column);
+
   public slots:
     void fileNew(QAction *);
 

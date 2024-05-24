@@ -29,6 +29,8 @@ class qmdiEditor : public QsvTextEdit, public qmdiClient {
     bool canCloseClient();
     QString mdiClientFileName();
 
+    void gotoLine(int linenumber, int rownumber);
+
   private:
     QsvTextOperationsWidget *operationsWidget;
     QString getShortFileName();

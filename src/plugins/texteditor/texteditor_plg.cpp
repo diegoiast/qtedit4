@@ -227,12 +227,11 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     editor->setHighlighter(highlighter);
     mdiServer->addClient(editor);
 
+    editor->gotoLine(x, y);
     // TODO
     // 1) move the cursor as specified in the parameters
     // 2) return false if the was was not open for some reason
     return true;
-    Q_UNUSED(x);
-    Q_UNUSED(y);
     Q_UNUSED(z);
 }
 
