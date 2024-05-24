@@ -13,7 +13,6 @@ void searchFile(const std::string &filename, const std::string &searchString,
                 std::function<void(const std::string &, size_t)> callback) {
     std::ifstream file(filename);
     if (!file.is_open()) {
-        //        std::cerr << "Error: Unable to open file: " << filename << std::endl;
         return;
     }
 
@@ -23,7 +22,6 @@ void searchFile(const std::string &filename, const std::string &searchString,
     while (std::getline(file, line)) {
         lineNumner++;
         if (line.find(searchString) != std::string::npos) {
-            //            qDebug("Found %lu: %s", lineNumner, line.c_str());
             callback(line, lineNumner);
         }
     }
