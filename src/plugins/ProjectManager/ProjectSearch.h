@@ -10,6 +10,11 @@ class ProjectSearchGUI;
 class DirectoryModel;
 class QTreeWidgetItem;
 
+struct FoundData {
+    std::string line;
+    size_t lineNumber = 0;
+};
+
 class ProjectSearch : public QWidget {
     Q_OBJECT
 
@@ -20,7 +25,7 @@ class ProjectSearch : public QWidget {
   public slots:
     void on_searchButton_clicked();
   private slots:
-    void on_line_found(QTreeWidgetItem *item);
+    void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *data);
 
   private:
     Ui::ProjectSearchGUI *ui;

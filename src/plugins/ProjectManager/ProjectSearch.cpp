@@ -21,7 +21,7 @@ void searchFile(const std::string &filename, const std::string &searchString,
     while (std::getline(file, line)) {
         lineNumner++;
         if (line.find(searchString) != std::string::npos) {
-            qDebug("Found %lu: %s", lineNumner, line.c_str());
+            //            qDebug("Found %lu: %s", lineNumner, line.c_str());
             callback(line, lineNumner);
         }
     }
@@ -35,9 +35,10 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     QStringList headerLabels;
     headerLabels << tr("Text") << tr("Line");
     ui->treeWidget->setHeaderLabels(headerLabels);
-    ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::Fixed);
-    ui->treeWidget->header()->resizeSection(1, 30);
+    //    ui->treeWidget->header()->resizeSection(1, 30);
+    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::Stretch);
+    //    ui->treeWidget->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->searchFor->setFocus();
     //    ui->treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
@@ -45,31 +46,57 @@ ProjectSearch::~ProjectSearch() { delete ui; }
 
 void ProjectSearch::on_searchButton_clicked() {
     this->ui->treeWidget->clear();
+
     QtConcurrent::run([=]() {
         qDebug("Started");
         auto text = ui->searchFor->text().toStdString();
 
-        for (auto const &s : model->fileList) {
-            auto filename = s.toStdString();
+        for (auto const &fullFileName : model->fileList) {
+            auto shortFilename = fullFileName;
 
-            QTreeWidgetItem *fileItem = new QTreeWidgetItem(ui->treeWidget);
-            fileItem->setText(0, s);
-            searchFile(filename, text, [&filename, &text, fileItem](auto line, auto line_number) {
-                QTreeWidgetItem *lineItem = new QTreeWidgetItem(fileItem);
-                lineItem->setText(1, QString::number(line_number));
-                lineItem->setText(0, QString::fromStdString(line));
+            for (auto &d : model->directoryList) {
+                if (!fullFileName.startsWith(d)) {
+                    continue;
+                }
+                // also trim the trailing slash
+                shortFilename = fullFileName.mid(d.size() + 1);
+                break;
+            }
+
+            auto *foundData = new QList<FoundData>;
+            searchFile(shortFilename.toStdString(), text, [foundData](auto line, auto line_number) {
+                foundData->push_back({line, line_number});
             });
-            if (fileItem->childCount() == 0) {
-                delete fileItem;
+
+            if (!foundData->empty()) {
+                // clang-format off
+                QMetaObject::invokeMethod(
+                    this, "file_searched", Qt::QueuedConnection,
+                    Q_ARG(QString, fullFileName),
+                    Q_ARG(QString, shortFilename),
+                    Q_ARG(QList<FoundData>*, foundData)
+                );
+                // clang-format on
             } else {
-                QMetaObject::invokeMethod(this, "on_line_found", Qt::QueuedConnection,
-                                          Q_ARG(QTreeWidgetItem *, fileItem));
+                delete foundData;
             }
         }
-        qDebug("done");
     });
 }
 
-void ProjectSearch::on_line_found(QTreeWidgetItem *item) {
-    this->ui->treeWidget->addTopLevelItem(item);
+void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
+                                  QList<FoundData> *data) {
+    QTreeWidgetItem *dirItem = new QTreeWidgetItem(ui->treeWidget);
+    dirItem->setText(0, shortFileName);
+    dirItem->setText(2, fullFileName);
+    dirItem->setToolTip(0, fullFileName);
+
+    for (auto s : *data) {
+        QTreeWidgetItem *lineItem = new QTreeWidgetItem(dirItem);
+        lineItem->setText(0, QString::fromStdString(s.line));
+        lineItem->setText(1, QString::number(s.lineNumber));
+        lineItem->setToolTip(0, shortFileName);
+        lineItem->setToolTip(1, shortFileName);
+    }
+    delete data;
 }
