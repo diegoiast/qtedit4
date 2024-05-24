@@ -5,6 +5,8 @@
 
 #include <fstream>
 #include <functional>
+#include <pluginmanager.h>
+#include <qmdihost.h>
 #include <string>
 
 void searchFile(const std::string &filename, const std::string &searchString,
@@ -39,6 +41,16 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->searchFor->setFocus();
+
+    auto host = dynamic_cast<PluginManager *>(parent);
+    QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked,
+                     [this, host](QTreeWidgetItem *item, int column) {
+                         auto parent = item->parent();
+                         auto fileName = parent->text(2);
+                         auto line = item->text(1).toInt();
+                         host->openFile(fileName, line);
+                         host->focusCenter();
+                     });
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
