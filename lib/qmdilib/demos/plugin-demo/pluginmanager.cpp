@@ -979,6 +979,17 @@ void PluginManager::closeClient() {
 }
 
 /**
+ * @brief Set the focus on the currently active tab
+ *
+ * Will focus the tab widget and then set the focus to the content of the
+ * current tab.
+ */
+void PluginManager::focusCenter() {
+    tabWidget->setFocus();
+    tabWidget->currentWidget()->setFocus();
+}
+
+/**
  * \brief show the open dialog and load files
  *
  * This slot is connected to the \b triggered signal of the actionOpen. It will

@@ -56,6 +56,7 @@ class PluginManager : public QMainWindow, public qmdiHost {
     void enablePlugin(IPlugin *plugin);
     void disablePlugin(IPlugin *plugin);
     void closeClient();
+    void focusCenter();
 
     void on_actionOpen_triggered();
     void on_actionClose_triggered();
