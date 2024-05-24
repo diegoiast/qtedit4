@@ -134,6 +134,7 @@ qmdiEditor::~qmdiEditor() {
     // 	textOperationsMenu->deleteLater();
     // 	delete bookmarksMenu;
     // 	delete textOperationsMenu;
+    mdiServer = nullptr;
 }
 
 QString qmdiEditor::getShortFileName() {
