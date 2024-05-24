@@ -10,6 +10,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyle>
+#include <QTextBlock>
+#include <QTextDocument>
 #include <qsvte/qsvtextoperationswidget.h>
 
 qmdiEditor::qmdiEditor(QString fName, QWidget *p) : QsvTextEdit(p) {
@@ -194,3 +196,13 @@ bool qmdiEditor::canCloseClient() {
  * and will tell the qmdiServer which file is opened by this mdi client.
  */
 QString qmdiEditor::mdiClientFileName() { return getFileName(); }
+
+void qmdiEditor::gotoLine(int linenumber, int rownumber) {
+    auto offset = document()->findBlockByLineNumber(linenumber).position();
+    auto cursor = textCursor();
+    cursor.setPosition(offset);
+    cursor.movePosition(cursor.StartOfBlock);
+    cursor.movePosition(cursor.Right, cursor.KeepAnchor, rownumber);
+    setTextCursor(cursor);
+    ensureCursorVisible();
+}
