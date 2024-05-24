@@ -80,3 +80,52 @@ void DirectoryModel::addDirectoryImpl(const QDir &dir) {
 }
 
 void DirectoryModel::removeDirectoryImpl(const QDir &directory) {}
+
+bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList) {
+    if (!badList.isEmpty()) {
+        auto list = badList.split(";");
+        for (const auto &rule : list) {
+            if (rule.length() < 3) {
+                continue;
+            }
+            auto clean_rule = rule.trimmed();
+            if (clean_rule.isEmpty()) {
+                continue;
+            }
+            auto reOptions = QRegularExpression::CaseInsensitiveOption;
+            auto options = QRegularExpression::UnanchoredWildcardConversion;
+
+            QString pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            QString escapedFile = QRegularExpression::escape(fileName);
+            QRegularExpression regex(pattern);
+            bool matches = regex.match(escapedFile).hasMatch();
+            if (matches) {
+                return false;
+            }
+        }
+    }
+
+    bool filterMatchFound = true;
+    if (!goodList.isEmpty()) {
+        filterMatchFound = false;
+        auto list = goodList.split(";");
+        for (const auto &rule : list) {
+            auto clean_rule = rule.trimmed();
+            if (clean_rule.isEmpty()) {
+                continue;
+            }
+            auto reOptions = QRegularExpression::CaseInsensitiveOption;
+            auto options = QRegularExpression::UnanchoredWildcardConversion;
+
+            QString pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            QString escapedFile = QRegularExpression::escape(fileName);
+            QRegularExpression regex(pattern);
+            bool matches = regex.match(escapedFile).hasMatch();
+            if (matches) {
+                filterMatchFound = true;
+                break;
+            }
+        }
+    }
+    return filterMatchFound;
+}

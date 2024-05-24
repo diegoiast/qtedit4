@@ -49,7 +49,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     filesFilterModel->sort(0);
     gui->filesView->setModel(filesFilterModel);
     connect(gui->filterFiles, &QLineEdit::textChanged,
-            [this](const QString &newText) { filesFilterModel->setFilterWildcard(newText); });
+            [this](const QString &newText) { filesFilterModel->setFilterWildcards(newText); });
     connect(gui->filterOutFiles, &QLineEdit::textChanged,
             [this](const QString &newText) { filesFilterModel->setFilterOutWildcard(newText); });
 

@@ -8,6 +8,8 @@
 #include <QSortFilterProxyModel>
 #include <QString>
 
+bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList);
+
 class DirectoryModel : public QAbstractTableModel {
   public:
     DirectoryModel(QObject *parent = NULL);
@@ -33,6 +35,11 @@ class FilterOutProxyModel : public QSortFilterProxyModel {
   public:
     explicit FilterOutProxyModel(QObject *parent = nullptr) : QSortFilterProxyModel(parent) {}
 
+    void setFilterWildcards(const QString &wildcards) {
+        m_filterWildcards = wildcards;
+        invalidateFilter();
+    }
+
     void setFilterOutWildcard(const QString &wildcard) {
         m_filterOutWildcard = wildcard;
         invalidateFilter();
@@ -42,19 +49,7 @@ class FilterOutProxyModel : public QSortFilterProxyModel {
     bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override {
         QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
         QString filePath = sourceModel()->data(index, Qt::DisplayRole).toString();
-
-        if (!m_filterOutWildcard.isEmpty()) {
-            auto list = m_filterOutWildcard.split(";");
-            for (const auto &l : list) {
-                if (l.length() < 3) {
-                    continue;
-                }
-                if (QDir::match(filePath, l) || filePath.contains(l)) {
-                    return false;
-                }
-            }
-        }
-        return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
+        return FilenameMatches(filePath, m_filterWildcards, m_filterOutWildcard);
     }
 
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override {
@@ -83,5 +78,6 @@ class FilterOutProxyModel : public QSortFilterProxyModel {
     }
 
   private:
+    QString m_filterWildcards;
     QString m_filterOutWildcard;
 };
