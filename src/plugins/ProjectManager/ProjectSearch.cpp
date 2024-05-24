@@ -36,10 +36,9 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     headerLabels << tr("Text") << tr("Line");
     ui->treeWidget->setHeaderLabels(headerLabels);
     //    ui->treeWidget->header()->resizeSection(1, 30);
-    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::Stretch);
-    //    ui->treeWidget->header()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->searchFor->setFocus();
-    //    ui->treeWidget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
@@ -47,8 +46,9 @@ ProjectSearch::~ProjectSearch() { delete ui; }
 void ProjectSearch::on_searchButton_clicked() {
     this->ui->treeWidget->clear();
 
+    auto allowList = ui->includeFiles->text();
+    auto denyList = ui->excludeFiles->text();
     QtConcurrent::run([=]() {
-        qDebug("Started");
         auto text = ui->searchFor->text().toStdString();
 
         for (auto const &fullFileName : model->fileList) {
@@ -64,6 +64,9 @@ void ProjectSearch::on_searchButton_clicked() {
             }
 
             auto *foundData = new QList<FoundData>;
+            if (!FilenameMatches(fullFileName, allowList, denyList)) {
+                continue;
+            };
             searchFile(shortFilename.toStdString(), text, [foundData](auto line, auto line_number) {
                 foundData->push_back({line, line_number});
             });
@@ -99,4 +102,7 @@ void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
         lineItem->setToolTip(1, shortFileName);
     }
     delete data;
+    ui->treeWidget->expandItem(dirItem);
+    ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    //    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 }
