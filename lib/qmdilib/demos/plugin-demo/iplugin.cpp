@@ -455,6 +455,13 @@ bool IPlugin::openFile(QString fileName, int x, int y, int z) {
     Q_UNUSED(z);
 }
 
+void IPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
+    Q_UNUSED(client);
+    Q_UNUSED(x);
+    Q_UNUSED(y);
+    Q_UNUSED(z);
+}
+
 /**
  * \brief return the status of this plugin
  * \return the value of enabled

@@ -575,32 +575,34 @@ void PluginManager::updateActionsStatus() {
  * \todo how does a developer know why the loading of a file failed?
  */
 bool PluginManager::openFile(QString fileName, int x, int y, int z) {
-    // see if it's already open
-    int i = tabForFileName(fileName);
-    if (i != -1) {
-        tabWidget->setCurrentIndex(i);
-        return true;
-    }
-
-    // ok, not opened. who can open this file...?
-    IPlugin *bestPlugin = NULL;
-    IPlugin *p;
-    int highestScore = -1;
 
     // see which plugin is the most suited for openning this file
-    foreach (p, plugins) {
+    IPlugin *bestPlugin = NULL;
+    int highestScore = -1;
+    foreach (auto *p, plugins) {
         if (!p->enabled) {
             continue;
         }
 
         // is this plugin better then the selected?
-        i = p->canOpenFile(fileName);
+        auto i = p->canOpenFile(fileName);
 
         if (i > highestScore) {
             bestPlugin = p;
             highestScore = i; // bestPlugin->canOpenFile(fileName);
         }
     }
+
+    int i = tabForFileName(fileName);
+    // see if it's already open
+    if (i != -1) {
+        tabWidget->setCurrentIndex(i);
+        auto client = tabWidget->getClient(i);
+        bestPlugin->navigateFile(client, x, y, x);
+        return true;
+    }
+
+    // ok, not opened. who can open this file...?
 
     // ask best plugin to open the file
     if (bestPlugin) {

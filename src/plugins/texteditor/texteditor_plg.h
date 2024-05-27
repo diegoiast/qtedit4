@@ -24,10 +24,9 @@ class TextEditorPlugin : public IPlugin {
     QStringList myExtensions();
     int canOpenFile(const QString fileName);
     bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1);
+    void navigateFile(qmdiClient *client, int x, int y, int z);
     void getData();
     void setData();
-
-    void gotoLine(int lineNumber, int column);
 
   public slots:
     void fileNew(QAction *);

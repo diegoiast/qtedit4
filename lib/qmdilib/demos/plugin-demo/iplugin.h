@@ -40,6 +40,7 @@ class IPlugin : public QObject, public qmdiClient {
     virtual QStringList myExtensions();
     virtual int canOpenFile(const QString fileName);
     virtual bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1);
+    virtual void navigateFile(qmdiClient *client, int x, int y , int z );
 
     bool isEnabled();
     void setEnabled(bool enable);

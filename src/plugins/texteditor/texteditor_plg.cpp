@@ -235,6 +235,15 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     Q_UNUSED(z);
 }
 
+void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
+    auto *editor = dynamic_cast<qmdiEditor *>(client);
+    if (!editor) {
+        return;
+    }
+    editor->gotoLine(x, y);
+    Q_UNUSED(z);
+}
+
 void TextEditorPlugin::getData() {}
 
 void TextEditorPlugin::setData() {}
