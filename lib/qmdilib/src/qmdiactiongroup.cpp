@@ -524,7 +524,8 @@ void qmdiActionGroup::unmergeGroup(qmdiActionGroup *group) {
     if (breakCount > 0)
         breakAfter = true;
 
-    actionGroups.removeAt(actionGroups.indexOf(group));
+    if (actionGroups.contains(group))
+        actionGroups.removeAt(actionGroups.indexOf(group));
 }
 
 /**

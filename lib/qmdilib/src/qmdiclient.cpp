@@ -7,6 +7,7 @@
  */
 
 #include "qmdiclient.h"
+#include "qmdihost.h"
 #include "qmdiserver.h"
 #include <QObject>
 #include <QWidget>
@@ -177,10 +178,10 @@ qmdiClient::~qmdiClient() {
  */
 bool qmdiClient::closeClient() {
     if (canCloseClient()) {
+        this->mdiServer->mdiHost->unmergeClient(this);
         QObject *o = dynamic_cast<QObject *>(this);
         if (o) {
             QWidget *w = qobject_cast<QWidget *>(o);
-
             if (w)
                 w->hide();
             o->deleteLater();
