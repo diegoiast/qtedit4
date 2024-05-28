@@ -225,6 +225,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     highlighter->setHighlight(langDefinition);
     highlighter->rehighlight();
     editor->setHighlighter(highlighter);
+    editor->removeModifications();
     mdiServer->addClient(editor);
 
     editor->gotoLine(x, y);
