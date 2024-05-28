@@ -12,6 +12,7 @@
 #include <qsvsh/qsvlangdeffactory.h>
 #include <qsvsh/qsvsyntaxhighlighter.h>
 #include <qsvte/qsvsyntaxhighlighterbase.h>
+#include <qsvsh/qsvcolordef.h>
 
 #include "qmdieditor.h"
 #include "texteditor_plg.h"
@@ -226,6 +227,14 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     highlighter->rehighlight();
     editor->setHighlighter(highlighter);
     editor->removeModifications();
+    
+    QPalette p(editor->palette());         
+    QsvColorDef dsNormal = editorColors->getColorDef("dsNormal");          
+    if (dsNormal.getBackground().isValid()) {
+       p.setColor( QPalette::Base, dsNormal.getBackground() );
+       editor->setPalette(p);
+    }
+
     mdiServer->addClient(editor);
 
     editor->gotoLine(x, y);
