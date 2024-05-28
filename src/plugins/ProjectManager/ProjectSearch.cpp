@@ -20,10 +20,10 @@ void searchFile(const std::string &filename, const std::string &searchString,
     auto lineNumner = size_t(0);
 
     while (std::getline(file, line)) {
-        lineNumner++;
         if (line.find(searchString) != std::string::npos) {
             callback(line, lineNumner);
         }
+        lineNumner++;
     }
 }
 
