@@ -22,6 +22,8 @@ class ProjectSearch : public QWidget {
     explicit ProjectSearch(QWidget *parent, DirectoryModel *m);
     ~ProjectSearch();
 
+    void setFocusOnSearch();
+
   public slots:
     void on_searchButton_clicked();
   private slots:

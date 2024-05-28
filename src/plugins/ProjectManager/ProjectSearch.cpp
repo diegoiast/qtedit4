@@ -30,6 +30,7 @@ void searchFile(const std::string &filename, const std::string &searchString,
 ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     : QWidget(parent), ui(new Ui::ProjectSearchGUI) {
     ui->setupUi(this);
+    ui->searchFor->setFocus();
     this->model = m;
 
     QStringList headerLabels;
@@ -52,6 +53,8 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
+
+void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
 void ProjectSearch::on_searchButton_clicked() {
     this->ui->treeWidget->clear();
