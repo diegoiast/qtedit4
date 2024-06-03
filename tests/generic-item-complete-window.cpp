@@ -1,3 +1,5 @@
+#define NOMINMAX
+
 #include <QCompleter>
 #include <QDir>
 #include <QHeaderView>

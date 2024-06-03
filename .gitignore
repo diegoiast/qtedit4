@@ -1,3 +1,7 @@
-cbuild
+cbuild/
+build/
+dist/
+out/
 lib/build-*
 CMakeLists.txt.user
+.vs/

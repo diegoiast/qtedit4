@@ -47,8 +47,6 @@ void FSBrowserPlugin::on_client_merged(qmdiHost *host) {
 
     pluginManager->createNewPanel(Panels::West, "File system", m_fsBrowser);
 
-    connect(m_fsBrowser->getTreeView(), SIGNAL(activated(QModelIndex)), this,
-            SLOT(on_fileClick(QModelIndex)));
     connect(m_fsBrowser->getListView(), SIGNAL(activated(QModelIndex)), this,
             SLOT(on_fileClick(QModelIndex)));
 }

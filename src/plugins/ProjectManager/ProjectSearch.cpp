@@ -58,10 +58,9 @@ void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
 void ProjectSearch::on_searchButton_clicked() {
     this->ui->treeWidget->clear();
-
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
-    QtConcurrent::run([=]() {
+    QThreadPool::globalInstance()->start([=]() {
         auto text = ui->searchFor->text().toStdString();
 
         for (auto const &fullFileName : model->fileList) {

@@ -1,0 +1,3 @@
+lib
+lib/qmdilib/src/*.cpp
+lib/**/*.cpp

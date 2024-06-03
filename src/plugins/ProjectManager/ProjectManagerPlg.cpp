@@ -69,16 +69,16 @@ void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); 
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     settings.beginGroup("ProjectManager");
-    gui->filterOutFiles->setText(settings.value("FilterOut", "").toString());
-    gui->filterFiles->setText(settings.value("FilterIn", "").toString());
+    gui->filterOutFiles->setText(settings.value("filter_out", "").toString());
+    gui->filterFiles->setText(settings.value("filter_in", "").toString());
     filesFilterModel->invalidate();
     settings.endGroup();
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     settings.beginGroup("ProjectManager");
-    settings.setValue("FilterOut", gui->filterOutFiles->text());
-    settings.setValue("FilterIn", gui->filterFiles->text());
+    settings.setValue("filter_out", gui->filterOutFiles->text());
+    settings.setValue("filter_in", gui->filterFiles->text());
     settings.endGroup();
 }
 

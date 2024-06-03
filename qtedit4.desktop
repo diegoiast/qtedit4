@@ -1,0 +1,10 @@
+[Desktop Entry]
+Exec=qtedit4 %f
+Comment=Text editor
+Type=Application
+Icon=qtedit4
+Name=qtedit4
+StartupNotify=true
+Terminal=false
+Categories=Qt;TextEditor;Utility;
+MimeType=text/plain;

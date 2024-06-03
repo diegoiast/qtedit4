@@ -24,14 +24,7 @@ FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f) : QWidg
     dirModel->setReadOnly(false);
 
     listView->setModel(dirModel);
-    treeView->setModel(dirModel);
-    treeView->setDragEnabled(true);
-    treeView->setAcceptDrops(true);
-
-    listView->setModel(dirModel);
-    treeView->setModel(dirModel);
-    treeView->setDragEnabled(true);
-    treeView->setAcceptDrops(true);
+    listView->setEditTriggers(QAbstractItemView::EditKeyPressed);
 
     completer = new QCompleter(locationLineEdit);
     completer->setModel(dirModel);
@@ -39,7 +32,6 @@ FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f) : QWidg
 
     connect(completer, SIGNAL(activated(QModelIndex)), this, SLOT(setRootIndex(QModelIndex)));
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(setRootPath()));
-    connect(listView, &QAbstractItemView::clicked, this, &FileSystemBrowser::on_treeView_clicked);
 
     QList<int> l;
     l << 0 << splitter->height();
@@ -47,13 +39,11 @@ FileSystemBrowser::FileSystemBrowser(QWidget *parent, Qt::WindowFlags f) : QWidg
     QTimer::singleShot(0, this, SLOT(init()));
 }
 
-QTreeView *FileSystemBrowser::getTreeView() { return treeView; }
-
 QListView *FileSystemBrowser::getListView() { return listView; }
 
 QFileSystemModel *FileSystemBrowser::getDirModel() { return dirModel; }
 
-void FileSystemBrowser::on_treeView_clicked(QModelIndex index) {
+void FileSystemBrowser::on_listView_clicked(QModelIndex index) {
     if (dirModel->fileInfo(index).isDir()) {
         setRootIndex(index);
     }
@@ -101,14 +91,13 @@ void FileSystemBrowser::setRootIndex(const QModelIndex &index, bool remember) {
         dir = dir.parent();
     }
 
-    if (dir != treeView->rootIndex() && dirModel->isDir(dir)) {
+    if (dir != listView->rootIndex() && dirModel->isDir(dir)) {
         if (remember) {
             future.clear();
             history.push(currentPath);
             currentPath = dirModel->filePath(dir);
         }
         listView->setRootIndex(dir);
-        treeView->setCurrentIndex(index);
         locationLineEdit->setText(dirModel->filePath(dir));
     }
 
@@ -125,7 +114,3 @@ void FileSystemBrowser::updateActions() {
     forwardButton->setEnabled(!future.isEmpty());
     // 	upButton->setEnabled(m_dirModel->fileInfo(treeView->rootIndex()).isRoot());
 }
-
-// kate: space-indent off; tab-indent on; tab-width 8; indent-width 8; mixedindent off; indent-mode
-// cstyle; kate: syntax: c++; auto-brackets on; auto-insert-doxygen: on; end-of-line: unix kate:
-// show-tabs on;
