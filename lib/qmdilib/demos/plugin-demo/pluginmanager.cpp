@@ -267,6 +267,29 @@ PluginManager::PluginManager() {
         });
         tabWidget->addAction(tabSelectShortcut);
     }
+
+    connect(ui->westPanel, &QTabWidget::tabBarClicked, [this](int index) {
+        if (ui->westPanel->currentIndex() == index) {
+            if (ui->westPanel->widget(index)->isVisible()) {
+                auto maxWidth = ui->westPanel->tabBar()->width();
+                savedSize = ui->westPanel->size();
+                hidePanel(Panels::West);
+                isMinimized = true;
+                ui->westPanel->setMaximumWidth(maxWidth);
+            } else {
+                showPanel(Panels::West, index);
+                if (isMinimized) {
+                    ui->westPanel->setMaximumWidth(savedSize.width());
+                    isMinimized = false;
+                }
+            }
+        } else {
+            if (isMinimized) {
+                ui->westPanel->setMaximumWidth(savedSize.width());
+                isMinimized = false;
+            }
+        }
+    });
 }
 
 /**
@@ -654,25 +677,28 @@ void PluginManager::hideUnusedPanels() {
 }
 
 void PluginManager::hidePanel(Panels p) {
-    QTabWidget *t = nullptr;
+    QTabWidget *panel = nullptr;
     switch (p) {
     case Panels::East:
-        t = this->ui->eastPanel;
+        panel = this->ui->eastPanel;
         break;
     case Panels::West:
-        t = this->ui->westPanel;
+        panel = this->ui->westPanel;
         break;
     case Panels::South:
-        t = this->ui->southPanel;
+        panel = this->ui->southPanel;
         break;
     }
-    assert(t != nullptr);
-    for (int i = 0; i < t->count(); ++i) {
-        t->widget(i)->setVisible(false);
+    assert(panel != nullptr);
+    for (int i = 0; i < panel->count(); ++i) {
+        panel->widget(i)->setVisible(false);
     }
 
-    if (t->tabBar()->count() == 0) {
-        t->hide();
+    if (panel->tabBar()->count() == 0) {
+        panel->hide();
+    } else {
+        auto tabSize = panel->tabBar()->sizeHint().width();
+        panel->setMaximumWidth(tabSize);
     }
 }
 
@@ -693,6 +719,7 @@ void PluginManager::showPanel(Panels p, int index) {
     panel->setFocus();
     for (int i = 0; i < panel->count(); ++i) {
         panel->setCurrentIndex(index);
+        panel->widget(index)->show();
         panel->widget(index)->focusWidget();
     }
 }
@@ -941,6 +968,10 @@ void PluginManager::initGUI() {
 
     this->ui = new Ui::PluginManagedWindow;
     this->ui->setupUi(this);
+    //    this->ui->splitter->setStretchFactor(0, 1);
+    //    this->ui->splitter->setStretchFactor(1, 1);
+    //    this->ui->splitter->setStretchFactor(2, 1);
+    this->ui->splitter->setSizes(QList<int>({1, 2, 1}));
     tabWidget = this->ui->mdiTabWidget;
 
     QToolButton *tabCloseBtn = new QToolButton(tabWidget);

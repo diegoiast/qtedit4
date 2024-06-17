@@ -67,6 +67,9 @@ class PluginManager : public QMainWindow, public qmdiHost {
     void on_actionHideGUI_changed();
 
   protected:
+    QSize savedSize = QSize();
+    bool isMinimized = false;
+
     void initGUI();
     QList<IPlugin *> plugins;
     qmdiTabWidget *tabWidget;
