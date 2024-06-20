@@ -26,6 +26,12 @@ class PluginManagedWindow;
 
 enum class Panels { West, East, South };
 
+struct PanelState {
+    bool isMinimized = false;
+    QSize savedSize;
+    QTabWidget *panel;
+};
+
 class PluginManager : public QMainWindow, public qmdiHost {
     Q_OBJECT
     friend class PluginModel;
@@ -37,6 +43,7 @@ class PluginManager : public QMainWindow, public qmdiHost {
     int tabForFileName(QString fileName);
     void setNativeSettingsManager(const QString &organization = QString(),
                                   const QString &application = QString());
+  public slots:
     void setFileSettingsManager(const QString &fileName = QString());
     void restoreSettings();
     void saveSettings();
@@ -47,6 +54,8 @@ class PluginManager : public QMainWindow, public qmdiHost {
     void hideUnusedPanels();
     void hidePanel(Panels p);
     void showPanel(Panels p, int index);
+
+  public:
     int createNewPanel(Panels p, QString name, QWidget *widget);
     QWidget *getPanel(Panels p, int index);
 
@@ -67,8 +76,7 @@ class PluginManager : public QMainWindow, public qmdiHost {
     void on_actionHideGUI_changed();
 
   protected:
-    QSize savedSize = QSize();
-    bool isMinimized = false;
+    PanelState westState, eastState, southState;
 
     void initGUI();
     QList<IPlugin *> plugins;

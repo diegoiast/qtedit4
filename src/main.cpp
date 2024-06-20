@@ -7,6 +7,7 @@
 
 #include "pluginmanager.h"
 #include <QApplication>
+#include <QTimer>
 
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/help/help_plg.h"

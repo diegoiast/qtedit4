@@ -268,28 +268,38 @@ PluginManager::PluginManager() {
         tabWidget->addAction(tabSelectShortcut);
     }
 
-    connect(ui->westPanel, &QTabWidget::tabBarClicked, [this](int index) {
+    auto tabClickHandler = [this](PanelState &state, int index) {
         if (ui->westPanel->currentIndex() == index) {
             if (ui->westPanel->widget(index)->isVisible()) {
                 auto maxWidth = ui->westPanel->tabBar()->width();
-                savedSize = ui->westPanel->size();
+
                 hidePanel(Panels::West);
-                isMinimized = true;
+                state.isMinimized = true;
                 ui->westPanel->setMaximumWidth(maxWidth);
             } else {
                 showPanel(Panels::West, index);
-                if (isMinimized) {
-                    ui->westPanel->setMaximumWidth(savedSize.width());
-                    isMinimized = false;
+                if (state.isMinimized) {
+                    ui->westPanel->setMaximumWidth(state.savedSize.width());
+                    state.isMinimized = false;
                 }
             }
         } else {
-            if (isMinimized) {
-                ui->westPanel->setMaximumWidth(savedSize.width());
-                isMinimized = false;
+            if (state.isMinimized) {
+                ui->westPanel->setMaximumWidth(state.savedSize.width());
+                state.isMinimized = false;
             }
         }
-    });
+    };
+
+    eastState.panel = ui->eastPanel;
+    westState.panel = ui->westPanel;
+    southState.panel = ui->southPanel;
+    connect(ui->westPanel, &QTabWidget::tabBarClicked,
+            [this, tabClickHandler](int index) { tabClickHandler(this->westState, index); });
+    connect(ui->eastPanel, &QTabWidget::tabBarClicked,
+            [this, tabClickHandler](int index) { tabClickHandler(this->eastState, index); });
+    connect(ui->southPanel, &QTabWidget::tabBarClicked,
+            [this, tabClickHandler](int index) { tabClickHandler(this->southState, index); });
 }
 
 /**
@@ -467,6 +477,33 @@ void PluginManager::restoreSettings() {
 #endif
     settingsManager->endGroup();
 
+    settingsManager->beginGroup("ui");
+#if 0
+    if (settingsManager->value("eastMinimized", false).toBool()) {
+        hidePanel(Panels::East);
+    }
+    if (settingsManager->value("westMinimized", false).toBool()) {
+        hidePanel(Panels::West);
+    }
+    if (settingsManager->value("southMinimized", false).toBool()) {
+        hidePanel(Panels::South);
+    }
+#endif
+    auto panelNumber = 0;
+    panelNumber = settingsManager->value("eastSelected", -1).toInt();
+    if (panelNumber >= 0) {
+        showPanel(Panels::East, panelNumber);
+    }
+    panelNumber = settingsManager->value("westSelected", -1).toInt();
+    if (panelNumber >= 0) {
+        showPanel(Panels::West, panelNumber);
+    }
+    panelNumber = settingsManager->value("southSelected", -1).toInt();
+    if (panelNumber >= 0) {
+        showPanel(Panels::South, panelNumber);
+    }
+    settingsManager->endGroup();
+
     show();
     QApplication::restoreOverrideCursor();
     QApplication::processEvents();
@@ -551,6 +588,15 @@ void PluginManager::saveSettings() {
 
         settingsManager->setValue("current", tabWidget->currentIndex());
     }
+    settingsManager->endGroup();
+
+    settingsManager->beginGroup("ui");
+    settingsManager->setValue("eastMinimized", eastState.isMinimized);
+    settingsManager->setValue("eastSelected", eastState.panel->currentIndex());
+    settingsManager->setValue("westMinimized", westState.isMinimized);
+    settingsManager->setValue("westSelected", westState.panel->currentIndex());
+    settingsManager->setValue("southMinimized", southState.isMinimized);
+    settingsManager->setValue("southSelected", southState.panel->currentIndex());
     settingsManager->endGroup();
 
     // let each ones of the plugins save it's state
@@ -697,6 +743,7 @@ void PluginManager::hidePanel(Panels p) {
     if (panel->tabBar()->count() == 0) {
         panel->hide();
     } else {
+        this->westState.savedSize = ui->westPanel->size();
         auto tabSize = panel->tabBar()->sizeHint().width();
         panel->setMaximumWidth(tabSize);
     }
