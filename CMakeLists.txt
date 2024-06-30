@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
-# 3rd party libs
-set(QMDILIB_BUILD_EXAMPLES Off)
+include(cmake/CPM.cmake)
+set(QMDILIB_BUILD_EXAMPLES off)
+set(DISABLE_QUTEPART_TESTS on)
+CPMAddPackage("gh:elcuco/qmdilib#main")
+
 set(QTSOURCEVIEW_BUILD_EXAMPLES Off)
-add_subdirectory( lib/qmdilib      )
 add_subdirectory( lib/qtsourceview )
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
@@ -15,40 +17,35 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 set(qtedit4_sources
-        lib/qmdilib/demos/plugin-demo/iplugin.cpp
-        lib/qmdilib/demos/plugin-demo/pluginmodel.cpp
-        lib/qmdilib/demos/plugin-demo/pluginmodel.h
-        lib/qmdilib/demos/plugin-demo/pluginmanager.cpp
-        lib/qmdilib/demos/plugin-demo/pluginmanager.h
-        lib/qmdilib/demos/plugin-demo/configdialog.cpp
-        lib/qmdilib/demos/plugin-demo/configdialog.h
-        lib/qmdilib/demos/common/common.qrc
+    ${qmdilib_SOURCE_DIR}/demos/common/common.qrc
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/configdialog.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/configdialog.h
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/iplugin.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.h
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugin_list.ui
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmanager.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmanager.h   
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginwindow.ui
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.h
 
-        src/widgets/qmdieditor.cpp
-        src/widgets/qmdieditor.h
-        src/widgets/filesystembrowser.cpp
-        src/widgets/filesystembrowser.h
-        src/widgets/filesystembrowser.ui
-        src/plugins/texteditor/texteditor_plg.cpp
-        src/plugins/texteditor/texteditor_plg.h
-        src/plugins/help/help_plg.cpp
-        src/plugins/help/help_plg.h
+    src/widgets/qmdieditor.cpp
+    src/widgets/qmdieditor.h
+    src/plugins/texteditor/texteditor_plg.cpp
+    src/plugins/texteditor/texteditor_plg.h
+    src/plugins/help/help_plg.cpp
+    src/plugins/help/help_plg.h
+    src/plugins/ProjectManager/ProjectManagerPlg.cpp
+    src/plugins/ProjectManager/ProjectManagerPlg.h
+    src/plugins/ProjectManager/ProjectManagerGUI.ui
+    src/plugins/ProjectManager/ProjectSearch.cpp
+    src/plugins/ProjectManager/ProjectSearch.h
+    src/plugins/ProjectManager/ProjectSearchGUI.ui
+    src/plugins/ProjectManager/GenericItems.cpp
+    src/plugins/ProjectManager/GenericItems.h
+    src/main.cpp
 
-        src/plugins/systembrowser/systembrowser_plg.h
-        src/plugins/systembrowser/systembrowser_plg.cpp
-        src/plugins/ProjectManager/ProjectManagerPlg.cpp
-        src/plugins/ProjectManager/ProjectManagerPlg.h
-        src/plugins/ProjectManager/ProjectManagerGUI.ui
-        src/plugins/ProjectManager/ProjectSearch.cpp
-        src/plugins/ProjectManager/ProjectSearch.h
-        src/plugins/ProjectManager/ProjectSearchGUI.ui
-        src/plugins/ProjectManager/GenericItems.cpp
-        src/plugins/ProjectManager/GenericItems.h
-        src/main.cpp
-
-        lib/qmdilib/demos/plugin-demo/pluginwindow.ui
-        lib/qmdilib/demos/plugin-demo/plugin_list.ui
-        lib/qmdilib/demos/plugin-demo/plugins/editor/editor_cfg.ui
 )
 
 if (WIN32)
@@ -57,14 +54,14 @@ else()
     add_executable(qtedit4 ${qtedit4_sources})
 endif()
 
+# lib/qmdilib/demos/plugin-demo/plugins/editor
 target_include_directories(qtedit4 PUBLIC
-        src/widgets
-        lib/qmdilib/demos/plugin-demo
-        lib/qmdilib/demos/plugin-demo/plugins/editor
-        lib/qtsourceview/demos/demo4/
-        lib/qtsourceview/demos/demo-qate4
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo
+    src/widgets
+    lib/qtsourceview/demos/demo4/
+    lib/qtsourceview/demos/demo-qate4
 )
-target_link_libraries(qtedit4 qmdilib qsvte qsvsh )
+target_link_libraries(qtedit4 qmdilib qsvte qsvsh)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

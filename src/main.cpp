@@ -11,8 +11,8 @@
 
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/help/help_plg.h"
-#include "plugins/systembrowser/systembrowser_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
+#include "plugins/filesystem/filesystembrowser.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     // 	pluginManager.addPlugin( new RichTextPlugin );
     pluginManager.addPlugin(new TextEditorPlugin);
-    pluginManager.addPlugin(new FSBrowserPlugin);
+    pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.updateGUI();
