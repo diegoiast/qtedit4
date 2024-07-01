@@ -520,7 +520,7 @@ void qmdiEditor::gotoMatchingBracket() {
     QChar currentChar = textBlock[relativePosition];
 
     // lets find it's partner
-    // in theory, no errors shuold not happen, but one can never be too sure
+    // in theory, no errors should not happen, but one can never be too sure
     int j = m_config.matchBracketsList.indexOf(currentChar);
     if (j == -1) {
         return;

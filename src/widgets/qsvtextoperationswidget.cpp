@@ -335,7 +335,7 @@ void QsvTextOperationsWidget::on_replaceOldText_returnPressed() {
     c.endEditBlock();
     setTextCursor(c);
 
-    // is there any other apperance of this text?
+    // is there any other appearance of this text?
     m_searchCursor = c;
     updateReplaceInput();
 }
@@ -346,7 +346,7 @@ void QsvTextOperationsWidget::on_replaceAll_clicked() {
     // is triggered by pressing control+enter on the replace widget
     // eventually an "enter event" is sent to the text eidtor.
     // the work around is to update the transparency of the widget, to let the user
-    // see the text bellow the widget
+    // see the text below the widget
 
     // showReplaceWidget();
     m_replace->hide();
