@@ -1,9 +1,0 @@
-TEMPLATE	=	app
-QT		=	gui core xml widgets
-CONFIG		+=	qt warn_on silent
-DESTDIR		=	../../
-INCLUDEPATH	=	../../src .
-LIBS		=	-L../../ -lqsvte
-TARGET          =       demo4
-SOURCES		=	main4.cpp
-HEADERS		=	mainwindow4.h

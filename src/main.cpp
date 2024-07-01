@@ -10,9 +10,9 @@
 #include <QTimer>
 
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
+#include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
-#include "plugins/filesystem/filesystembrowser.h"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);

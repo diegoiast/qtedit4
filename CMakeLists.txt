@@ -5,9 +5,7 @@ include(cmake/CPM.cmake)
 set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:elcuco/qmdilib#main")
-
-set(QTSOURCEVIEW_BUILD_EXAMPLES Off)
-add_subdirectory( lib/qtsourceview )
+CPMAddPackage("gh:elcuco/qutepart-cpp#qt6-port-take2")
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
 set(CMAKE_CXX_STANDARD 17)
@@ -32,6 +30,10 @@ set(qtedit4_sources
 
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
+    src/widgets/qsvtextoperationswidget.cpp  
+    src/widgets/qsvtextoperationswidget.h  
+    src/widgets/replaceform.ui  
+    src/widgets/searchform.ui
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/help/help_plg.cpp
@@ -45,7 +47,8 @@ set(qtedit4_sources
     src/plugins/ProjectManager/GenericItems.cpp
     src/plugins/ProjectManager/GenericItems.h
     src/main.cpp
-
+    
+    ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
 )
 
 if (WIN32)
@@ -57,11 +60,10 @@ endif()
 # lib/qmdilib/demos/plugin-demo/plugins/editor
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
+    ${qutepart_SOURCE_DIR}/include 
     src/widgets
-    lib/qtsourceview/demos/demo4/
-    lib/qtsourceview/demos/demo-qate4
 )
-target_link_libraries(qtedit4 qmdilib qsvte qsvsh)
+target_link_libraries(qtedit4 PUBLIC qmdilib qutepart)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
@@ -72,12 +74,6 @@ else()
   target_compile_options(qtedit4 PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-add_custom_command(TARGET qtedit4 POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/lib/qtsourceview/data
-    ${CMAKE_BINARY_DIR}/share
-    COMMENT "Copying directory to build directory ${EXECUTABLE_OUTPUT_PATH}/data"
-)
 
 install(TARGETS qtedit4
         RUNTIME DESTINATION bin)
@@ -87,25 +83,16 @@ install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
 install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.desktop
         DESTINATION share/applications
         RENAME qtedit4.desktop)
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/lib/qtsourceview/data/
-        DESTINATION share/
-        DIRECTORY_PERMISSIONS
-            OWNER_READ OWNER_WRITE OWNER_EXECUTE
-            GROUP_READ GROUP_EXECUTE
-            WORLD_READ WORLD_EXECUTE
-        FILES_MATCHING PATTERN "*/*"
-        PATTERN "*"
-)
 ######################
 
-add_executable(generic-item-complete
-        tests/generic-item-complete-window.cpp
-        tests/generic-item-complete-test.cpp
-        src/plugins/ProjectManager/GenericItems.cpp
-)
-target_link_libraries(generic-item-complete Qt::Widgets)
-target_include_directories(generic-item-complete PUBLIC
-        tests/
-        .
-)
-set_target_properties(generic-item-complete PROPERTIES EXCLUDE_FROM_ALL TRUE)
+# add_executable(generic-item-complete
+#         tests/generic-item-complete-window.cpp
+#         tests/generic-item-complete-test.cpp
+#         src/plugins/ProjectManager/GenericItems.cpp
+# )
+# target_link_libraries(generic-item-complete Qt::Widgets)
+# target_include_directories(generic-item-complete PUBLIC
+#         tests/
+#         .
+# )
+# set_target_properties(generic-item-complete PROPERTIES EXCLUDE_FROM_ALL TRUE)

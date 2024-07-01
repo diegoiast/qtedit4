@@ -7,23 +7,33 @@
  */
 
 #include "qmdieditor.h"
+#include <QApplication>
+#include <QFile>
+#include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyle>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <qsvte/qsvtextoperationswidget.h>
+#include <qsvtextoperationswidget.h>
 
-qmdiEditor::qmdiEditor(QString fName, QWidget *p) : QsvTextEdit(p) {
+qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
 
+    QFont monospacedFont = this->font();
+    monospacedFont.setPointSize(12);
+    monospacedFont.setFamily("Monospace");
+    setFont(monospacedFont);
+
+    setLineWrapMode(LineWrapMode::NoWrap);
+
     setupActions();
-    //	actionSave	= new QAction( QIcon(":images/save.png"), tr("&Save"), this );
-    //	actionUndo	= new QAction( QIcon(":images/redo.png"), tr("&Redo"), this );
-    //	actionRedo	= new QAction( QIcon(":images/undo.png"), tr("&Undo"), this );
-    //	actionCopy	= new QAction( QIcon(":images/copy.png"), tr("&Copy"), this );
-    //	actionCut	= new QAction( QIcon(":images/cut.png"), tr("&Cut"), this );
-    //	actionPaste	= new QAction( QIcon(":images/paste.png"), tr("&Paste"), this  );
+    actionSave = new QAction(QIcon(":images/save.png"), tr("&Save"), this);
+    actionUndo = new QAction(QIcon(":images/redo.png"), tr("&Redo"), this);
+    actionRedo = new QAction(QIcon(":images/undo.png"), tr("&Undo"), this);
+    actionCopy = new QAction(QIcon(":images/copy.png"), tr("&Copy"), this);
+    actionCut = new QAction(QIcon(":images/cut.png"), tr("&Cut"), this);
+    actionPaste = new QAction(QIcon(":images/paste.png"), tr("&Paste"), this);
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
@@ -91,10 +101,10 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : QsvTextEdit(p) {
 
     bookmarksMenu = new QMenu(tr("Bookmarks"), this);
     bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu ");
-    bookmarksMenu->addAction(actionToggleBookmark);
+    bookmarksMenu->addAction(toggleBookmarkAction());
     bookmarksMenu->addSeparator();
-    bookmarksMenu->addAction(actionNextBookmark);
-    bookmarksMenu->addAction(actionPrevBookmark);
+    bookmarksMenu->addAction(nextBookmarkAction());
+    bookmarksMenu->addAction(prevBookmarkAction());
 
     menus["&File"]->addAction(actionSave);
 
@@ -108,7 +118,7 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : QsvTextEdit(p) {
     menus["&Edit"]->addMenu(textOperationsMenu);
     menus["&Edit"]->addMenu(bookmarksMenu);
     // 	menus["&Edit"]->addAction( actionTogglebreakpoint );
-    menus["&Edit"]->addAction(actionFindMatchingBracket);
+    // menus["&Edit"]->addAction(actionFindMatchingBracket);
 
     menus["&Search"]->addAction(actionFind);
     menus["&Search"]->addAction(actionFindNext);
@@ -197,6 +207,343 @@ bool qmdiEditor::canCloseClient() {
  */
 QString qmdiEditor::mdiClientFileName() { return getFileName(); }
 
+void qmdiEditor::setupActions() {
+    if (actionCapitalize) {
+        delete actionCapitalize;
+    }
+    actionCapitalize = new QAction(tr("Change to &capital letters"), this);
+    actionCapitalize->setObjectName("qsvEditor::actionCapitalize");
+    actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
+    connect(actionCapitalize, SIGNAL(triggered()), this, SLOT(transformBlockToUpper()));
+    addAction(actionCapitalize);
+
+    if (actionLowerCase) {
+        delete actionLowerCase;
+    }
+    actionLowerCase = new QAction(tr("Change to &lower letters"), this);
+    actionLowerCase->setObjectName("qsvEditor::actionLowerCase");
+    actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
+    connect(actionLowerCase, SIGNAL(triggered()), this, SLOT(transformBlockToLower()));
+    addAction(actionLowerCase);
+
+    if (actionChangeCase) {
+        delete actionChangeCase;
+    }
+    actionChangeCase = new QAction(tr("Change ca&se"), this);
+    actionChangeCase->setObjectName("qsvEditor::actionChangeCase");
+    connect(actionChangeCase, SIGNAL(triggered()), this, SLOT(transformBlockCase()));
+    addAction(actionChangeCase);
+
+    if (actionFindMatchingBracket) {
+        delete actionFindMatchingBracket;
+    }
+    actionFindMatchingBracket = new QAction(tr("Find matching bracket"), this);
+    actionFindMatchingBracket->setObjectName("qsvEditor::ctionFindMatchingBracket");
+    actionFindMatchingBracket->setShortcuts(QList<QKeySequence>()
+                                            << QKeySequence(Qt::CTRL | Qt::Key_6)
+                                            << QKeySequence(Qt::CTRL | Qt::Key_BracketLeft)
+                                            << QKeySequence(Qt::CTRL | Qt::Key_BracketRight));
+    connect(actionFindMatchingBracket, SIGNAL(triggered()), this, SLOT(gotoMatchingBracket()));
+    addAction(actionFindMatchingBracket);
+}
+
+void qmdiEditor::newDocument() { loadFile(""); }
+
+int qmdiEditor::loadFile(const QString &fileName) {
+    // clear older watches, and add a new one
+    // QStringList sl = m_fileSystemWatcher->directories();
+    // if (!sl.isEmpty()) {
+    //     m_fileSystemWatcher->removePaths(sl);
+    // }
+
+    // bool modificationsEnabledState = getModificationsLookupEnabled();
+    // setModificationsLookupEnabled(false);
+    // hideBannerMessage();
+    this->setReadOnly(false);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
+    if (!fileName.isEmpty()) {
+        QFile file(fileName);
+        QFileInfo fileInfo(file);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            QApplication::restoreOverrideCursor();
+            return -1;
+        }
+
+        QTextStream textStream(&file);
+        setPlainText(textStream.readAll());
+        file.close();
+
+        auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
+        if (langInfo.isValid()) {
+            setHighlighter(langInfo.id);
+            setIndentAlgorithm(langInfo.indentAlg);
+        }
+
+        m_fileName = fileInfo.absoluteFilePath();
+        // m_fileSystemWatcher->addPath(m_fileName);
+        // if (!fileInfo.isWritable()) {
+        //     this->setReadOnly(true);
+        //     displayBannerMessage(
+        //         tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
+        //            "change the file attributes for write access'>here to force write
+        //            access.</a>"));
+        // }
+    } else {
+        m_fileName.clear();
+        clear();
+    }
+
+    // setModificationsLookupEnabled(modificationsEnabledState);
+    // removeModifications();
+
+    QApplication::restoreOverrideCursor();
+    return 0;
+}
+
+int qmdiEditor::saveFile(const QString &fileName) {
+    // QStringList sl = m_fileSystemWatcher->directories();
+    // if (!sl.isEmpty()) {
+    //     m_fileSystemWatcher->removePaths(sl);
+    // }
+    // bool modificationsEnabledState = getModificationsLookupEnabled();
+    // setModificationsLookupEnabled(false);
+    // hideBannerMessage();
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return false;
+    }
+
+    QTextStream textStream(&file);
+    QTextBlock block = document()->begin();
+    while (block.isValid()) {
+        //		if (endOfLine==KeepOldStyle){
+        textStream << block.text();
+        // TODO WTF? - which type the file originally had?
+        textStream << "\n";
+        /*		} else {
+                                QString s = block.text();
+                                int i = s.length();
+
+                                if (!s.isEmpty()) if ((s[i-1] == '\n') || (s[i-1] == '\r'))
+                                        s = s.left( i-1 );
+                                if (!s.isEmpty()) if ((s[i-1] == '\n') || (s[i-1] == '\r'))
+                                        s = s.left( i-1 );
+                                textStream << s;
+                                switch (endOfLine) {
+                                        case DOS:	textStream << "\r\n"; break;
+                                        case Unix: 	textStream << "\n"; break;
+                                        case Mac:	textStream << "\r"; break;
+                                        default:	return 0; // just to keep gcc happy
+                                }
+                        }*/
+        block = block.next();
+    }
+    file.close();
+
+    m_fileName = fileName;
+    // removeModifications();
+    // setModificationsLookupEnabled(modificationsEnabledState);
+    //	m_fileSystemWatcher->addPath(m_fileName);
+
+    QApplication::restoreOverrideCursor();
+    return 0;
+}
+
+// void QsvTextEdit::displayBannerMessage(QString message, int time) {
+//     showUpperWidget(m_banner);
+//     ui_banner->label->setText(message);
+//     m_timerHideout = time;
+//     QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
+// }
+
+// void QsvTextEdit::hideBannerMessage() {
+//     m_timerHideout = 0;
+//     ui_banner->label->clear();
+//     m_banner->hide();
+
+//     // sometimes the top widget is displayed, lets workaround this
+//     // TODO: find WTF this is happening
+//     if (m_topWidget == m_banner) {
+//         m_topWidget = nullptr;
+//     }
+// }
+
+// int QsvTextEdit::saveFile() {
+//     if (m_fileName.isEmpty()) {
+//         return saveFileAs();
+//     } else {
+//         return saveFile(m_fileName);
+//     }
+// }
+
+// int QsvTextEdit::saveFileAs() {
+//     const QString lastDirectory;
+//     QString s = QFileDialog::getSaveFileName(this, tr("Save file"), lastDirectory);
+//     if (s.isEmpty()) {
+//         return false;
+//     }
+//     return saveFile(s);
+// }
+
+void qmdiEditor::smartHome() {
+    auto c = textCursor();
+    int blockLen = c.block().text().length();
+    if (blockLen == 0) {
+        return;
+    }
+
+    int originalPosition = c.position();
+    QTextCursor::MoveMode moveAnchor = QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)
+                                           ? QTextCursor::KeepAnchor
+                                           : QTextCursor::MoveAnchor;
+    c.movePosition(QTextCursor::StartOfLine, moveAnchor);
+    int startOfLine = c.position();
+    int i = 0;
+    while (c.block().text()[i].isSpace()) {
+        i++;
+        if (i == blockLen) {
+            i = 0;
+            break;
+        }
+    }
+    if ((originalPosition == startOfLine) || (startOfLine + i != originalPosition)) {
+        c.setPosition(startOfLine + i, moveAnchor);
+    }
+    setTextCursor(c);
+}
+
+void qmdiEditor::smartEnd() {
+    QTextCursor c = textCursor();
+    int blockLen = c.block().text().length();
+    if (blockLen == 0) {
+        return;
+    }
+
+    int originalPosition = c.position();
+    QTextCursor::MoveMode moveAnchor = QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)
+                                           ? QTextCursor::KeepAnchor
+                                           : QTextCursor::MoveAnchor;
+    c.movePosition(QTextCursor::StartOfLine, moveAnchor);
+    int startOfLine = c.position();
+    c.movePosition(QTextCursor::EndOfLine, moveAnchor);
+    int i = blockLen;
+    while (c.block().text()[i - 1].isSpace()) {
+        i--;
+        if (i == 1) {
+            i = blockLen;
+            break;
+        }
+    }
+    if ((originalPosition == startOfLine) || (startOfLine + i != originalPosition)) {
+        c.setPosition(startOfLine + i, moveAnchor);
+    }
+
+    setTextCursor(c);
+}
+
+void qmdiEditor::transformBlockToUpper() {
+    QTextCursor cursor = textCursor();
+    QString s_before = cursor.selectedText();
+    QString s_after = s_before.toUpper();
+
+    if (s_before != s_after) {
+        cursor.beginEditBlock();
+        cursor.deleteChar();
+        cursor.insertText(s_after);
+        cursor.endEditBlock();
+        setTextCursor(cursor);
+    }
+}
+
+void qmdiEditor::transformBlockToLower() {
+    QTextCursor cursor = textCursor();
+    QString s_before = cursor.selectedText();
+    QString s_after = s_before.toLower();
+
+    if (s_before != s_after) {
+        cursor.beginEditBlock();
+        cursor.deleteChar();
+        cursor.insertText(s_after);
+        cursor.endEditBlock();
+        setTextCursor(cursor);
+    }
+}
+
+void qmdiEditor::transformBlockCase() {
+    QTextCursor cursor = textCursor();
+    QString s_before = cursor.selectedText();
+    QString s_after = s_before;
+    int s_len = s_before.length();
+
+    for (int i = 0; i < s_len; i++) {
+        QChar c = s_after[i];
+        if (c.isLower()) {
+            c = c.toUpper();
+        } else if (c.isUpper()) {
+            c = c.toLower();
+        }
+        s_after[i] = c;
+    }
+
+    if (s_before != s_after) {
+        cursor.beginEditBlock();
+        cursor.deleteChar();
+        cursor.insertText(s_after);
+        cursor.endEditBlock();
+        setTextCursor(cursor);
+    }
+}
+
+void qmdiEditor::gotoMatchingBracket() {
+#if 0
+    /*
+      WARNING: code duplication between this method and on_cursor_positionChanged();
+      this needs to be refactored
+     */
+
+    QTextCursor cursor = textCursor();
+    QTextBlock block = cursor.block();
+    int blockPosition = block.position();
+    int cursorPosition = cursor.position();
+    int relativePosition = cursorPosition - blockPosition;
+    auto textBlock = block.text();
+
+    if (relativePosition == textBlock.size()) {
+        relativePosition--;
+    }
+
+    QChar currentChar = textBlock[relativePosition];
+
+    // lets find it's partner
+    // in theory, no errors shuold not happen, but one can never be too sure
+    int j = m_config.matchBracketsList.indexOf(currentChar);
+    if (j == -1) {
+        return;
+    }
+
+    if (m_config.matchBracketsList[j] != m_config.matchBracketsList[j + 1]) {
+        if (j % 2 == 0) {
+            j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j + 1],
+                                 true, block, cursorPosition);
+        } else {
+            j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j - 1],
+                                 false, block, cursorPosition);
+        }
+    } else {
+        j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j + 1], true,
+                             block, cursorPosition);
+    }
+
+    cursor.setPosition(j);
+    setTextCursor(cursor);
+#endif
+}
+
 void qmdiEditor::gotoLine(int linenumber, int rownumber) {
     auto offset = document()->findBlockByLineNumber(linenumber).position();
     auto cursor = textCursor();
@@ -205,4 +552,11 @@ void qmdiEditor::gotoLine(int linenumber, int rownumber) {
     cursor.movePosition(cursor.Right, cursor.KeepAnchor, rownumber);
     setTextCursor(cursor);
     ensureCursorVisible();
+}
+
+bool qmdiEditor::eventFilter(QObject *obj, QEvent *event) {
+    if (event->type() == QEvent::Resize) {
+        emit widgetResized();
+    }
+    return Qutepart::eventFilter(obj, event);
 }
