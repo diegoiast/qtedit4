@@ -1,5 +1,5 @@
 [Setup]
-AppName=qteidt4
+AppName=qtedit4
 AppVersion=0.1
 DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
