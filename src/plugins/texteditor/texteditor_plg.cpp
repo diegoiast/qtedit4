@@ -13,7 +13,7 @@
 #include "texteditor_plg.h"
 
 TextEditorPlugin::TextEditorPlugin() {
-    name = tr("Text editor plugin - based on QtSourceView");
+    name = tr("Text editor plugin - based on QutePart");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
@@ -96,7 +96,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     qmdiEditor *editor = new qmdiEditor(fileName, dynamic_cast<QMainWindow *>(mdiServer));
     mdiServer->addClient(editor);
 
-    editor->gotoLine(x, y);
+    editor->goTo(x, y);
     // TODO
     // 1) move the cursor as specified in the parameters
     // 2) return false if the was was not open for some reason
@@ -109,7 +109,7 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
     if (!editor) {
         return;
     }
-    editor->gotoLine(x, y);
+    editor->goTo(x, y);
     Q_UNUSED(z);
 }
 

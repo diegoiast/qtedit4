@@ -1,3 +1,10 @@
+/**
+ * \file qsvtextoperationswidget.cpp
+ * \brief definition of widget for search,replace,gotoline in a QTextEdit
+ * \author Diego Iastrubni diegoiast@gmail.com
+ * License LGPLv2 2024
+ */
+
 #pragma once
 
 #include <QColor>
@@ -13,6 +20,7 @@ class QLineEdit;
 namespace Ui {
 class searchForm;
 class replaceForm;
+class gotoLineForm;
 } // namespace Ui
 
 class QsvTextEdit;
@@ -70,4 +78,5 @@ class QsvTextOperationsWidget : public QObject {
 
     Ui::searchForm *searchFormUi;
     Ui::replaceForm *replaceFormUi;
+    Ui::gotoLineForm *gotoLineFormUi;
 };

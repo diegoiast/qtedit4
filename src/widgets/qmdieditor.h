@@ -12,12 +12,13 @@
 #include <qutepart/qutepart.h>
 
 class QsvTextOperationsWidget;
+
 /**
 A source editor with MDI interface.
 This class will be a very rich text editor which will also have a set of toolbars and menus
-available for the qmdiHost
+available for the qmdiHost.
 
-        @author Diego Iastrubni <diegoiast@gmail.com>
+@author Diego Iastrubni <diegoiast@gmail.com>
 */
 class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     Q_OBJECT
@@ -30,21 +31,20 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     virtual QString mdiClientFileName() override;
 
     void setupActions();
-    QString getFileName() const { return m_fileName; }
+    QString getFileName() const { return fileName; }
 
   public slots:
     void newDocument();
-    int loadFile(const QString &fileName);
-    int saveFile(const QString &fileName);
-    // int saveFile();
-    // int saveFileAs();
+    bool doSave();
+    bool doSaveAs();
+    bool loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
     void smartHome();
     void smartEnd();
     void transformBlockToUpper();
     void transformBlockToLower();
     void transformBlockCase();
     void gotoMatchingBracket();
-    void gotoLine(int linenumber, int rownumber);
   signals:
     void widgetResized();
 
@@ -55,18 +55,18 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QsvTextOperationsWidget *operationsWidget;
     QString getShortFileName();
 
-    QString m_fileName;
+    QString fileName;
 
     QMenu *bookmarksMenu;
     QMenu *textOperationsMenu;
 
     QAction *actionSave = nullptr;
+    QAction *actionSaveAs = nullptr;
     QAction *actionUndo = nullptr;
     QAction *actionRedo = nullptr;
     QAction *actionCopy = nullptr;
     QAction *actionCut = nullptr;
     QAction *actionPaste = nullptr;
-    QAction *actiohAskHelp = nullptr;
     QAction *actionFind = nullptr;
     QAction *actionFindNext = nullptr;
     QAction *actionFindPrev = nullptr;
@@ -77,4 +77,6 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QAction *actionLowerCase = nullptr;
     QAction *actionChangeCase = nullptr;
     QAction *actionFindMatchingBracket = nullptr;
+
+    QAction *actiohAskHelp = nullptr;
 };

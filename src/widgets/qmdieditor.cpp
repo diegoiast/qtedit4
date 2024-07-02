@@ -7,15 +7,19 @@
  */
 
 #include "qmdieditor.h"
+#include "qmdihost.h"
+#include "qmdiserver.h"
 #include <QApplication>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyle>
+#include <QTabWidget>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <qsvtextoperationswidget.h>
+#include <textoperationswidget.h>
 
 qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
@@ -24,74 +28,9 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     monospacedFont.setPointSize(12);
     monospacedFont.setFamily("Monospace");
     setFont(monospacedFont);
-
     setLineWrapMode(LineWrapMode::NoWrap);
 
     setupActions();
-    actionSave = new QAction(QIcon(":images/save.png"), tr("&Save"), this);
-    actionUndo = new QAction(QIcon(":images/redo.png"), tr("&Redo"), this);
-    actionRedo = new QAction(QIcon(":images/undo.png"), tr("&Undo"), this);
-    actionCopy = new QAction(QIcon(":images/copy.png"), tr("&Copy"), this);
-    actionCut = new QAction(QIcon(":images/cut.png"), tr("&Cut"), this);
-    actionPaste = new QAction(QIcon(":images/paste.png"), tr("&Paste"), this);
-
-    actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
-    actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
-    actionRedo = new QAction(QIcon::fromTheme("edit-redo"), tr("&Redo"), this);
-    actionCopy = new QAction(QIcon::fromTheme("edit-copy"), tr("&Copy"), this);
-    actionCut = new QAction(QIcon::fromTheme("edit-cut"), tr("&Cut"), this);
-    actionPaste = new QAction(QIcon::fromTheme("edit-paste"), tr("&Paste"), this);
-    actionFind = new QAction(QIcon::fromTheme("edit-find"), tr("&Find"), this);
-    actionFindNext = new QAction(QIcon::fromTheme("go-next"), tr("Find &next"), this);
-    actionFindPrev = new QAction(QIcon::fromTheme("go-previous"), tr("Find &previous"), this);
-    actionReplace = new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
-    actionGotoLine = new QAction(tr("&Goto line"), this);
-
-    addAction(actionFind);
-    addAction(actionFindNext);
-    addAction(actionFindPrev);
-    addAction(actionReplace);
-    addAction(actionGotoLine);
-    addAction(actionSave);
-    addAction(actionUndo);
-    addAction(actionCopy);
-    addAction(actionCut);
-    addAction(actionPaste);
-
-    actionFind->setShortcut(QKeySequence::Find);
-    actionFindNext->setShortcut(QKeySequence::FindNext);
-    actionFindPrev->setShortcut(QKeySequence::FindPrevious);
-    actionReplace->setShortcut(QKeySequence::Replace);
-    actionGotoLine->setShortcut(QKeySequence("Ctrl+G"));
-
-    actionSave->setObjectName("qmdiEditor::actionSave");
-    actionUndo->setObjectName("qmdiEditor::actionUndo");
-    actionRedo->setObjectName("qmdiEditor::actionRedo");
-    actionCopy->setObjectName("qmdiEditor::actionCopy");
-    actionCut->setObjectName("qmdiEditor::actionCut");
-    actionPaste->setObjectName("qmdiEditor::actionPaste");
-    actionFind->setObjectName("qmdiEditor::actionFind");
-    actionFindNext->setObjectName("qmdiEditor::actionFindNext");
-    actionFindPrev->setObjectName("qmdiEditor::actionFindPrev");
-    actionReplace->setObjectName("qmdiEditor::actionReplace");
-    actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
-
-    connect(this, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
-
-    connect(actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), this, SLOT(redo()));
-    connect(actionCopy, SIGNAL(triggered()), this, SLOT(copy()));
-    connect(actionCut, SIGNAL(triggered()), this, SLOT(cut()));
-    connect(actionPaste, SIGNAL(triggered()), this, SLOT(paste()));
-    // 	connect( actiohAskHelp, SIGNAL(triggered()), this, SLOT(helpShowHelp()));
-    connect(actionFind, SIGNAL(triggered()), operationsWidget, SLOT(showSearch()));
-    connect(actionFindNext, SIGNAL(triggered()), operationsWidget, SLOT(searchNext()));
-    connect(actionFindPrev, SIGNAL(triggered()), operationsWidget, SLOT(searchPrev()));
-    connect(actionReplace, SIGNAL(triggered()), operationsWidget, SLOT(showReplace()));
-    connect(actionGotoLine, SIGNAL(triggered()), operationsWidget, SLOT(showGotoLine()));
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
@@ -100,58 +39,55 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     textOperationsMenu->addAction(actionChangeCase);
 
     bookmarksMenu = new QMenu(tr("Bookmarks"), this);
-    bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu ");
+    bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu");
     bookmarksMenu->addAction(toggleBookmarkAction());
     bookmarksMenu->addSeparator();
     bookmarksMenu->addAction(nextBookmarkAction());
     bookmarksMenu->addAction(prevBookmarkAction());
 
-    menus["&File"]->addAction(actionSave);
-
-    menus["&Edit"]->addAction(actionUndo);
-    menus["&Edit"]->addAction(actionRedo);
-    menus["&Edit"]->addSeparator();
-    menus["&Edit"]->addAction(actionCopy);
-    menus["&Edit"]->addAction(actionCut);
-    menus["&Edit"]->addAction(actionPaste);
-    menus["&Edit"]->addSeparator();
-    menus["&Edit"]->addMenu(textOperationsMenu);
-    menus["&Edit"]->addMenu(bookmarksMenu);
-    // 	menus["&Edit"]->addAction( actionTogglebreakpoint );
+    this->menus["&File"]->addAction(actionSave);
+    this->menus["&Edit"]->addAction(actionUndo);
+    this->menus["&Edit"]->addAction(actionRedo);
+    this->menus["&Edit"]->addSeparator();
+    this->menus["&Edit"]->addAction(actionCopy);
+    this->menus["&Edit"]->addAction(actionCut);
+    this->menus["&Edit"]->addAction(actionPaste);
+    this->menus["&Edit"]->addSeparator();
+    this->menus["&Edit"]->addMenu(textOperationsMenu);
+    this->menus["&Edit"]->addMenu(bookmarksMenu);
+    // menus["&Edit"]->addAction( actionTogglebreakpoint );
     // menus["&Edit"]->addAction(actionFindMatchingBracket);
 
-    menus["&Search"]->addAction(actionFind);
-    menus["&Search"]->addAction(actionFindNext);
-    menus["&Search"]->addAction(actionFindPrev);
-    //	menus["&Search"]->addAction( actionClearSearchHighlight );
-    menus["&Search"]->addSeparator();
-    menus["&Search"]->addAction(actionReplace);
-    menus["&Search"]->addSeparator();
-    menus["&Search"]->addAction(actionGotoLine);
+    this->menus["&Search"]->addAction(actionFind);
+    this->menus["&Search"]->addAction(actionFindNext);
+    this->menus["&Search"]->addAction(actionFindPrev);
+    // this->menus["&Search"]->addAction( actionClearSearchHighlight );
+    this->menus["&Search"]->addSeparator();
+    this->menus["&Search"]->addAction(actionReplace);
+    this->menus["&Search"]->addSeparator();
+    this->menus["&Search"]->addAction(actionGotoLine);
 
     this->toolbars[tr("main")]->addSeparator();
     this->toolbars[tr("main")]->addAction(actionSave);
     this->toolbars[tr("main")]->addAction(actionFind);
     this->toolbars[tr("main")]->addAction(actionReplace);
+    this->toolbars[tr("main")]->addAction(actionGotoLine);
     this->toolbars[tr("main")]->addAction(actionFindPrev);
     this->toolbars[tr("main")]->addAction(actionFindNext);
-    this->toolbars[tr("main")]->addAction(actionGotoLine);
 
     loadFile(fName);
     mdiClientName = getShortFileName();
 }
 
 qmdiEditor::~qmdiEditor() {
-    // 	bookmarksMenu->deleteLater();
-    // 	textOperationsMenu->deleteLater();
-    // 	delete bookmarksMenu;
-    // 	delete textOperationsMenu;
+    bookmarksMenu->deleteLater();
+    textOperationsMenu->deleteLater();
     mdiServer = nullptr;
 }
 
 QString qmdiEditor::getShortFileName() {
     if (getFileName().isEmpty()) {
-        return "NO NAME";
+        return tr("NO NAME");
     }
 
     // the name of the object for it's mdi server
@@ -176,8 +112,7 @@ bool qmdiEditor::canCloseClient() {
         return true;
     }
 
-    // ask for saving
-    QMessageBox msgBox(QMessageBox::Warning, tr("Application"),
+    QMessageBox msgBox(QMessageBox::Warning, tr("qtedit4"),
                        tr("The document has been modified.\nDo you want to save your changes?"),
                        QMessageBox::Yes | QMessageBox::Default, this);
 
@@ -187,14 +122,10 @@ bool qmdiEditor::canCloseClient() {
     int ret = msgBox.exec();
 
     if (ret == QMessageBox::Yes) {
-        // 		TODO
-        // 		return fileSave();
-        return true;
+        return doSave();
     } else if (ret == QMessageBox::Cancel) {
         return false;
     }
-
-    // shut up GCC warnings
     return true;
 }
 
@@ -208,48 +139,118 @@ bool qmdiEditor::canCloseClient() {
 QString qmdiEditor::mdiClientFileName() { return getFileName(); }
 
 void qmdiEditor::setupActions() {
-    if (actionCapitalize) {
-        delete actionCapitalize;
-    }
+    actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
+    actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
+    actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
+    actionRedo = new QAction(QIcon::fromTheme("edit-redo"), tr("&Redo"), this);
+    actionCopy = new QAction(QIcon::fromTheme("edit-copy"), tr("&Copy"), this);
+    actionCut = new QAction(QIcon::fromTheme("edit-cut"), tr("&Cut"), this);
+    actionPaste = new QAction(QIcon::fromTheme("edit-paste"), tr("&Paste"), this);
+    actionFind = new QAction(QIcon::fromTheme("edit-find"), tr("&Find"), this);
+    actionFindNext = new QAction(QIcon::fromTheme("go-next"), tr("Find &next"), this);
+    actionFindPrev = new QAction(QIcon::fromTheme("go-previous"), tr("Find &previous"), this);
+    actionReplace = new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
+    actionGotoLine = new QAction(QIcon::fromTheme("go-jump"), tr("&Goto line"), this);
+
     actionCapitalize = new QAction(tr("Change to &capital letters"), this);
-    actionCapitalize->setObjectName("qsvEditor::actionCapitalize");
-    actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
-    connect(actionCapitalize, SIGNAL(triggered()), this, SLOT(transformBlockToUpper()));
-    addAction(actionCapitalize);
-
-    if (actionLowerCase) {
-        delete actionLowerCase;
-    }
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
-    actionLowerCase->setObjectName("qsvEditor::actionLowerCase");
-    actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
-    connect(actionLowerCase, SIGNAL(triggered()), this, SLOT(transformBlockToLower()));
-    addAction(actionLowerCase);
-
-    if (actionChangeCase) {
-        delete actionChangeCase;
-    }
     actionChangeCase = new QAction(tr("Change ca&se"), this);
-    actionChangeCase->setObjectName("qsvEditor::actionChangeCase");
-    connect(actionChangeCase, SIGNAL(triggered()), this, SLOT(transformBlockCase()));
-    addAction(actionChangeCase);
-
-    if (actionFindMatchingBracket) {
-        delete actionFindMatchingBracket;
-    }
     actionFindMatchingBracket = new QAction(tr("Find matching bracket"), this);
-    actionFindMatchingBracket->setObjectName("qsvEditor::ctionFindMatchingBracket");
+
+    actionSave->setShortcut(QKeySequence::Save);
+    actionFind->setShortcut(QKeySequence::Find);
+    actionFindNext->setShortcut(QKeySequence::FindNext);
+    actionFindPrev->setShortcut(QKeySequence::FindPrevious);
+    actionReplace->setShortcut(QKeySequence::Replace);
+    actionGotoLine->setShortcut(QKeySequence("Ctrl+G"));
+    actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
+    actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionFindMatchingBracket->setShortcuts(QList<QKeySequence>()
                                             << QKeySequence(Qt::CTRL | Qt::Key_6)
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketLeft)
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketRight));
+
+    actionSave->setObjectName("qmdiEditor::actionSave");
+    actionSaveAs->setObjectName("qmdiEditor::actionSaveAs");
+    actionUndo->setObjectName("qmdiEditor::actionUndo");
+    actionRedo->setObjectName("qmdiEditor::actionRedo");
+    actionCopy->setObjectName("qmdiEditor::actionCopy");
+    actionCut->setObjectName("qmdiEditor::actionCut");
+    actionPaste->setObjectName("qmdiEditor::actionPaste");
+    actionFind->setObjectName("qmdiEditor::actionFind");
+    actionFindNext->setObjectName("qmdiEditor::actionFindNext");
+    actionFindPrev->setObjectName("qmdiEditor::actionFindPrev");
+    actionReplace->setObjectName("qmdiEditor::actionReplace");
+    actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
+
+    actionCapitalize->setObjectName("qsvEditor::actionCapitalize");
+    actionLowerCase->setObjectName("qsvEditor::actionLowerCase");
+    actionChangeCase->setObjectName("qsvEditor::actionChangeCase");
+    actionFindMatchingBracket->setObjectName("qsvEditor::ctionFindMatchingBracket");
+
+    connect(this, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
+    connect(this, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
+
+    connect(actionSave, SIGNAL(triggered()), this, SLOT(doSave()));
+    connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(doSaveAs()));
+    connect(actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(actionRedo, SIGNAL(triggered()), this, SLOT(redo()));
+    connect(actionCopy, SIGNAL(triggered()), this, SLOT(copy()));
+    connect(actionCut, SIGNAL(triggered()), this, SLOT(cut()));
+    connect(actionPaste, SIGNAL(triggered()), this, SLOT(paste()));
+    connect(actionFind, SIGNAL(triggered()), operationsWidget, SLOT(showSearch()));
+    connect(actionFindNext, SIGNAL(triggered()), operationsWidget, SLOT(searchNext()));
+    connect(actionFindPrev, SIGNAL(triggered()), operationsWidget, SLOT(searchPrev()));
+    connect(actionReplace, SIGNAL(triggered()), operationsWidget, SLOT(showReplace()));
+    connect(actionGotoLine, SIGNAL(triggered()), operationsWidget, SLOT(showGotoLine()));
+
+    connect(actionCapitalize, SIGNAL(triggered()), this, SLOT(transformBlockToUpper()));
+    connect(actionLowerCase, SIGNAL(triggered()), this, SLOT(transformBlockToLower()));
+    connect(actionChangeCase, SIGNAL(triggered()), this, SLOT(transformBlockCase()));
     connect(actionFindMatchingBracket, SIGNAL(triggered()), this, SLOT(gotoMatchingBracket()));
+    // 	connect( actiohAskHelp, SIGNAL(triggered()), this, SLOT(helpShowHelp()));
+
+    addAction(actionSave);
+    addAction(actionSaveAs);
+    addAction(actionUndo);
+    addAction(actionRedo);
+    addAction(actionCopy);
+    addAction(actionCut);
+    addAction(actionPaste);
+    addAction(actionFind);
+    addAction(actionFindNext);
+    addAction(actionFindPrev);
+    addAction(actionReplace);
+    addAction(actionGotoLine);
+
+    addAction(actionCapitalize);
+    addAction(actionLowerCase);
+    addAction(actionChangeCase);
     addAction(actionFindMatchingBracket);
 }
 
 void qmdiEditor::newDocument() { loadFile(""); }
 
-int qmdiEditor::loadFile(const QString &fileName) {
+bool qmdiEditor::doSave() {
+    if (fileName.isEmpty()) {
+        return doSaveAs();
+    } else {
+        return saveFile(fileName);
+    }
+}
+
+bool qmdiEditor::doSaveAs() {
+    const QString lastDirectory;
+    QString s = QFileDialog::getSaveFileName(this, tr("Save file"), lastDirectory);
+    if (s.isEmpty()) {
+        return false;
+    }
+    return saveFile(s);
+}
+
+bool qmdiEditor::loadFile(const QString &fileName) {
     // clear older watches, and add a new one
     // QStringList sl = m_fileSystemWatcher->directories();
     // if (!sl.isEmpty()) {
@@ -260,15 +261,15 @@ int qmdiEditor::loadFile(const QString &fileName) {
     // setModificationsLookupEnabled(false);
     // hideBannerMessage();
     this->setReadOnly(false);
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QApplication::processEvents();
+    // QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    // QApplication::processEvents();
     if (!fileName.isEmpty()) {
         QFile file(fileName);
         QFileInfo fileInfo(file);
 
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             QApplication::restoreOverrideCursor();
-            return -1;
+            return false;
         }
 
         QTextStream textStream(&file);
@@ -281,7 +282,7 @@ int qmdiEditor::loadFile(const QString &fileName) {
             setIndentAlgorithm(langInfo.indentAlg);
         }
 
-        m_fileName = fileInfo.absoluteFilePath();
+        this->fileName = fileInfo.absoluteFilePath();
         // m_fileSystemWatcher->addPath(m_fileName);
         // if (!fileInfo.isWritable()) {
         //     this->setReadOnly(true);
@@ -291,18 +292,18 @@ int qmdiEditor::loadFile(const QString &fileName) {
         //            access.</a>"));
         // }
     } else {
-        m_fileName.clear();
+        this->fileName.clear();
         clear();
     }
 
     // setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
 
-    QApplication::restoreOverrideCursor();
-    return 0;
+    // QApplication::restoreOverrideCursor();
+    return true;
 }
 
-int qmdiEditor::saveFile(const QString &fileName) {
+bool qmdiEditor::saveFile(const QString &fileName) {
     // QStringList sl = m_fileSystemWatcher->directories();
     // if (!sl.isEmpty()) {
     //     m_fileSystemWatcher->removePaths(sl);
@@ -345,13 +346,19 @@ int qmdiEditor::saveFile(const QString &fileName) {
     }
     file.close();
 
-    m_fileName = fileName;
+    this->fileName = fileName;
+    this->mdiClientName = getShortFileName();
     // removeModifications();
     // setModificationsLookupEnabled(modificationsEnabledState);
-    //	m_fileSystemWatcher->addPath(m_fileName);
+    // m_fileSystemWatcher->addPath(m_fileName);
 
     QApplication::restoreOverrideCursor();
-    return 0;
+
+    auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
+    auto i = w->indexOf(this);
+    w->setTabText(i, mdiClientName);
+    w->setTabToolTip(i, mdiClientFileName());
+    return true;
 }
 
 // void QsvTextEdit::displayBannerMessage(QString message, int time) {
@@ -371,23 +378,6 @@ int qmdiEditor::saveFile(const QString &fileName) {
 //     if (m_topWidget == m_banner) {
 //         m_topWidget = nullptr;
 //     }
-// }
-
-// int QsvTextEdit::saveFile() {
-//     if (m_fileName.isEmpty()) {
-//         return saveFileAs();
-//     } else {
-//         return saveFile(m_fileName);
-//     }
-// }
-
-// int QsvTextEdit::saveFileAs() {
-//     const QString lastDirectory;
-//     QString s = QFileDialog::getSaveFileName(this, tr("Save file"), lastDirectory);
-//     if (s.isEmpty()) {
-//         return false;
-//     }
-//     return saveFile(s);
 // }
 
 void qmdiEditor::smartHome() {
@@ -542,16 +532,6 @@ void qmdiEditor::gotoMatchingBracket() {
     cursor.setPosition(j);
     setTextCursor(cursor);
 #endif
-}
-
-void qmdiEditor::gotoLine(int linenumber, int rownumber) {
-    auto offset = document()->findBlockByLineNumber(linenumber).position();
-    auto cursor = textCursor();
-    cursor.setPosition(offset);
-    cursor.movePosition(cursor.StartOfBlock);
-    cursor.movePosition(cursor.Right, cursor.KeepAnchor, rownumber);
-    setTextCursor(cursor);
-    ensureCursorVisible();
 }
 
 bool qmdiEditor::eventFilter(QObject *obj, QEvent *event) {

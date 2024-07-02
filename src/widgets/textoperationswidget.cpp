@@ -1,4 +1,12 @@
-#include "qsvtextoperationswidget.h"
+/**
+ * \file qsvtextoperationswidget.cpp
+ * \brief implementation widget for search,replace,gotoline in a QTextEdit
+ * \author Diego Iastrubni diegoiast@gmail.com
+ * License LGPLv2 2024
+ */
+
+#include "textoperationswidget.h"
+#include "ui_gotolineform.h"
 #include "ui_replaceform.h"
 #include "ui_searchform.h"
 
@@ -10,6 +18,7 @@
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QStyle>
+#include <QTextBlock>
 #include <QTextDocument>
 #include <QTextEdit>
 
@@ -23,8 +32,9 @@ QsvTextOperationsWidget::QsvTextOperationsWidget(QWidget *parent) : QObject(pare
     m_document = nullptr;
     searchFormUi = nullptr;
     replaceFormUi = nullptr;
-    searchFoundColor = QColor("#DDDDFF");    // QColor::fromRgb( 220, 220, 255)
-    searchNotFoundColor = QColor("#FFAAAA"); // QColor::fromRgb( 255, 102, 102) "#FF6666"
+    gotoLineFormUi = nullptr;
+    searchFoundColor = QColor("#DDDDFF");
+    searchNotFoundColor = QColor("#FFAAAA");
 
     m_replaceTimer.setInterval(100);
     m_replaceTimer.setSingleShot(true);
@@ -36,7 +46,6 @@ QsvTextOperationsWidget::QsvTextOperationsWidget(QWidget *parent) : QObject(pare
     m_searchTimer.setSingleShot(true);
     connect(&m_searchTimer, SIGNAL(timeout()), this, SLOT(updateSearchInput()));
 
-    // TODO clean this up, this is too ugly to be in a constructor
     QTextEdit *t = qobject_cast<QTextEdit *>(parent);
     if (t) {
         m_document = t->document();
@@ -97,9 +106,25 @@ void QsvTextOperationsWidget::initReplaceWidget() {
 
 void QsvTextOperationsWidget::initGotoLineWidget() {
     m_gotoLine = new QWidget((QWidget *)parent());
-    m_gotoLine->setObjectName("m_gotoLine");
+    m_gotoLine->setObjectName("gotoLine");
+    gotoLineFormUi = new Ui::gotoLineForm();
+    gotoLineFormUi->setupUi(m_gotoLine);
+    if (gotoLineFormUi->frame->style()->inherits("QWindowsStyle")) {
+        gotoLineFormUi->frame->setFrameStyle(QFrame::StyledPanel);
+    }
+    m_gotoLine->setFont(QApplication::font());
     m_gotoLine->adjustSize();
     m_gotoLine->hide();
+
+    connect(gotoLineFormUi->numberSpinBox, &QAbstractSpinBox::editingFinished, [this]() {
+        auto document = getTextDocument();
+        auto line_number = gotoLineFormUi->numberSpinBox->value();
+        auto block = document->findBlockByNumber(line_number - 1);
+        auto cursor = QTextCursor(block);
+        setTextCursor(cursor);
+    });
+
+    connect(gotoLineFormUi->closeButton, SIGNAL(clicked()), this, SLOT(showGotoLine()));
 }
 
 void QsvTextOperationsWidget::searchNext() {
@@ -153,10 +178,10 @@ bool QsvTextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
         } else if (m_replace && m_replace->isVisible()) {
             showReplace();
             return true;
-        } /* else if (m_gotoLine && m_gotoLine->isVisible()) {
-                 showGotoLine();
-                 return true;
-         }*/
+        } else if (m_gotoLine && m_gotoLine->isVisible()) {
+            showGotoLine();
+            return true;
+        }
         break;
 
     case Qt::Key_Enter:
@@ -178,6 +203,8 @@ bool QsvTextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
             } else {
                 on_replaceOldText_returnPressed();
             }
+            return true;
+        } else if (m_gotoLine && m_gotoLine->isVisible()) {
             return true;
         }
 
@@ -289,6 +316,9 @@ void QsvTextOperationsWidget::showSearch() {
     if (m_replace && m_replace->isVisible()) {
         m_replace->hide();
     }
+    if (m_gotoLine && m_gotoLine->isVisible()) {
+        m_gotoLine->hide();
+    }
 
     QWidget *parent = qobject_cast<QWidget *>(this->parent());
     if (m_search->isVisible()) {
@@ -390,6 +420,9 @@ void QsvTextOperationsWidget::showReplace() {
     if (m_search && m_search->isVisible()) {
         m_search->hide();
     }
+    if (m_gotoLine && m_gotoLine->isVisible()) {
+        m_gotoLine->hide();
+    }
 
     QWidget *parent = qobject_cast<QWidget *>(this->parent());
     if (m_replace->isVisible()) {
@@ -412,6 +445,17 @@ void QsvTextOperationsWidget::showGotoLine() {
     if (!m_gotoLine) {
         initGotoLineWidget();
     }
+    if (m_search && m_search->isVisible()) {
+        m_search->hide();
+    }
+    if (m_replace && m_replace->isVisible()) {
+        m_replace->hide();
+    }
+
+    auto maxLines = m_document->blockCount();
+    QTextCursor cursor = getTextCursor();
+    gotoLineFormUi->numberSpinBox->setMaximum(maxLines);
+    gotoLineFormUi->numberSpinBox->setValue(cursor.blockNumber() + 1);
 
     QWidget *parent = qobject_cast<QWidget *>(this->parent());
     if (m_gotoLine->isVisible()) {
@@ -423,6 +467,8 @@ void QsvTextOperationsWidget::showGotoLine() {
     }
 
     showBottomWidget(m_gotoLine);
+    m_gotoLine->setFocus();
+    gotoLineFormUi->numberSpinBox->setFocus();
 }
 
 void QsvTextOperationsWidget::showBottomWidget(QWidget *w) {

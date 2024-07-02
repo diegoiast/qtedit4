@@ -30,10 +30,11 @@ set(qtedit4_sources
 
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
-    src/widgets/qsvtextoperationswidget.cpp  
-    src/widgets/qsvtextoperationswidget.h  
+    src/widgets/textoperationswidget.cpp  
+    src/widgets/textoperationswidget.h  
     src/widgets/replaceform.ui  
     src/widgets/searchform.ui
+    src/widgets/gotolineform.ui
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/help/help_plg.cpp
