@@ -97,6 +97,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
     mdiServer->addClient(editor);
 
     editor->goTo(x, y);
+    editor->displayBannerMessage("Loaded", 7);
     // TODO
     // 1) move the cursor as specified in the parameters
     // 2) return false if the was was not open for some reason

@@ -33,7 +33,8 @@ set(qtedit4_sources
     src/widgets/textoperationswidget.cpp  
     src/widgets/textoperationswidget.h  
     src/widgets/replaceform.ui  
-    src/widgets/searchform.ui
+    src/widgets/replaceform.ui  
+    src/widgets/bannermessage.ui
     src/widgets/gotolineform.ui
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h

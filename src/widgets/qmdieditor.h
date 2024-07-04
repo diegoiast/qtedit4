@@ -13,6 +13,10 @@
 
 class QsvTextOperationsWidget;
 
+namespace Ui {
+class BannerMessage;
+};
+
 /**
 A source editor with MDI interface.
 This class will be a very rich text editor which will also have a set of toolbars and menus
@@ -34,6 +38,12 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QString getFileName() const { return fileName; }
 
   public slots:
+    void adjustBottomAndTopWidget();
+    void showUpperWidget(QWidget *w);
+    void showBottomWidget(QWidget *w);
+    void displayBannerMessage(QString message, int time);
+    void hideBannerMessage();
+
     void newDocument();
     bool doSave();
     bool doSaveAs();
@@ -45,6 +55,11 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     void transformBlockToLower();
     void transformBlockCase();
     void gotoMatchingBracket();
+
+  private slots:
+    void on_fileMessage_clicked(const QString &s);
+    void on_hideTimer_timeout();
+
   signals:
     void widgetResized();
 
@@ -55,8 +70,13 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QsvTextOperationsWidget *operationsWidget;
     QString getShortFileName();
 
-    QString fileName;
+    QWidget *m_topWidget = nullptr;
+    QWidget *m_bottomWidget = nullptr;
+    QWidget *m_banner;
+    Ui::BannerMessage *ui_banner;
+    int m_timerHideout;
 
+    QString fileName;
     QMenu *bookmarksMenu;
     QMenu *textOperationsMenu;
 

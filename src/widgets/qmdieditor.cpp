@@ -6,9 +6,6 @@
  * \see class name
  */
 
-#include "qmdieditor.h"
-#include "qmdihost.h"
-#include "qmdiserver.h"
 #include <QApplication>
 #include <QFile>
 #include <QFileDialog>
@@ -19,7 +16,12 @@
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <textoperationswidget.h>
+
+#include "qmdieditor.h"
+#include "qmdiserver.h"
+
+#include "textoperationswidget.h"
+#include "ui_bannermessage.h"
 
 qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
@@ -31,6 +33,15 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     setLineWrapMode(LineWrapMode::NoWrap);
 
     setupActions();
+
+    m_banner = new QWidget(this);
+    m_banner->setFont(QApplication::font());
+    m_banner->hide();
+    m_banner->setObjectName("banner");
+    ui_banner = new Ui::BannerMessage;
+    ui_banner->setupUi(m_banner);
+    connect(ui_banner->label, SIGNAL(linkActivated(QString)), this,
+            SLOT(on_fileMessage_clicked(QString)));
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
@@ -231,6 +242,73 @@ void qmdiEditor::setupActions() {
     addAction(actionFindMatchingBracket);
 }
 
+void qmdiEditor::adjustBottomAndTopWidget() {
+    if (m_topWidget) {
+        QWidget *parent = viewport();
+        QRect r = parent->rect();
+        m_topWidget->adjustSize();
+        r.adjust(10, 0, -10, 0);
+        r.setHeight(m_topWidget->height());
+        r.moveTop(10);
+        r.moveLeft(parent->pos().x() + 10);
+        m_topWidget->setGeometry(r);
+        m_topWidget->show();
+    }
+    if (m_bottomWidget) {
+        QWidget *parent = viewport();
+        QRect r = parent->rect();
+        m_bottomWidget->adjustSize();
+        r.adjust(10, 0, -10, 0);
+        r.setHeight(m_bottomWidget->height());
+        r.moveBottom(parent->rect().height() - 10);
+        r.moveLeft(parent->pos().x() + 10);
+        m_bottomWidget->setGeometry(r);
+        m_bottomWidget->show();
+    }
+}
+
+void qmdiEditor::on_hideTimer_timeout() {
+    if (m_timerHideout != 0) {
+        QString s;
+        s.setNum(m_timerHideout);
+        m_timerHideout--;
+        ui_banner->timer->setText(s);
+        QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
+    } else {
+        ui_banner->timer->clear();
+        m_banner->hide();
+    }
+}
+
+void qmdiEditor::showUpperWidget(QWidget *w) {
+    m_topWidget = w;
+    adjustBottomAndTopWidget();
+}
+
+void qmdiEditor::showBottomWidget(QWidget *w) {
+    m_bottomWidget = w;
+    adjustBottomAndTopWidget();
+}
+
+void qmdiEditor::displayBannerMessage(QString message, int time) {
+    showUpperWidget(m_banner);
+    ui_banner->label->setText(message);
+    m_timerHideout = time;
+    QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
+}
+
+void qmdiEditor::hideBannerMessage() {
+    m_timerHideout = 0;
+    ui_banner->label->clear();
+    m_banner->hide();
+
+    // sometimes the top widget is displayed, lets workaround this
+    // TODO: find WTF this is happening
+    if (m_topWidget == m_banner) {
+        m_topWidget = nullptr;
+    }
+}
+
 void qmdiEditor::newDocument() { loadFile(""); }
 
 bool qmdiEditor::doSave() {
@@ -361,25 +439,6 @@ bool qmdiEditor::saveFile(const QString &fileName) {
     return true;
 }
 
-// void QsvTextEdit::displayBannerMessage(QString message, int time) {
-//     showUpperWidget(m_banner);
-//     ui_banner->label->setText(message);
-//     m_timerHideout = time;
-//     QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
-// }
-
-// void QsvTextEdit::hideBannerMessage() {
-//     m_timerHideout = 0;
-//     ui_banner->label->clear();
-//     m_banner->hide();
-
-//     // sometimes the top widget is displayed, lets workaround this
-//     // TODO: find WTF this is happening
-//     if (m_topWidget == m_banner) {
-//         m_topWidget = nullptr;
-//     }
-// }
-
 void qmdiEditor::smartHome() {
     auto c = textCursor();
     int blockLen = c.block().text().length();
@@ -486,6 +545,16 @@ void qmdiEditor::transformBlockCase() {
         cursor.insertText(s_after);
         cursor.endEditBlock();
         setTextCursor(cursor);
+    }
+}
+
+void qmdiEditor::on_fileMessage_clicked(const QString &s) {
+    if (s == ":reload") {
+        loadFile(fileName);
+        hideBannerMessage();
+    } else if (s == ":forcerw") {
+        hideBannerMessage();
+        this->setReadOnly(false);
     }
 }
 
