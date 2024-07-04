@@ -43,12 +43,19 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
 
     auto host = dynamic_cast<PluginManager *>(parent);
     QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked,
-                     [this, host](QTreeWidgetItem *item, int column) {
+                     [host](QTreeWidgetItem *item, int column) {
                          auto parent = item->parent();
+                         if (!parent) {
+                             return;
+                         }
                          auto fileName = parent->text(2);
                          auto line = item->text(1).toInt();
                          host->openFile(fileName, line);
                          host->focusCenter();
+
+                         // TODO - this would benice. I am unsure how to do this
+                         // editor->displayBannerMessage("Loaded", 7);
+                         Q_UNUSED(column);
                      });
 }
 

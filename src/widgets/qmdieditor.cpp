@@ -23,8 +23,9 @@
 #include "textoperationswidget.h"
 #include "ui_bannermessage.h"
 
-qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
+qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
+    mdiClientName = tr("NO NAME");
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(12);
@@ -85,9 +86,6 @@ qmdiEditor::qmdiEditor(QString fName, QWidget *p) : Qutepart::Qutepart(p) {
     this->toolbars[tr("main")]->addAction(actionGotoLine);
     this->toolbars[tr("main")]->addAction(actionFindPrev);
     this->toolbars[tr("main")]->addAction(actionFindNext);
-
-    loadFile(fName);
-    mdiClientName = getShortFileName();
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -373,6 +371,8 @@ bool qmdiEditor::loadFile(const QString &fileName) {
         this->fileName.clear();
         clear();
     }
+
+    mdiClientName = getShortFileName();
 
     // setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();

@@ -28,7 +28,7 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     Q_OBJECT
 
   public:
-    qmdiEditor(QString fName, QWidget *p);
+    qmdiEditor(QWidget *p);
     ~qmdiEditor();
 
     virtual bool canCloseClient() override;

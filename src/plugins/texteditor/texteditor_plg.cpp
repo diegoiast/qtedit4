@@ -93,15 +93,11 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
 }
 
 bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
-    qmdiEditor *editor = new qmdiEditor(fileName, dynamic_cast<QMainWindow *>(mdiServer));
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+    auto loaded = editor->loadFile(fileName);
     mdiServer->addClient(editor);
-
     editor->goTo(x, y);
-    editor->displayBannerMessage("Loaded", 7);
-    // TODO
-    // 1) move the cursor as specified in the parameters
-    // 2) return false if the was was not open for some reason
-    return true;
+    return loaded;
     Q_UNUSED(z);
 }
 
@@ -119,6 +115,6 @@ void TextEditorPlugin::getData() {}
 void TextEditorPlugin::setData() {}
 
 void TextEditorPlugin::fileNew(QAction *) {
-    qmdiEditor *editor = new qmdiEditor(tr("NO NAME"), dynamic_cast<QMainWindow *>(mdiServer));
+    qmdiEditor *editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
     mdiServer->addClient(editor);
 }
