@@ -12,6 +12,7 @@
 #include <qutepart/qutepart.h>
 
 class QsvTextOperationsWidget;
+class QFileSystemWatcher;
 
 namespace Ui {
 class BannerMessage;
@@ -38,6 +39,7 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QString getFileName() const { return fileName; }
 
   public slots:
+    void on_fileChanged(const QString &filename);
     void adjustBottomAndTopWidget();
     void showUpperWidget(QWidget *w);
     void showBottomWidget(QWidget *w);
@@ -70,9 +72,10 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QsvTextOperationsWidget *operationsWidget;
     QString getShortFileName();
 
-    QWidget *m_topWidget = nullptr;
-    QWidget *m_bottomWidget = nullptr;
-    QWidget *m_banner;
+    QFileSystemWatcher *fileSystemWatcher;
+    QWidget *topWidget = nullptr;
+    QWidget *bottomWidget = nullptr;
+    QWidget *banner;
     Ui::BannerMessage *ui_banner;
     int m_timerHideout;
 

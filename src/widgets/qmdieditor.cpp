@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
+#include <QFileSystemWatcher>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyle>
@@ -26,6 +27,9 @@
 qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
     mdiClientName = tr("NO NAME");
+    fileSystemWatcher = new QFileSystemWatcher(this);
+    connect(fileSystemWatcher, SIGNAL(fileChanged(const QString &)), this,
+            SLOT(on_fileChanged(const QString &)));
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(12);
@@ -35,12 +39,12 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
 
     setupActions();
 
-    m_banner = new QWidget(this);
-    m_banner->setFont(QApplication::font());
-    m_banner->hide();
-    m_banner->setObjectName("banner");
+    banner = new QWidget(this);
+    banner->setFont(QApplication::font());
+    banner->hide();
+    banner->setObjectName("banner");
     ui_banner = new Ui::BannerMessage;
-    ui_banner->setupUi(m_banner);
+    ui_banner->setupUi(banner);
     connect(ui_banner->label, SIGNAL(linkActivated(QString)), this,
             SLOT(on_fileMessage_clicked(QString)));
 
@@ -240,28 +244,46 @@ void qmdiEditor::setupActions() {
     addAction(actionFindMatchingBracket);
 }
 
+void qmdiEditor::on_fileChanged(const QString &filename) {
+    if (this->fileName != filename) {
+        return;
+    }
+
+    QFileInfo f(filename);
+    QString message;
+    if (f.exists()) {
+        message = QString("%1 <a href=':reload' title='%2'>%3</a>")
+                      .arg(tr("File has been modified outside the editor"))
+                      .arg(tr("Clicking this links will revert all changes to this editor"))
+                      .arg(tr("Click here to reload"));
+    } else {
+        message = tr("File has been deleted outside the editor.");
+    }
+    displayBannerMessage(message, 10);
+}
+
 void qmdiEditor::adjustBottomAndTopWidget() {
-    if (m_topWidget) {
+    if (topWidget) {
         QWidget *parent = viewport();
         QRect r = parent->rect();
-        m_topWidget->adjustSize();
+        topWidget->adjustSize();
         r.adjust(10, 0, -10, 0);
-        r.setHeight(m_topWidget->height());
+        r.setHeight(topWidget->height());
         r.moveTop(10);
         r.moveLeft(parent->pos().x() + 10);
-        m_topWidget->setGeometry(r);
-        m_topWidget->show();
+        topWidget->setGeometry(r);
+        topWidget->show();
     }
-    if (m_bottomWidget) {
+    if (bottomWidget) {
         QWidget *parent = viewport();
         QRect r = parent->rect();
-        m_bottomWidget->adjustSize();
+        bottomWidget->adjustSize();
         r.adjust(10, 0, -10, 0);
-        r.setHeight(m_bottomWidget->height());
+        r.setHeight(bottomWidget->height());
         r.moveBottom(parent->rect().height() - 10);
         r.moveLeft(parent->pos().x() + 10);
-        m_bottomWidget->setGeometry(r);
-        m_bottomWidget->show();
+        bottomWidget->setGeometry(r);
+        bottomWidget->show();
     }
 }
 
@@ -274,22 +296,22 @@ void qmdiEditor::on_hideTimer_timeout() {
         QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
     } else {
         ui_banner->timer->clear();
-        m_banner->hide();
+        banner->hide();
     }
 }
 
 void qmdiEditor::showUpperWidget(QWidget *w) {
-    m_topWidget = w;
+    topWidget = w;
     adjustBottomAndTopWidget();
 }
 
 void qmdiEditor::showBottomWidget(QWidget *w) {
-    m_bottomWidget = w;
+    bottomWidget = w;
     adjustBottomAndTopWidget();
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {
-    showUpperWidget(m_banner);
+    showUpperWidget(banner);
     ui_banner->label->setText(message);
     m_timerHideout = time;
     QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
@@ -298,12 +320,12 @@ void qmdiEditor::displayBannerMessage(QString message, int time) {
 void qmdiEditor::hideBannerMessage() {
     m_timerHideout = 0;
     ui_banner->label->clear();
-    m_banner->hide();
+    banner->hide();
 
     // sometimes the top widget is displayed, lets workaround this
     // TODO: find WTF this is happening
-    if (m_topWidget == m_banner) {
-        m_topWidget = nullptr;
+    if (topWidget == banner) {
+        topWidget = nullptr;
     }
 }
 
@@ -328,14 +350,14 @@ bool qmdiEditor::doSaveAs() {
 
 bool qmdiEditor::loadFile(const QString &fileName) {
     // clear older watches, and add a new one
-    // QStringList sl = m_fileSystemWatcher->directories();
-    // if (!sl.isEmpty()) {
-    //     m_fileSystemWatcher->removePaths(sl);
-    // }
+    QStringList sl = fileSystemWatcher->directories();
+    if (!sl.isEmpty()) {
+        fileSystemWatcher->removePaths(sl);
+    }
 
     // bool modificationsEnabledState = getModificationsLookupEnabled();
     // setModificationsLookupEnabled(false);
-    // hideBannerMessage();
+    hideBannerMessage();
     this->setReadOnly(false);
     // QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     // QApplication::processEvents();
@@ -359,14 +381,14 @@ bool qmdiEditor::loadFile(const QString &fileName) {
         }
 
         this->fileName = fileInfo.absoluteFilePath();
-        // m_fileSystemWatcher->addPath(m_fileName);
-        // if (!fileInfo.isWritable()) {
-        //     this->setReadOnly(true);
-        //     displayBannerMessage(
-        //         tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
-        //            "change the file attributes for write access'>here to force write
-        //            access.</a>"));
-        // }
+        fileSystemWatcher->addPath(fileName);
+        if (!fileInfo.isWritable()) {
+            this->setReadOnly(true);
+            displayBannerMessage(
+                tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
+                   "change the file attributes for write access'>here to force write access.</a>"),
+                10);
+        }
     } else {
         this->fileName.clear();
         clear();
@@ -382,13 +404,13 @@ bool qmdiEditor::loadFile(const QString &fileName) {
 }
 
 bool qmdiEditor::saveFile(const QString &fileName) {
-    // QStringList sl = m_fileSystemWatcher->directories();
-    // if (!sl.isEmpty()) {
-    //     m_fileSystemWatcher->removePaths(sl);
-    // }
+    QStringList sl = fileSystemWatcher->directories();
+    if (!sl.isEmpty()) {
+        fileSystemWatcher->removePaths(sl);
+    }
     // bool modificationsEnabledState = getModificationsLookupEnabled();
     // setModificationsLookupEnabled(false);
-    // hideBannerMessage();
+    hideBannerMessage();
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
@@ -428,7 +450,7 @@ bool qmdiEditor::saveFile(const QString &fileName) {
     this->mdiClientName = getShortFileName();
     // removeModifications();
     // setModificationsLookupEnabled(modificationsEnabledState);
-    // m_fileSystemWatcher->addPath(m_fileName);
+    fileSystemWatcher->addPath(fileName);
 
     QApplication::restoreOverrideCursor();
 
