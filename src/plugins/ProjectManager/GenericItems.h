@@ -20,6 +20,7 @@ class DirectoryModel : public QAbstractTableModel {
     QString displayForItem(size_t i) const;
     QString fileNameForItem(size_t i) const;
 
+    void removeAllDirs();
     void addDirectory(const QString &path);
     void removeDirectory(const QString &path);
 

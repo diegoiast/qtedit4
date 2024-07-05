@@ -51,6 +51,13 @@ QString DirectoryModel::fileNameForItem(size_t i) const {
     return s;
 }
 
+void DirectoryModel::removeAllDirs() {
+    beginResetModel();
+    directoryList.clear();
+    fileList.clear();
+    endResetModel();
+}
+
 void DirectoryModel::addDirectory(const QString &path) {
     if (directoryList.contains(path)) {
         return;
