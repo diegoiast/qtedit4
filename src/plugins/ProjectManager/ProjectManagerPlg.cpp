@@ -77,7 +77,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     auto *w2 = new QWidget;
     outputPanel = new Ui::BuildRunOutput;
     outputPanel->setupUi(w2);
-    manager->createNewPanel(Panels::South, QString("Ouput"), w2);
+    manager->createNewPanel(Panels::South, QString("Output"), w2);
 
     connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
@@ -130,8 +130,8 @@ void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); 
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     settings.beginGroup("ProjectManager");
-    gui->filterOutFiles->setText(settings.value("FilterOut", "").toString());
-    gui->filterFiles->setText(settings.value("FilterOn", "").toString());
+    gui->filterOutFiles->setText(settings.value("Filter-Out", "").toString());
+    gui->filterFiles->setText(settings.value("Filter-In", "").toString());
     filesFilterModel->invalidate();
 
     settings.beginGroup("Loaded");
@@ -153,8 +153,8 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     settings.beginGroup("ProjectManager");
-    settings.setValue("FilterOut", gui->filterOutFiles->text());
-    settings.setValue("FilterIn", gui->filterFiles->text());
+    settings.setValue("Filter-Out", gui->filterOutFiles->text());
+    settings.setValue("Filter-In", gui->filterFiles->text());
 
     settings.remove("Loaded");
     settings.beginGroup("Loaded");
