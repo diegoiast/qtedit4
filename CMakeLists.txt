@@ -46,6 +46,7 @@ set(qtedit4_sources
     src/plugins/ProjectManager/ProjectSearch.cpp
     src/plugins/ProjectManager/ProjectSearch.h
     src/plugins/ProjectManager/ProjectSearchGUI.ui
+    src/plugins/ProjectManager/output.ui
     src/plugins/ProjectManager/GenericItems.cpp
     src/plugins/ProjectManager/GenericItems.h
     src/main.cpp
@@ -56,7 +57,8 @@ set(qtedit4_sources
 if (WIN32)
     add_executable(qtedit4 WIN32 ${qtedit4_sources})
 else()
-    add_executable(qtedit4 ${qtedit4_sources})
+    add_executable(qtedit4 ${qtedit4_sources}
+        src/plugins/ProjectManager/output.ui)
 endif()
 
 # lib/qmdilib/demos/plugin-demo/plugins/editor

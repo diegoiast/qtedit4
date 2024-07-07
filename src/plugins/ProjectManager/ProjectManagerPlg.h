@@ -5,6 +5,7 @@
 #include <QAbstractListModel>
 #include <QCompleter>
 #include <QList>
+#include <QProcess>
 
 class QDockWidget;
 class QTreeView;
@@ -51,6 +52,7 @@ class ProjectBuildModel : public QAbstractListModel {
 
 namespace Ui {
 class ProjectManagerGUI;
+class BuildRunOutput;
 } // namespace Ui
 
 class ProjectManagerPlugin : public IPlugin {
@@ -80,11 +82,14 @@ class ProjectManagerPlugin : public IPlugin {
   private:
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
+    Ui::BuildRunOutput *outputPanel = nullptr;
 
     QString executableName;
     QString executablePath;
     QString taskName;
     QString taskCommand;
+
+    QProcess runProcess;
 
     ProjectBuildModel *projectModel = nullptr;
     DirectoryModel *directoryModel;

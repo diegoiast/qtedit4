@@ -16,6 +16,16 @@
 #include "qmdihost.h"
 #include "qmdiserver.h"
 #include "ui_ProjectManagerGUI.h"
+#include "ui_output.h"
+
+static auto str(QProcess::ExitStatus e) -> QString {
+    switch (e) {
+    case QProcess::ExitStatus::NormalExit:
+        return "Normal exit";
+    case QProcess::ExitStatus::CrashExit:
+        return "crashed";
+    }
+}
 
 ProjectManagerPlugin::ProjectManagerPlugin() {
     name = tr("Project manager");
@@ -64,6 +74,33 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             &ProjectManagerPlugin::on_newProjectSelected);
     manager->createNewPanel(Panels::West, QString("Project"), w);
 
+    auto *w2 = new QWidget;
+    outputPanel = new Ui::BuildRunOutput;
+    outputPanel->setupUi(w2);
+    manager->createNewPanel(Panels::South, QString("Ouput"), w2);
+
+    connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
+        auto output = this->runProcess.readAllStandardOutput();
+        this->outputPanel->commandOuput->appendPlainText(output);
+    });
+    connect(&runProcess, &QProcess::readyReadStandardError, [this]() {
+        auto output = this->runProcess.readAllStandardError();
+        this->outputPanel->commandOuput->appendPlainText(output);
+    });
+    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [this](int exitCode, QProcess::ExitStatus exitStatus) {
+                auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
+                this->outputPanel->commandOuput->appendPlainText(output);
+            });
+    connect(&runProcess, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+        auto output = QString("[error: code=%1]").arg((int)error);
+        this->outputPanel->commandOuput->appendPlainText(output);
+        qWarning() << "Process error occurred:" << error;
+        qWarning() << "Error string:" << runProcess.errorString();
+    });
+
+    connect(gui->cleanButton, &QToolButton::clicked,
+            [this]() { this->outputPanel->commandOuput->clear(); });
     directoryModel = new DirectoryModel(this);
     filesFilterModel = new FilterOutProxyModel(this);
     filesFilterModel->setSourceModel(directoryModel);
@@ -231,58 +268,60 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
     }
 }
 
+static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
+    QString output = input;
+    QRegularExpression regex(R"(\$\{([a-zA-Z0-9_]+)\})");
+    QRegularExpressionMatchIterator it = regex.globalMatch(input);
+
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString key = match.captured(1);
+        QString replacement = hashTable.value(key, "");
+        output.replace(match.captured(0), replacement);
+    }
+    return output;
+}
+
 void ProjectManagerPlugin::on_removeProject_clicked(bool checked) {
     // TODO
 }
 
 void ProjectManagerPlugin::on_runButton_clicked() {
-    // TODO
-}
+    auto project = getCurrentConfig();
+    auto hash = QHash<QString, QString>();
+    hash["source_directory"] = project->sourceDir;
+    hash["build_directory"] = project->buildDir;
 
-/*
-void ProjectManagerPlugin::on_runButtonMenu_clicked() {
-    auto toolButton = gui->runButtonMenu;
-    QPoint pos = toolButton->mapToGlobal(QPoint(0, toolButton->height()));
+    auto command = QStringList();
+    auto currentTask = expand(executablePath, hash);
+    outputPanel->commandOuput->clear();
+    outputPanel->commandOuput->appendPlainText(currentTask);
 
-    auto config = getCurrentConfig();
-    if (!config || config->executables.size() == 0) {
-        executableName.clear();
-        executablePath.clear();
-
-        gui->runButton->setText("...");
-        gui->runButton->setToolTip("...");
-        gui->runButton->setEnabled(false);
-        return;
+    command.append("-c");
+    command.append(currentTask);
+    runProcess.start("/bin/bash", command);
+    if (!runProcess.waitForStarted()) {
+        qWarning() << "Process failed to start";
     }
-
-    if (config->executables.size() == 1) {
-        executableName = config->executables[0].name;
-        executablePath = findExecForPlatform(config->executables[0].executables);
-    } else {
-        auto menu = new QMenu(toolButton);
-        QList<QAction *> actions;
-        for (auto a : config->executables) {
-            QAction *action = new QAction(a.name, this);
-            menu->addAction(action);
-            actions.append(action);
-        }
-        auto action = menu->exec(pos);
-        if (!action) {
-            return;
-        }
-        int index = actions.indexOf(action);
-        executableName = config->executables[index].name;
-        executablePath = findExecForPlatform(config->executables[index].executables);
-    }
-
-    gui->runButton->setEnabled(true);
-    gui->runButton->setText(executableName);
-    gui->runButton->setToolTip(executablePath);
 }
-*/
 
 void ProjectManagerPlugin::on_runTask_clicked() {
-    // TODO
+    auto project = getCurrentConfig();
+    auto hash = QHash<QString, QString>();
+    hash["source_directory"] = project->sourceDir;
+    hash["build_directory"] = project->buildDir;
+
+    auto command = QStringList();
+    auto currentTask = expand(taskCommand, hash);
+    outputPanel->commandOuput->clear();
+    outputPanel->commandOuput->appendPlainText(currentTask);
+
+    command.append("-c");
+    command.append(currentTask);
+    runProcess.start("/bin/bash", command);
+    if (!runProcess.waitForStarted()) {
+        qWarning() << "Process failed to start";
+    }
 }
 
 void ProjectManagerPlugin::on_clearProject_clicked() {
@@ -304,9 +343,12 @@ ProjectBuildConfig::buildFromDirectory(const QString directory) {
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QString jsonFileName) {
+    auto value = std::make_shared<ProjectBuildConfig>();
     QFile file;
     file.setFileName(jsonFileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        return value;
+    }
     QJsonDocument json = QJsonDocument::fromJson(file.readAll());
     file.close();
 
@@ -346,7 +388,6 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     };
 
     auto fi = QFileInfo(jsonFileName);
-    auto value = std::make_shared<ProjectBuildConfig>();
     value->sourceDir = fi.absolutePath();
     if (!json.isNull()) {
         value->buildDir = json["build_directory"].toString();
