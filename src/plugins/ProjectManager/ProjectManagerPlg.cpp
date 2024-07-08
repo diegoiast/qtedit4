@@ -199,20 +199,20 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
 
     auto config = getCurrentConfig();
     if (!config || config->executables.size() == 0) {
-        executableName.clear();
-        executablePath.clear();
-        gui->runButton->setText("...");
-        gui->runButton->setToolTip("...");
-        gui->runButton->setEnabled(false);
+        this->selectedTarget = nullptr;
+        this->gui->runButton->setText("...");
+        this->gui->runButton->setToolTip("...");
+        this->gui->runButton->setEnabled(false);
     } else {
-        executableName = config->executables[0].name;
-        executablePath = findExecForPlatform(config->executables[0].executables);
-        gui->runButton->setEnabled(true);
-        gui->runButton->setText(executableName);
-        gui->runButton->setToolTip(executablePath);
+        auto executableName = config->executables[0].name;
+        auto executablePath = findExecForPlatform(config->executables[0].executables);
+        this->gui->runButton->setEnabled(true);
+        this->gui->runButton->setText(executableName);
+        this->gui->runButton->setToolTip(executablePath);
+        this->selectedTarget = &config->executables[0];
 
         if (config->executables.size() == 1) {
-            gui->runButton->setMenu(nullptr);
+            this->gui->runButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
@@ -221,62 +221,64 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
                 menu->addAction(action);
                 actions.append(action);
             }
-            gui->runButton->setMenu(menu);
+            this->gui->runButton->setMenu(menu);
             connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
-                int index = actions.indexOf(action);
-                executableName = config->executables[index].name;
-                executablePath = findExecForPlatform(config->executables[index].executables);
-                gui->runButton->setEnabled(true);
-                gui->runButton->setText(executableName);
-                gui->runButton->setToolTip(executablePath);
+                auto index = actions.indexOf(action);
+                auto executableName = config->executables[index].name;
+                auto executablePath = findExecForPlatform(config->executables[index].executables);
+                this->gui->runButton->setEnabled(true);
+                this->gui->runButton->setText(executableName);
+                this->gui->runButton->setToolTip(executablePath);
+                this->selectedTarget = &config->executables[index];
             });
         }
     }
 
     if (!config || config->tasksInfo.size() == 0) {
-        taskName.clear();
-        taskCommand.clear();
-        gui->taskButton->setText("...");
-        gui->taskButton->setToolTip("...");
-        gui->taskButton->setEnabled(false);
+        this->selectedTask = nullptr;
+        this->gui->taskButton->setText("...");
+        this->gui->taskButton->setToolTip("...");
+        this->gui->taskButton->setEnabled(false);
     } else {
-        taskName = config->tasksInfo[0].name;
-        taskCommand = config->tasksInfo[0].command;
-        gui->taskButton->setEnabled(true);
-        gui->taskButton->setText(taskName);
-        gui->taskButton->setToolTip(taskCommand);
+        auto taskName = config->tasksInfo[0].name;
+        auto taskCommand = config->tasksInfo[0].command;
+        this->gui->taskButton->setEnabled(true);
+        this->gui->taskButton->setText(taskName);
+        this->gui->taskButton->setToolTip(taskCommand);
+        this->selectedTask = &config->tasksInfo[0];
         if (config->tasksInfo.size() == 1) {
             gui->taskButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
             for (auto a : config->tasksInfo) {
-                QAction *action = new QAction(a.name, this);
+                auto action = new QAction(a.name, this);
                 menu->addAction(action);
                 actions.append(action);
             }
             gui->taskButton->setMenu(menu);
             connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
-                int index = actions.indexOf(action);
-                taskName = config->tasksInfo[index].name;
-                taskCommand = config->tasksInfo[index].command;
-                gui->taskButton->setEnabled(true);
-                gui->taskButton->setText(taskName);
-                gui->taskButton->setToolTip(taskCommand);
+                auto index = actions.indexOf(action);
+                auto taskName = config->tasksInfo[index].name;
+                auto taskCommand = config->tasksInfo[index].command;
+                this->gui->taskButton->setEnabled(true);
+                this->gui->taskButton->setText(taskName);
+                this->gui->taskButton->setToolTip(taskCommand);
+                this->selectedTask = &config->tasksInfo[index];
             });
         }
     }
 }
 
 static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
-    QString output = input;
-    QRegularExpression regex(R"(\$\{([a-zA-Z0-9_]+)\})");
-    QRegularExpressionMatchIterator it = regex.globalMatch(input);
+    auto output = input;
+    auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
+    auto it = regex.globalMatch(input);
 
     while (it.hasNext()) {
-        QRegularExpressionMatch match = it.next();
-        QString key = match.captured(1);
-        QString replacement = hashTable.value(key, "");
+        auto match = it.next();
+        auto key = match.captured(1);
+        auto replacement = hashTable.value(key, "");
         output.replace(match.captured(0), replacement);
     }
     return output;
@@ -287,40 +289,60 @@ void ProjectManagerPlugin::on_removeProject_clicked(bool checked) {
 }
 
 void ProjectManagerPlugin::on_runButton_clicked() {
+    assert(this->selectedTarget);
+
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
     hash["build_directory"] = project->buildDir;
 
-    auto command = QStringList();
+    auto executablePath = findExecForPlatform(this->selectedTarget->executables);
     auto currentTask = expand(executablePath, hash);
+    auto workingDirectory = expand(this->selectedTarget->runDirectory, hash);
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = project->buildDir;
+    }
     outputPanel->commandOuput->clear();
+    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     outputPanel->commandOuput->appendPlainText(currentTask);
 
+    // TODO - windows support
+    auto command = QStringList();
     command.append("-c");
     command.append(currentTask);
     runProcess.start("/bin/bash", command);
+    runProcess.setWorkingDirectory(workingDirectory);
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
     }
 }
 
 void ProjectManagerPlugin::on_runTask_clicked() {
+    assert(this->selectedTask);
+
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
     hash["build_directory"] = project->buildDir;
 
-    auto command = QStringList();
-    auto currentTask = expand(taskCommand, hash);
+    auto workingDirectory = expand(this->selectedTarget->runDirectory, hash);
+    auto currentTask = expand(this->selectedTask->command, hash);
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = project->buildDir;
+    }
     outputPanel->commandOuput->clear();
+    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     outputPanel->commandOuput->appendPlainText(currentTask);
 
+    // TODO - windows support
+    auto command = QStringList();
     command.append("-c");
     command.append(currentTask);
+    runProcess.setWorkingDirectory(workingDirectory);
     runProcess.start("/bin/bash", command);
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
+        this->outputPanel->commandOuput->appendPlainText("Process failed to start");
     }
 }
 
@@ -369,6 +391,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 ExecutableInfo execInfo;
                 execInfo.name = vv.toObject()["name"].toString();
                 execInfo.executables = toHash(vv.toObject()["executables"]);
+                execInfo.runDirectory = vv.toObject()["directory"].toString();
                 info.push_back(execInfo);
             };
         }
@@ -381,6 +404,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 TaskInfo taskInfo;
                 taskInfo.name = vv.toObject()["name"].toString();
                 taskInfo.command = vv.toObject()["command"].toString();
+                taskInfo.runDirectory = vv.toObject()["directory"].toString();
                 info.push_back(taskInfo);
             };
         }

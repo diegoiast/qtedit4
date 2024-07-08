@@ -18,12 +18,14 @@ class FilterOutProxyModel;
 
 struct ExecutableInfo {
     QString name;
+    QString runDirectory;
     QHash<QString, QString> executables;
 };
 
 struct TaskInfo {
     QString name;
     QString command;
+    QString runDirectory;
 };
 
 struct ProjectBuildConfig {
@@ -84,10 +86,8 @@ class ProjectManagerPlugin : public IPlugin {
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
 
-    QString executableName;
-    QString executablePath;
-    QString taskName;
-    QString taskCommand;
+    ExecutableInfo *selectedTarget;
+    TaskInfo *selectedTask;
 
     QProcess runProcess;
 
