@@ -325,20 +325,22 @@ void ProjectManagerPlugin::on_runTask_clicked() {
     hash["source_directory"] = project->sourceDir;
     hash["build_directory"] = project->buildDir;
 
-    auto workingDirectory = expand(this->selectedTarget->runDirectory, hash);
     auto currentTask = expand(this->selectedTask->command, hash);
+    auto workingDirectory = expand(this->selectedTask->runDirectory, hash);
+
+    outputPanel->commandOuput->clear();
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
-    outputPanel->commandOuput->clear();
+
+    runProcess.setWorkingDirectory(workingDirectory);
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
-    outputPanel->commandOuput->appendPlainText(currentTask);
 
     // TODO - windows support
     auto command = QStringList();
     command.append("-c");
     command.append(currentTask);
-    runProcess.setWorkingDirectory(workingDirectory);
+    outputPanel->commandOuput->appendPlainText(currentTask);
     runProcess.start("/bin/bash", command);
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
@@ -347,7 +349,29 @@ void ProjectManagerPlugin::on_runTask_clicked() {
 }
 
 void ProjectManagerPlugin::on_clearProject_clicked() {
-    // TODO
+    auto project = getCurrentConfig();
+
+    QMessageBox msgBox;
+    msgBox.setIcon(QMessageBox::Question);
+    msgBox.setText(
+        tr("This will delete <b>%1</b>. Do you want to proceed?").arg(project->buildDir));
+    msgBox.setWindowTitle(tr("Confirmation"));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+
+    int ret = msgBox.exec();
+    switch (ret) {
+    case QMessageBox::Yes: {
+        // TODO - run this in a thread?
+        auto outputDir = QDir(project->buildDir);
+        outputDir.removeRecursively();
+        break;
+    }
+    case QMessageBox::No:
+        break;
+    default:
+        break;
+    }
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {

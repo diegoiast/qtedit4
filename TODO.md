@@ -4,7 +4,7 @@
 ## Project manager
 
 1. ~~Support for chdir~~
-1. Implement delete build dir
+1. ~~Implement delete build dir~~
 1. Shortcuts for run, build
 1. Fix directories without json
 1. Save active project, target, command
