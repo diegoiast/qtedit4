@@ -98,7 +98,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>qtedit4</string>
+        <string>...</string>
        </property>
        <property name="popupMode">
         <enum>QToolButton::MenuButtonPopup</enum>
@@ -133,7 +133,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Build</string>
+        <string>...</string>
        </property>
        <property name="popupMode">
         <enum>QToolButton::MenuButtonPopup</enum>

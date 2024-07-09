@@ -1,3 +1,4 @@
+#include <QClipboard>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QJsonArray>
@@ -23,8 +24,9 @@ static auto str(QProcess::ExitStatus e) -> QString {
     case QProcess::ExitStatus::NormalExit:
         return "Normal exit";
     case QProcess::ExitStatus::CrashExit:
-        return "crashed";
+        return "Crashed";
     }
+    return "";
 }
 
 ProjectManagerPlugin::ProjectManagerPlugin() {
@@ -62,7 +64,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             &ProjectManagerPlugin::on_runTask_clicked);
     connect(gui->cleanButton, &QAbstractButton::clicked, this,
             &ProjectManagerPlugin::on_clearProject_clicked);
-
     connect(gui->addDirectory, &QAbstractButton::clicked, this,
             &ProjectManagerPlugin::on_addProject_clicked);
     connect(gui->removeDirectory, &QAbstractButton::clicked, this,
@@ -79,6 +80,13 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->setupUi(w2);
     manager->createNewPanel(Panels::South, QString("Output"), w2);
 
+    connect(outputPanel->clearOutput, &QAbstractButton::clicked,
+            [this]() { this->outputPanel->commandOuput->clear(); });
+    connect(outputPanel->copyOutput, &QAbstractButton::clicked, [this]() {
+        auto text = this->outputPanel->commandOuput->document()->toPlainText();
+        auto clipboard = QGuiApplication::clipboard();
+        clipboard->setText(text);
+    });
     connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
         this->outputPanel->commandOuput->appendPlainText(output);
@@ -112,7 +120,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             [this](const QString &newText) { filesFilterModel->setFilterOutWildcard(newText); });
 
     auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
-    auto seachID = manager->createNewPanel(Panels::West, "Search", searchPanelUI);
+    auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
 
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
@@ -124,6 +132,30 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     projectModel = new ProjectBuildModel();
     gui->comboBox->setModel(projectModel);
+
+    runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
+    buildAction = new QAction(QIcon::fromTheme("document-save-as"), tr("&Run task"), this);
+    clearAction = new QAction(QIcon::fromTheme("edit-clear"), tr("&Delete build directory"), this);
+
+    runAction->setEnabled(false);
+    buildAction->setEnabled(false);
+    clearAction->setEnabled(false);
+
+    connect(runAction, SIGNAL(triggered()), this, SLOT(on_runButton_clicked()));
+    connect(buildAction, SIGNAL(triggered()), this, SLOT(on_runTask_clicked()));
+    connect(clearAction, SIGNAL(triggered()), this, SLOT(on_clearProject_clicked()));
+
+    runAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_R));
+    buildAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_B));
+
+    this->menus[tr("&Project")]->addAction(runAction);
+    this->menus[tr("&Project")]->addAction(buildAction);
+    this->menus[tr("&Project")]->addAction(clearAction);
+
+    this->availablbeTasksMenu = new QMenu(tr("Available tasks"));
+    this->availablbeExecutablesMenu = new QMenu(tr("Available executables"));
+    this->menus[tr("&Project")]->addMenu(availablbeTasksMenu);
+    this->menus[tr("&Project")]->addMenu(availablbeExecutablesMenu);
 }
 
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
@@ -203,6 +235,10 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->gui->runButton->setText("...");
         this->gui->runButton->setToolTip("...");
         this->gui->runButton->setEnabled(false);
+
+        this->runAction->setEnabled(false);
+        this->buildAction->setEnabled(false);
+        this->clearAction->setEnabled(false);
     } else {
         auto executableName = config->executables[0].name;
         auto executablePath = findExecForPlatform(config->executables[0].executables);
@@ -211,16 +247,30 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->gui->runButton->setToolTip(executablePath);
         this->selectedTarget = &config->executables[0];
 
+        this->runAction->setEnabled(true);
+        this->runAction->setText(QString(tr("Run: %1")).arg(executableName));
+        this->runAction->setToolTip(executablePath);
+
+        this->clearAction->setEnabled(true);
+        this->availablbeExecutablesMenu->hide();
+        this->availablbeExecutablesMenu->clear();
+        this->mdiServer->mdiHost->updateGUI();
         if (config->executables.size() == 1) {
             this->gui->runButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto a : config->executables) {
-                QAction *action = new QAction(a.name, this);
+            for (auto target : config->executables) {
+                QAction *action = new QAction(target.name, this);
                 menu->addAction(action);
                 actions.append(action);
+
+                action = new QAction(target.name, this);
+                connect(action, &QAction::triggered,
+                        [this, target]() { this->do_runExecutable(&target); });
+                this->availablbeExecutablesMenu->addAction(action);
             }
+            this->mdiServer->mdiHost->updateGUI();
             this->gui->runButton->setMenu(menu);
             connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
                 auto index = actions.indexOf(action);
@@ -230,6 +280,10 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
                 this->gui->runButton->setText(executableName);
                 this->gui->runButton->setToolTip(executablePath);
                 this->selectedTarget = &config->executables[index];
+
+                this->runAction->setEnabled(true);
+                this->runAction->setText(QString(tr("Run: %1")).arg(executableName));
+                this->runAction->setToolTip(executablePath);
             });
         }
     }
@@ -245,16 +299,30 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->gui->taskButton->setEnabled(true);
         this->gui->taskButton->setText(taskName);
         this->gui->taskButton->setToolTip(taskCommand);
+
+        this->buildAction->setEnabled(true);
+        this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
+        this->buildAction->setToolTip(taskCommand);
+
         this->selectedTask = &config->tasksInfo[0];
+        this->availablbeTasksMenu->hide();
+        this->availablbeTasksMenu->clear();
+        this->mdiServer->mdiHost->updateGUI();
         if (config->tasksInfo.size() == 1) {
             gui->taskButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto a : config->tasksInfo) {
-                auto action = new QAction(a.name, this);
+            for (auto taskInfo : config->tasksInfo) {
+                auto action = new QAction(taskInfo.name, this);
                 menu->addAction(action);
                 actions.append(action);
+
+                action = new QAction(taskInfo.name, this);
+                connect(action, &QAction::triggered,
+                        [this, taskInfo]() { this->do_runTask(&taskInfo); });
+
+                this->availablbeTasksMenu->addAction(action);
             }
             gui->taskButton->setMenu(menu);
             connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
@@ -265,6 +333,10 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
                 this->gui->taskButton->setText(taskName);
                 this->gui->taskButton->setToolTip(taskCommand);
                 this->selectedTask = &config->tasksInfo[index];
+
+                this->buildAction->setEnabled(true);
+                this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
+                this->buildAction->setToolTip(taskCommand);
             });
         }
     }
@@ -284,21 +356,15 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
     return output;
 }
 
-void ProjectManagerPlugin::on_removeProject_clicked(bool checked) {
-    // TODO
-}
-
-void ProjectManagerPlugin::on_runButton_clicked() {
-    assert(this->selectedTarget);
-
+void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget) {
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
     hash["build_directory"] = project->buildDir;
 
-    auto executablePath = findExecForPlatform(this->selectedTarget->executables);
+    auto executablePath = findExecForPlatform(selectedTarget->executables);
     auto currentTask = expand(executablePath, hash);
-    auto workingDirectory = expand(this->selectedTarget->runDirectory, hash);
+    auto workingDirectory = expand(selectedTarget->runDirectory, hash);
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
@@ -317,16 +383,14 @@ void ProjectManagerPlugin::on_runButton_clicked() {
     }
 }
 
-void ProjectManagerPlugin::on_runTask_clicked() {
-    assert(this->selectedTask);
-
+void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
     hash["build_directory"] = project->buildDir;
 
-    auto currentTask = expand(this->selectedTask->command, hash);
-    auto workingDirectory = expand(this->selectedTask->runDirectory, hash);
+    auto currentTask = expand(task->command, hash);
+    auto workingDirectory = expand(task->runDirectory, hash);
 
     outputPanel->commandOuput->clear();
     if (workingDirectory.isEmpty()) {
@@ -346,6 +410,20 @@ void ProjectManagerPlugin::on_runTask_clicked() {
         qWarning() << "Process failed to start";
         this->outputPanel->commandOuput->appendPlainText("Process failed to start");
     }
+}
+
+void ProjectManagerPlugin::on_removeProject_clicked(bool checked) {
+    // TODO
+}
+
+void ProjectManagerPlugin::on_runButton_clicked() {
+    assert(this->selectedTarget);
+    do_runExecutable(this->selectedTarget);
+}
+
+void ProjectManagerPlugin::on_runTask_clicked() {
+    assert(this->selectedTask);
+    do_runTask(this->selectedTask);
 }
 
 void ProjectManagerPlugin::on_clearProject_clicked() {

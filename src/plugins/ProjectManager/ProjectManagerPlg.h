@@ -74,6 +74,8 @@ class ProjectManagerPlugin : public IPlugin {
     void on_removeProject_clicked(bool checked);
     void on_newProjectSelected(int index);
 
+    void do_runExecutable(const ExecutableInfo *info);
+    void do_runTask(const TaskInfo *task);
     void on_runButton_clicked();
     void on_runTask_clicked();
     void on_clearProject_clicked();
@@ -94,4 +96,10 @@ class ProjectManagerPlugin : public IPlugin {
     ProjectBuildModel *projectModel = nullptr;
     DirectoryModel *directoryModel;
     FilterOutProxyModel *filesFilterModel;
+
+    QAction *runAction = nullptr;
+    QAction *buildAction = nullptr;
+    QAction *clearAction = nullptr;
+    QMenu *availablbeTasksMenu;
+    QMenu *availablbeExecutablesMenu;
 };

@@ -174,8 +174,9 @@ void qmdiEditor::setupActions() {
     actionFind->setShortcut(QKeySequence::Find);
     actionFindNext->setShortcut(QKeySequence::FindNext);
     actionFindPrev->setShortcut(QKeySequence::FindPrevious);
-    actionReplace->setShortcut(QKeySequence::Replace);
-    actionGotoLine->setShortcut(QKeySequence("Ctrl+G"));
+    // actionReplace->setShortcut(QKeySequence::Replace);
+    actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
+    actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionFindMatchingBracket->setShortcuts(QList<QKeySequence>()
@@ -242,6 +243,9 @@ void qmdiEditor::setupActions() {
     addAction(actionLowerCase);
     addAction(actionChangeCase);
     addAction(actionFindMatchingBracket);
+
+    // default is control+b - which we want to use for build
+    toggleBookmarkAction()->setShortcut(QKeySequence());
 }
 
 void qmdiEditor::on_fileChanged(const QString &filename) {

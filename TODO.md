@@ -5,7 +5,8 @@
 
 1. ~~Support for chdir~~
 1. ~~Implement delete build dir~~
-1. Shortcuts for run, build
+1. ~~Shortcuts for run, build~~
+1. ~~Task/Run submenus do nothing~~
 1. Fix directories without json
 1. Save active project, target, command
 1. Add a watcher to the json, and reload on demand
@@ -24,12 +25,11 @@
 1. Fix crash in Kotlin indentator
 1. Red line should be bellow text
 1. Goto matching bracket
-1. Add line to margin
 1. Verify dark mode
 1. Support for themes
 1. Load syntax files from disk
 1. Download syntax files from kate.org
-1. Line ending on save
+1. Line ending on save (Unix/Windows/Keep original)
 1. Trim spaces on save (edit?)
 
 
@@ -37,9 +37,16 @@
 
 1. Quick jump inside open files
 1. Shortcuts manager
-1. Reload all files modified
 1. Save restore cursor position in open windows
+1. Bottom view should be collapsible
+1. All actions in menus, toolbars shold be "added" to the main window
 
+## Editor plugin
+
+1. Save content of unnamed files
+1. Add line/column to margin display
+1. Copy path, full, relative
+1. Make all actions availalbe from menus
 
 ## Meta
 
@@ -54,8 +61,11 @@
 
 ## Internal
 
-1. Restore unsaved files 
 1. Hex editor support for binary files
 1. Image viewer
 1. Markdown display
-
+1. Global hotkeys https://github.com/Skycoder42/QHotkey/blob/master/README.md
+1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
+1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then".
+1. SCM support
+1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
