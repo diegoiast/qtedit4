@@ -8,17 +8,18 @@
 1. ~~Shortcuts for run, build~~
 1. ~~Task/Run submenus do nothing~~
 1. ~~Stop task/executable~~
-1. Fix directories without json
+1. ~~Fix directories without json~~
+1. Remove project from IDE
 1. Save active project, target, command
 1. Add a watcher to the json, and reload on demand
-1. Add GUI editor for json
 1. Finish win32,win64,linux64,osx
 1. Auto deduct json for c++ dirs
 1. Auto deduct json for rust dirs
 1. Auto deduct json for go dirs
-1. Auto deduct json for Android dirs
 1. Scripts files - run directly (in console, embeded)
+1. Add GUI editor for json
 1. Terminal adds extra lines (sometimes?)
+1. Auto deduct json for Android dirs
 
 
 ## QutePart
@@ -29,6 +30,7 @@
 1. Goto matching bracket
 1. Verify dark mode
 1. Support for themes
+1. Smart home/end
 1. Load syntax files from disk
 1. Download syntax files from kate.org
 1. Line ending on save (Unix/Windows/Keep original)
@@ -42,6 +44,7 @@
 1. Save restore cursor position in open windows
 1. Bottom view should be collapsible
 1. All actions in menus, toolbars shold be "added" to the main window
+1. Add actions to be forced at the end
 
 ## Editor plugin
 

@@ -164,10 +164,21 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     this->menus[tr("&Project")]->addAction(buildAction);
     this->menus[tr("&Project")]->addAction(clearAction);
 
-    this->availablbeTasksMenu = new QMenu(tr("Available tasks"));
-    this->availablbeExecutablesMenu = new QMenu(tr("Available executables"));
-    this->menus[tr("&Project")]->addMenu(availablbeTasksMenu);
-    this->menus[tr("&Project")]->addMenu(availablbeExecutablesMenu);
+    this->availableTasksMenu = new QMenu(tr("Available tasks"));
+    this->availableExecutablesMenu = new QMenu(tr("Available executables"));
+    this->menus[tr("&Project")]->addMenu(availableTasksMenu);
+    this->menus[tr("&Project")]->addMenu(availableExecutablesMenu);
+
+    auto addNewProjectIcon = new QAction(tr("Add existing project.."));
+    auto removeProjectIcon = new QAction(tr("Close project"));
+    connect(addNewProjectIcon, &QAction::triggered,
+            [this]() { this->gui->addDirectory->animateClick(); });
+    connect(removeProjectIcon, &QAction::triggered,
+            [this]() { this->gui->removeDirectory->animateClick(); });
+
+    this->menus[tr("&Project")]->addSeparator();
+    this->menus[tr("&Project")]->addAction(addNewProjectIcon);
+    this->menus[tr("&Project")]->addAction(removeProjectIcon);
 }
 
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
@@ -221,14 +232,17 @@ void ProjectManagerPlugin::onItemClicked(const QModelIndex &index) {
 }
 
 void ProjectManagerPlugin::on_addProject_clicked(bool) {
-    QString s = QFileDialog::getExistingDirectory(gui->filesView, tr("Add directory"));
-    if (s.isEmpty()) {
+    QString dirName = QFileDialog::getExistingDirectory(gui->filesView, tr("Add directory"));
+    if (dirName.isEmpty()) {
         return;
     }
-
-    auto config = ProjectBuildConfig::buildFromDirectory(s);
+    auto config = projectModel->findConfig(dirName);
+    if (config) {
+        return;
+    }
+    config = ProjectBuildConfig::buildFromDirectory(dirName);
     projectModel->addConfig(config);
-    directoryModel->addDirectory(s);
+    directoryModel->addDirectory(dirName);
 }
 
 QString findExecForPlatform(QHash<QString, QString> files) {
@@ -251,6 +265,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->runAction->setEnabled(false);
         this->buildAction->setEnabled(false);
         this->clearAction->setEnabled(false);
+        this->availableExecutablesMenu->clear();
     } else {
         auto executableName = config->executables[0].name;
         auto executablePath = findExecForPlatform(config->executables[0].executables);
@@ -264,8 +279,8 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->runAction->setToolTip(executablePath);
 
         this->clearAction->setEnabled(true);
-        this->availablbeExecutablesMenu->hide();
-        this->availablbeExecutablesMenu->clear();
+        this->availableExecutablesMenu->hide();
+        this->availableExecutablesMenu->clear();
         this->mdiServer->mdiHost->updateGUI();
         if (config->executables.size() == 1) {
             this->gui->runButton->setMenu(nullptr);
@@ -280,7 +295,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
                 action = new QAction(target.name, this);
                 connect(action, &QAction::triggered,
                         [this, target]() { this->do_runExecutable(&target); });
-                this->availablbeExecutablesMenu->addAction(action);
+                this->availableExecutablesMenu->addAction(action);
             }
             this->mdiServer->mdiHost->updateGUI();
             this->gui->runButton->setMenu(menu);
@@ -305,6 +320,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->gui->taskButton->setText("...");
         this->gui->taskButton->setToolTip("...");
         this->gui->taskButton->setEnabled(false);
+        this->availableTasksMenu->clear();
     } else {
         auto taskName = config->tasksInfo[0].name;
         auto taskCommand = config->tasksInfo[0].command;
@@ -317,8 +333,8 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->buildAction->setToolTip(taskCommand);
 
         this->selectedTask = &config->tasksInfo[0];
-        this->availablbeTasksMenu->hide();
-        this->availablbeTasksMenu->clear();
+        this->availableTasksMenu->hide();
+        this->availableTasksMenu->clear();
         this->mdiServer->mdiHost->updateGUI();
         if (config->tasksInfo.size() == 1) {
             gui->taskButton->setMenu(nullptr);
@@ -334,7 +350,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
                 connect(action, &QAction::triggered,
                         [this, taskInfo]() { this->do_runTask(&taskInfo); });
 
-                this->availablbeTasksMenu->addAction(action);
+                this->availableTasksMenu->addAction(action);
             }
             gui->taskButton->setMenu(menu);
             connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
@@ -434,7 +450,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 }
 
-void ProjectManagerPlugin::on_removeProject_clicked(bool checked) {
+void ProjectManagerPlugin::on_removeProject_clicked() {
     // TODO
 }
 
@@ -450,7 +466,9 @@ void ProjectManagerPlugin::on_runTask_clicked() {
 
 void ProjectManagerPlugin::on_clearProject_clicked() {
     auto project = getCurrentConfig();
-
+    if (project->buildDir.isEmpty()) {
+        return;
+    }
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(
@@ -490,12 +508,15 @@ ProjectBuildConfig::buildFromDirectory(const QString directory) {
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QString jsonFileName) {
     auto value = std::make_shared<ProjectBuildConfig>();
-    QFile file;
+    auto fi = QFileInfo(jsonFileName);
+    value->sourceDir = fi.absolutePath();
+
+    auto file = QFile();
     file.setFileName(jsonFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return value;
     }
-    QJsonDocument json = QJsonDocument::fromJson(file.readAll());
+    auto json = QJsonDocument::fromJson(file.readAll());
     file.close();
 
     auto toHash = [](QJsonValueRef v) -> QHash<QString, QString> {
@@ -535,8 +556,6 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         return info;
     };
 
-    auto fi = QFileInfo(jsonFileName);
-    value->sourceDir = fi.absolutePath();
     if (!json.isNull()) {
         value->buildDir = json["build_directory"].toString();
         value->executables = parseExecutables(json["executables"]);

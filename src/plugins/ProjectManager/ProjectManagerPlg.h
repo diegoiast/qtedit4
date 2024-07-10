@@ -71,7 +71,7 @@ class ProjectManagerPlugin : public IPlugin {
   public slots:
     void onItemClicked(const QModelIndex &index);
     void on_addProject_clicked(bool checked);
-    void on_removeProject_clicked(bool checked);
+    void on_removeProject_clicked();
     void on_newProjectSelected(int index);
 
     void do_runExecutable(const ExecutableInfo *info);
@@ -100,6 +100,6 @@ class ProjectManagerPlugin : public IPlugin {
     QAction *runAction = nullptr;
     QAction *buildAction = nullptr;
     QAction *clearAction = nullptr;
-    QMenu *availablbeTasksMenu;
-    QMenu *availablbeExecutablesMenu;
+    QMenu *availableTasksMenu;
+    QMenu *availableExecutablesMenu;
 };
