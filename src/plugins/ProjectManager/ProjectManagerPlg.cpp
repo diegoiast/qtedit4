@@ -87,6 +87,18 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto clipboard = QGuiApplication::clipboard();
         clipboard->setText(text);
     });
+    connect(outputPanel->playButton, &QAbstractButton::clicked,
+            [this]() { this->gui->runButton->animateClick(); });
+
+    connect(outputPanel->buildButton, &QAbstractButton::clicked,
+            [this]() { this->gui->taskButton->animateClick(); });
+
+    connect(outputPanel->cancelButton, &QAbstractButton::clicked, [this]() {
+        if (this->runProcess.processId() != 0) {
+            this->runProcess.kill();
+        }
+    });
+
     connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
         this->outputPanel->commandOuput->appendPlainText(output);
@@ -357,6 +369,11 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
 }
 
 void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget) {
+    if (runProcess.processId() != 0) {
+        runProcess.kill();
+        return;
+    }
+
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
@@ -384,6 +401,11 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget
 }
 
 void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
+    if (runProcess.processId() != 0) {
+        runProcess.kill();
+        return;
+    }
+
     auto project = getCurrentConfig();
     auto hash = QHash<QString, QString>();
     hash["source_directory"] = project->sourceDir;
