@@ -5,9 +5,9 @@
 
 DirectoryModel::DirectoryModel(QObject *parent) : QAbstractTableModel(parent) {}
 
-int DirectoryModel::rowCount(const QModelIndex &parent) const { return fileList.count(); }
+int DirectoryModel::rowCount(const QModelIndex &) const { return fileList.count(); }
 
-int DirectoryModel::columnCount(const QModelIndex &parent) const { return 1; }
+int DirectoryModel::columnCount(const QModelIndex &) const { return 1; }
 
 QVariant DirectoryModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid()) {
@@ -99,12 +99,10 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             if (clean_rule.isEmpty()) {
                 continue;
             }
-            auto reOptions = QRegularExpression::CaseInsensitiveOption;
             auto options = QRegularExpression::UnanchoredWildcardConversion;
-
-            QString pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
-            QString escapedFile = QRegularExpression::escape(fileName);
-            QRegularExpression regex(pattern);
+            auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            auto escapedFile = QRegularExpression::escape(fileName);
+            auto regex = QRegularExpression(pattern);
             bool matches = regex.match(escapedFile).hasMatch();
             if (matches) {
                 return false;
@@ -121,12 +119,10 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             if (clean_rule.isEmpty()) {
                 continue;
             }
-            auto reOptions = QRegularExpression::CaseInsensitiveOption;
             auto options = QRegularExpression::UnanchoredWildcardConversion;
-
-            QString pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
-            QString escapedFile = QRegularExpression::escape(fileName);
-            QRegularExpression regex(pattern);
+            auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            auto escapedFile = QRegularExpression::escape(fileName);
+            auto regex = QRegularExpression(pattern);
             bool matches = regex.match(escapedFile).hasMatch();
             if (matches) {
                 filterMatchFound = true;
