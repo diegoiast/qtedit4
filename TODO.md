@@ -9,7 +9,7 @@
 1. ~~Task/Run submenus do nothing~~
 1. ~~Stop task/executable~~
 1. ~~Fix directories without json~~
-1. Remove project from IDE
+1. ~~Remove project from IDE~~
 1. Save active project, target, command
 1. Add a watcher to the json, and reload on demand
 1. Finish win32,win64,linux64,osx

@@ -245,16 +245,22 @@ void ProjectManagerPlugin::on_addProject_clicked(bool) {
     directoryModel->addDirectory(dirName);
 }
 
+void ProjectManagerPlugin::on_removeProject_clicked() {
+    auto index = gui->comboBox->currentIndex();
+    projectModel->removeConfig(index);
+}
+
 QString findExecForPlatform(QHash<QString, QString> files) {
     // TODO
     return files["linux"];
 }
 
 void ProjectManagerPlugin::on_newProjectSelected(int index) {
-    auto p = projectModel->getConfig(index);
-    directoryModel->removeAllDirs();
-    directoryModel->addDirectory(p->sourceDir);
-
+    if (index >= 0) {
+        auto p = projectModel->getConfig(index);
+        directoryModel->removeAllDirs();
+        directoryModel->addDirectory(p->sourceDir);
+    }
     auto config = getCurrentConfig();
     if (!config || config->executables.size() == 0) {
         this->selectedTarget = nullptr;
@@ -266,6 +272,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->buildAction->setEnabled(false);
         this->clearAction->setEnabled(false);
         this->availableExecutablesMenu->clear();
+        this->directoryModel->removeAllDirs();
     } else {
         auto executableName = config->executables[0].name;
         auto executablePath = findExecForPlatform(config->executables[0].executables);
@@ -448,10 +455,6 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         qWarning() << "Process failed to start";
         this->outputPanel->commandOuput->appendPlainText("Process failed to start");
     }
-}
-
-void ProjectManagerPlugin::on_removeProject_clicked() {
-    // TODO
 }
 
 void ProjectManagerPlugin::on_runButton_clicked() {

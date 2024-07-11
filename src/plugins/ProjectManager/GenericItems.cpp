@@ -69,7 +69,16 @@ void DirectoryModel::addDirectory(const QString &path) {
     endResetModel();
 }
 
-void DirectoryModel::removeDirectory(const QString &directory) {}
+void DirectoryModel::removeDirectory(const QString &path) {
+    if (directoryList.contains(path)) {
+        return;
+    }
+    beginResetModel();
+    directoryList.removeAll(path);
+    QDir dir(path);
+    removeDirectoryImpl(dir);
+    endResetModel();
+}
 
 void DirectoryModel::addDirectoryImpl(const QDir &dir) {
     auto list = dir.entryInfoList();
@@ -86,7 +95,20 @@ void DirectoryModel::addDirectoryImpl(const QDir &dir) {
     }
 }
 
-void DirectoryModel::removeDirectoryImpl(const QDir &directory) {}
+void DirectoryModel::removeDirectoryImpl(const QDir &dir) {
+    auto list = dir.entryInfoList();
+    for (auto fi : list) {
+        if (fi.fileName() == "." || fi.fileName() == "..") {
+            continue;
+        }
+
+        if (fi.isDir()) {
+            removeDirectoryImpl(fi.absoluteFilePath());
+        } else {
+            fileList.removeAll(fi.absoluteFilePath());
+        }
+    }
+}
 
 bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList) {
     if (!badList.isEmpty()) {
