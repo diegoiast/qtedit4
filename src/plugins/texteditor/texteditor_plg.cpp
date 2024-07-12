@@ -44,7 +44,7 @@ void TextEditorPlugin::showAbout() {
                              "This plugin gives a QtSourceView based text editor");
 }
 
-QWidget *TextEditorPlugin::getConfigDialog() { return NULL; }
+QWidget *TextEditorPlugin::getConfigDialog() { return nullptr; }
 
 QActionGroup *TextEditorPlugin::newFileActions() { return myNewActions; }
 

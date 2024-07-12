@@ -12,7 +12,7 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
 
 class DirectoryModel : public QAbstractTableModel {
   public:
-    DirectoryModel(QObject *parent = NULL);
+    DirectoryModel(QObject *parent = nullptr);
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex &index, int role) const;

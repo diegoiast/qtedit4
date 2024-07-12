@@ -37,7 +37,7 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     autoEnabled = true;
     alwaysEnabled = true;
 
-    directoryModel = NULL;
+    directoryModel = nullptr;
 }
 
 void ProjectManagerPlugin::showAbout() {
