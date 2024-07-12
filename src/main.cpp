@@ -5,11 +5,10 @@
  * License GPL 2008
  */
 
-#include "pluginmanager.h"
 #include <QApplication>
 #include <QStandardPaths>
-#include <QTimer>
 
+#include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
@@ -20,19 +19,15 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     PluginManager pluginManager;
-    auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    auto iniFilePath = filePath + "/.qtedit4.ini";
+    auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
+    auto iniFilePath = filePath + "/qtedit4.ini";
     pluginManager.setFileSettingsManager(iniFilePath);
-
-    // 	pluginManager.addPlugin( new RichTextPlugin );
     pluginManager.addPlugin(new TextEditorPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.updateGUI();
     pluginManager.hideUnusedPanels();
-
-    // start the application
     pluginManager.restoreSettings();
     pluginManager.show();
     return app.exec();
