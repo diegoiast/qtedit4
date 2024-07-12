@@ -27,19 +27,22 @@ set(qtedit4_sources
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginwindow.ui
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.h
+    ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
 
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
     src/widgets/textoperationswidget.cpp  
     src/widgets/textoperationswidget.h  
-    src/widgets/replaceform.ui  
-    src/widgets/replaceform.ui  
+    src/widgets/replaceform.ui
+    src/widgets/searchform.ui  
     src/widgets/bannermessage.ui
     src/widgets/gotolineform.ui
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/help/help_plg.cpp
     src/plugins/help/help_plg.h
+    src/plugins/ProjectManager/ProjectBuildConfig.cpp
+    src/plugins/ProjectManager/ProjectBuildConfig.h
     src/plugins/ProjectManager/ProjectManagerPlg.cpp
     src/plugins/ProjectManager/ProjectManagerPlg.h
     src/plugins/ProjectManager/ProjectManagerGUI.ui
@@ -50,15 +53,12 @@ set(qtedit4_sources
     src/plugins/ProjectManager/GenericItems.cpp
     src/plugins/ProjectManager/GenericItems.h
     src/main.cpp
-    
-    ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
 )
 
 if (WIN32)
     add_executable(qtedit4 WIN32 ${qtedit4_sources})
 else()
-    add_executable(qtedit4 ${qtedit4_sources}
-        src/plugins/ProjectManager/output.ui)
+    add_executable(qtedit4 ${qtedit4_sources})
 endif()
 
 # lib/qmdilib/demos/plugin-demo/plugins/editor

@@ -1,10 +1,6 @@
 #pragma once
 
 #include "iplugin.h"
-#include <QAbstractItemModel>
-#include <QAbstractListModel>
-#include <QCompleter>
-#include <QList>
 #include <QProcess>
 
 class QDockWidget;
@@ -12,45 +8,14 @@ class QTreeView;
 class QCompleter;
 class QSortFilterProxyModel;
 
+class ProjectBuildModel;
 class FoldersModel;
 class DirectoryModel;
 class FilterOutProxyModel;
 
-struct ExecutableInfo {
-    QString name;
-    QString runDirectory;
-    QHash<QString, QString> executables;
-};
-
-struct TaskInfo {
-    QString name;
-    QString command;
-    QString runDirectory;
-};
-
-struct ProjectBuildConfig {
-    QString sourceDir;
-    QString buildDir;
-    QList<ExecutableInfo> executables;
-    QList<TaskInfo> tasksInfo;
-    TaskInfo *buildTask;
-
-    static std::shared_ptr<ProjectBuildConfig> buildFromDirectory(const QString directory);
-    static std::shared_ptr<ProjectBuildConfig> buildFromFile(const QString jsonFileName);
-};
-
-class ProjectBuildModel : public QAbstractListModel {
-    std::vector<std::shared_ptr<ProjectBuildConfig>> configs;
-
-  public:
-    void addConfig(std::shared_ptr<ProjectBuildConfig> config);
-    void removeConfig(size_t index);
-    std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
-    std::shared_ptr<ProjectBuildConfig> findConfig(const QString dir);
-
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant data(const QModelIndex &index, int role) const override;
-};
+struct ProjectBuildConfig;
+struct TaskInfo;
+struct ExecutableInfo;
 
 namespace Ui {
 class ProjectManagerGUI;
@@ -68,6 +33,8 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
+    std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
+
   public slots:
     void onItemClicked(const QModelIndex &index);
     void on_addProject_clicked(bool checked);
@@ -80,10 +47,11 @@ class ProjectManagerPlugin : public IPlugin {
     void on_runTask_clicked();
     void on_clearProject_clicked();
 
-  public:
-    std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
 
   private:
+    auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
+    auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
+
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
