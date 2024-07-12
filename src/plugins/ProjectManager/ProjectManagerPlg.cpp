@@ -250,8 +250,11 @@ void ProjectManagerPlugin::on_addProject_clicked(bool) {
 
 void ProjectManagerPlugin::on_removeProject_clicked() {
     auto index = gui->comboBox->currentIndex();
-    projectModel->removeConfig(index);
+    if (index < 0) {
+        return;
+    }
 
+    projectModel->removeConfig(index);
     auto manager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     manager->saveSettings();
 }
@@ -475,7 +478,7 @@ void ProjectManagerPlugin::on_runTask_clicked() {
 
 void ProjectManagerPlugin::on_clearProject_clicked() {
     auto project = getCurrentConfig();
-    if (project->buildDir.isEmpty()) {
+    if (project == nullptr || project->buildDir.isEmpty()) {
         return;
     }
     QMessageBox msgBox;
