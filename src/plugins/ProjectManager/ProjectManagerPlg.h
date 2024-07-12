@@ -47,7 +47,6 @@ class ProjectManagerPlugin : public IPlugin {
     void on_runTask_clicked();
     void on_clearProject_clicked();
 
-
   private:
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
     auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
