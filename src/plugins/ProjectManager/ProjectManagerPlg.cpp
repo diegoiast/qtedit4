@@ -243,11 +243,17 @@ void ProjectManagerPlugin::on_addProject_clicked(bool) {
     config = ProjectBuildConfig::buildFromDirectory(dirName);
     projectModel->addConfig(config);
     directoryModel->addDirectory(dirName);
+
+    auto manager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    manager->saveSettings();
 }
 
 void ProjectManagerPlugin::on_removeProject_clicked() {
     auto index = gui->comboBox->currentIndex();
     projectModel->removeConfig(index);
+
+    auto manager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    manager->saveSettings();
 }
 
 QString findExecForPlatform(QHash<QString, QString> files) {

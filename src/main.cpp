@@ -7,6 +7,7 @@
 
 #include "pluginmanager.h"
 #include <QApplication>
+#include <QStandardPaths>
 #include <QTimer>
 
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -15,10 +16,13 @@
 #include "plugins/texteditor/texteditor_plg.h"
 
 int main(int argc, char *argv[]) {
+    QCoreApplication::setApplicationName("qtedit4");
     QApplication app(argc, argv);
-    PluginManager pluginManager;
 
-    pluginManager.setFileSettingsManager("qtedit4.ini");
+    PluginManager pluginManager;
+    auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    auto iniFilePath = filePath + "/.qtedit4.ini";
+    pluginManager.setFileSettingsManager(iniFilePath);
 
     // 	pluginManager.addPlugin( new RichTextPlugin );
     pluginManager.addPlugin(new TextEditorPlugin);

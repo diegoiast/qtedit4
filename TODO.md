@@ -39,6 +39,7 @@
 
 ## qmdilib
 
+1. ~~Save config in global space.~~
 1. Quick jump inside open files
 1. Shortcuts manager
 1. Save restore cursor position in open windows
