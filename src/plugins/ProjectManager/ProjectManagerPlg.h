@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iplugin.h"
+#include <QFileSystemWatcher>
 #include <QProcess>
 
 class QDockWidget;
@@ -34,10 +35,11 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void saveConfig(QSettings &settings) override;
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
+    const QHash<QString, QString> getConfigHash() const;
 
   public slots:
     void onItemClicked(const QModelIndex &index);
-    void on_addProject_clicked(bool checked);
+    void on_addProject_clicked();
     void on_removeProject_clicked();
     void on_newProjectSelected(int index);
 
@@ -46,6 +48,7 @@ class ProjectManagerPlugin : public IPlugin {
     void on_runButton_clicked();
     void on_runTask_clicked();
     void on_clearProject_clicked();
+    void on_projectFile_modified(const QString &path);
 
   private:
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
@@ -55,6 +58,7 @@ class ProjectManagerPlugin : public IPlugin {
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
 
+    QFileSystemWatcher configWatcher;
     ExecutableInfo *selectedTarget;
     TaskInfo *selectedTask;
 

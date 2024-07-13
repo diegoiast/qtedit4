@@ -34,6 +34,28 @@ static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
     return files["linux"];
 }
 
+static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
+    auto output = input;
+    auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
+    auto depth = 0;
+    auto maxDepth = 10;
+
+    while (depth < maxDepth) {
+        auto it = regex.globalMatch(output);
+        if (!it.hasNext()) {
+            break;
+        }
+        while (it.hasNext()) {
+            auto match = it.next();
+            auto key = match.captured(1);
+            auto replacement = hashTable.value(key, "");
+            output.replace(match.captured(0), replacement);
+        }
+        depth++;
+    }
+    return output;
+}
+
 // Internal class
 class ProjectBuildModel : public QAbstractListModel {
     std::vector<std::shared_ptr<ProjectBuildConfig>> configs;
@@ -42,7 +64,8 @@ class ProjectBuildModel : public QAbstractListModel {
     void addConfig(std::shared_ptr<ProjectBuildConfig> config);
     void removeConfig(size_t index);
     std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
-    std::shared_ptr<ProjectBuildConfig> findConfig(const QString dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString fileName);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role) const override;
@@ -64,9 +87,18 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) c
     return this->configs.at(index);
 }
 
-std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfig(const QString dir) {
+std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString dir) {
     for (auto v : configs) {
         if (v->sourceDir == dir) {
+            return v;
+        }
+    }
+    return {};
+}
+
+std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QString fileName) {
+    for (auto v : configs) {
+        if (v->fileName == fileName) {
             return v;
         }
     }
@@ -177,6 +209,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         qWarning() << "Process error occurred:" << error;
         qWarning() << "Error string:" << runProcess.errorString();
     });
+    connect(&configWatcher, &QFileSystemWatcher::fileChanged, this,
+            &ProjectManagerPlugin::on_projectFile_modified);
 
     connect(gui->cleanButton, &QToolButton::clicked,
             [this]() { this->outputPanel->commandOuput->clear(); });
@@ -261,10 +295,12 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             continue;
         }
         auto dirName = settings.value(s).toString();
-        auto config = projectModel->findConfig(dirName);
+        auto config = projectModel->findConfigDir(dirName);
         if (!config) {
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
+            qDebug("adding %s to the watch dir", config->fileName.toStdString().c_str());
+            configWatcher.addPath(config->fileName);
         }
     }
     settings.endGroup();
@@ -296,30 +332,38 @@ std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() con
     return projectModel->getConfig(currentIndex);
 }
 
+const QHash<QString, QString> ProjectManagerPlugin::getConfigHash() const {
+    auto hash = QHash<QString, QString>();
+    auto project = getCurrentConfig();
+    if (project) {
+        hash["source_directory"] = project->sourceDir;
+        hash["build_directory"] = project->buildDir;
+    }
+    return hash;
+}
+
 void ProjectManagerPlugin::onItemClicked(const QModelIndex &index) {
     auto i = filesFilterModel->mapToSource(index);
     auto s = directoryModel->getItem(i.row());
-    PluginManager *pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    if (pluginManager) {
-        pluginManager->openFile(s);
-    }
+    getManager()->openFile(s);
 }
 
-void ProjectManagerPlugin::on_addProject_clicked(bool) {
+void ProjectManagerPlugin::on_addProject_clicked() {
     QString dirName = QFileDialog::getExistingDirectory(gui->filesView, tr("Add directory"));
     if (dirName.isEmpty()) {
         return;
     }
-    auto config = projectModel->findConfig(dirName);
+    auto config = projectModel->findConfigDir(dirName);
     if (config) {
         return;
     }
     config = ProjectBuildConfig::buildFromDirectory(dirName);
+    qDebug("adding %s to the watch dir", config->fileName.toStdString().c_str());
+
+    configWatcher.addPath(config->fileName);
     projectModel->addConfig(config);
     directoryModel->addDirectory(dirName);
-
-    auto manager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    manager->saveSettings();
+    getManager()->saveSettings();
 }
 
 void ProjectManagerPlugin::on_removeProject_clicked() {
@@ -327,10 +371,12 @@ void ProjectManagerPlugin::on_removeProject_clicked() {
     if (index < 0) {
         return;
     }
-
+    auto path = projectModel->getConfig(index)->fileName;
     projectModel->removeConfig(index);
-    auto manager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    manager->saveSettings();
+    qDebug("remove %s to the watch dir", path.toStdString().c_str());
+
+    configWatcher.removePath(path);
+    getManager()->saveSettings();
 }
 
 void ProjectManagerPlugin::on_newProjectSelected(int index) {
@@ -346,37 +392,18 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
         this->gui->filterOutFiles->clear();
         this->gui->filterOutFiles->setEnabled(false);
     } else {
+        auto hash = getConfigHash();
+        auto s1 = expand(config->displayFilter, hash);
+        auto s2 = expand(config->hideFilter, hash);
         this->gui->filterFiles->setEnabled(true);
-        this->gui->filterFiles->setText(config->displayFilter);
+        this->gui->filterFiles->setText(s1);
         this->gui->filterOutFiles->setEnabled(true);
-        this->gui->filterOutFiles->setText(config->hideFilter);
+        this->gui->filterOutFiles->setText(s2);
         this->directoryModel->addDirectory(config->sourceDir);
     }
 
     updateTasksUI(config);
     updateExecutablesUI(config);
-}
-
-static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
-    auto output = input;
-    auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
-    auto depth = 0;
-    auto maxDepth = 10;
-
-    while (depth < maxDepth) {
-        auto it = regex.globalMatch(output);
-        if (!it.hasNext()) {
-            break;
-        }
-        while (it.hasNext()) {
-            auto match = it.next();
-            auto key = match.captured(1);
-            auto replacement = hashTable.value(key, "");
-            output.replace(match.captured(0), replacement);
-        }
-        depth++;
-    }
-    return output;
 }
 
 void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget) {
@@ -385,11 +412,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget
         return;
     }
 
+    auto hash = getConfigHash();
     auto project = getCurrentConfig();
-    auto hash = QHash<QString, QString>();
-    hash["source_directory"] = project->sourceDir;
-    hash["build_directory"] = project->buildDir;
-
     auto executablePath = findExecForPlatform(selectedTarget->executables);
     auto currentTask = expand(executablePath, hash);
     auto workingDirectory = expand(selectedTarget->runDirectory, hash);
@@ -418,10 +442,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 
     auto project = getCurrentConfig();
-    auto hash = QHash<QString, QString>();
-    hash["source_directory"] = project->sourceDir;
-    hash["build_directory"] = project->buildDir;
-
+    auto hash = getConfigHash();
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
 
@@ -481,6 +502,20 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     default:
         break;
     }
+}
+
+void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
+    auto onDiskConfig = ProjectBuildConfig::buildFromFile(path);
+    auto inMemoryConfig = projectModel->findConfigFile(path);
+    if (*onDiskConfig == *inMemoryConfig) {
+        qDebug("Config file modified, content simlar ignoring - %s", path.toStdString().data());
+        return;
+    }
+    *inMemoryConfig = *onDiskConfig;
+    emit on_newProjectSelected(gui->comboBox->currentIndex());
+
+    // TODO  - new file created is not working yet.
+    qDebug("Config file modified - %s", path.toStdString().data());
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void {

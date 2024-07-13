@@ -5,6 +5,24 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+bool ExecutableInfo::operator==(const ExecutableInfo &other) const {
+    /* clang-format off */
+    return
+        this->name == other.name &&
+        this->runDirectory == other.runDirectory &&
+        this->executables == other.executables;
+    /* clang-format on */
+}
+
+bool TaskInfo::operator==(const TaskInfo &other) const {
+    /* clang-format off */
+    return
+        this->name == other.name &&
+        this->command == other.command &&
+        this->runDirectory == other.runDirectory;
+    /* clang-format on */
+}
+
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
     auto configFileName = directory + "/" + "qtedit4.json";
@@ -15,6 +33,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     auto value = std::make_shared<ProjectBuildConfig>();
     auto fi = QFileInfo(jsonFileName);
     value->sourceDir = fi.absolutePath();
+    value->fileName = fi.absoluteFilePath();
 
     auto file = QFile();
     file.setFileName(jsonFileName);
@@ -96,4 +115,18 @@ auto ProjectBuildConfig::findIndexOfExecutable(const QString &executableName) ->
         }
     }
     return -1;
+}
+
+bool ProjectBuildConfig::operator==(const ProjectBuildConfig &other) const {
+    /* clang-format off */
+    return sourceDir == other.sourceDir &&
+           buildDir == other.buildDir &&
+           executables == other.executables &&
+           tasksInfo == other.tasksInfo &&
+           activeExecutableName == other.activeExecutableName &&
+           activeTaskName == other.activeTaskName &&
+           displayFilter == other.displayFilter &&
+           hideFilter == other.hideFilter &&
+           fileName == other.fileName;
+    /* clang-format on */
 }
