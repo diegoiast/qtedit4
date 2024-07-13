@@ -360,13 +360,21 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
 static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
     auto output = input;
     auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
-    auto it = regex.globalMatch(input);
+    auto depth = 0;
+    auto maxDepth = 10;
 
-    while (it.hasNext()) {
-        auto match = it.next();
-        auto key = match.captured(1);
-        auto replacement = hashTable.value(key, "");
-        output.replace(match.captured(0), replacement);
+    while (depth < maxDepth) {
+        auto it = regex.globalMatch(output);
+        if (!it.hasNext()) {
+            break;
+        }
+        while (it.hasNext()) {
+            auto match = it.next();
+            auto key = match.captured(1);
+            auto replacement = hashTable.value(key, "");
+            output.replace(match.captured(0), replacement);
+        }
+        depth++;
     }
     return output;
 }
