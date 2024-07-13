@@ -508,7 +508,7 @@ void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
     auto onDiskConfig = ProjectBuildConfig::buildFromFile(path);
     auto inMemoryConfig = projectModel->findConfigFile(path);
     if (*onDiskConfig == *inMemoryConfig) {
-        qDebug("Config file modified, content simlar ignoring - %s", path.toStdString().data());
+        qDebug("Config file modified, content similar ignoring - %s", path.toStdString().data());
         return;
     }
     *inMemoryConfig = *onDiskConfig;
