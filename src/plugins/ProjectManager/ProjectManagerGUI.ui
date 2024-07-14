@@ -176,6 +176,9 @@
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>

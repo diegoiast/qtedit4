@@ -24,16 +24,22 @@
 #include "textoperationswidget.h"
 #include "ui_bannermessage.h"
 
+#if defined(WIN32)
+#define DEFAULT_EDITOR_FONT "Courier new"
+#else
+#define DEFAULT_EDITOR_FONT "Monospace"
+#endif
+
 qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
-    connect(fileSystemWatcher, SIGNAL(fileChanged(const QString &)), this,
-            SLOT(on_fileChanged(const QString &)));
+    connect(fileSystemWatcher, SIGNAL(fileChanged(const QString)), this,
+            SLOT(on_fileChanged(const QString)));
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(12);
-    monospacedFont.setFamily("Monospace");
+    monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
     setFont(monospacedFont);
     setLineWrapMode(LineWrapMode::NoWrap);
 

@@ -18,6 +18,12 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("qtedit4");
     QApplication app(argc, argv);
 
+#if defined(WIN32)
+    // default style on windows is ugly and unusable.
+    // lets fallback to something more usable for us
+    app.setStyle("windowsvista");
+#endif
+
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
