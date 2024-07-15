@@ -22,6 +22,12 @@ int main(int argc, char *argv[]) {
     // default style on windows is ugly and unusable.
     // lets fallback to something more usable for us
     app.setStyle("windowsvista");
+
+    QStringList paths;
+    paths << QCoreApplication::applicationDirPath() + "/share/icons";
+    QIcon::setFallbackSearchPaths(paths);
+    QIcon::setThemeName("Breeze");
+
 #endif
 
     PluginManager pluginManager;

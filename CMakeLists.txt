@@ -1,11 +1,14 @@
+
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
 include(cmake/CPM.cmake)
+include(cmake/icons-breeze.cmake)
 set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:elcuco/qmdilib#main")
 CPMAddPackage("gh:elcuco/qutepart-cpp#qt6-port-take2")
+download_breeze_icons()
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
 set(CMAKE_CXX_STANDARD 17)
@@ -77,7 +80,6 @@ else()
   set_target_properties(qtedit4 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
   target_compile_options(qtedit4 PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
 
 install(TARGETS qtedit4
         RUNTIME DESTINATION bin)
