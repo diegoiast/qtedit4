@@ -24,10 +24,9 @@ int main(int argc, char *argv[]) {
     app.setStyle("windowsvista");
 
     QStringList paths;
-    paths << QCoreApplication::applicationDirPath() + "/share/icons";
+    paths << QCoreApplication::applicationDirPath() + "icons";
     QIcon::setFallbackSearchPaths(paths);
     QIcon::setThemeName("Breeze");
-
 #endif
 
     PluginManager pluginManager;
