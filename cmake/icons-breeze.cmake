@@ -15,6 +15,10 @@ function(download_breeze_icons)
         DOWNLOAD_DIR ${DOWNLOAD_DIR}
         CONFIGURE_COMMAND
             ${CMAKE_COMMAND} -E copy_directory ${DOWNLOAD_DIR}/src/breeze_icons_project/icons ${CMAKE_BINARY_DIR}/share/icons/breeze
+            COMMAND echo "Contents of ${DOWNLOAD_DIR}:"
+            COMMAND dir /b ${DOWNLOAD_DIR}
+            COMMAND echo "Contents of ${CMAKE_BINARY_DIR}/share/icons/breeze:"
+            COMMAND dir /b ${CMAKE_BINARY_DIR}/share/icons/breeze
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
