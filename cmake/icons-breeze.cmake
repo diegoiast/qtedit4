@@ -6,7 +6,7 @@ function(download_breeze_icons)
     set(BREEZE_ICONS_URL "https://github.com/KDE/breeze-icons/archive/refs/tags/v6.4.0.zip")
     set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/breeze_icons_download")
     file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/icons/breeze)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/breeze)
     ExternalProject_Add(
         breeze_icons_project
         PREFIX ${DOWNLOAD_DIR}
