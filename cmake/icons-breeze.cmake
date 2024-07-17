@@ -1,28 +1,28 @@
 # Include ExternalProject module
 include(ExternalProject)
 
-function(download_breeze_icons)
-    message(STATUS "Downloading Breeze icons from archive...")
-    set(BREEZE_ICONS_URL "https://github.com/KDE/breeze-icons/archive/refs/tags/v6.4.0.zip")
-    set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/breeze_icons_download")
-    file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
-    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/breeze)
+include(ExternalProject)
+
+function(download_breeze_icons VERSION)
+    # Set URLs and directories
+    set(URL "https://github.com/KDE/breeze-icons/archive/refs/tags/v${VERSION}.zip")
+    set(ZIP_FILE "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}.zip")
+    set(EXTRACT_DIR "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
+
+    set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")  # Define install directory
     ExternalProject_Add(
         breeze_icons_project
-        PREFIX ${DOWNLOAD_DIR}
-        URL ${BREEZE_ICONS_URL}
-        DOWNLOAD_NAME v6.4.0.zip
-        DOWNLOAD_DIR ${DOWNLOAD_DIR}
+        URL ${URL}
+        DOWNLOAD_NO_PROGRESS False
+        DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
         CONFIGURE_COMMAND
-            ${CMAKE_COMMAND} -E copy_directory ${DOWNLOAD_DIR}/src/breeze_icons_project/icons ${CMAKE_BINARY_DIR}/share/icons/breeze
-            COMMAND echo "Contents of ${DOWNLOAD_DIR}:"
-            COMMAND dir /b ${DOWNLOAD_DIR}
-            COMMAND echo "Contents of ${CMAKE_BINARY_DIR}/share/icons/breeze:"
-            COMMAND dir /b ${CMAKE_BINARY_DIR}/share/icons/breeze
+            ${CMAKE_COMMAND} -E copy_directory ${breeze_icons_project}/icons ${CMAKE_BINARY_DIR}/share/icons/
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
         DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
-    message(STATUS "Breeze icons download and extraction completed")
+
+    # Set the install directory as output of this function
+    set(${breeze_icons_install_dir} PARENT_SCOPE)
 endfunction()

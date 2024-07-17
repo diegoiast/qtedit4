@@ -10,7 +10,7 @@ set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:elcuco/qmdilib#main")
 CPMAddPackage("gh:elcuco/qutepart-cpp#qt6-port-take2")
-download_breeze_icons()
+download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
 set(CMAKE_CXX_STANDARD 17)
