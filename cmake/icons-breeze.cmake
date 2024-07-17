@@ -1,15 +1,11 @@
-# Include ExternalProject module
-include(ExternalProject)
-
 include(ExternalProject)
 
 function(download_breeze_icons VERSION)
-    # Set URLs and directories
     set(URL "https://github.com/KDE/breeze-icons/archive/refs/tags/v${VERSION}.zip")
     set(ZIP_FILE "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}.zip")
     set(EXTRACT_DIR "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
 
-    set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")  # Define install directory
+    set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")
     ExternalProject_Add(
         breeze_icons_project
         URL ${URL}
@@ -24,6 +20,5 @@ function(download_breeze_icons VERSION)
         DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
 
-    # Set the install directory as output of this function
     set(${breeze_icons_install_dir} PARENT_SCOPE)
 endfunction()
