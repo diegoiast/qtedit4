@@ -15,8 +15,9 @@ function(download_breeze_icons VERSION)
         URL ${URL}
         DOWNLOAD_NO_PROGRESS False
         DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
+        SOURCE_DIR ${EXTRACT_DIR}
         CONFIGURE_COMMAND
-            ${CMAKE_COMMAND} -E copy_directory ${breeze_icons_project}/icons ${CMAKE_BINARY_DIR}/share/icons/
+            ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons ${CMAKE_BINARY_DIR}/share/icons/
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
