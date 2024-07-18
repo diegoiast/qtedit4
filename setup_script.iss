@@ -9,6 +9,7 @@ OutputBaseFilename=qtedit4-win64
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
+ShowComponentSizes=yes
 
 [Files]
 Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}"; Flags: ignoreversion
