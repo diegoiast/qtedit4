@@ -15,10 +15,15 @@ function(download_breeze_icons VERSION)
         message(FATAL_ERROR "Failed to download ${URL}: ${error_message}")
     endif()
 
-    message("Extracting "${ZIP_FILE}" into ${CMAKE_BINARY_DIR}")
+    message(" *** Extracting "${ZIP_FILE}" into ${CMAKE_BINARY_DIR}")
     file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
 
-    message("Copying  ${EXTRACT_DIR}/icons => ${breeze_icons_install_dir}" )
+    file(TO_NATIVE_PATH "${path_with_forward_slashes}" ${EXTRACT_DIR})
+    execute_process(
+        COMMAND cmd /c "dir /w ${path_with_forward_slashes}"
+    )
+
+    message(" *** Copying  ${EXTRACT_DIR}/icons => ${breeze_icons_install_dir}" )
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${breeze_icons_install_dir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons ${breeze_icons_install_dir}
