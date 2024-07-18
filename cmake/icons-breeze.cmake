@@ -18,14 +18,26 @@ function(download_breeze_icons VERSION)
     message(" *** Extracting ${ZIP_FILE} into ${CMAKE_BINARY_DIR}")
     file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
 
-    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}" NATIVE)
-    message(" *** dir /w ${NATIVE}")
-    execute_process(
-        COMMAND cmd /c "dir /w ${NATIVE}"
-    )
-
     file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons" NATIVE_FROM)
     file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/share/icons/breeze" NATIVE_TO)
+    message(" *** dir /w ${NATIVE_FROM}")
+    execute_process(
+        COMMAND cmd /c "dir /w ${NATIVE_FROM}"
+    )
+    message(" *** dir /w ${NATIVE_TO}")
+    execute_process(
+        COMMAND cmd /c "dir /w ${NATIVE_TO}"
+    )
+
+
+    message(" *** Creating dir  ${NATIVE_TO} ")
+    execute_process(
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${NATIVE_TO}"
+        RESULT_VARIABLE mkdir_result
+    )
+    if(mkdir_result)
+        message(FATAL_ERROR "Error copying ${NATIVE_FROM} => ${NATIVE_TO}")
+    endif()
 
     message(" *** Copying  ${NATIVE_FROM} ${NATIVE_TO} ")
     execute_process(
