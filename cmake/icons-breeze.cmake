@@ -24,7 +24,7 @@ function(download_breeze_icons VERSION)
         COMMAND cmd /c "dir /w ${NATIVE}"
     )
 
-    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons" NATIVE_TO)
+    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons" NATIVE_FROM)
     file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/share/icons/breeze" NATIVE_TO)
 
     message(" *** Copying  ${NATIVE_FROM} ${NATIVE_TO} ")
