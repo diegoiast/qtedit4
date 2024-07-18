@@ -18,8 +18,8 @@ function(download_breeze_icons VERSION)
     message(" *** Extracting ${ZIP_FILE} into ${CMAKE_BINARY_DIR}")
     file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
 
-    message(" *** dir /w ${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
-    file(TO_NATIVE_PATH NATIVE "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
+    file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}" NATIVE)
+    message(" *** dir /w ${NATIVE}")
     execute_process(
         COMMAND cmd /c "dir /w ${NATIVE}"
     )
