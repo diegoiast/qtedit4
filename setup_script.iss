@@ -12,8 +12,8 @@ ArchitecturesInstallIn64BitMode=x64
 ShowComponentSizes=yes
 
 [Files]
-Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\windows-msvc\usr\bin\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}"; 
+Source: "dist\windows-msvc\usr\bin\*"; DestDir: "{app}";
 Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
 
 [Icons]
