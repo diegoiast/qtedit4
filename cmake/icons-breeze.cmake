@@ -7,7 +7,7 @@ function(download_breeze_icons VERSION)
     set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")
 
     
-    file(DOWNLOAD "${URL}" "${ZIP_FILE}" INACTIVITY_TIMEOUT 10 STATUS download_result)
+    file(DOWNLOAD "${URL}" "${ZIP_FILE}" SHOW_PROGRESS INACTIVITY_TIMEOUT 10 STATUS download_result)
     list(GET download_result 0 status_code)
     list(GET download_result 1 error_message)
     if (NOT status_code EQUAL 0)
@@ -15,8 +15,10 @@ function(download_breeze_icons VERSION)
         message(FATAL_ERROR "Failed to download ${URL}: ${error_message}")
     endif()
 
+    message("Extracting "${ZIP_FILE}" into ${CMAKE_BINARY_DIR}")
     file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
 
+    message("Copying  ${EXTRACT_DIR}/icons => ${breeze_icons_install_dir}" )
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${breeze_icons_install_dir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons ${breeze_icons_install_dir}
