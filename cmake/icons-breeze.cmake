@@ -49,5 +49,4 @@ function(download_breeze_icons VERSION)
         DESTINATION "${CMAKE_BINARY_DIR}/share/icons/breeze"
     )
     
-    set(${breeze_icons_install_dir_NATIVE} PARENT_SCOPE)
 endfunction()
