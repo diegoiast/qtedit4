@@ -24,11 +24,6 @@ function(download_breeze_icons VERSION)
     execute_process(
         COMMAND cmd /c "dir /w ${NATIVE_FROM}"
     )
-    message(" *** dir /w ${NATIVE_TO}")
-    execute_process(
-        COMMAND cmd /c "dir /w ${NATIVE_TO}"
-    )
-
 
     message(" *** Creating dir  ${NATIVE_TO} ")
     execute_process(
@@ -36,8 +31,13 @@ function(download_breeze_icons VERSION)
         RESULT_VARIABLE mkdir_result
     )
     if(mkdir_result)
-        message(FATAL_ERROR "Error copying ${NATIVE_FROM} => ${NATIVE_TO}")
+        message(FATAL_ERROR "Error creating  ${NATIVE_TO}")
     endif()
+    message(" *** dir /w ${NATIVE_TO}")
+    execute_process(
+        COMMAND cmd /c "dir /w ${NATIVE_TO}"
+    )
+
 
     message(" *** Copying  ${NATIVE_FROM} ${NATIVE_TO} ")
     execute_process(
