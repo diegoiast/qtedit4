@@ -15,14 +15,16 @@ function(download_breeze_icons VERSION)
         message(FATAL_ERROR "Failed to download ${URL}: ${error_message}")
     endif()
 
-    file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${EXTRACT_DIR}")
-
-
+    file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
 
     execute_process(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${breeze_icons_install_dir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons ${breeze_icons_install_dir}
+        RESULT_VARIABLE copy_result
     )
+    if(copy_result)
+        message(FATAL_ERROR "Error copying directory from \"${EXTRACT_DIR}/icons\" to \"${breeze_icons_install_dir}\".")
+    endif()
     
     set(${breeze_icons_install_dir} PARENT_SCOPE)
 endfunction()
