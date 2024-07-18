@@ -12,7 +12,7 @@ function(download_breeze_icons VERSION)
         DOWNLOAD_NO_PROGRESS False
         DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
         SOURCE_DIR ${EXTRACT_DIR}
-        CONFIGURE_COMMAND
+        CONFIGURE_COMMAND ""
         BUILD_COMMAND ""
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
