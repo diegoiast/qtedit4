@@ -13,12 +13,15 @@ function(download_breeze_icons VERSION)
         DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
         SOURCE_DIR ${EXTRACT_DIR}
         CONFIGURE_COMMAND ""
-        BUILD_COMMAND ""
+        BUILD_COMMAND "${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/actions ${breeze_icons_install_dir}/"
+        BUILD_COMMAND "${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/mimetypes ${breeze_icons_install_dir}/"
+        BUILD_COMMAND "${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/devices ${breeze_icons_install_dir}/"
+        BUILD_COMMAND "${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/mimetypes ${breeze_icons_install_dir}/"
+        BUILD_COMMAND "${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/index.hteme ${breeze_icons_install_dir}/"
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
         DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
-    # ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons ${CMAKE_BINARY_DIR}/share/icons/
 
     
 #   # Use 7-Zip to extract the archive
