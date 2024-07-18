@@ -6,6 +6,7 @@ function(download_breeze_icons VERSION)
     set(EXTRACT_DIR "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
 
     set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")
+
     ExternalProject_Add(
         breeze_icons_project
         URL ${URL}
@@ -13,27 +14,15 @@ function(download_breeze_icons VERSION)
         DOWNLOAD_DIR ${CMAKE_BINARY_DIR}
         SOURCE_DIR ${EXTRACT_DIR}
         CONFIGURE_COMMAND ""
-        BUILD_COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/actions/ ${breeze_icons_install_dir}/
-                      ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/mimetypes/ ${breeze_icons_install_dir}/
-                      ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/devices/ ${breeze_icons_install_dir}/
-                      ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/mimetypes/ ${breeze_icons_install_dir}/
-                      ${CMAKE_COMMAND} -E copy ${EXTRACT_DIR}/icons/index.theme ${breeze_icons_install_dir}/
+        BUILD_COMMAND ${CMAKE_COMMAND} -E make_directory ${breeze_icons_install_dir}
+                      COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/actions/ ${breeze_icons_install_dir}/actions
+                      COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/mimetypes/ ${breeze_icons_install_dir}/mimetypes
+                      COMMAND ${CMAKE_COMMAND} -E copy_directory ${EXTRACT_DIR}/icons/devices/ ${breeze_icons_install_dir}/devices
+                      COMMAND ${CMAKE_COMMAND} -E copy ${EXTRACT_DIR}/icons/index.theme ${breeze_icons_install_dir}/
         INSTALL_COMMAND ""
         LOG_DOWNLOAD ON
         DOWNLOAD_EXTRACT_TIMESTAMP ON
     )
 
-    
-#   # Use 7-Zip to extract the archive
-#   add_custom_command(
-#     OUTPUT ${EXTRACT_DIR}
-#     COMMAND ${CMAKE_COMMAND} -E make_directory ${EXTRACT_DIR}
-#     COMMAND "7z.exe" "x" "${ZIP_FILE}" "-o${EXTRACT_DIR}" "-aoa"
-#     DEPENDS ${ZIP_FILE}
-#     COMMENT "Extracting breeze-icons archive"
-#     ERROR_VARIABLE extract_error
-#     RESULT_VARIABLE extract_result
-#   )
-   
-  set(${breeze_icons_install_dir} PARENT_SCOPE)
+    set(${breeze_icons_install_dir} ${breeze_icons_install_dir} PARENT_SCOPE)
 endfunction()
