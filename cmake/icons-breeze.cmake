@@ -7,6 +7,37 @@ function(download_breeze_icons VERSION)
 
     set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")
 
+    # Print directory structure of EXTRACT_DIR before copying
+    ExternalProject_Add_Step(
+        breeze_icons_project print_extract_dir_structure
+        COMMAND ${CMAKE_COMMAND} -E echo "Contents of ${EXTRACT_DIR}:"
+        COMMAND ${CMAKE_COMMAND} -E echo "-----------------------------"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Listing files:"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "-----------------------------"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E list_directory ${EXTRACT_DIR}
+        ALWAYS 1
+        DEPENDEES download
+    )
+
+    # Print directory structure of breeze_icons_install_dir before copying
+    ExternalProject_Add_Step(
+        breeze_icons_project print_install_dir_structure
+        COMMAND ${CMAKE_COMMAND} -E echo "Contents of ${breeze_icons_install_dir}:"
+        COMMAND ${CMAKE_COMMAND} -E echo "-----------------------------"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "Listing files:"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E echo "-----------------------------"
+        COMMAND ${CMAKE_COMMAND} -E echo ""
+        COMMAND ${CMAKE_COMMAND} -E list_directory ${breeze_icons_install_dir}
+        ALWAYS 1
+        DEPENDEES print_extract_dir_structure
+    )
+
+    # Add build command to copy directories and files
     ExternalProject_Add(
         breeze_icons_project
         URL ${URL}
