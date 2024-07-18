@@ -24,26 +24,30 @@ function(download_breeze_icons VERSION)
         COMMAND cmd /c "dir /w ${NATIVE_FROM}"
     )
 
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${NATIVE_TO}"
-        RESULT_VARIABLE mkdir_result
-    )
-    if(mkdir_result)
-        message(FATAL_ERROR "Error creating  ${NATIVE_TO}")
-    endif()
+    # execute_process(
+    #     COMMAND ${CMAKE_COMMAND} -E make_directory "${NATIVE_TO}"
+    #     RESULT_VARIABLE mkdir_result
+    # )
+    # if(mkdir_result)
+    #     message(FATAL_ERROR "Error creating  ${NATIVE_TO}")
+    # endif()
 
-    message(" *** dir /w ${NATIVE_TO}")
-    execute_process(
-        COMMAND cmd /c "dir /w ${NATIVE_TO}"
+    # message(" *** dir /w ${NATIVE_TO}")
+    # execute_process(
+    #     COMMAND cmd /c "dir /w ${NATIVE_TO}"
+    # )
+    message(" *** Installing  ${NATIVE_FROM} ${NATIVE_TO} ")
+    # execute_process(
+    #     COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons" "${CMAKE_BINARY_DIR}/share/icons/breeze"
+    #     RESULT_VARIABLE copy_result
+    # )
+    # if(copy_result)
+    #     message(FATAL_ERROR "Error copying ${NATIVE_FROM} => ${NATIVE_TO}")
+    # endif()
+    install(DIRECTORY 
+        "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons"
+        DESTINATION "${CMAKE_BINARY_DIR}/share/icons/breeze"
     )
-    message(" *** Copying  ${NATIVE_FROM} ${NATIVE_TO} ")
-    execute_process(
-        COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons" "${CMAKE_BINARY_DIR}/share/icons/breeze"
-        RESULT_VARIABLE copy_result
-    )
-    if(copy_result)
-        message(FATAL_ERROR "Error copying ${NATIVE_FROM} => ${NATIVE_TO}")
-    endif()
     
     set(${breeze_icons_install_dir_NATIVE} PARENT_SCOPE)
 endfunction()
