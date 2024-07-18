@@ -5,8 +5,8 @@ function(download_breeze_icons VERSION)
     set(ZIP_FILE "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}.zip")
     set(EXTRACT_DIR "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}")
     set(breeze_icons_install_dir "${CMAKE_BINARY_DIR}/share/icons/breeze")
-    file(TO_NATIVE_PATH "${EXTRACT_DIR_NATIVE}" ${EXTRACT_DIR})
-    file(TO_NATIVE_PATH "${breeze_icons_install_dir_NATIVE}" ${breeze_icons_install_dir})
+    file(TO_NATIVE_PATH "EXTRACT_DIR_NATIVE" ${EXTRACT_DIR})
+    file(TO_NATIVE_PATH "breeze_icons_install_dir_NATIVE" ${breeze_icons_install_dir})
 
     
     file(DOWNLOAD "${URL}" "${ZIP_FILE}" SHOW_PROGRESS INACTIVITY_TIMEOUT 10 STATUS download_result)
