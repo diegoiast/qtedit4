@@ -14,7 +14,13 @@ ShowComponentSizes=yes
 [Files]
 Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}"; 
 Source: "dist\windows-msvc\usr\bin\*"; DestDir: "{app}";
-Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion noregerror allowunsafefiles
+;Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion noregerror allowunsafefiles
+Source: "dist\windows-msvc\usr\share\icons\actions\16\*.svg"; DestDir: "{app}\icons\actions\16\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\actions\32\*.svg"; DestDir: "{app}\icons\actions\32\"; Flags:  ignoreversion
+
+
+Source: "dist\windows-msvc\usr\share\icons\devices\16\*.svg"; DestDir: "{app}\icons\devices\16\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\devices\32\*.svg"; DestDir: "{app}\icons\devices\32\"; Flags:  ignoreversion
 
 [Icons]
 Name: "{group}\qtedit4"; Filename: "{app}\qtedit4.exe"
