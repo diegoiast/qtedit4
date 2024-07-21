@@ -30,7 +30,7 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\32\*.svg"; DestDir: "{app}\icons\devices\32\"; Flags:  ignoreversion
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}\*"; Check: IsUpgrade
+Type: filesandordirs; Name: "{app}\*"; 
 
 [Icons]
 Name: "{group}\qtedit4"; Filename: "{app}\qtedit4.exe"
