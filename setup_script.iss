@@ -13,12 +13,24 @@ ShowComponentSizes=yes
 
 [Files]
 Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}"; 
-Source: "dist\windows-msvc\usr\bin\*"; DestDir: "{app}";
+Source: "dist\windows-msvc\usr\bin\*.dll"; DestDir: "{app}";
+Source: "dist\windows-msvc\usr\bin\generic\*.dll"; DestDir: "{app}\generic";
+Source: "dist\windows-msvc\usr\bin\iconengines\*.dll"; DestDir: "{app}\iconengines";
+Source: "dist\windows-msvc\usr\bin\imagesformats\*.dll"; DestDir: "{app}\imagesformats";
+Source: "dist\windows-msvc\usr\bin\networkinformation\*.dll"; DestDir: "{app}\networkinformation";
+Source: "dist\windows-msvc\usr\bin\platforms\*.dll"; DestDir: "{app}\platforms";
+Source: "dist\windows-msvc\usr\bin\styles\*.dll"; DestDir: "{app}\styles";
+Source: "dist\windows-msvc\usr\bin\tls\*.dll"; DestDir: "{app}\tls";
+
+
 ;Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion noregerror allowunsafefiles
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\16\*.svg"; DestDir: "{app}\icons\actions\16\"; Flags:  ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\actions\32\"; Flags:  ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\devices\16\"; Flags:  ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\32\*.svg"; DestDir: "{app}\icons\devices\32\"; Flags:  ignoreversion
+
+[UninstallDelete]
+Type: filesandordirs; Name: "{app}\*"; Check: IsUpgrade
 
 [Icons]
 Name: "{group}\qtedit4"; Filename: "{app}\qtedit4.exe"
