@@ -16,7 +16,7 @@ Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}";
 Source: "dist\windows-msvc\usr\bin\*.dll"; DestDir: "{app}";
 Source: "dist\windows-msvc\usr\bin\generic\*.dll"; DestDir: "{app}\generic";
 Source: "dist\windows-msvc\usr\bin\iconengines\*.dll"; DestDir: "{app}\iconengines";
-Source: "dist\windows-msvc\usr\bin\imagesformats\*.dll"; DestDir: "{app}\imagesformats";
+Source: "dist\windows-msvc\usr\bin\imageformats\*.dll"; DestDir: "{app}\imageformats";
 Source: "dist\windows-msvc\usr\bin\networkinformation\*.dll"; DestDir: "{app}\networkinformation";
 Source: "dist\windows-msvc\usr\bin\platforms\*.dll"; DestDir: "{app}\platforms";
 Source: "dist\windows-msvc\usr\bin\styles\*.dll"; DestDir: "{app}\styles";
