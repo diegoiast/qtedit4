@@ -481,10 +481,14 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     if (project == nullptr || project->buildDir.isEmpty()) {
         return;
     }
+
+    auto hash = getConfigHash();
+    auto projectBuildDir = expand(project->buildDir, hash);
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
-    msgBox.setText(
-        tr("This will delete <b>%1</b>. Do you want to proceed?").arg(project->buildDir));
+    msgBox.setText(tr("This will delete <b>%1</b> (%2). Do you want to proceed?")
+                       .arg(project->buildDir)
+                       .arg(projectBuildDir));
     msgBox.setWindowTitle(tr("Confirmation"));
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -493,7 +497,7 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     switch (ret) {
     case QMessageBox::Yes: {
         // TODO - run this in a thread?
-        auto outputDir = QDir(project->buildDir);
+        auto outputDir = QDir(projectBuildDir);
         outputDir.removeRecursively();
         break;
     }
