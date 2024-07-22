@@ -22,13 +22,13 @@ Source: "dist\windows-msvc\usr\bin\platforms\*.dll"; DestDir: "{app}\platforms";
 Source: "dist\windows-msvc\usr\bin\styles\*.dll"; DestDir: "{app}\styles";
 Source: "dist\windows-msvc\usr\bin\tls\*.dll"; DestDir: "{app}\tls";
 
-
 ;Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion noregerror allowunsafefiles
-Source: "dist\windows-msvc\usr\share\icons\breeze\index.theme"; DestDir: "{app}\icons\"; Flags:  ignoreversion
-Source: "dist\windows-msvc\usr\share\icons\breeze\actions\16\*.svg"; DestDir: "{app}\icons\actions\16\"; Flags:  ignoreversion
-Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\actions\32\"; Flags:  ignoreversion
-Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\devices\16\"; Flags:  ignoreversion
-Source: "dist\windows-msvc\usr\share\icons\breeze\devices\32\*.svg"; DestDir: "{app}\icons\devices\32\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\index.theme"; DestDir: "{app}\icons\breeze"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\actions\16\*.svg"; DestDir: "{app}\icons\breeze\actions\16\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\actions\22\*.svg"; DestDir: "{app}\icons\breeze\actions\22\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\breeze\actions\32\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\breeze\devices\16\"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags:  ignoreversion
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*"; 
