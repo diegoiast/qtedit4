@@ -102,6 +102,12 @@ jobs:
       - name: Create AppImage
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
+          # Qt plugin does not bundle the needed plugins, do this manually
+          mkdir -p "dist/${{ matrix_config_build_dir }}/usr/plugins/iconengines/"
+          mkdir -p "dist/${{ matrix_config_build_dir }}/usr/plugins/platforms/"
+          cp -arv $QTDIR/plugins/iconengines/* "dist/${{ matrix_config_build_dir }}/usr/plugins/iconengines/"
+          cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${{ matrix_config_build_dir }}/usr/plugins/platforms/"
+ 
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
