@@ -68,7 +68,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@v4
         with:
           version: 6.7.1
           modules: "qt5compat"
@@ -105,8 +105,8 @@ jobs:
           # Qt plugin does not bundle the needed plugins, do this manually      
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
-          cp -arv $QTDIR/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
-          cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
+          cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
+          cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
  
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
