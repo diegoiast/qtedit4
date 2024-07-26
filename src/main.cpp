@@ -24,9 +24,14 @@ int main(int argc, char *argv[]) {
     // default style on windows is ugly and unusable.
     // lets fallback to something more usable for us
     app.setStyle("windowsvista");
+
+    // Force using internal icon set on windows.
+    auto needsIcons = true;
+#else
+    auto needsIcons = !QIcon::hasThemeIcon(QIcon::ThemeIcon::ApplicationExit);
 #endif
 
-    if (!QIcon::hasThemeIcon(QIcon::ThemeIcon::ApplicationExit)) {
+    if (needsIcons) {
         // On bare bones Linux installs, Windows or OSX,we might now have freedesktop icons
         // thus - we use our bundled icons.
 #if defined(WIN32)
