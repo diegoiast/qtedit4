@@ -105,8 +105,8 @@ jobs:
           # Qt plugin does not bundle the needed plugins, do this manually      
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
-          cp -arv $QTDIR/plugins/iconengines/* "dist/${{ matrix_config_build_dir }}/usr/plugins/iconengines/"
-          cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${{ matrix_config_build_dir }}/usr/plugins/platforms/"
+          cp -arv $QTDIR/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
+          cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
  
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
