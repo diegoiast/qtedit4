@@ -102,8 +102,9 @@ jobs:
       - name: Create AppImage
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
-          mkdir -p "dist/${{ matrix_config_build_dir }}/usr/plugins/iconengines/"
-          mkdir -p "dist/${{ matrix_config_build_dir }}/usr/plugins/platforms/"
+          # Qt plugin does not bundle the needed plugins, do this manually      
+          mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
+          mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv $QTDIR/plugins/iconengines/* "dist/${{ matrix_config_build_dir }}/usr/plugins/iconengines/"
           cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${{ matrix_config_build_dir }}/usr/plugins/platforms/"
  
