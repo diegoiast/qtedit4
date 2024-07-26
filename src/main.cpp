@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
         // On bare bones Linux installs, Windows or OSX,we might now have freedesktop icons
         // thus - we use our bundled icons.
 #if defined(WIN32)
-        auto base = QDir(QCoreApplication::applicationDirPath() + "/share/icons").absolutePath();
+        auto base = QDir(QCoreApplication::applicationDirPath() + "/icons").absolutePath();
 #else
         auto base = QDir(QCoreApplication::applicationDirPath() + "/../share/icons").absolutePath();
 #endif
