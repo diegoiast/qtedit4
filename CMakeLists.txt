@@ -2,13 +2,15 @@
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
+set(CMAKE_VERBOSE_MAKEFILE ON)
+
 include(cmake/CPM.cmake)
 include(cmake/icons-breeze.cmake)
 set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:elcuco/qmdilib#main")
 CPMAddPackage("gh:elcuco/qutepart-cpp#qt6-port-take2")
-download_breeze_icons()
+download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
 set(CMAKE_CXX_STANDARD 17)
@@ -83,12 +85,35 @@ endif()
 
 install(TARGETS qtedit4
         RUNTIME DESTINATION bin)
-install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
-        DESTINATION share/icons/hicolor/scalable/apps
-        RENAME qtedit4.svg)
-install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.desktop
-        DESTINATION share/applications
-        RENAME qtedit4.desktop)
+install(DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/
+    DESTINATION share/icons
+    DIRECTORY_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+    FILES_MATCHING PATTERN "*/*"
+    PATTERN "*")
+
+if (WIN32)
+    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
+            DESTINATION /)
+else()
+    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
+            DESTINATION share/icons/hicolor/scalable/apps)
+    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.desktop
+            DESTINATION share/applications
+            RENAME qtedit4.desktop)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
+            DESTINATION share/
+            DIRECTORY_PERMISSIONS
+                OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                GROUP_READ GROUP_EXECUTE
+                WORLD_READ WORLD_EXECUTE
+            FILES_MATCHING PATTERN "*/*"
+            PATTERN "*"
+            PATTERN "*")
+endif()
+
 ######################
 
 # add_executable(generic-item-complete

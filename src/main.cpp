@@ -6,6 +6,8 @@
  */
 
 #include <QApplication>
+#include <QDir>
+#include <QIcon>
 #include <QStandardPaths>
 
 #include "pluginmanager.h"
@@ -22,13 +24,17 @@ int main(int argc, char *argv[]) {
     // default style on windows is ugly and unusable.
     // lets fallback to something more usable for us
     app.setStyle("windowsvista");
-
-    QStringList paths;
-    paths << QCoreApplication::applicationDirPath() + "/share/icons";
-    QIcon::setFallbackSearchPaths(paths);
-    QIcon::setThemeName("Breeze");
-
 #endif
+
+    if (!QIcon::hasThemeIcon(QIcon::ThemeIcon::ApplicationExit)) {
+        // On bare bones Linux installs, Windows or OSX,we might now have freedesktop icons
+        // thus - we use our bundled icons.
+        auto base = QDir(QCoreApplication::applicationDirPath() + "/../share/icons").absolutePath();
+        auto paths = QIcon::fallbackSearchPaths() << base;
+        QIcon::setFallbackSearchPaths(paths);
+        QIcon::setFallbackThemeName("Breeze");
+        qDebug() << "No icons found, using our own. Icons search path" << paths;
+    }
 
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
