@@ -24,13 +24,23 @@ int main(int argc, char *argv[]) {
     // default style on windows is ugly and unusable.
     // lets fallback to something more usable for us
     app.setStyle("windowsvista");
+    auto needsIcons = true;
+    auto iconsPath = "/share/icons";
+#else
+    auto needsIcons = QIcon::fromTheme(QIcon::ThemeIcon::GoNext).isNull();
+    auto iconsPath = "/../share/icons";
 #endif
 
-    if (!QIcon::hasThemeIcon(QIcon::ThemeIcon::ApplicationExit)) {
-        // On bare bones Linux installs, Windows or OSX,we might now have freedesktop icons
-        // thus - we use our bundled icons.
-        auto base = QDir(QCoreApplication::applicationDirPath() + "/../share/icons").absolutePath();
-        auto paths = QIcon::fallbackSearchPaths() << base;
+    // On bare bones Linux installs, Windows or OSX,we might now have freedesktop
+    // icons thus - we use our bundled icons.
+    if (needsIcons) {
+        auto base = QDir(QCoreApplication::applicationDirPath() + iconsPath).absolutePath();
+        // clang-format off
+        auto paths = QIcon::fallbackSearchPaths()
+                     << base + "/breeze/actions/16"
+                     << base + "/breeze/actions/22"
+                     << base + "/breeze/actions/32";
+        // clang-format on
         QIcon::setFallbackSearchPaths(paths);
         QIcon::setFallbackThemeName("Breeze");
         qDebug() << "No icons found, using our own. Icons search path" << paths;
