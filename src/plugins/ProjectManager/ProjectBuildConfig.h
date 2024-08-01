@@ -19,6 +19,12 @@ struct TaskInfo {
     bool operator==(const TaskInfo &other) const;
 };
 
+struct PlatformConfig {
+    QString setup;
+    QString pathPrepend;
+    QString pathAppend;
+};
+
 struct ProjectBuildConfig {
     QString sourceDir;
     QString buildDir;
@@ -30,6 +36,7 @@ struct ProjectBuildConfig {
     QString activeTaskName;
     QString displayFilter;
     QString hideFilter;
+    QHash<QString, PlatformConfig> platformConfig;
 
     // meta data
     QString fileName;

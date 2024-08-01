@@ -29,9 +29,33 @@ static auto str(QProcess::ExitStatus e) -> QString {
     return "";
 }
 
+#if defined(_WIN32)
+constexpr auto EnvPathSeparator = ";";
+#else
+constexpr auto EnvPathSeparator = ":";
+#endif
+
 static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
-    // TODO
+#if defined(__linux__)
     return files["linux"];
+#elif defined(_WIN32)
+    return files["windows"];
+#else
+    qDebug("Warning - unsupported platform, cannot find executable");
+    return {};
+#endif
+}
+
+static auto getConfigForPlatform(ProjectBuildConfig *project) -> PlatformConfig {
+#if defined(__linux__)
+    return &project->platformConfig["linux"];
+#elif defined(_WIN32)
+    PlatformConfig config = project->platformConfig["windows"];
+    return config;
+#else
+    qDebug("Warning - unsupported platform, cannot find config");
+    return {};
+#endif
 }
 
 static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
@@ -336,8 +360,8 @@ const QHash<QString, QString> ProjectManagerPlugin::getConfigHash() const {
     auto hash = QHash<QString, QString>();
     auto project = getCurrentConfig();
     if (project) {
-        hash["source_directory"] = project->sourceDir;
-        hash["build_directory"] = project->buildDir;
+        hash["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
+        hash["build_directory"] = QDir::toNativeSeparators(project->buildDir);
     }
     return hash;
 }
@@ -421,14 +445,22 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget
         workingDirectory = project->buildDir;
     }
     outputPanel->commandOuput->clear();
-    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
+    outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
     outputPanel->commandOuput->appendPlainText(currentTask);
 
-    // TODO - windows support
     auto command = QStringList();
+    auto interpreter = QString();
+#if defined(__linux__)
+    interpreter = "/bin/sh";
     command.append("-c");
     command.append(currentTask);
-    runProcess.start("/bin/bash", command);
+#elif defined(_WIN32)
+    interpreter = qgetenv("COMSPEC");
+    command << "/k" << currentTask;
+#else
+    interpreter = "???";
+#endif
+    runProcess.start(interpreter, command);
     runProcess.setWorkingDirectory(workingDirectory);
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
@@ -442,24 +474,43 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 
     auto project = getCurrentConfig();
+    auto config = getConfigForPlatform(project.get());
     auto hash = getConfigHash();
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
 
-    outputPanel->commandOuput->clear();
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
 
-    runProcess.setWorkingDirectory(workingDirectory);
-    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
-
-    // TODO - windows support
     auto command = QStringList();
+    auto interpreter = QString();
+#if defined(__linux__)
+    interpreter = "/bin/sh";
     command.append("-c");
     command.append(currentTask);
-    outputPanel->commandOuput->appendPlainText(currentTask);
-    runProcess.start("/bin/bash", command);
+#elif defined(_WIN32)
+    interpreter = qgetenv("COMSPEC");
+    command << "/k" << currentTask;
+#else
+    interpreter = "???";
+#endif
+    auto env = QProcessEnvironment::systemEnvironment();
+    QString currentPath = env.value("PATH");
+    QString newPath =
+        config.pathPrepend + EnvPathSeparator + currentPath + EnvPathSeparator + config.pathPrepend;
+    env.insert("PATH", newPath);
+
+    outputPanel->commandOuput->clear();
+    outputPanel->commandOuput->appendPlainText(QString("PATH=%1").arg(newPath));
+    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
+    outputPanel->commandOuput->appendPlainText(interpreter + " " + command.join(" "));
+
+    runProcess.setWorkingDirectory(workingDirectory);
+    runProcess.setProgram(interpreter);
+    runProcess.setArguments(command);
+    runProcess.setProcessEnvironment(env);
+    runProcess.start();
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
         this->outputPanel->commandOuput->appendPlainText("Process failed to start");
