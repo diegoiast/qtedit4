@@ -1,6 +1,7 @@
 #pragma once
 
 #include "iplugin.h"
+#include "kitdefinitions.h"
 #include <QFileSystemWatcher>
 #include <QProcess>
 
@@ -13,6 +14,7 @@ class ProjectBuildModel;
 class FoldersModel;
 class DirectoryModel;
 class FilterOutProxyModel;
+class KitDefinitionModel;
 
 struct ProjectBuildConfig;
 struct TaskInfo;
@@ -64,6 +66,7 @@ class ProjectManagerPlugin : public IPlugin {
 
     QProcess runProcess;
 
+    KitDefinitionModel *kitsModel = nullptr;
     ProjectBuildModel *projectModel = nullptr;
     DirectoryModel *directoryModel;
     FilterOutProxyModel *filesFilterModel;

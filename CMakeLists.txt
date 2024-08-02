@@ -57,6 +57,10 @@ set(qtedit4_sources
     src/plugins/ProjectManager/output.ui
     src/plugins/ProjectManager/GenericItems.cpp
     src/plugins/ProjectManager/GenericItems.h
+    src/plugins/ProjectManager/kitdefinitions.h
+    src/plugins/ProjectManager/kitdefinitions.cpp
+    src/plugins/ProjectManager/kitdefinitionmodel.h
+    src/plugins/ProjectManager/kitdefinitionmodel.cpp
     src/main.cpp
 )
 
@@ -66,7 +70,6 @@ else()
     add_executable(qtedit4 ${qtedit4_sources})
 endif()
 
-# lib/qmdilib/demos/plugin-demo/plugins/editor
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
     ${qutepart_SOURCE_DIR}/include 

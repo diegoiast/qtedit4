@@ -8,11 +8,13 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QSortFilterProxyModel>
+#include <QStandardPaths>
 
 #include "GenericItems.h"
 #include "ProjectBuildConfig.h"
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
+#include "kitdefinitionmodel.h"
 #include "pluginmanager.h"
 #include "qmdihost.h"
 #include "qmdiserver.h"
@@ -186,7 +188,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(gui->filesView, &QAbstractItemView::clicked, this,
             &ProjectManagerPlugin::onItemClicked);
 
-    connect(gui->comboBox, &QComboBox::currentIndexChanged, this,
+    connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
             &ProjectManagerPlugin::on_newProjectSelected);
     manager->createNewPanel(Panels::West, tr("Project"), w);
 
@@ -269,8 +271,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     manager->addAction(projectSearch);
 
+    kitsModel = new KitDefinitionModel();
+    gui->kitComboBox->setModel(kitsModel);
+
+    auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    auto kits = findKitDefinitions(dataPath.toStdString());
+    kitsModel->setKitDefinitions(kits);
+
     projectModel = new ProjectBuildModel();
-    gui->comboBox->setModel(projectModel);
+    gui->projectComboBox->setModel(projectModel);
 
     runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
     buildAction = new QAction(QIcon::fromTheme("document-save-as"), tr("&Run task"), this);
@@ -349,7 +358,7 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {
-    auto currentIndex = gui->comboBox->currentIndex();
+    auto currentIndex = gui->projectComboBox->currentIndex();
     if (currentIndex < 0) {
         return {};
     }
@@ -391,7 +400,7 @@ void ProjectManagerPlugin::on_addProject_clicked() {
 }
 
 void ProjectManagerPlugin::on_removeProject_clicked() {
-    auto index = gui->comboBox->currentIndex();
+    auto index = gui->projectComboBox->currentIndex();
     if (index < 0) {
         return;
     }
@@ -430,7 +439,7 @@ void ProjectManagerPlugin::on_newProjectSelected(int index) {
     updateExecutablesUI(config);
 }
 
-void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget) {
+void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     if (runProcess.processId() != 0) {
         runProcess.kill();
         return;
@@ -438,9 +447,9 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *selectedTarget
 
     auto hash = getConfigHash();
     auto project = getCurrentConfig();
-    auto executablePath = findExecForPlatform(selectedTarget->executables);
+    auto executablePath = findExecForPlatform(info->executables);
     auto currentTask = expand(executablePath, hash);
-    auto workingDirectory = expand(selectedTarget->runDirectory, hash);
+    auto workingDirectory = expand(info->runDirectory, hash);
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
@@ -567,7 +576,7 @@ void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
         return;
     }
     *inMemoryConfig = *onDiskConfig;
-    emit on_newProjectSelected(gui->comboBox->currentIndex());
+    emit on_newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
