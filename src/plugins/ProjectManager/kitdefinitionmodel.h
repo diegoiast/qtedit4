@@ -20,6 +20,7 @@ class KitDefinitionModel : public QAbstractListModel {
     void setKitDefinitions(const std::vector<KitDefinition> &kits);
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    const KitDefinition &getKit(size_t index) const { return this->kitDefinitions.at(index); }
 
   private:
     std::vector<KitDefinition> kitDefinitions;

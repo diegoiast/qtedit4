@@ -357,6 +357,14 @@ const QHash<QString, QString> ProjectManagerPlugin::getConfigHash() const {
     return hash;
 }
 
+const KitDefinition *ProjectManagerPlugin::getCurrentKit() const {
+    auto currentIndex = gui->kitComboBox->currentIndex();
+    if (currentIndex < 0) {
+        return nullptr;
+    }
+    return &kitsModel->getKit(currentIndex);
+}
+
 void ProjectManagerPlugin::onItemClicked(const QModelIndex &index) {
     auto i = filesFilterModel->mapToSource(index);
     auto s = directoryModel->getItem(i.row());
@@ -464,6 +472,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         return;
     }
 
+    auto kit = getCurrentKit();
     auto project = getCurrentConfig();
     auto hash = getConfigHash();
     auto currentTask = expand(task->command, hash);
@@ -473,27 +482,37 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         workingDirectory = project->buildDir;
     }
 
-    auto command = QStringList();
-    auto interpreter = QString();
-#if defined(__linux__)
-    interpreter = "/bin/sh";
-    command.append("-c");
-    command.append(currentTask);
-#elif defined(_WIN32)
-    interpreter = qgetenv("COMSPEC");
-    command << "/k" << currentTask;
-#else
-    interpreter = "???";
-#endif
-    auto env = QProcessEnvironment::systemEnvironment();
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
-    outputPanel->commandOuput->appendPlainText(interpreter + " " + command.join(" "));
+    if (!kit) {
+        auto command = QStringList();
+        auto interpreter = QString();
+#if defined(__linux__)
+        interpreter = "/bin/sh";
+        command << "-c" << currentTask;
+#elif defined(_WIN32)
+        interpreter = qgetenv("COMSPEC");
+        command << "/k" << currentTask;
+#else
+        interpreter = "???";
+#endif
+        auto env = QProcessEnvironment::systemEnvironment();
+        outputPanel->commandOuput->appendPlainText(interpreter + " " + command.join(" "));
 
-    runProcess.setWorkingDirectory(workingDirectory);
-    runProcess.setProgram(interpreter);
-    runProcess.setArguments(command);
-    runProcess.setProcessEnvironment(env);
+        runProcess.setWorkingDirectory(workingDirectory);
+        runProcess.setProgram(interpreter);
+        runProcess.setArguments(command);
+        runProcess.setProcessEnvironment(env);
+    } else {
+        auto env = QProcessEnvironment::systemEnvironment();
+        env.insert("run_dir", workingDirectory);
+        env.insert("build_dir", project->buildDir);
+        env.insert("source_dir", project->sourceDir);
+        env.insert("task", currentTask);
+        runProcess.setProcessEnvironment(env);
+        runProcess.setProgram(QString::fromStdString(kit->filePath));
+    }
+
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";

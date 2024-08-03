@@ -38,6 +38,7 @@ class ProjectManagerPlugin : public IPlugin {
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
     const QHash<QString, QString> getConfigHash() const;
+    const KitDefinition *getCurrentKit() const;
 
   public slots:
     void onItemClicked(const QModelIndex &index);

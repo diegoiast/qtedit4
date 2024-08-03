@@ -1,0 +1,39 @@
+{
+    "build_directory": "${source_directory}/build",
+    "hideFilter": "build;dist;*.AppImage",
+    "executables" : [
+        {
+            "name": "qtedit4",
+            "executables": {
+                "linux": "${build_directory}/bin/qtedit4",
+                "win32": "${build_directory}/bin/qtedit4.exe"
+            } 
+        }
+    ],
+    "tasks": [ 
+        {
+            "name": "Build",
+            "command": "cmake --build ${build_directory} --parallel",
+            "directory": "${build_directory}"
+        },
+        {
+            "name": "Configure",
+            "command": "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug -G Ninja",
+            "directory": "${source_directory}"
+        },
+        {
+            "name": "Ninja build parallel",
+            "command": "cmake --build ${build_directory} --verbose --parallel",
+            "directory": "${build_directory}"
+        },
+        {
+            "name": "Ninja buid (one thread)",
+            "command": "cmake --build ${build_directory} --verbose",
+            "directory": "${build_directory}"
+        },
+        {
+            "name": "Fix clang format",
+            "command": "cmake --build ${build_directory} --target fix-clang-format"
+        }
+    ]
+}
