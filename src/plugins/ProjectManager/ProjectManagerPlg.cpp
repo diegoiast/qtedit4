@@ -50,10 +50,9 @@ static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
 
 static auto getConfigForPlatform(ProjectBuildConfig *project) -> PlatformConfig {
 #if defined(__linux__)
-    return &project->platformConfig["linux"];
+    return project->platformConfig["linux"];
 #elif defined(_WIN32)
-    PlatformConfig config = project->platformConfig["windows"];
-    return config;
+    return project->platformConfig["windows"];
 #else
     qDebug("Warning - unsupported platform, cannot find config");
     return {};
