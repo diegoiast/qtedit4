@@ -79,14 +79,6 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         }
         return info;
     };
-    auto parsePlatformConfig = [](QJsonValue v) -> PlatformConfig {
-        auto config = PlatformConfig();
-        config.pathAppend = v["path_append"].toString();
-        config.setup = v["setup"].toString();
-        config.pathPrepend = v["path_prepend"].toString();
-        return config;
-    };
-
     if (!json.isNull()) {
         value->buildDir = json["build_directory"].toString();
         value->executables = parseExecutables(json["executables"]);
@@ -96,13 +88,6 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         value->activeTaskName = json["activeTaskName"].toString();
         value->displayFilter = json["displayFilter"].toString();
         value->hideFilter = json["hideFilter"].toString();
-
-        if (json["config"].isObject()) {
-            QJsonObject jsonObj = json["config"].toObject();
-            for (const auto &vv : jsonObj.keys()) {
-                value->platformConfig[vv] = parsePlatformConfig(jsonObj[vv]);
-            }
-        }
     }
     return value;
 }

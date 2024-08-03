@@ -31,12 +31,6 @@ static auto str(QProcess::ExitStatus e) -> QString {
     return "";
 }
 
-#if defined(_WIN32)
-constexpr auto EnvPathSeparator = ";";
-#else
-constexpr auto EnvPathSeparator = ":";
-#endif
-
 static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
 #if defined(__linux__)
     return files["linux"];
@@ -44,17 +38,6 @@ static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
     return files["windows"];
 #else
     qDebug("Warning - unsupported platform, cannot find executable");
-    return {};
-#endif
-}
-
-static auto getConfigForPlatform(ProjectBuildConfig *project) -> PlatformConfig {
-#if defined(__linux__)
-    return project->platformConfig["linux"];
-#elif defined(_WIN32)
-    return project->platformConfig["windows"];
-#else
-    qDebug("Warning - unsupported platform, cannot find config");
     return {};
 #endif
 }
@@ -482,7 +465,6 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 
     auto project = getCurrentConfig();
-    auto config = getConfigForPlatform(project.get());
     auto hash = getConfigHash();
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
@@ -504,13 +486,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     interpreter = "???";
 #endif
     auto env = QProcessEnvironment::systemEnvironment();
-    QString currentPath = env.value("PATH");
-    QString newPath =
-        config.pathPrepend + EnvPathSeparator + currentPath + EnvPathSeparator + config.pathPrepend;
-    env.insert("PATH", newPath);
-
     outputPanel->commandOuput->clear();
-    outputPanel->commandOuput->appendPlainText(QString("PATH=%1").arg(newPath));
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     outputPanel->commandOuput->appendPlainText(interpreter + " " + command.join(" "));
 
