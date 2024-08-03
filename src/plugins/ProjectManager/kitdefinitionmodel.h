@@ -1,3 +1,10 @@
+/**
+ * \file kitdefinitionmodel.h
+ * \brief Implementation of kit definition modes
+ * \author Diego Iastrubni (diegoiast@gmail.com)
+ *  License MIT
+ */
+
 #pragma once
 
 #include "kitdefinitions.h"
@@ -15,5 +22,5 @@ class KitDefinitionModel : public QAbstractListModel {
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
   private:
-    std::vector<KitDefinition> kitDefinitions; // Store a copy of the vector
+    std::vector<KitDefinition> kitDefinitions;
 };

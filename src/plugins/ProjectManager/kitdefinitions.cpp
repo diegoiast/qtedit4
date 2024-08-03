@@ -1,3 +1,10 @@
+/**
+ * \file kitdefinitions.cpp
+ * \brief Implementation of kit definitions
+ * \author Diego Iastrubni (diegoiast@gmail.com)
+ *  License MIT
+ */
+
 #include "kitdefinitions.h"
 #include <filesystem>
 #include <fstream>
@@ -88,21 +95,3 @@ auto findKitDefinitions(const std::string_view directoryPath) -> std::vector<Kit
     }
     return fileInfoList;
 }
-
-/*
-// Uncomment for testing
-
-int main() {
-    std::string directoryPath = ".";
-
-    auto fileInfoList = findKitDefinitions(directoryPath);
-
-    for (const auto &info : fileInfoList) {
-        std::cout << "File Path: " << info.filePath << std::endl;
-        std::cout << "Name: " << info.name << std::endl;
-        std::cout << "Author: " << info.author << std::endl;
-    }
-
-    return 0;
-}
-*/

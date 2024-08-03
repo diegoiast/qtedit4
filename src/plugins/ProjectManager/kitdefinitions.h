@@ -1,6 +1,12 @@
+/**
+ * \file kitdefinitions.h
+ * \brief Declaration of kit definitions
+ * \author Diego Iastrubni (diegoiast@gmail.com)
+ *  License MIT
+ */
+
 #pragma once
 
-#include <filesystem>
 #include <string>
 #include <vector>
 
