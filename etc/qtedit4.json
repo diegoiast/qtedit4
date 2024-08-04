@@ -1,6 +1,6 @@
 {
     "build_directory": "${source_directory}/build",
-    "hideFilter": "build;dist;*.AppImage",
+    "hideFilter": "build;dist;*.AppImage;.vs;",
     "executables" : [
         {
             "name": "qtedit4",
@@ -37,3 +37,4 @@
         }
     ]
 }
+
