@@ -117,6 +117,46 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::sha
     return value;
 }
 
+static auto tryGuessFromGo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+    auto gomodFileName = directory + "/" + "go.mod";
+    qDebug("Will try to load go/mod %1", gomodFileName.toStdString());
+    auto fi = QFileInfo(gomodFileName);
+    if (!fi.isReadable()) {
+        qDebug("Load go.mod failed");
+        return {};
+    }
+
+    auto value = std::make_shared<ProjectBuildConfig>();
+    value->sourceDir = directory;
+    value->hideFilter = ".git;.vscode;";
+    value->buildDir = "";
+
+    {
+        auto di = QFileInfo(directory);
+        auto e = ExecutableInfo();
+        e.name = "go run";
+        e.runDirectory = "${source_directory}";
+        e.executables["windows"] = "go run ${source_directory}";
+        e.executables["linux"] = "go run ${source_directory}";
+        value->executables.push_back(e);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "go build";
+        t.runDirectory = "${source_directory}";
+        t.command = "go build";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "go fix";
+        t.runDirectory = "${source_directory}";
+        t.command = "go fix";
+        value->tasksInfo.push_back(t);
+    }
+    return value;
+}
+
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
@@ -127,6 +167,9 @@ ProjectBuildConfig::buildFromDirectory(const QString &directory) {
     }
     if (!config) {
         config = tryGuessFromCargo(directory);
+    }
+    if (!config) {
+        config = tryGuessFromGo(directory);
     }
     if (!config) {
         config = std::make_shared<ProjectBuildConfig>();

@@ -36,6 +36,7 @@ struct ProjectBuildConfig {
 
     static auto tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto tryGuessFromCargo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
+    static auto tryGuessFromGo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto buildFromDirectory(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto buildFromFile(const QString &jsonFileName) -> std::shared_ptr<ProjectBuildConfig>;
 
