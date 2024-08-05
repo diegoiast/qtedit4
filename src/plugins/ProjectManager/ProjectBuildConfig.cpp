@@ -71,10 +71,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::sha
 
 auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
     auto cargoFileName = directory + "/" + "Cargo.toml";
-    qDebug("Will try to load cargo %1", cargoFileName.toStdString());
     auto fi = QFileInfo(cargoFileName);
     if (!fi.isReadable()) {
-        qDebug("Load cargo failed");
         return {};
     }
 
@@ -117,12 +115,10 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::sha
     return value;
 }
 
-static auto tryGuessFromGo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+auto ProjectBuildConfig::tryGuessFromGo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
     auto gomodFileName = directory + "/" + "go.mod";
-    qDebug("Will try to load go/mod %1", gomodFileName.toStdString());
     auto fi = QFileInfo(gomodFileName);
     if (!fi.isReadable()) {
-        qDebug("Load go.mod failed");
         return {};
     }
 
