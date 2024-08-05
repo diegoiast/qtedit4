@@ -18,6 +18,11 @@ rem from this point on - echo is on. Every command will be displayed
 rem in the build output.
 @echo on
 
+echo "Running from kit %0%"
+echo "Source is in        : %source_directort%"
+echo "Binaries will be in : %build_directory%"
+echo "Working directory is: %run_directory%"
+
 @rem detected cmake
 echo "Adding cmake to the path"
 set PATH=c:\Program Files\CMake\bin\;%PATH%
@@ -25,5 +30,6 @@ set PATH=c:\Program Files\CMake\bin\;%PATH%
 @rem detected Visual studio 2022
 call C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat
 
+@rem execute task    
 cd %run_directory%
 %task%

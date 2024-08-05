@@ -510,9 +510,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setProcessEnvironment(env);
     } else {
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("run_dir", workingDirectory);
-        env.insert("build_dir", project->buildDir);
-        env.insert("source_dir", project->sourceDir);
+        env.insert("run_directory", expand(workingDirectory, hash));
+        env.insert("build_directory", expand(project->buildDir, hash));
+        env.insert("source_directory", project->sourceDir);
         env.insert("task", currentTask);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
@@ -520,8 +520,16 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     runProcess.start();
     if (!runProcess.waitForStarted()) {
+        if (kit) {
+            auto msg = QString("Failed to run kit %1, with task=%2")
+                           .arg(QString::fromStdString(kit->filePath))
+                           .arg(currentTask);
+            this->outputPanel->commandOuput->appendPlainText(msg);
+        } else {
+            this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
+                                                             currentTask);
+        }
         qWarning() << "Process failed to start";
-        this->outputPanel->commandOuput->appendPlainText("Process failed to start");
     }
 }
 
