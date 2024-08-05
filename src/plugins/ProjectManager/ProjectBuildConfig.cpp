@@ -23,7 +23,8 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
     /* clang-format on */
 }
 
-auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
+    -> std::shared_ptr<ProjectBuildConfig> {
     auto cmakeFileName = directory + "/" + "CMakeLists.txt";
     auto fi = QFileInfo(cmakeFileName);
     if (!fi.isReadable()) {
@@ -48,7 +49,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::sha
     {
         auto t = TaskInfo();
         t.name = "CMake configure (debug/Ninja)";
-        t.command = "cmake -S ${source_directory} -B ${build_directory} -G Ninja -DCMAKE_BUILD_TYPE=Debug";
+        t.command =
+            "cmake -S ${source_directory} -B ${build_directory} -G Ninja -DCMAKE_BUILD_TYPE=Debug";
         t.runDirectory = "${source_directory}";
         value->tasksInfo.push_back(t);
     }
@@ -69,7 +71,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::sha
     return value;
 }
 
-auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
+    -> std::shared_ptr<ProjectBuildConfig> {
     auto cargoFileName = directory + "/" + "Cargo.toml";
     auto fi = QFileInfo(cargoFileName);
     if (!fi.isReadable()) {
@@ -115,7 +118,8 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::sha
     return value;
 }
 
-auto ProjectBuildConfig::tryGuessFromGo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
+    -> std::shared_ptr<ProjectBuildConfig> {
     auto gomodFileName = directory + "/" + "go.mod";
     auto fi = QFileInfo(gomodFileName);
     if (!fi.isReadable()) {
@@ -152,7 +156,6 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory) -> std::shared
     }
     return value;
 }
-
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
@@ -274,4 +277,3 @@ bool ProjectBuildConfig::operator==(const ProjectBuildConfig &other) const {
            fileName == other.fileName;
     /* clang-format on */
 }
-
