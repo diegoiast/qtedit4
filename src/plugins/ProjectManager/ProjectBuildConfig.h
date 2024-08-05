@@ -34,8 +34,9 @@ struct ProjectBuildConfig {
     // meta data
     QString fileName;
 
-    static auto buildFromFile(const QString &jsonFileName) -> std::shared_ptr<ProjectBuildConfig>;
+    static auto tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto buildFromDirectory(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
+    static auto buildFromFile(const QString &jsonFileName) -> std::shared_ptr<ProjectBuildConfig>;
 
     auto saveToFile(const QString &jsonFileName) -> void;
     auto findIndexOfTask(const QString &taskName) -> int;

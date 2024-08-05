@@ -23,24 +23,79 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
     /* clang-format on */
 }
 
+auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+    auto cmakeFileName = directory + "/" + "CMakeLists.txt";
+    auto fi = QFileInfo(cmakeFileName);
+    if (!fi.isReadable()) {
+        return {};
+    }
+
+    auto value = std::make_shared<ProjectBuildConfig>();
+    value->sourceDir = directory;
+    value->hideFilter = ".git;.vscode;build";
+    value->buildDir = directory + "/build";
+
+    // TODO - we should query for available binaries after configure.
+    {
+        auto di = QFileInfo(directory);
+        auto e = ExecutableInfo();
+        e.name = di.fileName();
+        e.runDirectory = "${build_directory}";
+        e.executables["windows"] = "${build_directory}/bin/" + e.name + ".exe";
+        e.executables["linux"] = "${build_directory}/bin/" + e.name;
+        value->executables.push_back(e);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "CMake configure (debug/Ninja)";
+        t.command = "cmake -S ${source_directory} -B ${build_directory} -G Ninja -DCMAKE_BUILD_TYPE=Debug";
+        t.runDirectory = "${source_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "Build (parallel)";
+        t.command = "cmake --build ${build_directory} --parallel";
+        t.runDirectory = "${source_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "Build (single thread)";
+        t.command = "cmake --build ${build_directory}";
+        t.runDirectory = "${source_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    return value;
+}
+
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
     auto configFileName = directory + "/" + "qtedit4.json";
-    return buildFromFile(configFileName);
+    auto config = buildFromFile(configFileName);
+
+    if (!config) {
+        config = tryGuessFromCMake(directory);
+    }
+
+    if (!config) {
+        config = std::make_shared<ProjectBuildConfig>();
+    }
+    return config;
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QString &jsonFileName) {
-    auto value = std::make_shared<ProjectBuildConfig>();
-    auto fi = QFileInfo(jsonFileName);
-    value->sourceDir = fi.absolutePath();
-    value->fileName = fi.absoluteFilePath();
-
     auto file = QFile();
     file.setFileName(jsonFileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        return value;
+        return {};
     }
+
+    auto value = std::make_shared<ProjectBuildConfig>();
+    auto fi = QFileInfo(jsonFileName);
     auto json = QJsonDocument::fromJson(file.readAll());
+    value->sourceDir = fi.absolutePath();
+    value->fileName = fi.absoluteFilePath();
     file.close();
 
     auto toHash = [](QJsonValueRef v) -> QHash<QString, QString> {
@@ -129,3 +184,4 @@ bool ProjectBuildConfig::operator==(const ProjectBuildConfig &other) const {
            fileName == other.fileName;
     /* clang-format on */
 }
+

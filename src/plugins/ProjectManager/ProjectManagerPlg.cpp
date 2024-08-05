@@ -314,8 +314,11 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
         if (!config) {
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
-            qDebug("adding %s to the watch dir", config->fileName.toStdString().c_str());
-            configWatcher.addPath(config->fileName);
+
+            if (!config->fileName.isEmpty()) {
+                qDebug("loadConfig() - adding %s to the watch dir", config->fileName.toStdString().c_str());
+                configWatcher.addPath(config->fileName);
+            }
         }
     }
     settings.endGroup();
@@ -381,9 +384,11 @@ void ProjectManagerPlugin::on_addProject_clicked() {
         return;
     }
     config = ProjectBuildConfig::buildFromDirectory(dirName);
-    qDebug("adding %s to the watch dir", config->fileName.toStdString().c_str());
-
-    configWatcher.addPath(config->fileName);
+    if (!config->fileName.isEmpty()) {
+        // Auto generated config files have no filename
+        qDebug("on_addProject_clicked() : adding %s to the watch dir", config->fileName.toStdString().c_str());
+        configWatcher.addPath(config->fileName);
+    }
     projectModel->addConfig(config);
     directoryModel->addDirectory(dirName);
     getManager()->saveSettings();
@@ -716,3 +721,4 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         }
     }
 }
+
