@@ -38,7 +38,7 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
             SLOT(on_fileChanged(const QString)));
 
     QFont monospacedFont = this->font();
-    monospacedFont.setPointSize(12);
+    monospacedFont.setPointSize(10);
     monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
     setFont(monospacedFont);
     setLineWrapMode(LineWrapMode::NoWrap);
