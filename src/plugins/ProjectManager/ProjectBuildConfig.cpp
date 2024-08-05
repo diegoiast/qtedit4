@@ -69,17 +69,68 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory) -> std::sha
     return value;
 }
 
+auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory) -> std::shared_ptr<ProjectBuildConfig> {
+    auto cargoFileName = directory + "/" + "Cargo.toml";
+    qDebug("Will try to load cargo %1", cargoFileName.toStdString());
+    auto fi = QFileInfo(cargoFileName);
+    if (!fi.isReadable()) {
+        qDebug("Load cargo failed");
+        return {};
+    }
+
+    auto value = std::make_shared<ProjectBuildConfig>();
+    value->sourceDir = directory;
+    value->hideFilter = ".git;.vscode;target";
+    value->buildDir = directory + "/target";
+
+    {
+        auto di = QFileInfo(directory);
+        auto e = ExecutableInfo();
+        e.name = "cargo run";
+        e.runDirectory = "${source_directory}";
+        e.executables["windows"] = "cargo run";
+        e.executables["linux"] = "cargo run";
+        value->executables.push_back(e);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "cargo build";
+        t.runDirectory = "${source_directory}";
+        t.command = "cargo build";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "cargo build (release)";
+        t.runDirectory = "${source_directory}";
+        t.command = "cargo build --release";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "cargo update";
+        t.runDirectory = "${source_directory}";
+        t.command = "cargo update";
+        value->tasksInfo.push_back(t);
+    }
+
+    return value;
+}
+
+
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
     auto configFileName = directory + "/" + "qtedit4.json";
     auto config = buildFromFile(configFileName);
-
     if (!config) {
         config = tryGuessFromCMake(directory);
     }
-
+    if (!config) {
+        config = tryGuessFromCargo(directory);
+    }
     if (!config) {
         config = std::make_shared<ProjectBuildConfig>();
+        config->sourceDir = directory;
     }
     return config;
 }
