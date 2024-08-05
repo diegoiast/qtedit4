@@ -188,23 +188,26 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(outputPanel->playButton, &QAbstractButton::clicked,
             [this]() { this->gui->runButton->animateClick(); });
-
     connect(outputPanel->buildButton, &QAbstractButton::clicked,
             [this]() { this->gui->taskButton->animateClick(); });
-
     connect(outputPanel->cancelButton, &QAbstractButton::clicked, [this]() {
         if (this->runProcess.processId() != 0) {
             this->runProcess.kill();
         }
     });
-
     connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
-        this->outputPanel->commandOuput->appendPlainText(output);
+        auto cursor = this->outputPanel->commandOuput->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertText(output);
+        this->outputPanel->commandOuput->setTextCursor(cursor);
     });
     connect(&runProcess, &QProcess::readyReadStandardError, [this]() {
         auto output = this->runProcess.readAllStandardError();
-        this->outputPanel->commandOuput->appendPlainText(output);
+        auto cursor = this->outputPanel->commandOuput->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        cursor.insertText(output);
+        this->outputPanel->commandOuput->setTextCursor(cursor);
     });
     connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -219,7 +222,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(&configWatcher, &QFileSystemWatcher::fileChanged, this,
             &ProjectManagerPlugin::on_projectFile_modified);
-
     connect(gui->cleanButton, &QToolButton::clicked,
             [this]() { this->outputPanel->commandOuput->clear(); });
     directoryModel = new DirectoryModel(this);
@@ -244,7 +246,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
-
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
     connect(projectSearch, &QAction::triggered, [seachID, manager, searchPanelUI]() {
@@ -252,7 +253,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         searchPanelUI->setFocusOnSearch();
     });
     manager->addAction(projectSearch);
-
     kitsModel = new KitDefinitionModel();
     gui->kitComboBox->setModel(kitsModel);
 

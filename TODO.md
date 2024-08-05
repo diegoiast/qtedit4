@@ -16,9 +16,9 @@
 1. ~~Auto deduct json for c++ dirs~~
 1. ~~Auto deduct json for rust dirs~~
 1. ~~Auto deduct json for go dirs~~
+1. ~~Terminal adds extra lines (sometimes?)~~
 1. Add GUI editor for json
 1. File watcher on created file fails
-1. Terminal adds extra lines (sometimes?)
 1. Automatic kit detection
 1. Loading of large (real life) projects take too long (example: zed)
 1. Scripts files - run directly (in console, embeded)
