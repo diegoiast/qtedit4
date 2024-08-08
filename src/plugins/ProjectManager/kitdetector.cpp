@@ -1,18 +1,19 @@
 #include "kitdetector.h"
 #include <filesystem>
 
-namespace KitDetector {
-
 #if defined(__unix__)
 #include "kitdetector-unix.cpp"
 constexpr auto HOME_DIR_ENV = "HOME";
+constexpr auto BINARY_EXT = "";
 #endif
 
 #if defined(_WIN32)
 #include "kitdetector-win32.cpp"
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
+constexpr auto BINARY_EXT = ".exe";
 #endif
 
+namespace KitDetector {
 /*
 static auto is_command_in_path(const std::string &cmd,
                                const char delimiter = PLATFORM_PATH_DELIMITER) -> std::string {
@@ -67,8 +68,13 @@ auto findCompilers() -> std::vector<ExtraPath> {
 }
 
 auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
-    std::filesystem::path qmakePath = path / "bin" / "qmake";
+    std::filesystem::path qmakePath = path / "bin" / (std::string("qmake") + BINARY_EXT);
+
+    // check if this this is a false positite.
     auto ss = qmakePath.string();
+    if (ss.find("qt6_design_studio_reduced_version") != std::string::npos) {
+        return false;
+    }
     return std::filesystem::exists(qmakePath);
 }
 
@@ -96,16 +102,27 @@ auto findQtVersions() -> std::vector<ExtraPath> {
             if (entry.is_directory()) {
                 if (isValidQtInstallation(entry.path())) {
                     auto extraPath = ExtraPath();
-                    extraPath.compiler_path = entry.path();
+                    extraPath.compiler_path = entry.path().string();
+#if defined(__unix__)
                     extraPath.comment = "# qt installation";
                     extraPath.command = "export QTDIR=%1";
-                    extraPath.command = "\n";
+                    extraPath.command += "\n";
                     extraPath.command += "export QT_DIR=%1";
-                    extraPath.command = "\n";
+                    extraPath.command += "\n";
                     extraPath.command += "export PATH=$QTDIR/bin:$PATH";
+#endif
 
-                    replaceAll(extraPath.command, "%1", entry.path());
-                    replaceAll(extraPath.comment, "%1", entry.path());
+#if defined(_WIN32)
+                    extraPath.comment = "@rem qt installation";
+                    extraPath.command = "SET QTDIR=%1";
+                    extraPath.command += "\n";
+                    extraPath.command += "SET QT_DIR=%1";
+                    extraPath.command += "\n";
+                    extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
+#endif
+
+                    replaceAll(extraPath.command, "%1", entry.path().string());
+                    replaceAll(extraPath.comment, "%1", entry.path().string());
                     detected.push_back(extraPath);
                 }
             }
