@@ -4,6 +4,8 @@
 
 constexpr auto PLATFORM_PATH_DELIMITER = ':';
 
+namespace KitDetector {
+
 auto isCompilerAlreadyFound(const std::vector<KitDetector::ExtraPath> &detected,
                             const std::string &cc) -> bool;
 
@@ -41,3 +43,5 @@ auto findCompilersLinux(std::vector<KitDetector::ExtraPath> &detected) -> void {
     findCompilersLinuxImpl(detected, path_env, "gcc", "g++");
     findCompilersLinuxImpl(detected, path_env, "clang", "clang++");
 }
+
+} // namespace KitDetector
