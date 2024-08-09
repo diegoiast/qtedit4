@@ -17,10 +17,15 @@
 1. ~~Auto deduct json for rust dirs~~
 1. ~~Auto deduct json for go dirs~~
 1. ~~Terminal adds extra lines (sometimes?)~~
-1. Add GUI editor for json
-1. File watcher on created file fails
 1. Automatic kit detection
+    1. Add menu to the button: 
+        1. Rescan
+        1. Recreate all
+        1. Edit current
+        1. Open file explorer
+    1. A warning/error while executing (on windows, no native path?)
 1. Loading of large (real life) projects take too long (example: zed)
+1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
 1. Auto deduct json for Android dirs
 
@@ -30,14 +35,12 @@
 1. Fix crash in Kotlin indentator
 1. Red line should be bellow text
 1. Goto matching bracket
+1. Current line number should be bold
 1. Verify dark mode
 1. Support for themes
 1. Smart home/end
 1. Load syntax files from disk
 1. Download syntax files from kate.org
-1. Line ending on save (Unix/Windows/Keep original)
-1. Trim spaces on save (edit?)
-
 
 ## qmdilib
 
@@ -51,12 +54,15 @@
 
 ## Editor plugin
 
+1. File watcher on created file not stopped while saving
 1. Save content of unnamed files
 1. Add line/column to margin display
 1. Copy path, full, relative
 1. Make all actions availalbe from menus
 1. Control+N should open a new tab.
 1. Save zoom level per document
+1. Line ending on save (Unix/Windows/Keep original)
+1. Trim spaces on save (edit?)
 
 ## Meta
 
@@ -72,12 +78,13 @@
 ## Internal
 
 1. Name the main window
+1. Icon for main window
 1. Hex editor support for binary files
 1. Image viewer
 1. Markdown display
 1. Internal web browser? why not
+1. SCM support
 1. Global hotkeys https://github.com/Skycoder42/QHotkey/blob/master/README.md
 1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
 1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then".
-1. SCM support
 1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
