@@ -24,11 +24,12 @@ auto findCompilersLinuxImpl(std::vector<KitDetector::ExtraPath> &detected,
                 }
                 auto extraPath = KitDetector::ExtraPath();
                 auto cxx = cxx_name + "-" + std::to_string(version);
+                extraPath.name = cc;
                 extraPath.compiler_path = full_path;
                 extraPath.comment = "# detected " + cc;
-                extraPath.command = "export CC=" + cc;
+                extraPath.command += "export CC=" + cc;
                 extraPath.command += "\n";
-                extraPath.command = "export CXX=" + cxx;
+                extraPath.command += "export CXX=" + cxx;
                 detected.push_back(extraPath);
             }
         }

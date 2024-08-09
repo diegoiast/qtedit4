@@ -15,6 +15,7 @@
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
 #include "kitdefinitionmodel.h"
+#include "kitdetector.h"
 #include "pluginmanager.h"
 #include "qmdihost.h"
 #include "qmdiserver.h"
@@ -62,6 +63,29 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
         depth++;
     }
     return output;
+}
+
+auto regenerateKits(const QString &directoryPath) {
+    auto compilersFound = KitDetector::findCompilers();
+    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
+    auto tools = KitDetector::findCompilerTools();
+
+    // first delete older auto generated kits:
+    auto filters = QStringList() << "qtedit4-kit-*.sh";
+    auto dir = QDir(directoryPath);
+    dir.setNameFilters(filters);
+
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+    foreach (const QFileInfo &fileInfo, fileList) {
+        if (QFile::remove(fileInfo.absoluteFilePath())) {
+            qDebug() << "Deleted:" << fileInfo.absoluteFilePath();
+        } else {
+            qDebug() << "Failed to delete:" << fileInfo.absoluteFilePath();
+        }
+    }
+
+    KitDetector::generateKitFiles(directoryPath.toStdString(), tools, compilersFound, qtInstalls,
+                                  KitDetector::platformUnix);
 }
 
 // Internal class
@@ -257,6 +281,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->kitComboBox->setModel(kitsModel);
 
     auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    regenerateKits(dataPath);
     auto kits = findKitDefinitions(dataPath.toStdString());
     kitsModel->setKitDefinitions(kits);
 

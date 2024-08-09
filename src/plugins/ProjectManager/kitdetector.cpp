@@ -1,5 +1,7 @@
 #include "kitdetector.h"
-#include <filesystem>
+#include <algorithm>
+#include <fstream>
+#include <iostream>
 
 #if defined(__unix__)
 #include "kitdetector-unix.cpp"
@@ -12,6 +14,70 @@ constexpr auto BINARY_EXT = "";
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
 constexpr auto BINARY_EXT = ".exe";
 #endif
+
+constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
+constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
+
+# This is a kit definition for qtedit4. All your tasks
+# will run trought this file.
+
+# available enritonment variables:
+# ${source_directory} - where the source being executed is saved
+# ${build_directory}  - where code should be compile into
+# ${run_directory}    - where this taks should be run, as defined in
+#                       the task's definition in the JSON file
+# ${task}             - the actual code to be run
+
+# The following meta variables are for qtedit4. Note the prefix:
+# @@ name = @@NAME@@
+# @@ author = auto generated - by qtedit4
+
+# from this point on - echo is on. Every command will be displayed
+# in the build output.
+set -x
+set -e
+
+echo "Running from kit ${0}"
+echo "Source is in        : ${source_directory}"
+echo "Binaries will be    : ${build_directory}"
+echo "Working directory is: ${run_directory}"
+)";
+constexpr auto SCRIPT_SUFFIX_UNIX = R"(# execute task
+cd ${run_directory}
+${task}
+)";
+
+constexpr auto SCRIPT_EXTENSION_WIN32 = ".bat";
+constexpr auto SCRIPT_HEADER_WIN32 = R"(@echo off
+
+rem This is a kit definition for qtedit4. All your tasks
+rem will run trought this file.
+
+rem available enritonment variables:
+rem %source_directory% - where the source being executed is saved
+rem %build_directory%  - where code should be compile into
+rem %run_directory%    - where this taks should be run, as defined in 
+rem                      the task's definition in the JSON file
+rem %task%             - the actual code to be run
+
+rem The following meta variables are for qtedit4. Note the prefix:
+rem @@ name = @@NAME@@
+rem @@ author = auto generated - by qtedit4
+
+rem from this point on - echo is on. Every command will be displayed
+rem in the build output.
+@echo on
+
+echo "Running from kit %0%"
+echo "Source is in        : %source_directort%"
+echo "Binaries will be in : %build_directory%"
+echo "Working directory is: %run_directory%"
+)";
+constexpr auto SCRIPT_SUFFIX_WIN32 = R"(
+@rem execute task    
+cd %run_directory%
+%task%
+)";
 
 namespace KitDetector {
 /*
@@ -45,12 +111,13 @@ auto isCompilerAlreadyFound(const std::vector<ExtraPath> &detected, const std::s
     return false;
 }
 
-auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> void {
+auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
     }
+    return str;
 }
 
 auto findCompilers() -> std::vector<ExtraPath> {
@@ -78,7 +145,7 @@ auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
     return std::filesystem::exists(qmakePath);
 }
 
-auto findQtVersions() -> std::vector<ExtraPath> {
+auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
     auto knownLocations = std::vector<std::filesystem::path>{
         // clang-format off
         "/usr/local/Qt",
@@ -102,24 +169,25 @@ auto findQtVersions() -> std::vector<ExtraPath> {
             if (entry.is_directory()) {
                 if (isValidQtInstallation(entry.path())) {
                     auto extraPath = ExtraPath();
-                    extraPath.compiler_path = entry.path().string();
-#if defined(__unix__)
-                    extraPath.comment = "# qt installation";
-                    extraPath.command = "export QTDIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "export QT_DIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "export PATH=$QTDIR/bin:$PATH";
-#endif
+                    auto relativePath = std::filesystem::relative(entry.path(), root);
 
-#if defined(_WIN32)
-                    extraPath.comment = "@rem qt installation";
-                    extraPath.command = "SET QTDIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "SET QT_DIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
-#endif
+                    extraPath.name = std::string("Qt") + relativePath.string();
+                    extraPath.compiler_path = entry.path().string();
+                    if (unix_target) {
+                        extraPath.comment = "# qt installation";
+                        extraPath.command = "export QTDIR=%1";
+                        extraPath.command += "\n";
+                        extraPath.command += "export QT_DIR=%1";
+                        extraPath.command += "\n";
+                        extraPath.command += "export PATH=$QTDIR/bin:$PATH";
+                    } else {
+                        extraPath.comment = "@rem qt installation";
+                        extraPath.command = "SET QTDIR=%1";
+                        extraPath.command += "\n";
+                        extraPath.command += "SET QT_DIR=%1";
+                        extraPath.command += "\n";
+                        extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
+                    }
 
                     replaceAll(extraPath.command, "%1", entry.path().string());
                     replaceAll(extraPath.comment, "%1", entry.path().string());
@@ -130,6 +198,60 @@ auto findQtVersions() -> std::vector<ExtraPath> {
     }
 
     return detected;
+}
+
+auto findCompilerTools() -> std::vector<ExtraPath> {
+    auto detected = std::vector<ExtraPath>();
+    return detected;
+}
+
+void generateKitFiles(const std::filesystem::path &path, const std::vector<ExtraPath> &tools,
+                      const std::vector<ExtraPath> &compilers,
+                      const std::vector<ExtraPath> &qtInstalls, bool unix_target) {
+    auto kitNumber = 1;
+    auto SCRIPT_EXTENSION = unix_target ? SCRIPT_EXTENSION_UNIX : SCRIPT_EXTENSION_WIN32;
+    auto SCRIPT_HEADER = unix_target ? SCRIPT_HEADER_UNIX : SCRIPT_HEADER_WIN32;
+    auto SCRIPT_SUFFIX = unix_target ? SCRIPT_SUFFIX_UNIX : SCRIPT_SUFFIX_WIN32;
+
+    for (auto &cc : compilers) {
+        for (auto &qtInst : qtInstalls) {
+            auto scriptName = std::string("qtedit-kit-")
+                                  .append(std::to_string(kitNumber))
+                                  .append(SCRIPT_EXTENSION);
+            auto scriptPath = path / scriptName;
+            std::ofstream scriptFile(scriptPath.string());
+            if (!scriptFile) {
+                std::cerr << "Error: Could not create script file at " << scriptPath << std::endl;
+                continue;
+            }
+
+            auto scriptDisplay = std::string(SCRIPT_HEADER);
+            replaceAll(scriptDisplay, "@@NAME@@", "AUTO: " + cc.name + " " + qtInst.name);
+
+            scriptFile << scriptDisplay;
+            for (auto &tt : tools) {
+                scriptFile << tt.comment;
+                scriptFile << tt.command;
+            }
+            scriptFile << "\n";
+
+            scriptFile << cc.comment;
+            scriptFile << "\n";
+            scriptFile << cc.command;
+            scriptFile << "\n";
+            scriptFile << "\n";
+
+            scriptFile << qtInst.comment;
+            scriptFile << "\n";
+            scriptFile << qtInst.command;
+            scriptFile << "\n";
+            scriptFile << "\n";
+
+            scriptFile << SCRIPT_SUFFIX;
+
+            kitNumber++;
+        }
+    }
 }
 
 } // namespace KitDetector

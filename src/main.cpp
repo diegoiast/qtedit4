@@ -12,7 +12,6 @@
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
-#include "plugins/ProjectManager/kitdetector.h"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
@@ -20,16 +19,6 @@
 int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("qtedit4");
     QApplication app(argc, argv);
-
-    auto aa = KitDetector::findCompilers();
-    for (auto a : aa) {
-        qDebug() << "- " << a.comment << "at" << a.compiler_path;
-    }
-    auto qtqt = KitDetector::findQtVersions();
-    for (auto a : qtqt) {
-        qDebug() << "- " << a.comment << "at" << a.compiler_path;
-    }
-    return 0;
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.

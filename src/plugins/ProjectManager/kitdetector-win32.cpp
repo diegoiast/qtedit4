@@ -19,9 +19,10 @@ static auto checkVisualStudioVersion(PWSTR basePath,
     std::wstring basePathW(basePath);
     std::filesystem::path versionPath = std::filesystem::path(basePathW)/ "Microsoft Visual Studio" / version;
     if (std::filesystem::exists(versionPath)) {
-        extraPath.command  = "call %1\\vcallvars.bat";
+        extraPath.name = wstringToString(version);
         extraPath.compiler_path = wstringToString(versionPath);
         extraPath.comment = "@rem VS " + wstringToString(version);
+        extraPath.command = "call %1\\vcallvars.bat";
         return true;
     }
     return false;
