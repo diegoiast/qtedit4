@@ -580,8 +580,7 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(tr("This will delete <b>%1</b> (%2). Do you want to proceed?")
-                       .arg(project->buildDir)
-                       .arg(projectBuildDir));
+                       .arg(project->buildDir, projectBuildDir));
     msgBox.setWindowTitle(tr("Confirmation"));
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -609,7 +608,7 @@ void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
         return;
     }
     *inMemoryConfig = *onDiskConfig;
-    emit on_newProjectSelected(gui->projectComboBox->currentIndex());
+    on_newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
@@ -655,19 +654,19 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto taskInfo : config->tasksInfo) {
+            for (const auto &taskInfo : config->tasksInfo) {
                 auto action = new QAction(taskInfo.name, this);
                 menu->addAction(action);
                 actions.append(action);
 
                 action = new QAction(taskInfo.name, this);
-                connect(action, &QAction::triggered,
+                connect(action, &QAction::triggered, this,
                         [this, taskInfo]() { this->do_runTask(&taskInfo); });
 
                 this->availableTasksMenu->addAction(action);
             }
             gui->taskButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto taskName = config->tasksInfo[index].name;
                 auto taskCommand = config->tasksInfo[index].command;
@@ -727,7 +726,7 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto target : config->executables) {
+            for (const auto &target : config->executables) {
                 QAction *action = new QAction(target.name, this);
                 menu->addAction(action);
                 actions.append(action);
@@ -739,7 +738,7 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
             }
             this->mdiServer->mdiHost->updateGUI();
             this->gui->runButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto executableName = config->executables[index].name;
                 auto executablePath = findExecForPlatform(config->executables[index].executables);
