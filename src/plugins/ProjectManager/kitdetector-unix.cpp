@@ -10,7 +10,7 @@ auto isCompilerAlreadyFound(const std::vector<KitDetector::ExtraPath> &detected,
                             const std::string &cc) -> bool;
 
 auto findCompilersUnixImpl(std::vector<KitDetector::ExtraPath> &detected,
-                            const std::string path_env, std::string cc_name, std::string cxx_name)
+                           const std::string path_env, std::string cc_name, std::string cxx_name)
     -> void {
     for (auto version = 4; version < 20; version++) {
         auto cc = std::string(cc_name) + "-" + std::to_string(version);
