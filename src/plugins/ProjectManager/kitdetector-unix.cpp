@@ -6,8 +6,9 @@ constexpr auto PLATFORM_PATH_DELIMITER = ':';
 
 namespace KitDetector {
 
-auto isCompilerAlreadyFound(const std::vector<KitDetector::ExtraPath> &detected,
-                            const std::string &cc) -> bool;
+[[maybe_unused]] static auto
+isCompilerAlreadyFound(const std::vector<KitDetector::ExtraPath> &detected, const std::string &cc)
+    -> bool;
 
 auto findCompilersUnixImpl(std::vector<KitDetector::ExtraPath> &detected,
                            const std::string path_env, std::string cc_name, std::string cxx_name)
