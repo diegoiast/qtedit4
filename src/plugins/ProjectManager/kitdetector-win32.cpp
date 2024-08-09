@@ -5,7 +5,9 @@
 
 constexpr auto PLATFORM_PATH_DELIMITER = ';';
 
-
+namespace KitDetector {
+auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> std::string &;
+}
 static auto wstringToString(const std::wstring& wstr) -> std::string {
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), nullptr, 0, nullptr, nullptr);
     std::string str(size_needed, 0);
@@ -22,7 +24,8 @@ static auto checkVisualStudioVersion(PWSTR basePath,
         extraPath.name = wstringToString(version);
         extraPath.compiler_path = wstringToString(versionPath);
         extraPath.comment = "@rem VS " + wstringToString(version);
-        extraPath.command = "call %1\\vcallvars.bat";
+        extraPath.command = "call %1\\VC\\Auxiliary\\Build\\vcvarsall.bat";
+        KitDetector::replaceAll(extraPath.command, "%1", versionPath.string());
         return true;
     }
     return false;
@@ -57,4 +60,32 @@ static auto findCompilersWindows(std::vector<KitDetector::ExtraPath> &detected) 
     }
     CoTaskMemFree(programFiles86);
     CoTaskMemFree(programFiles);
+}
+
+static auto findCompilerToolsWindows(std::vector<KitDetector::ExtraPath> &detected) -> void {
+    auto cmakePath = std::filesystem::path();
+    PWSTR programFiles = nullptr;
+    PWSTR programFiles86 = nullptr;
+
+    SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFiles);
+    cmakePath = std::filesystem::path(programFiles) / "CMake" / "bin" / "cmake.exe";
+    if (std::filesystem::exists(cmakePath)) {
+        auto extraPath = KitDetector::ExtraPath();
+        extraPath.name = "CMake";
+        extraPath.compiler_path = (std::filesystem::path(programFiles) / "CMake").string();
+        extraPath.comment = "@rem Found CMake";
+        extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+        detected.push_back(extraPath);
+    }
+
+    SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFiles86);
+    cmakePath = std::filesystem::path(programFiles86) / "CMake" / "bin" / "cmake.exe";
+    if (std::filesystem::exists(cmakePath)) {
+        auto extraPath = KitDetector::ExtraPath();
+        extraPath.name = "CMake (x86)";
+        extraPath.compiler_path = (std::filesystem::path(programFiles86) / "CMake").string();
+        extraPath.comment = "@rem Found CMake (x86)";
+        extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+        detected.push_back(extraPath);
+    }
 }

@@ -1,5 +1,11 @@
+/**
+ * \file kitdefinitions.cpp
+ * \brief Implementation of kit detector
+ * \author Diego Iastrubni (diegoiast@gmail.com)
+ *  License MIT
+ */
+
 #include "kitdetector.h"
-#include <algorithm>
 #include <fstream>
 #include <iostream>
 
@@ -68,10 +74,11 @@ rem from this point on - echo is on. Every command will be displayed
 rem in the build output.
 @echo on
 
-echo "Running from kit %0%"
-echo "Source is in        : %source_directort%"
-echo "Binaries will be in : %build_directory%"
-echo "Working directory is: %run_directory%"
+@echo "Running from kit %0%"
+@echo "Source is in        : %source_directory%"
+@echo "Binaries will be in : %build_directory%"
+@echo "Working directory is: %run_directory%"
+
 )";
 constexpr auto SCRIPT_SUFFIX_WIN32 = R"(
 @rem execute task    
@@ -124,7 +131,7 @@ auto findCompilers() -> std::vector<ExtraPath> {
     auto detected = std::vector<ExtraPath>();
 
 #if defined(__unix__)
-    findCompilersLinux(detected);
+    findCompilersUnix(detected);
 #endif
 
 #if defined(_WIN32)
@@ -202,6 +209,14 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
 
 auto findCompilerTools() -> std::vector<ExtraPath> {
     auto detected = std::vector<ExtraPath>();
+#if defined(__unix__)
+    findCompilerToolsUnix(detected);
+#endif
+
+#if defined(_WIN32)
+    findCompilerToolsWindows(detected);
+#endif
+
     return detected;
 }
 
@@ -231,7 +246,9 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
             scriptFile << scriptDisplay;
             for (auto &tt : tools) {
                 scriptFile << tt.comment;
+                scriptFile << "\n";
                 scriptFile << tt.command;
+                scriptFile << "\n";
             }
             scriptFile << "\n";
 

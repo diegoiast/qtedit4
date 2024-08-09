@@ -48,9 +48,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     }
     {
         auto t = TaskInfo();
-        t.name = "CMake configure (debug/Ninja)";
-        t.command =
-            "cmake -S ${source_directory} -B ${build_directory} -G Ninja -DCMAKE_BUILD_TYPE=Debug";
+        t.name = "CMake configure)";
+        t.command = "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug";
         t.runDirectory = "${source_directory}";
         value->tasksInfo.push_back(t);
     }

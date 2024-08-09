@@ -537,9 +537,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setProcessEnvironment(env);
     } else {
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("run_directory", expand(workingDirectory, hash));
-        env.insert("build_directory", expand(project->buildDir, hash));
-        env.insert("source_directory", project->sourceDir);
+        env.insert("run_directory", expand(QDir::toNativeSeparators(workingDirectory), hash));
+        env.insert("build_directory", expand(QDir::toNativeSeparators(project->buildDir), hash));
+        env.insert("source_directory", QDir::toNativeSeparators(project->sourceDir));
         env.insert("task", currentTask);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));

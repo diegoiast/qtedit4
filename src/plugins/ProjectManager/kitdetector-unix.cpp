@@ -9,7 +9,7 @@ namespace KitDetector {
 auto isCompilerAlreadyFound(const std::vector<KitDetector::ExtraPath> &detected,
                             const std::string &cc) -> bool;
 
-auto findCompilersLinuxImpl(std::vector<KitDetector::ExtraPath> &detected,
+auto findCompilersUnixImpl(std::vector<KitDetector::ExtraPath> &detected,
                             const std::string path_env, std::string cc_name, std::string cxx_name)
     -> void {
     for (auto version = 4; version < 20; version++) {
@@ -36,13 +36,17 @@ auto findCompilersLinuxImpl(std::vector<KitDetector::ExtraPath> &detected,
     }
 }
 
-auto findCompilersLinux(std::vector<KitDetector::ExtraPath> &detected) -> void {
+auto findCompilersUnix(std::vector<KitDetector::ExtraPath> &detected) -> void {
     auto path_env = std::getenv("PATH");
     if (path_env == nullptr) {
         return;
     }
-    findCompilersLinuxImpl(detected, path_env, "gcc", "g++");
-    findCompilersLinuxImpl(detected, path_env, "clang", "clang++");
+    findCompilersUnixImpl(detected, path_env, "gcc", "g++");
+    findCompilersUnixImpl(detected, path_env, "clang", "clang++");
+}
+
+auto findCompilerToolsUnix(std::vector<KitDetector::ExtraPath> &detected) -> void {
+    // TODO - do we need to find special out of source tools in Unis?
 }
 
 } // namespace KitDetector
