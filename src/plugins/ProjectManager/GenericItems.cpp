@@ -36,7 +36,7 @@ QString DirectoryModel::displayForItem(size_t i) const {
     if (!path.endsWith('/') && !path.endsWith('\\')) {
         l++;
     }
-    return fileName.remove(0, l);
+    return QDir::toNativeSeparators(fileName.remove(0, l));
 }
 
 QString DirectoryModel::fileNameForItem(size_t i) const {

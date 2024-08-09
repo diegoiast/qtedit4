@@ -143,9 +143,9 @@ QVariant ProjectBuildModel::data(const QModelIndex &index, int role) const {
     auto config = configs[index.row()];
     switch (role) {
     case Qt::DisplayRole:
-        return config->sourceDir;
+        return QDir::toNativeSeparators(config->sourceDir);
     case Qt::StatusTipRole:
-        return config->buildDir;
+        return QDir::toNativeSeparators(config->buildDir);
     default:
         break;
     }
@@ -711,12 +711,13 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
 
         this->gui->runButton->setEnabled(true);
         this->gui->runButton->setText(executableName);
-        this->gui->runButton->setToolTip(executablePath);
+        this->gui->runButton->setToolTip(QDir::toNativeSeparators(executablePath));
         this->selectedTarget = &config->executables[executableIndex];
 
         this->runAction->setEnabled(true);
-        this->runAction->setText(QString(tr("Run: %1")).arg(executableName));
-        this->runAction->setToolTip(executablePath);
+        this->runAction->setText(
+            QString(tr("Run: %1")).arg(QDir::toNativeSeparators(executableName)));
+        this->runAction->setToolTip(QDir::toNativeSeparators(executablePath));
 
         this->availableExecutablesMenu->hide();
         this->availableExecutablesMenu->clear();
