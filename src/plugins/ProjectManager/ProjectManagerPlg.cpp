@@ -549,8 +549,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (!runProcess.waitForStarted()) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
-                           .arg(QString::fromStdString(kit->filePath))
-                           .arg(currentTask);
+                           .arg(QString::fromStdString(kit->filePath), currentTask);
             this->outputPanel->commandOuput->appendPlainText(msg);
         } else {
             this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
