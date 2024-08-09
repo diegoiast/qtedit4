@@ -120,7 +120,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) c
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString dir) {
-    for (auto v : configs) {
+    for (const auto &v : configs) {
         if (v->sourceDir == dir) {
             return v;
         }
@@ -129,7 +129,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QStri
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QString fileName) {
-    for (auto v : configs) {
+    for (const auto &v : configs) {
         if (v->fileName == fileName) {
             return v;
         }
@@ -203,42 +203,42 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->setupUi(w2);
     manager->createNewPanel(Panels::South, tr("Output"), w2);
 
-    connect(outputPanel->clearOutput, &QAbstractButton::clicked,
+    connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
-    connect(outputPanel->copyOutput, &QAbstractButton::clicked, [this]() {
+    connect(outputPanel->copyOutput, &QAbstractButton::clicked, this, [this]() {
         auto text = this->outputPanel->commandOuput->document()->toPlainText();
         auto clipboard = QGuiApplication::clipboard();
         clipboard->setText(text);
     });
-    connect(outputPanel->playButton, &QAbstractButton::clicked,
+    connect(outputPanel->playButton, &QAbstractButton::clicked, this,
             [this]() { this->gui->runButton->animateClick(); });
-    connect(outputPanel->buildButton, &QAbstractButton::clicked,
+    connect(outputPanel->buildButton, &QAbstractButton::clicked, this,
             [this]() { this->gui->taskButton->animateClick(); });
-    connect(outputPanel->cancelButton, &QAbstractButton::clicked, [this]() {
+    connect(outputPanel->cancelButton, &QAbstractButton::clicked, this, [this]() {
         if (this->runProcess.processId() != 0) {
             this->runProcess.kill();
         }
     });
-    connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
+    connect(&runProcess, &QProcess::readyReadStandardOutput, this, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
         auto cursor = this->outputPanel->commandOuput->textCursor();
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
     });
-    connect(&runProcess, &QProcess::readyReadStandardError, [this]() {
+    connect(&runProcess, &QProcess::readyReadStandardError, this, [this]() {
         auto output = this->runProcess.readAllStandardError();
         auto cursor = this->outputPanel->commandOuput->textCursor();
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
     });
-    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
                 this->outputPanel->commandOuput->appendPlainText(output);
             });
-    connect(&runProcess, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
         this->outputPanel->commandOuput->appendPlainText(output);
         qWarning() << "Process error occurred:" << error;
@@ -246,21 +246,21 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(&configWatcher, &QFileSystemWatcher::fileChanged, this,
             &ProjectManagerPlugin::on_projectFile_modified);
-    connect(gui->cleanButton, &QToolButton::clicked,
+    connect(gui->cleanButton, &QToolButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
     directoryModel = new DirectoryModel(this);
     filesFilterModel = new FilterOutProxyModel(this);
     filesFilterModel->setSourceModel(directoryModel);
     filesFilterModel->sort(0);
     gui->filesView->setModel(filesFilterModel);
-    connect(gui->filterFiles, &QLineEdit::textChanged, [this](const QString &newText) {
+    connect(gui->filterFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
         filesFilterModel->setFilterWildcards(newText);
         auto config = this->getCurrentConfig();
         if (config) {
             config->displayFilter = newText;
         }
     });
-    connect(gui->filterOutFiles, &QLineEdit::textChanged, [this](const QString &newText) {
+    connect(gui->filterOutFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
         filesFilterModel->setFilterOutWildcard(newText);
         auto config = this->getCurrentConfig();
         if (config) {
@@ -272,7 +272,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
-    connect(projectSearch, &QAction::triggered, [seachID, manager, searchPanelUI]() {
+    connect(projectSearch, &QAction::triggered, this, [seachID, manager, searchPanelUI]() {
         manager->showPanel(Panels::West, seachID);
         searchPanelUI->setFocusOnSearch();
     });
@@ -314,9 +314,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     auto addNewProjectIcon = new QAction(tr("Add existing project.."));
     auto removeProjectIcon = new QAction(tr("Close project"));
-    connect(addNewProjectIcon, &QAction::triggered,
+    connect(addNewProjectIcon, &QAction::triggered, this,
             [this]() { this->gui->addDirectory->animateClick(); });
-    connect(removeProjectIcon, &QAction::triggered,
+    connect(removeProjectIcon, &QAction::triggered, this,
             [this]() { this->gui->removeDirectory->animateClick(); });
 
     this->menus[tr("&Project")]->addSeparator();

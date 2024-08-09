@@ -33,7 +33,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 
     auto value = std::make_shared<ProjectBuildConfig>();
     value->sourceDir = directory;
-    value->hideFilter = ".git;.vscode;build";
+    value->hideFilter = ".git;.vscode;.vs;build;dist";
     value->buildDir = directory + "/build";
 
     // TODO - we should query for available binaries after configure.
@@ -194,7 +194,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         QHash<QString, QString> hash;
         if (v.isObject()) {
             auto jsonObj = v.toObject();
-            for (auto vv : jsonObj.keys()) {
+            for (const auto &vv : jsonObj.keys()) {
                 hash[vv] = jsonObj[vv].toString();
             }
         }
@@ -203,7 +203,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     auto parseExecutables = [&toHash](QJsonValue v) -> QList<ExecutableInfo> {
         QList<ExecutableInfo> info;
         if (v.isArray()) {
-            for (auto vv : v.toArray()) {
+            for (const auto &vv : v.toArray()) {
                 ExecutableInfo execInfo;
                 execInfo.name = vv.toObject()["name"].toString();
                 execInfo.executables = toHash(vv.toObject()["executables"]);
@@ -216,7 +216,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     auto parseTasksInfo = [](QJsonValue v) -> QList<TaskInfo> {
         QList<TaskInfo> info;
         if (v.isArray()) {
-            for (auto vv : v.toArray()) {
+            for (const auto &vv : v.toArray()) {
                 TaskInfo taskInfo;
                 taskInfo.name = vv.toObject()["name"].toString();
                 taskInfo.command = vv.toObject()["command"].toString();

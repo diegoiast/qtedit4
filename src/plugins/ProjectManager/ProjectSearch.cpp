@@ -113,7 +113,7 @@ void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
     dirItem->setText(2, fullFileName);
     dirItem->setToolTip(0, fullFileName);
 
-    for (auto s : *foundData) {
+    for (const auto &s : *foundData) {
         QTreeWidgetItem *lineItem = new QTreeWidgetItem(dirItem);
         lineItem->setText(0, QString::fromStdString(s.line));
         lineItem->setText(1, QString::number(s.lineNumber));
