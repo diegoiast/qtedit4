@@ -1,3 +1,10 @@
+/**
+ * \file kitdefinitions.cpp
+ * \brief Definition of kit detector
+ * \author Diego Iastrubni (diegoiast@gmail.com)
+ *  License MIT
+ */
+
 #pragma once
 
 #include <filesystem>
@@ -14,11 +21,11 @@ struct ExtraPath {
 };
 
 #ifdef _WIN32
-constexpr auto platformUnix = !true;
-constexpr auto platformWindows = true;
+[[maybe_unused]] constexpr auto platformUnix = !true;
+[[maybe_unused]] constexpr auto platformWindows = true;
 #else
-constexpr auto platformUnix = true;
-constexpr auto platformWindows = !true;
+[[maybe_unused]] constexpr auto platformUnix = true;
+[[maybe_unused]] constexpr auto platformWindows = !true;
 #endif
 
 auto findCompilers() -> std::vector<ExtraPath>;

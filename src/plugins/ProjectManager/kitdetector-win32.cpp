@@ -8,18 +8,20 @@ constexpr auto PLATFORM_PATH_DELIMITER = ';';
 namespace KitDetector {
 auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> std::string &;
 }
-static auto wstringToString(const std::wstring& wstr) -> std::string {
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), nullptr, 0, nullptr, nullptr);
+static auto wstringToString(const std::wstring &wstr) -> std::string {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), nullptr, 0,
+                                          nullptr, nullptr);
     std::string str(size_needed, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), &str[0], size_needed, nullptr, nullptr);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), &str[0], size_needed, nullptr,
+                        nullptr);
     return str;
 }
 
-static auto checkVisualStudioVersion(PWSTR basePath,
-                                     const std::wstring &version, KitDetector::ExtraPath &extraPath)
-    -> bool {
+static auto checkVisualStudioVersion(PWSTR basePath, const std::wstring &version,
+                                     KitDetector::ExtraPath &extraPath) -> bool {
     std::wstring basePathW(basePath);
-    std::filesystem::path versionPath = std::filesystem::path(basePathW)/ "Microsoft Visual Studio" / version;
+    std::filesystem::path versionPath =
+        std::filesystem::path(basePathW) / "Microsoft Visual Studio" / version;
     if (std::filesystem::exists(versionPath)) {
         extraPath.name = wstringToString(version);
         extraPath.compiler_path = wstringToString(versionPath);

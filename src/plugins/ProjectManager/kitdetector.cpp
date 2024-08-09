@@ -107,9 +107,10 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
-auto isCompilerAlreadyFound(const std::vector<ExtraPath> &detected, const std::string &cc) -> bool {
+[[maybe_unused]] static auto isCompilerAlreadyFound(const std::vector<ExtraPath> &detected,
+                                                    const std::string &cc) -> bool {
     auto canonnical_cc = std::filesystem::canonical(cc);
-    for (auto p : detected) {
+    for (const auto &p : detected) {
         auto c = std::filesystem::canonical(p.compiler_path);
         if (c == canonnical_cc) {
             return true;
