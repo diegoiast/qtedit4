@@ -45,6 +45,10 @@
 1. Bottom view should be collapsible
 1. All actions in menus, toolbars shold be "added" to the main window
 1. Add actions to be forced at the end
+1. API for config - each plugin should be able to define
+   what options it needs (all via some json) and gui 
+   needs to be created for user to modify this json. (also - raw json
+   access maybe?)
 
 ## Editor plugin
 
@@ -77,6 +81,9 @@
 1. Image viewer
 1. Markdown display
 1. Internal web browser? why not
+1. First run actions
+    1. Create kits
+1. Project plugin will need a refactor, its getting too ugly.
 1. SCM support
 1. Global hotkeys https://github.com/Skycoder42/QHotkey/blob/master/README.md
 1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
