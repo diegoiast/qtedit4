@@ -26,7 +26,7 @@ constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
 constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
 
 # This is a kit definition for qtedit4. All your tasks
-# will run trought this file.
+# will run through this file.
 
 # available enritonment variables:
 # ${source_directory} - where the source being executed is saved
@@ -58,12 +58,12 @@ constexpr auto SCRIPT_EXTENSION_WIN32 = ".bat";
 constexpr auto SCRIPT_HEADER_WIN32 = R"(@echo off
 
 rem This is a kit definition for qtedit4. All your tasks
-rem will run trought this file.
+rem will run through this file.
 
 rem available enritonment variables:
 rem %source_directory% - where the source being executed is saved
 rem %build_directory%  - where code should be compile into
-rem %run_directory%    - where this taks should be run, as defined in 
+rem %run_directory%    - where this task should be run, as defined in
 rem                      the task's definition in the JSON file
 rem %task%             - the actual code to be run
 
