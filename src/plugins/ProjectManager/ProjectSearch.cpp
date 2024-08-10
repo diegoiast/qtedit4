@@ -107,20 +107,20 @@ void ProjectSearch::on_searchButton_clicked() {
 }
 
 void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
-                                  QList<FoundData> *data) {
+                                  QList<FoundData> *foundData) {
     QTreeWidgetItem *dirItem = new QTreeWidgetItem(ui->treeWidget);
     dirItem->setText(0, shortFileName);
     dirItem->setText(2, fullFileName);
     dirItem->setToolTip(0, fullFileName);
 
-    for (auto s : *data) {
+    for (const auto &s : *foundData) {
         QTreeWidgetItem *lineItem = new QTreeWidgetItem(dirItem);
         lineItem->setText(0, QString::fromStdString(s.line));
         lineItem->setText(1, QString::number(s.lineNumber));
         lineItem->setToolTip(0, shortFileName);
         lineItem->setToolTip(1, shortFileName);
     }
-    delete data;
+    delete foundData;
     ui->treeWidget->expandItem(dirItem);
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     //    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);

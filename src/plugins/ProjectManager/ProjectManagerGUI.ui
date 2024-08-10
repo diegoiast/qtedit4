@@ -93,9 +93,12 @@
       <widget class="QComboBox" name="kitComboBox"/>
      </item>
      <item>
-      <widget class="QToolButton" name="toolButton">
+      <widget class="QToolButton" name="toolkitToolButton">
        <property name="text">
         <string>...</string>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -180,6 +183,9 @@
        </property>
        <property name="icon">
         <iconset theme="edit-clear"/>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

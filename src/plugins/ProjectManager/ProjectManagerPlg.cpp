@@ -1,4 +1,5 @@
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QJsonArray>
@@ -15,6 +16,7 @@
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
 #include "kitdefinitionmodel.h"
+#include "kitdetector.h"
 #include "pluginmanager.h"
 #include "qmdihost.h"
 #include "qmdiserver.h"
@@ -64,6 +66,29 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
     return output;
 }
 
+auto regenerateKits(const QString &directoryPath) {
+    auto compilersFound = KitDetector::findCompilers();
+    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
+    auto tools = KitDetector::findCompilerTools();
+
+    // first delete older auto generated kits:
+    auto filters = QStringList() << "qtedit4-kit-*.sh";
+    auto dir = QDir(directoryPath);
+    dir.setNameFilters(filters);
+
+    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
+    foreach (const QFileInfo &fileInfo, fileList) {
+        if (QFile::remove(fileInfo.absoluteFilePath())) {
+            qDebug() << "Deleted:" << fileInfo.absoluteFilePath();
+        } else {
+            qDebug() << "Failed to delete:" << fileInfo.absoluteFilePath();
+        }
+    }
+
+    KitDetector::generateKitFiles(directoryPath.toStdString(), tools, compilersFound, qtInstalls,
+                                  KitDetector::platformUnix);
+}
+
 // Internal class
 class ProjectBuildModel : public QAbstractListModel {
     std::vector<std::shared_ptr<ProjectBuildConfig>> configs;
@@ -96,7 +121,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) c
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString dir) {
-    for (auto v : configs) {
+    for (const auto &v : configs) {
         if (v->sourceDir == dir) {
             return v;
         }
@@ -105,7 +130,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QStri
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QString fileName) {
-    for (auto v : configs) {
+    for (const auto &v : configs) {
         if (v->fileName == fileName) {
             return v;
         }
@@ -119,9 +144,9 @@ QVariant ProjectBuildModel::data(const QModelIndex &index, int role) const {
     auto config = configs[index.row()];
     switch (role) {
     case Qt::DisplayRole:
-        return config->sourceDir;
+        return QDir::toNativeSeparators(config->sourceDir);
     case Qt::StatusTipRole:
-        return config->buildDir;
+        return QDir::toNativeSeparators(config->buildDir);
     default:
         break;
     }
@@ -179,42 +204,42 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->setupUi(w2);
     manager->createNewPanel(Panels::South, tr("Output"), w2);
 
-    connect(outputPanel->clearOutput, &QAbstractButton::clicked,
+    connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
-    connect(outputPanel->copyOutput, &QAbstractButton::clicked, [this]() {
+    connect(outputPanel->copyOutput, &QAbstractButton::clicked, this, [this]() {
         auto text = this->outputPanel->commandOuput->document()->toPlainText();
         auto clipboard = QGuiApplication::clipboard();
         clipboard->setText(text);
     });
-    connect(outputPanel->playButton, &QAbstractButton::clicked,
+    connect(outputPanel->playButton, &QAbstractButton::clicked, this,
             [this]() { this->gui->runButton->animateClick(); });
-    connect(outputPanel->buildButton, &QAbstractButton::clicked,
+    connect(outputPanel->buildButton, &QAbstractButton::clicked, this,
             [this]() { this->gui->taskButton->animateClick(); });
-    connect(outputPanel->cancelButton, &QAbstractButton::clicked, [this]() {
+    connect(outputPanel->cancelButton, &QAbstractButton::clicked, this, [this]() {
         if (this->runProcess.processId() != 0) {
             this->runProcess.kill();
         }
     });
-    connect(&runProcess, &QProcess::readyReadStandardOutput, [this]() {
+    connect(&runProcess, &QProcess::readyReadStandardOutput, this, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
         auto cursor = this->outputPanel->commandOuput->textCursor();
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
     });
-    connect(&runProcess, &QProcess::readyReadStandardError, [this]() {
+    connect(&runProcess, &QProcess::readyReadStandardError, this, [this]() {
         auto output = this->runProcess.readAllStandardError();
         auto cursor = this->outputPanel->commandOuput->textCursor();
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
     });
-    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
                 this->outputPanel->commandOuput->appendPlainText(output);
             });
-    connect(&runProcess, &QProcess::errorOccurred, [this](QProcess::ProcessError error) {
+    connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
         this->outputPanel->commandOuput->appendPlainText(output);
         qWarning() << "Process error occurred:" << error;
@@ -222,21 +247,21 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(&configWatcher, &QFileSystemWatcher::fileChanged, this,
             &ProjectManagerPlugin::on_projectFile_modified);
-    connect(gui->cleanButton, &QToolButton::clicked,
+    connect(gui->cleanButton, &QToolButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
     directoryModel = new DirectoryModel(this);
     filesFilterModel = new FilterOutProxyModel(this);
     filesFilterModel->setSourceModel(directoryModel);
     filesFilterModel->sort(0);
     gui->filesView->setModel(filesFilterModel);
-    connect(gui->filterFiles, &QLineEdit::textChanged, [this](const QString &newText) {
+    connect(gui->filterFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
         filesFilterModel->setFilterWildcards(newText);
         auto config = this->getCurrentConfig();
         if (config) {
             config->displayFilter = newText;
         }
     });
-    connect(gui->filterOutFiles, &QLineEdit::textChanged, [this](const QString &newText) {
+    connect(gui->filterOutFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
         filesFilterModel->setFilterOutWildcard(newText);
         auto config = this->getCurrentConfig();
         if (config) {
@@ -244,11 +269,47 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         }
     });
 
+    auto menu = new QMenu();
+    auto rescanKits = new QAction(tr("Rescan kits"), menu);
+    auto recreateKits = new QAction(tr("Recreate kits"), menu);
+    auto openKitsinFM = new QAction(tr("Open kits dir in file manager"), menu);
+    auto editCurrentKit = new QAction(tr("Edit this kit"), menu);
+
+    connect(rescanKits, &QAction::triggered, this, [this]() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        auto kits = findKitDefinitions(dataPath.toStdString());
+        kitsModel->setKitDefinitions(kits);
+    });
+    connect(recreateKits, &QAction::triggered, this, [this]() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        regenerateKits(dataPath);
+        auto kits = findKitDefinitions(dataPath.toStdString());
+        kitsModel->setKitDefinitions(kits);
+    });
+    connect(openKitsinFM, &QAction::triggered, this, []() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        auto url = QUrl::fromLocalFile(dataPath);
+        QDesktopServices::openUrl(url);
+    });
+    connect(editCurrentKit, &QAction::triggered, this, [this]() {
+        auto kit = this->getCurrentKit();
+        auto path = QString::fromStdString(kit->filePath);
+        getManager()->openFile(path);
+    });
+
+    menu->addAction(rescanKits);
+    menu->addAction(recreateKits);
+    menu->addAction(openKitsinFM);
+    menu->addAction(editCurrentKit);
+
+    gui->toolkitToolButton->setMenu(menu);
+    gui->toolkitToolButton->setPopupMode(QToolButton::InstantPopup);
+
     auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
-    connect(projectSearch, &QAction::triggered, [seachID, manager, searchPanelUI]() {
+    connect(projectSearch, &QAction::triggered, this, [seachID, manager, searchPanelUI]() {
         manager->showPanel(Panels::West, seachID);
         searchPanelUI->setFocusOnSearch();
     });
@@ -289,9 +350,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     auto addNewProjectIcon = new QAction(tr("Add existing project.."));
     auto removeProjectIcon = new QAction(tr("Close project"));
-    connect(addNewProjectIcon, &QAction::triggered,
+    connect(addNewProjectIcon, &QAction::triggered, this,
             [this]() { this->gui->addDirectory->animateClick(); });
-    connect(removeProjectIcon, &QAction::triggered,
+    connect(removeProjectIcon, &QAction::triggered, this,
             [this]() { this->gui->removeDirectory->animateClick(); });
 
     this->menus[tr("&Project")]->addSeparator();
@@ -512,9 +573,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setProcessEnvironment(env);
     } else {
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("run_directory", expand(workingDirectory, hash));
-        env.insert("build_directory", expand(project->buildDir, hash));
-        env.insert("source_directory", project->sourceDir);
+        env.insert("run_directory", expand(QDir::toNativeSeparators(workingDirectory), hash));
+        env.insert("build_directory", expand(QDir::toNativeSeparators(project->buildDir), hash));
+        env.insert("source_directory", QDir::toNativeSeparators(project->sourceDir));
         env.insert("task", currentTask);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
@@ -524,8 +585,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (!runProcess.waitForStarted()) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
-                           .arg(QString::fromStdString(kit->filePath))
-                           .arg(currentTask);
+                           .arg(QString::fromStdString(kit->filePath), currentTask);
             this->outputPanel->commandOuput->appendPlainText(msg);
         } else {
             this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
@@ -556,8 +616,7 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(tr("This will delete <b>%1</b> (%2). Do you want to proceed?")
-                       .arg(project->buildDir)
-                       .arg(projectBuildDir));
+                       .arg(project->buildDir, projectBuildDir));
     msgBox.setWindowTitle(tr("Confirmation"));
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::No);
@@ -585,7 +644,7 @@ void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
         return;
     }
     *inMemoryConfig = *onDiskConfig;
-    emit on_newProjectSelected(gui->projectComboBox->currentIndex());
+    on_newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
@@ -631,19 +690,19 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto taskInfo : config->tasksInfo) {
+            for (const auto &taskInfo : config->tasksInfo) {
                 auto action = new QAction(taskInfo.name, this);
                 menu->addAction(action);
                 actions.append(action);
 
                 action = new QAction(taskInfo.name, this);
-                connect(action, &QAction::triggered,
+                connect(action, &QAction::triggered, this,
                         [this, taskInfo]() { this->do_runTask(&taskInfo); });
 
                 this->availableTasksMenu->addAction(action);
             }
             gui->taskButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto taskName = config->tasksInfo[index].name;
                 auto taskCommand = config->tasksInfo[index].command;
@@ -687,12 +746,13 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
 
         this->gui->runButton->setEnabled(true);
         this->gui->runButton->setText(executableName);
-        this->gui->runButton->setToolTip(executablePath);
+        this->gui->runButton->setToolTip(QDir::toNativeSeparators(executablePath));
         this->selectedTarget = &config->executables[executableIndex];
 
         this->runAction->setEnabled(true);
-        this->runAction->setText(QString(tr("Run: %1")).arg(executableName));
-        this->runAction->setToolTip(executablePath);
+        this->runAction->setText(
+            QString(tr("Run: %1")).arg(QDir::toNativeSeparators(executableName)));
+        this->runAction->setToolTip(QDir::toNativeSeparators(executablePath));
 
         this->availableExecutablesMenu->hide();
         this->availableExecutablesMenu->clear();
@@ -702,7 +762,7 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (auto target : config->executables) {
+            for (const auto &target : config->executables) {
                 QAction *action = new QAction(target.name, this);
                 menu->addAction(action);
                 actions.append(action);
@@ -714,7 +774,7 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
             }
             this->mdiServer->mdiHost->updateGUI();
             this->gui->runButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto executableName = config->executables[index].name;
                 auto executablePath = findExecForPlatform(config->executables[index].executables);

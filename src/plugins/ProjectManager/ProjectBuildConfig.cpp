@@ -33,7 +33,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 
     auto value = std::make_shared<ProjectBuildConfig>();
     value->sourceDir = directory;
-    value->hideFilter = ".git;.vscode;build";
+    value->hideFilter = ".git;.vscode;.vs;build;dist";
     value->buildDir = directory + "/build";
 
     // TODO - we should query for available binaries after configure.
@@ -48,9 +48,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     }
     {
         auto t = TaskInfo();
-        t.name = "CMake configure (debug/Ninja)";
-        t.command =
-            "cmake -S ${source_directory} -B ${build_directory} -G Ninja -DCMAKE_BUILD_TYPE=Debug";
+        t.name = "CMake configure)";
+        t.command = "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug";
         t.runDirectory = "${source_directory}";
         value->tasksInfo.push_back(t);
     }
@@ -195,7 +194,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         QHash<QString, QString> hash;
         if (v.isObject()) {
             auto jsonObj = v.toObject();
-            for (auto vv : jsonObj.keys()) {
+            for (const auto &vv : jsonObj.keys()) {
                 hash[vv] = jsonObj[vv].toString();
             }
         }
@@ -204,7 +203,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     auto parseExecutables = [&toHash](QJsonValue v) -> QList<ExecutableInfo> {
         QList<ExecutableInfo> info;
         if (v.isArray()) {
-            for (auto vv : v.toArray()) {
+            for (const auto &vv : v.toArray()) {
                 ExecutableInfo execInfo;
                 execInfo.name = vv.toObject()["name"].toString();
                 execInfo.executables = toHash(vv.toObject()["executables"]);
@@ -217,7 +216,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
     auto parseTasksInfo = [](QJsonValue v) -> QList<TaskInfo> {
         QList<TaskInfo> info;
         if (v.isArray()) {
-            for (auto vv : v.toArray()) {
+            for (const auto &vv : v.toArray()) {
                 TaskInfo taskInfo;
                 taskInfo.name = vv.toObject()["name"].toString();
                 taskInfo.command = vv.toObject()["command"].toString();

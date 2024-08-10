@@ -27,7 +27,7 @@ class ProjectSearch : public QWidget {
   public slots:
     void on_searchButton_clicked();
   private slots:
-    void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *data);
+    void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *foundData);
 
   private:
     Ui::ProjectSearchGUI *ui;

@@ -61,6 +61,8 @@ set(qtedit4_sources
     src/plugins/ProjectManager/kitdefinitions.cpp
     src/plugins/ProjectManager/kitdefinitionmodel.h
     src/plugins/ProjectManager/kitdefinitionmodel.cpp
+    src/plugins/ProjectManager/kitdetector.h
+    src/plugins/ProjectManager/kitdetector.cpp
     src/main.cpp
 )
 

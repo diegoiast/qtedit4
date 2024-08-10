@@ -358,7 +358,7 @@ bool qmdiEditor::doSaveAs() {
     return saveFile(s);
 }
 
-bool qmdiEditor::loadFile(const QString &fileName) {
+bool qmdiEditor::loadFile(const QString &newFileName) {
     // clear older watches, and add a new one
     QStringList sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
@@ -371,8 +371,8 @@ bool qmdiEditor::loadFile(const QString &fileName) {
     this->setReadOnly(false);
     // QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     // QApplication::processEvents();
-    if (!fileName.isEmpty()) {
-        QFile file(fileName);
+    if (!newFileName.isEmpty()) {
+        QFile file(newFileName);
         QFileInfo fileInfo(file);
 
         if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -384,14 +384,14 @@ bool qmdiEditor::loadFile(const QString &fileName) {
         setPlainText(textStream.readAll());
         file.close();
 
-        auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
+        auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), newFileName);
         if (langInfo.isValid()) {
             setHighlighter(langInfo.id);
             setIndentAlgorithm(langInfo.indentAlg);
         }
 
         this->fileName = fileInfo.absoluteFilePath();
-        fileSystemWatcher->addPath(fileName);
+        fileSystemWatcher->addPath(newFileName);
         if (!fileInfo.isWritable()) {
             this->setReadOnly(true);
             displayBannerMessage(
@@ -405,6 +405,7 @@ bool qmdiEditor::loadFile(const QString &fileName) {
     }
 
     mdiClientName = getShortFileName();
+    fileName = newFileName;
 
     // setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
@@ -413,7 +414,7 @@ bool qmdiEditor::loadFile(const QString &fileName) {
     return true;
 }
 
-bool qmdiEditor::saveFile(const QString &fileName) {
+bool qmdiEditor::saveFile(const QString &newFileName) {
     QStringList sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
@@ -424,7 +425,7 @@ bool qmdiEditor::saveFile(const QString &fileName) {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
-    QFile file(fileName);
+    QFile file(newFileName);
     if (!file.open(QIODevice::WriteOnly)) {
         return false;
     }
@@ -456,11 +457,11 @@ bool qmdiEditor::saveFile(const QString &fileName) {
     }
     file.close();
 
-    this->fileName = fileName;
+    this->fileName = newFileName;
     this->mdiClientName = getShortFileName();
     // removeModifications();
     // setModificationsLookupEnabled(modificationsEnabledState);
-    fileSystemWatcher->addPath(fileName);
+    fileSystemWatcher->addPath(newFileName);
 
     QApplication::restoreOverrideCursor();
 

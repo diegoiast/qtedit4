@@ -6,6 +6,7 @@
  */
 
 #include "kitdefinitions.h"
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -23,6 +24,10 @@ static auto getExtensionPrefixMap() -> const std::unordered_map<std::string, std
 #endif
     };
     return EXTENSION_PREFIX_MAP;
+}
+
+bool compareKitDefinitions(const KitDefinition &a, const KitDefinition &b) {
+    return a.name < b.name;
 }
 
 static auto trim(std::string_view str) -> std::string {
@@ -93,5 +98,7 @@ auto findKitDefinitions(const std::string_view directoryPath) -> std::vector<Kit
             fileInfoList.push_back(std::move(fileInfo));
         }
     }
+
+    std::sort(fileInfoList.begin(), fileInfoList.end(), compareKitDefinitions);
     return fileInfoList;
 }
