@@ -11,6 +11,7 @@
 
 #if defined(__unix__)
 #include "kitdetector-unix.cpp"
+#include <sys/stat.h>
 constexpr auto HOME_DIR_ENV = "HOME";
 constexpr auto BINARY_EXT = "";
 #endif
@@ -252,21 +253,23 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
                 scriptFile << "\n";
             }
             scriptFile << "\n";
-
             scriptFile << cc.comment;
             scriptFile << "\n";
             scriptFile << cc.command;
             scriptFile << "\n";
             scriptFile << "\n";
-
             scriptFile << qtInst.comment;
             scriptFile << "\n";
             scriptFile << qtInst.command;
             scriptFile << "\n";
             scriptFile << "\n";
-
             scriptFile << SCRIPT_SUFFIX;
-
+#if defined(__unix__)
+            auto c_path = scriptPath.c_str();
+            if (chmod(c_path, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
+                std::perror("chmod failed");
+            }
+#endif
             kitNumber++;
         }
     }

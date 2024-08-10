@@ -1,4 +1,5 @@
 #include <QClipboard>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QFileDialog>
 #include <QJsonArray>
@@ -268,6 +269,42 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         }
     });
 
+    auto menu = new QMenu();
+    auto rescanKits = new QAction(tr("Rescan kits"), menu);
+    auto recreateKits = new QAction(tr("Recreate kits"), menu);
+    auto openKitsinFM = new QAction(tr("Open kits dir in file manager"), menu);
+    auto editCurrentKit = new QAction(tr("Edit this kit"), menu);
+
+    connect(rescanKits, &QAction::triggered, this, [this]() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        auto kits = findKitDefinitions(dataPath.toStdString());
+        kitsModel->setKitDefinitions(kits);
+    });
+    connect(recreateKits, &QAction::triggered, this, [this]() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        regenerateKits(dataPath);
+        auto kits = findKitDefinitions(dataPath.toStdString());
+        kitsModel->setKitDefinitions(kits);
+    });
+    connect(openKitsinFM, &QAction::triggered, this, []() {
+        auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        auto url = QUrl::fromLocalFile(dataPath);
+        QDesktopServices::openUrl(url);
+    });
+    connect(editCurrentKit, &QAction::triggered, this, [this]() {
+        auto kit = this->getCurrentKit();
+        auto path = QString::fromStdString(kit->filePath);
+        getManager()->openFile(path);
+    });
+
+    menu->addAction(rescanKits);
+    menu->addAction(recreateKits);
+    menu->addAction(openKitsinFM);
+    menu->addAction(editCurrentKit);
+
+    gui->toolkitToolButton->setMenu(menu);
+    gui->toolkitToolButton->setPopupMode(QToolButton::InstantPopup);
+
     auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
@@ -281,7 +318,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->kitComboBox->setModel(kitsModel);
 
     auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    regenerateKits(dataPath);
     auto kits = findKitDefinitions(dataPath.toStdString());
     kitsModel->setKitDefinitions(kits);
 

@@ -17,13 +17,7 @@
 1. ~~Auto deduct json for rust dirs~~
 1. ~~Auto deduct json for go dirs~~
 1. ~~Terminal adds extra lines (sometimes?)~~
-1. Automatic kit detection
-    1. Add menu to the button: 
-        1. Rescan
-        1. Recreate all
-        1. Edit current
-        1. Open file explorer
-    1. A warning/error while executing (on windows, no native path?)
+1. ~~Automatic kit detection~~~
 1. Loading of large (real life) projects take too long (example: zed)
 1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
