@@ -31,7 +31,7 @@ constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
 # available enritonment variables:
 # ${source_directory} - where the source being executed is saved
 # ${build_directory}  - where code should be compile into
-# ${run_directory}    - where this taks should be run, as defined in
+# ${run_directory}    - where this task should be run, as defined in
 #                       the task's definition in the JSON file
 # ${task}             - the actual code to be run
 
