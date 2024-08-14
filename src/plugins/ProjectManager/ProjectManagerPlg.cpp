@@ -282,6 +282,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(recreateKits, &QAction::triggered, this, [this]() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+        {
+            auto d = QDir(dataPath);
+            if (!d.exists()) {
+                if (!d.mkpath(dataPath)) {
+                    qDebug() << "Failed to create directory:" << dataPath;
+                    return;
+                }
+            }
+        }
         regenerateKits(dataPath);
         auto kits = findKitDefinitions(dataPath.toStdString());
         kitsModel->setKitDefinitions(kits);
