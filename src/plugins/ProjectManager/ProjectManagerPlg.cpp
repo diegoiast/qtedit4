@@ -293,6 +293,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(editCurrentKit, &QAction::triggered, this, [this]() {
         auto kit = this->getCurrentKit();
+        if (!kit) {
+            return;
+        }
         auto path = QString::fromStdString(kit->filePath);
         getManager()->openFile(path);
     });
