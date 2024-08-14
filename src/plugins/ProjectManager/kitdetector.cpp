@@ -170,6 +170,38 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
     }
 
     auto detected = std::vector<ExtraPath>();
+    auto path_env = std::getenv("PATH");
+    auto ss = std::stringstream(path_env);
+    auto dir = std::string();
+    while (std::getline(ss, dir, ':')) {
+        auto full_path = dir + std::filesystem::path::preferred_separator + "/qmake6";
+        if (std::filesystem::exists(full_path)) {
+            if (isCompilerAlreadyFound(detected,dir)) {
+                continue;
+            }
+            auto extraPath = ExtraPath();
+
+            extraPath.name = std::string("Qt - ") + dir;
+            extraPath.compiler_path = dir;
+            if (unix_target) {
+                extraPath.comment = "# qt installation";
+                extraPath.command = "export QTDIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "export QT_DIR=%1";
+            } else {
+                extraPath.comment = "@rem qt installation";
+                extraPath.command = "SET QTDIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "SET QT_DIR=%1";
+            }
+
+            replaceAll(extraPath.command, "%1", dir);
+            replaceAll(extraPath.comment, "%1", dir);
+            detected.push_back(extraPath);
+        }
+    }
+
+
     for (const auto &root : knownLocations) {
         if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) {
             continue;
