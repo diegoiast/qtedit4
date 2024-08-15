@@ -176,7 +176,7 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
     while (std::getline(ss, dir, ':')) {
         auto full_path = dir + std::filesystem::path::preferred_separator + "/qmake6";
         if (std::filesystem::exists(full_path)) {
-            if (isCompilerAlreadyFound(detected,dir)) {
+            if (isCompilerAlreadyFound(detected, dir)) {
                 continue;
             }
             auto extraPath = ExtraPath();
@@ -200,7 +200,6 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
             detected.push_back(extraPath);
         }
     }
-
 
     for (const auto &root : knownLocations) {
         if (!std::filesystem::exists(root) || !std::filesystem::is_directory(root)) {
