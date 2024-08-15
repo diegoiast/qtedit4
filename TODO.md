@@ -18,10 +18,18 @@
 1. ~~Auto deduct json for go dirs~~
 1. ~~Terminal adds extra lines (sometimes?)~~
 1. ~~Automatic kit detection~~~
-1. Loading of large (real life) projects take too long (example: zed)
+1. ~~Loading of large (real life) projects take too long (example: zed)~~
+1. Sort order is wrong. It should sort by path and not string (visble again in zed)
 1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
 1. Auto deduct json for Android dirs
+
+## File manager plugin
+
+1. Right click on a file should open a menu
+    1. Basic file operations
+    1. If is a file? Edit
+    1. If is a dir? add as project
 
 ## QutePart
 
@@ -40,6 +48,8 @@
 
 1. ~~Save config in global space.~~
 1. Quick jump inside open files
+1. Plugins config loading should be done only when the main UI
+   is up. 
 1. Shortcuts manager
 1. Save restore cursor position in open windows
 1. Bottom view should be collapsible

@@ -8,7 +8,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
-#include <QSortFilterProxyModel>
 #include <QStandardPaths>
 
 #include "GenericItems.h"
@@ -493,11 +492,19 @@ void ProjectManagerPlugin::on_removeProject_clicked() {
 }
 
 void ProjectManagerPlugin::on_newProjectSelected(int index) {
+    // TODO - on startu this is called 2 times. I am unsure why yet.
+    //        so this works around it. Its not the best solution.
+    static auto lastProjectSelected = std::shared_ptr<ProjectBuildConfig>();
     std::shared_ptr<ProjectBuildConfig> config = {};
     if (index >= 0) {
         config = projectModel->getConfig(index);
     }
 
+    if (lastProjectSelected == config) {
+        return;
+    }
+
+    lastProjectSelected = config;
     this->directoryModel->removeAllDirs();
     if (!config) {
         this->gui->filterFiles->clear();

@@ -1,16 +1,32 @@
 #pragma once
 
 #include <QAbstractItemModel>
-#include <QCompleter>
 #include <QDir>
-#include <QFileSystemModel>
 #include <QList>
+#include <QRunnable>
 #include <QSortFilterProxyModel>
 #include <QString>
 
 bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList);
 
+class FilesWorker : public QObject, public QRunnable {
+    Q_OBJECT
+
+    QString _rootPath;
+
+  public:
+    explicit FilesWorker(const QString &rootPath, QObject *parent = nullptr);
+    virtual void run() override;
+
+  signals:
+    void started(const QString &rootPath);
+    void filesLoaded(const QStringList &files);
+    void finished();
+};
+
 class DirectoryModel : public QAbstractTableModel {
+    Q_OBJECT
+
   public:
     DirectoryModel(QObject *parent = nullptr);
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
@@ -27,8 +43,12 @@ class DirectoryModel : public QAbstractTableModel {
     QStringList fileList;
     QStringList directoryList;
 
+  public slots:
+    void scanStarted(const QString &rootPath);
+    void newFiles(const QStringList &files);
+    void scanFinished();
+
   private:
-    void addDirectoryImpl(const QDir &directory);
     void removeDirectoryImpl(const QDir &directory);
 };
 
