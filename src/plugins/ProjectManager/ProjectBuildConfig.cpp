@@ -34,7 +34,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     auto value = std::make_shared<ProjectBuildConfig>();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;.vs;build;dist";
-    value->buildDir = directory + "/build";
+    value->buildDir = "${source_directory}/build";
 
     // TODO - we should query for available binaries after configure.
     {
@@ -240,7 +240,53 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
 }
 
 auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
-    // todo
+    auto file = QFile(jsonFileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "Failed to open file for writing:" << file.errorString();
+        return;
+    }
+
+    auto jsonObj = QJsonObject();
+    jsonObj["sourceDir"] = sourceDir;
+    jsonObj["build_directory"] = buildDir;
+
+    auto execsArray = QJsonArray();
+    for (const auto &exec : executables) {
+        auto execObj = QJsonObject();
+        execObj["name"] = exec.name;
+        execObj["runDirectory"] = exec.runDirectory;
+
+        auto execsDetailsObj = QJsonObject();
+        for (auto it = exec.executables.constBegin(); it != exec.executables.constEnd(); ++it) {
+            execsDetailsObj[it.key()] = it.value();
+        }
+        execObj["executables"] = execsDetailsObj;
+
+        execsArray.append(execObj);
+    }
+    jsonObj["executables"] = execsArray;
+
+    auto tasksArray = QJsonArray();
+    for (const auto &task : tasksInfo) {
+        auto taskObj = QJsonObject();
+        taskObj["name"] = task.name;
+        taskObj["command"] = task.command;
+        taskObj["runDirectory"] = task.runDirectory;
+
+        tasksArray.append(taskObj);
+    }
+    jsonObj["tasks"] = tasksArray;
+
+    jsonObj["activeExecutableName"] = activeExecutableName;
+    jsonObj["activeTaskName"] = activeTaskName;
+    jsonObj["displayFilter"] = displayFilter;
+    jsonObj["hideFilter"] = hideFilter;
+
+    auto jsonDoc = QJsonDocument(jsonObj);
+    file.write(jsonDoc.toJson());
+    file.close();
+
+    this->fileName = jsonFileName;
 }
 
 auto ProjectBuildConfig::findIndexOfTask(const QString &taskName) -> int {

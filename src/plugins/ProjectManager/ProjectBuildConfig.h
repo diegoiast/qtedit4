@@ -24,7 +24,6 @@ struct ProjectBuildConfig {
     QString buildDir;
     QList<ExecutableInfo> executables;
     QList<TaskInfo> tasksInfo;
-    TaskInfo *buildTask;
 
     QString activeExecutableName;
     QString activeTaskName;

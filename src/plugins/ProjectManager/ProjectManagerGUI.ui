@@ -177,6 +177,22 @@
       </spacer>
      </item>
      <item>
+      <widget class="QToolButton" name="editBuildConfig">
+       <property name="statusTip">
+        <string>Edit this build config</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset theme="text-x-script"/>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QToolButton" name="cleanButton">
        <property name="text">
         <string>...</string>

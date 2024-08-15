@@ -316,6 +316,16 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     gui->toolkitToolButton->setMenu(menu);
     gui->toolkitToolButton->setPopupMode(QToolButton::InstantPopup);
+    connect(gui->editBuildConfig, &QAbstractButton::clicked, this, [this]() {
+        auto buildConfig = this->getCurrentConfig();
+        if (buildConfig->fileName.isEmpty()) {
+            qDebug("Should save this");
+            auto path = buildConfig->sourceDir + "/" + "qtedit4.json";
+            buildConfig->saveToFile(path);
+            configWatcher.addPath(buildConfig->fileName);
+        }
+        getManager()->openFile(buildConfig->fileName);
+    });
 
     auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
@@ -519,10 +529,11 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     auto project = getCurrentConfig();
     auto executablePath = findExecForPlatform(info->executables);
     auto currentTask = expand(executablePath, hash);
-    auto workingDirectory = expand(info->runDirectory, hash);
+    auto workingDirectory = info->runDirectory;
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
+    workingDirectory = expand(workingDirectory, hash);
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
     outputPanel->commandOuput->appendPlainText(currentTask);
