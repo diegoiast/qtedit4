@@ -8,18 +8,21 @@
 #include "kitdetector.h"
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #if defined(__unix__)
 #include "kitdetector-unix.cpp"
 #include <sys/stat.h>
 constexpr auto HOME_DIR_ENV = "HOME";
 constexpr auto BINARY_EXT = "";
+constexpr auto ENV_SEPARATOR = ':';
 #endif
 
 #if defined(_WIN32)
 #include "kitdetector-win32.cpp"
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
 constexpr auto BINARY_EXT = ".exe";
+constexpr auto ENV_SEPARATOR = ';';
 #endif
 
 constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
@@ -120,6 +123,23 @@ static auto is_command_in_path(const std::string &cmd,
     return false;
 }
 
+static auto safeGetEnv(const char *name) -> std::string {
+#if defined(_WIN32)
+    // TODO: we deal with ansi only - is this OK?
+    // Limit according to http://msdn.microsoft.com/en-us/library/ms683188.aspx
+    DWORD bufferSize = 65535;
+    std::string buff;
+    buff.resize(bufferSize);
+    bufferSize = GetEnvironmentVariableA(name, &buff[0], bufferSize);
+    if (!bufferSize) {
+        buff.resize(bufferSize);
+    }
+    return buff;
+#else
+    return std::getenv(name);
+#endif
+}
+
 auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
@@ -163,42 +183,43 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
         // clang-format on
     };
 
-    auto homeDirEnv = getenv(HOME_DIR_ENV);
-    if (homeDirEnv) {
+    auto homeDirEnv = safeGetEnv(HOME_DIR_ENV);
+    if (homeDirEnv.empty()) {
         auto homedir = std::filesystem::path(homeDirEnv) / "qt";
         knownLocations.push_back(homedir);
     }
 
     auto detected = std::vector<ExtraPath>();
-    auto path_env = std::getenv("PATH");
+    auto path_env = safeGetEnv("PATH");
     auto ss = std::stringstream(path_env);
     auto dir = std::string();
-    while (std::getline(ss, dir, ':')) {
-        auto full_path = dir + std::filesystem::path::preferred_separator + "/qmake6";
-        if (std::filesystem::exists(full_path)) {
-            if (isCompilerAlreadyFound(detected, dir)) {
-                continue;
-            }
-            auto extraPath = ExtraPath();
-
-            extraPath.name = std::string("Qt - ") + dir;
-            extraPath.compiler_path = dir;
-            if (unix_target) {
-                extraPath.comment = "# qt installation";
-                extraPath.command = "export QTDIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "export QT_DIR=%1";
-            } else {
-                extraPath.comment = "@rem qt installation";
-                extraPath.command = "SET QTDIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "SET QT_DIR=%1";
-            }
-
-            replaceAll(extraPath.command, "%1", dir);
-            replaceAll(extraPath.comment, "%1", dir);
-            detected.push_back(extraPath);
+    while (std::getline(ss, dir, ENV_SEPARATOR)) {
+        auto full_path = std::filesystem::path(dir) / (std::string("qmake") + BINARY_EXT);
+        if (!std::filesystem::exists(full_path)) {
+            continue;
         }
+        if (isCompilerAlreadyFound(detected, dir)) {
+            continue;
+        }
+        auto extraPath = ExtraPath();
+
+        extraPath.name = std::string("Qt - ") + dir;
+        extraPath.compiler_path = dir;
+        if (unix_target) {
+            extraPath.comment = "# qt installation";
+            extraPath.command = "export QTDIR=%1";
+            extraPath.command += "\n";
+            extraPath.command += "export QT_DIR=%1";
+        } else {
+            extraPath.comment = "@rem qt installation";
+            extraPath.command = "SET QTDIR=%1";
+            extraPath.command += "\n";
+            extraPath.command += "SET QT_DIR=%1";
+        }
+
+        replaceAll(extraPath.command, "%1", dir);
+        replaceAll(extraPath.comment, "%1", dir);
+        detected.push_back(extraPath);
     }
 
     for (const auto &root : knownLocations) {
