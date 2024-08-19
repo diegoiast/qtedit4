@@ -207,7 +207,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 ExecutableInfo execInfo;
                 execInfo.name = vv.toObject()["name"].toString();
                 execInfo.executables = toHash(vv.toObject()["executables"]);
-                execInfo.runDirectory = vv.toObject()["directory"].toString();
+                execInfo.runDirectory = vv.toObject()["runDirectory"].toString();
                 info.push_back(execInfo);
             };
         }
@@ -220,7 +220,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 TaskInfo taskInfo;
                 taskInfo.name = vv.toObject()["name"].toString();
                 taskInfo.command = vv.toObject()["command"].toString();
-                taskInfo.runDirectory = vv.toObject()["directory"].toString();
+                taskInfo.runDirectory = vv.toObject()["runDirectory"].toString();
                 info.push_back(taskInfo);
             };
         }
