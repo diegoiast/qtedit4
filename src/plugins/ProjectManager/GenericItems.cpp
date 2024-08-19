@@ -42,11 +42,13 @@ QVariant DirectoryModel::data(const QModelIndex &index, int role) const {
         return QVariant();
     }
 
-    if (role != Qt::DisplayRole && role != Qt::EditRole) {
-        return QVariant();
+    switch (role) {
+    case Qt::DisplayRole:
+        return displayForItem(index.row());
+    case Qt::UserRole:
+        return fileList.at(index.row());
     }
-
-    return displayForItem(index.row());
+    return QVariant();
 }
 
 QString DirectoryModel::displayForItem(size_t i) const {

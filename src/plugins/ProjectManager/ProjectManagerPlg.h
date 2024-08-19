@@ -16,6 +16,8 @@ class DirectoryModel;
 class FilterOutProxyModel;
 class KitDefinitionModel;
 
+class CommandPalette;
+
 struct ProjectBuildConfig;
 struct TaskInfo;
 struct ExecutableInfo;
@@ -77,4 +79,6 @@ class ProjectManagerPlugin : public IPlugin {
     QAction *clearAction = nullptr;
     QMenu *availableTasksMenu;
     QMenu *availableExecutablesMenu;
+
+    CommandPalette *commandPalette;
 };

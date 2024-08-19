@@ -10,6 +10,7 @@ set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:diegoiast/qmdilib#main")
 CPMAddPackage("gh:diegoiast/qutepart-cpp#qt6-port-take2")
+CPMAddPackage("gh:diegoiast/command-palette-widget#main")
 download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
@@ -77,7 +78,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src/widgets
 )
-target_link_libraries(qtedit4 PUBLIC qmdilib qutepart)
+target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

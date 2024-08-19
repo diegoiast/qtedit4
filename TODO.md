@@ -47,7 +47,6 @@
 ## qmdilib
 
 1. ~~Save config in global space.~~
-1. Quick jump inside open files
 1. Plugins config loading should be done only when the main UI
    is up. 
 1. Shortcuts manager
@@ -62,6 +61,7 @@
 
 ## Editor plugin
 
+1. ~~Quick jump inside open files~~
 1. File watcher on created file not stopped while saving
 1. Save content of unnamed files
 1. Add line/column to margin display

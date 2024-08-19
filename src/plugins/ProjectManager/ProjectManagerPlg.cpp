@@ -10,6 +10,8 @@
 #include <QSettings>
 #include <QStandardPaths>
 
+#include <CommandPaletteWidget/CommandPalette>
+
 #include "GenericItems.h"
 #include "ProjectBuildConfig.h"
 #include "ProjectManagerPlg.h"
@@ -379,6 +381,27 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     this->menus[tr("&Project")]->addSeparator();
     this->menus[tr("&Project")]->addAction(addNewProjectIcon);
     this->menus[tr("&Project")]->addAction(removeProjectIcon);
+
+    auto quickOpen = new QAction(tr("Quick open file..."), this);
+    quickOpen->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
+    this->menus[tr("&Project")]->addAction(quickOpen);
+
+    commandPalette = new CommandPalette(manager);
+    connect(quickOpen, &QAction::triggered, this, [this]() {
+        if (commandPalette->isVisible()) {
+            commandPalette->hide();
+        } else {
+            commandPalette->setDataModel(filesFilterModel);
+            commandPalette->clearText();
+            commandPalette->show();
+        }
+    });
+
+    connect(commandPalette, &CommandPalette::didChooseItem, this,
+            [this](const QModelIndex index, const QAbstractItemModel *model) {
+                auto fname = model->data(index, Qt::UserRole).toString();
+                this->getManager()->openFile(fname);
+            });
 }
 
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
