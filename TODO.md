@@ -23,6 +23,7 @@
 1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
 1. Auto deduct json for Android dirs
+1. ~~Plugins config loading should be done only when the main UI is up. ~~
 
 ## File manager plugin
 
@@ -47,11 +48,9 @@
 ## qmdilib
 
 1. ~~Save config in global space.~~
-1. Plugins config loading should be done only when the main UI
-   is up. 
 1. Shortcuts manager
 1. Save restore cursor position in open windows
-1. Bottom view should be collapsible
+1. ~~Bottom view should be collapsible~~
 1. All actions in menus, toolbars shold be "added" to the main window
 1. Add actions to be forced at the end
 1. API for config - each plugin should be able to define
@@ -71,6 +70,7 @@
 1. Save zoom level per document
 1. Line ending on save (Unix/Windows/Keep original)
 1. Trim spaces on save (edit?)
+1. F4 to switch header/definition
 
 ## Meta
 
@@ -85,7 +85,7 @@
 
 ## Internal
 
-1. Name the main window
+1. ~~Name the main window~~
 1. Icon for main window
 1. Hex editor support for binary files
 1. Image viewer

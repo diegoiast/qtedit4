@@ -65,6 +65,7 @@ set(qtedit4_sources
     src/plugins/ProjectManager/kitdetector.h
     src/plugins/ProjectManager/kitdetector.cpp
     src/main.cpp
+    qtedit4.qrc
 )
 
 if (WIN32)
@@ -72,6 +73,7 @@ if (WIN32)
 else()
     add_executable(qtedit4 ${qtedit4_sources})
 endif()
+
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qtedit4.svg</file>
+        <file>qtedit4.ico</file>
+    </qresource>
+</RCC>
+
