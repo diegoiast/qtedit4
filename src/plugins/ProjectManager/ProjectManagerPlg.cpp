@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTimer>
 
 #include <CommandPaletteWidget/CommandPalette>
 
@@ -411,6 +412,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
+    auto dirsToLoad = QStringList();
     settings.beginGroup("ProjectManager");
 
     settings.beginGroup("Loaded");
@@ -419,21 +421,27 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             continue;
         }
         auto dirName = settings.value(s).toString();
-        auto config = projectModel->findConfigDir(dirName);
-        if (!config) {
+        dirsToLoad << dirName;
+    }
+    settings.endGroup();
+
+    settings.endGroup();
+
+    QTimer::singleShot(0, [this, dirsToLoad]() {
+        for (auto &dirName : dirsToLoad) {
+            auto config = projectModel->findConfigDir(dirName);
+            if (config) {
+                continue;
+            }
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
-
             if (!config->fileName.isEmpty()) {
                 qDebug("loadConfig() - adding %s to the watch dir",
                        config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
         }
-    }
-    settings.endGroup();
-
-    settings.endGroup();
+    });
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
