@@ -47,10 +47,10 @@ class QsvTextOperationsWidget : public QObject {
     void showReplace();
     void showGotoLine();
     void showBottomWidget(QWidget *w = nullptr);
-    void on_searchText_modified(QString s);
-    void on_replaceText_modified(QString s);
-    void on_replaceOldText_returnPressed();
-    void on_replaceAll_clicked();
+    void searchText_modified(QString s);
+    void replaceText_modified(QString s);
+    void replaceOldText_returnPressed();
+    void replaceAll_clicked();
     void searchNext();
     void searchPrevious();
     void searchPrev() { searchPrevious(); }

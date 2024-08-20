@@ -59,8 +59,8 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     void gotoMatchingBracket();
 
   private slots:
-    void on_fileMessage_clicked(const QString &s);
-    void on_hideTimer_timeout();
+    void fileMessage_clicked(const QString &s);
+    void hideTimer_timeout();
 
   signals:
     void widgetResized();

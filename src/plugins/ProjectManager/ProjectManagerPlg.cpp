@@ -46,8 +46,8 @@ static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
 }
 
 static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
+    static auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
     auto output = input;
-    auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
     auto depth = 0;
     auto maxDepth = 10;
 
@@ -67,7 +67,7 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
     return output;
 }
 
-auto regenerateKits(const QString &directoryPath) {
+static auto regenerateKits(const QString &directoryPath) {
     auto compilersFound = KitDetector::findCompilers();
     auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
     auto tools = KitDetector::findCompilerTools();
@@ -106,15 +106,19 @@ class ProjectBuildModel : public QAbstractListModel {
 };
 
 void ProjectBuildModel::addConfig(std::shared_ptr<ProjectBuildConfig> config) {
-    beginResetModel();
-    this->configs.push_back(config);
-    endResetModel();
+    int row = configs.size();
+    beginInsertRows(QModelIndex(), row, row);
+    configs.push_back(config);
+    endInsertRows();
 }
 
 void ProjectBuildModel::removeConfig(size_t index) {
-    beginResetModel();
-    this->configs.erase(this->configs.begin() + index);
-    endResetModel();
+    if (index >= configs.size()) {
+        return;
+    }
+    beginRemoveRows(QModelIndex(), index, index);
+    configs.erase(configs.begin() + index);
+    endRemoveRows();
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) const {
@@ -184,20 +188,20 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->filterOutFiles->setPlaceholderText(tr("files to hide"));
 
     connect(gui->runButton, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_runButton_clicked);
+            &ProjectManagerPlugin::runButton_clicked);
     connect(gui->taskButton, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_runTask_clicked);
+            &ProjectManagerPlugin::runTask_clicked);
     connect(gui->cleanButton, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_clearProject_clicked);
+            &ProjectManagerPlugin::clearProject_clicked);
     connect(gui->addDirectory, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_addProject_clicked);
+            &ProjectManagerPlugin::addProject_clicked);
     connect(gui->removeDirectory, &QAbstractButton::clicked, this,
-            &ProjectManagerPlugin::on_removeProject_clicked);
+            &ProjectManagerPlugin::removeProject_clicked);
     connect(gui->filesView, &QAbstractItemView::clicked, this,
             &ProjectManagerPlugin::onItemClicked);
 
     connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
-            &ProjectManagerPlugin::on_newProjectSelected);
+            &ProjectManagerPlugin::newProjectSelected);
     manager->createNewPanel(Panels::West, tr("Project"), w);
 
     auto *w2 = new QWidget;
@@ -247,7 +251,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         qWarning() << "Error string:" << runProcess.errorString();
     });
     connect(&configWatcher, &QFileSystemWatcher::fileChanged, this,
-            &ProjectManagerPlugin::on_projectFile_modified);
+            &ProjectManagerPlugin::projectFile_modified);
     connect(gui->cleanButton, &QToolButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
     directoryModel = new DirectoryModel(this);
@@ -355,9 +359,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     buildAction->setEnabled(false);
     clearAction->setEnabled(false);
 
-    connect(runAction, SIGNAL(triggered()), this, SLOT(on_runButton_clicked()));
-    connect(buildAction, SIGNAL(triggered()), this, SLOT(on_runTask_clicked()));
-    connect(clearAction, SIGNAL(triggered()), this, SLOT(on_clearProject_clicked()));
+    connect(runAction, SIGNAL(triggered()), this, SLOT(runButton_clicked()));
+    connect(buildAction, SIGNAL(triggered()), this, SLOT(runTask_clicked()));
+    connect(clearAction, SIGNAL(triggered()), this, SLOT(clearProject_clicked()));
 
     runAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_R));
     buildAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_B));
@@ -480,7 +484,7 @@ void ProjectManagerPlugin::onItemClicked(const QModelIndex &index) {
     getManager()->openFile(s);
 }
 
-void ProjectManagerPlugin::on_addProject_clicked() {
+void ProjectManagerPlugin::addProject_clicked() {
     QString dirName = QFileDialog::getExistingDirectory(gui->filesView, tr("Add directory"));
     if (dirName.isEmpty()) {
         return;
@@ -501,7 +505,7 @@ void ProjectManagerPlugin::on_addProject_clicked() {
     getManager()->saveSettings();
 }
 
-void ProjectManagerPlugin::on_removeProject_clicked() {
+void ProjectManagerPlugin::removeProject_clicked() {
     auto index = gui->projectComboBox->currentIndex();
     if (index < 0) {
         return;
@@ -514,7 +518,7 @@ void ProjectManagerPlugin::on_removeProject_clicked() {
     getManager()->saveSettings();
 }
 
-void ProjectManagerPlugin::on_newProjectSelected(int index) {
+void ProjectManagerPlugin::newProjectSelected(int index) {
     // TODO - on startu this is called 2 times. I am unsure why yet.
     //        so this works around it. Its not the best solution.
     static auto lastProjectSelected = std::shared_ptr<ProjectBuildConfig>();
@@ -566,7 +570,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     workingDirectory = expand(workingDirectory, hash);
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
-    outputPanel->commandOuput->appendPlainText(currentTask);
+    outputPanel->commandOuput->appendPlainText(currentTask + "\n");
 
     auto command = QStringList();
     auto interpreter = QString();
@@ -648,17 +652,17 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 }
 
-void ProjectManagerPlugin::on_runButton_clicked() {
+void ProjectManagerPlugin::runButton_clicked() {
     assert(this->selectedTarget);
     do_runExecutable(this->selectedTarget);
 }
 
-void ProjectManagerPlugin::on_runTask_clicked() {
+void ProjectManagerPlugin::runTask_clicked() {
     assert(this->selectedTask);
     do_runTask(this->selectedTask);
 }
 
-void ProjectManagerPlugin::on_clearProject_clicked() {
+void ProjectManagerPlugin::clearProject_clicked() {
     auto project = getCurrentConfig();
     if (project == nullptr || project->buildDir.isEmpty()) {
         return;
@@ -689,7 +693,7 @@ void ProjectManagerPlugin::on_clearProject_clicked() {
     }
 }
 
-void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
+void ProjectManagerPlugin::projectFile_modified(const QString &path) {
     auto onDiskConfig = ProjectBuildConfig::buildFromFile(path);
     auto inMemoryConfig = projectModel->findConfigFile(path);
     if (*onDiskConfig == *inMemoryConfig) {
@@ -697,7 +701,7 @@ void ProjectManagerPlugin::on_projectFile_modified(const QString &path) {
         return;
     }
     *inMemoryConfig = *onDiskConfig;
-    on_newProjectSelected(gui->projectComboBox->currentIndex());
+    newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
@@ -743,7 +747,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (const auto &taskInfo : config->tasksInfo) {
+            for (const auto &taskInfo : std::as_const(config->tasksInfo)) {
                 auto action = new QAction(taskInfo.name, this);
                 menu->addAction(action);
                 actions.append(action);
@@ -815,13 +819,13 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (const auto &target : config->executables) {
+            for (const auto &target : std::as_const(config->executables)) {
                 QAction *action = new QAction(target.name, this);
                 menu->addAction(action);
                 actions.append(action);
 
                 action = new QAction(target.name, this);
-                connect(action, &QAction::triggered,
+                connect(action, &QAction::triggered, this,
                         [this, target]() { this->do_runExecutable(&target); });
                 this->availableExecutablesMenu->addAction(action);
             }

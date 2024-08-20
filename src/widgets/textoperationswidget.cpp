@@ -33,8 +33,8 @@ QsvTextOperationsWidget::QsvTextOperationsWidget(QWidget *parent) : QObject(pare
     searchFormUi = nullptr;
     replaceFormUi = nullptr;
     gotoLineFormUi = nullptr;
-    searchFoundColor = QColor("#DDDDFF");
-    searchNotFoundColor = QColor("#FFAAAA");
+    searchFoundColor = QColor(0xDDDDFF);
+    searchNotFoundColor = QColor(0xFFAAAA);
 
     m_replaceTimer.setInterval(100);
     m_replaceTimer.setSingleShot(true);
@@ -78,6 +78,8 @@ void QsvTextOperationsWidget::initSearchWidget() {
     connect(searchFormUi->nextButton, SIGNAL(clicked()), this, SLOT(searchNext()));
     connect(searchFormUi->previousButton, SIGNAL(clicked()), this, SLOT(searchPrev()));
     connect(searchFormUi->closeButton, SIGNAL(clicked()), this, SLOT(showSearch()));
+    connect(searchFormUi->searchText, &QLineEdit::textChanged, this,
+            &QsvTextOperationsWidget::searchText_modified);
 }
 
 void QsvTextOperationsWidget::initReplaceWidget() {
@@ -102,6 +104,14 @@ void QsvTextOperationsWidget::initReplaceWidget() {
     connect(replaceFormUi->replaceButton, SIGNAL(clicked()), this,
             SLOT(on_replaceOldText_returnPressed()));
     connect(replaceFormUi->closeButton, SIGNAL(clicked()), this, SLOT(showReplace()));
+    connect(replaceFormUi->replaceText, &QLineEdit::textChanged, this,
+            &QsvTextOperationsWidget::replaceText_modified);
+    connect(replaceFormUi->findText, &QLineEdit::textChanged, this,
+            &QsvTextOperationsWidget::replaceText_modified);
+    connect(replaceFormUi->replaceText, &QLineEdit::returnPressed, this,
+            &QsvTextOperationsWidget::replaceOldText_returnPressed);
+    // connect(replaceFormUi-, &QLineEdit::returnPressed, this,
+    //         &QsvTextOperationsWidget::replaceOldText_returnPressed);
 }
 
 void QsvTextOperationsWidget::initGotoLineWidget() {
@@ -116,7 +126,7 @@ void QsvTextOperationsWidget::initGotoLineWidget() {
     m_gotoLine->adjustSize();
     m_gotoLine->hide();
 
-    connect(gotoLineFormUi->numberSpinBox, &QAbstractSpinBox::editingFinished, [this]() {
+    connect(gotoLineFormUi->numberSpinBox, &QAbstractSpinBox::editingFinished, this, [this]() {
         auto document = getTextDocument();
         auto line_number = gotoLineFormUi->numberSpinBox->value();
         auto block = document->findBlockByNumber(line_number - 1);
@@ -199,16 +209,14 @@ bool QsvTextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
             if (keyEvent->modifiers().testFlag(Qt::ControlModifier) ||
                 keyEvent->modifiers().testFlag(Qt::AltModifier) ||
                 keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
-                on_replaceAll_clicked();
+                replaceAll_clicked();
             } else {
-                on_replaceOldText_returnPressed();
+                replaceOldText_returnPressed();
             }
             return true;
         } else if (m_gotoLine && m_gotoLine->isVisible()) {
             return true;
         }
-
-        // TODO replace, goto line
         break;
 
     case Qt::Key_Tab:
@@ -335,11 +343,11 @@ void QsvTextOperationsWidget::showSearch() {
     showBottomWidget(m_search);
 }
 
-void QsvTextOperationsWidget::on_replaceOldText_returnPressed() {
+void QsvTextOperationsWidget::replaceOldText_returnPressed() {
     if (QApplication::keyboardModifiers().testFlag(Qt::ControlModifier) ||
         QApplication::keyboardModifiers().testFlag(Qt::AltModifier) ||
         QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)) {
-        on_replaceAll_clicked();
+        replaceAll_clicked();
         showReplace();
         return;
     }
@@ -370,7 +378,7 @@ void QsvTextOperationsWidget::on_replaceOldText_returnPressed() {
     updateReplaceInput();
 }
 
-void QsvTextOperationsWidget::on_replaceAll_clicked() {
+void QsvTextOperationsWidget::replaceAll_clicked() {
     // WHY NOT HIDING THE WIDGET?
     // it seems that if you hide the widget, when the replace all action
     // is triggered by pressing control+enter on the replace widget
@@ -504,7 +512,7 @@ void QsvTextOperationsWidget::showBottomWidget(QWidget *w) {
     w->show();
 }
 
-void QsvTextOperationsWidget::on_searchText_modified(QString s) {
+void QsvTextOperationsWidget::searchText_modified(QString s) {
     if (m_searchTimer.isActive()) {
         m_searchTimer.stop();
     }
@@ -515,7 +523,7 @@ void QsvTextOperationsWidget::on_searchText_modified(QString s) {
     // updateSearchInput();
 }
 
-void QsvTextOperationsWidget::on_replaceText_modified(QString s) {
+void QsvTextOperationsWidget::replaceText_modified(QString s) {
     if (m_replaceTimer.isActive()) {
         m_replaceTimer.stop();
     }

@@ -22,7 +22,7 @@ HelpPlugin::HelpPlugin() {
     alwaysEnabled = false;
 
     actionAbout = new QAction(tr("&About"), this);
-    connect(actionAbout, SIGNAL(triggered()), this, SLOT(on_actionAbout_triggered()));
+    connect(actionAbout, SIGNAL(triggered()), this, SLOT(actionAbout_triggered()));
 
     menus["&Help"]->addAction(actionAbout);
 }
@@ -34,7 +34,7 @@ void HelpPlugin::showAbout() {
                              "A file system browser plugin");
 }
 
-void HelpPlugin::on_actionAbout_triggered() {
+void HelpPlugin::actionAbout_triggered() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
                              "QtEdit4 - a text editor");
 }

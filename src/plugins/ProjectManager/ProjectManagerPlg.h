@@ -44,16 +44,16 @@ class ProjectManagerPlugin : public IPlugin {
 
   public slots:
     void onItemClicked(const QModelIndex &index);
-    void on_addProject_clicked();
-    void on_removeProject_clicked();
-    void on_newProjectSelected(int index);
+    void addProject_clicked();
+    void removeProject_clicked();
+    void newProjectSelected(int index);
 
     void do_runExecutable(const ExecutableInfo *info);
     void do_runTask(const TaskInfo *task);
-    void on_runButton_clicked();
-    void on_runTask_clicked();
-    void on_clearProject_clicked();
-    void on_projectFile_modified(const QString &path);
+    void runButton_clicked();
+    void runTask_clicked();
+    void clearProject_clicked();
+    void projectFile_modified(const QString &path);
 
   private:
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
@@ -64,21 +64,20 @@ class ProjectManagerPlugin : public IPlugin {
     Ui::BuildRunOutput *outputPanel = nullptr;
 
     QFileSystemWatcher configWatcher;
-    ExecutableInfo *selectedTarget;
-    TaskInfo *selectedTask;
+    ExecutableInfo *selectedTarget = nullptr;
+    TaskInfo *selectedTask = nullptr;
 
     QProcess runProcess;
 
     KitDefinitionModel *kitsModel = nullptr;
     ProjectBuildModel *projectModel = nullptr;
-    DirectoryModel *directoryModel;
-    FilterOutProxyModel *filesFilterModel;
+    DirectoryModel *directoryModel = nullptr;
+    FilterOutProxyModel *filesFilterModel = nullptr;
+    CommandPalette *commandPalette = nullptr;
 
     QAction *runAction = nullptr;
     QAction *buildAction = nullptr;
     QAction *clearAction = nullptr;
-    QMenu *availableTasksMenu;
-    QMenu *availableExecutablesMenu;
-
-    CommandPalette *commandPalette;
+    QMenu *availableTasksMenu = nullptr;
+    QMenu *availableExecutablesMenu = nullptr;
 };

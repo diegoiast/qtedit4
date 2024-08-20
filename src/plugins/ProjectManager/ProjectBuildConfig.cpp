@@ -84,7 +84,6 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     value->buildDir = directory + "/target";
 
     {
-        auto di = QFileInfo(directory);
         auto e = ExecutableInfo();
         e.name = "cargo run";
         e.runDirectory = "${source_directory}";
@@ -131,7 +130,6 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     value->buildDir = "";
 
     {
-        auto di = QFileInfo(directory);
         auto e = ExecutableInfo();
         e.name = "go run";
         e.runDirectory = "${source_directory}";
@@ -205,7 +203,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         if (v.isArray()) {
             for (const auto &vv : v.toArray()) {
                 ExecutableInfo execInfo;
-                execInfo.name = vv.toObject()["name"].toString();
+                execInfo.name = vv.toObject().value("name").toString();
                 execInfo.executables = toHash(vv.toObject()["executables"]);
                 execInfo.runDirectory = vv.toObject()["runDirectory"].toString();
                 info.push_back(execInfo);
@@ -251,7 +249,7 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
     jsonObj["build_directory"] = buildDir;
 
     auto execsArray = QJsonArray();
-    for (const auto &exec : executables) {
+    for (const auto &exec : std::as_const(executables)) {
         auto execObj = QJsonObject();
         execObj["name"] = exec.name;
         execObj["runDirectory"] = exec.runDirectory;
@@ -267,7 +265,7 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
     jsonObj["executables"] = execsArray;
 
     auto tasksArray = QJsonArray();
-    for (const auto &task : tasksInfo) {
+    for (const auto &task : std::as_const(tasksInfo)) {
         auto taskObj = QJsonObject();
         taskObj["name"] = task.name;
         taskObj["command"] = task.command;

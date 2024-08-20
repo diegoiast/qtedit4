@@ -11,7 +11,6 @@ FilesWorker::FilesWorker(const QString &rootPath, QObject *parent)
 
 void FilesWorker::run() {
     QStringList files;
-    QStringList dirs;
     QDirIterator i(_rootPath, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories);
 
     emit started(_rootPath);
@@ -135,7 +134,7 @@ void DirectoryModel::removeDirectory(const QString &path) {
 
 void DirectoryModel::removeDirectoryImpl(const QDir &dir) {
     auto list = dir.entryInfoList();
-    for (auto fi : list) {
+    for (const auto &fi : std::as_const(list)) {
         if (fi.fileName() == "." || fi.fileName() == "..") {
             continue;
         }
@@ -151,7 +150,7 @@ void DirectoryModel::removeDirectoryImpl(const QDir &dir) {
 bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList) {
     if (!badList.isEmpty()) {
         auto list = badList.split(";");
-        for (const auto &rule : list) {
+        for (const auto &rule : std::as_const(list)) {
             if (rule.length() < 3) {
                 continue;
             }
@@ -174,7 +173,7 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
     if (!goodList.isEmpty()) {
         filterMatchFound = false;
         auto list = goodList.split(";");
-        for (const auto &rule : list) {
+        for (const auto &rule : std::as_const(list)) {
             auto clean_rule = rule.trimmed();
             if (clean_rule.isEmpty()) {
                 continue;

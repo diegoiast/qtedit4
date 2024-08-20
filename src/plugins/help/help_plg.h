@@ -19,10 +19,8 @@ class HelpPlugin : public IPlugin {
     ~HelpPlugin();
 
     void showAbout();
-    // 	void	on_client_merged( qmdiHost* host );
-    // 	void	on_client_unmerged( qmdiHost* host );
   public slots:
-    void on_actionAbout_triggered();
+    void actionAbout_triggered();
 
   private:
     QAction *actionAbout;

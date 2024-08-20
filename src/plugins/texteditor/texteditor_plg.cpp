@@ -28,11 +28,13 @@ TextEditorPlugin::TextEditorPlugin() {
     myNewActions->addAction(actionNewCPP);
     myNewActions->addAction(actionNewHeader);
 
-#if defined(WIN32)
-    auto installPrefix = QCoreApplication::applicationDirPath();
-#else
-    auto installPrefix = QCoreApplication::applicationDirPath() + "/..";
-#endif
+    /*
+    #if defined(WIN32)
+        auto installPrefix = QCoreApplication::applicationDirPath();
+    #else
+        auto installPrefix = QCoreApplication::applicationDirPath() + "/..";
+    #endif
+    */
 
     connect(myNewActions, SIGNAL(triggered(QAction *)), this, SLOT(fileNew(QAction *)));
 }

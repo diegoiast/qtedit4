@@ -1,8 +1,9 @@
 #include "ProjectSearch.h"
 #include "GenericItems.h"
-#include "QtConcurrent/QtConcurrent"
 #include "ui_ProjectSearchGUI.h"
 
+#include <QPushButton>
+#include <QThreadPool>
 #include <fstream>
 #include <functional>
 #include <pluginmanager.h>
@@ -40,9 +41,10 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->searchFor->setFocus();
+    connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
 
     auto host = dynamic_cast<PluginManager *>(parent);
-    QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked,
+    QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked, this,
                      [host](QTreeWidgetItem *item, int column) {
                          auto parent = item->parent();
                          if (!parent) {
@@ -53,7 +55,7 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
                          host->openFile(fileName, line);
                          host->focusCenter();
 
-                         // TODO - this would benice. I am unsure how to do this
+                         // TODO - this would be nice. I am unsure how to do this
                          // editor->displayBannerMessage("Loaded", 7);
                          Q_UNUSED(column);
                      });
@@ -63,14 +65,14 @@ ProjectSearch::~ProjectSearch() { delete ui; }
 
 void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
-void ProjectSearch::on_searchButton_clicked() {
+void ProjectSearch::searchButton_clicked() {
     this->ui->treeWidget->clear();
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
     QThreadPool::globalInstance()->start([=]() {
         auto text = ui->searchFor->text().toStdString();
 
-        for (auto const &fullFileName : model->fileList) {
+        for (auto const &fullFileName : std::as_const(model->fileList)) {
             auto shortFilename = fullFileName;
 
             for (auto &d : model->directoryList) {

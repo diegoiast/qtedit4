@@ -1,5 +1,4 @@
-#ifndef PROJECTSEARCH_H
-#define PROJECTSEARCH_H
+#pragma once
 
 #include <QWidget>
 
@@ -21,17 +20,13 @@ class ProjectSearch : public QWidget {
   public:
     explicit ProjectSearch(QWidget *parent, DirectoryModel *m);
     ~ProjectSearch();
-
     void setFocusOnSearch();
 
-  public slots:
-    void on_searchButton_clicked();
   private slots:
+    void searchButton_clicked();
     void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *foundData);
 
   private:
     Ui::ProjectSearchGUI *ui;
     DirectoryModel *model;
 };
-
-#endif // PROJECTSEARCH_H

@@ -34,8 +34,7 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     operationsWidget = new QsvTextOperationsWidget(this);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
-    connect(fileSystemWatcher, SIGNAL(fileChanged(const QString)), this,
-            SLOT(on_fileChanged(const QString)));
+    connect(fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(on_fileChanged(QString)));
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(10);
@@ -52,7 +51,7 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     ui_banner = new Ui::BannerMessage;
     ui_banner->setupUi(banner);
     connect(ui_banner->label, SIGNAL(linkActivated(QString)), this,
-            SLOT(on_fileMessage_clicked(QString)));
+            SLOT(fileMessage_clicked(QString)));
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
@@ -263,9 +262,9 @@ void qmdiEditor::on_fileChanged(const QString &filename) {
     QString message;
     if (f.exists()) {
         message = QString("%1 <a href=':reload' title='%2'>%3</a>")
-                      .arg(tr("File has been modified outside the editor"))
-                      .arg(tr("Clicking this links will revert all changes to this editor"))
-                      .arg(tr("Click here to reload"));
+                      .arg(tr("File has been modified outside the editor"),
+                           tr("Clicking this links will revert all changes to this editor"),
+                           tr("Click here to reload"));
     } else {
         message = tr("File has been deleted outside the editor.");
     }
@@ -297,13 +296,13 @@ void qmdiEditor::adjustBottomAndTopWidget() {
     }
 }
 
-void qmdiEditor::on_hideTimer_timeout() {
+void qmdiEditor::hideTimer_timeout() {
     if (m_timerHideout != 0) {
         QString s;
         s.setNum(m_timerHideout);
         m_timerHideout--;
         ui_banner->timer->setText(s);
-        QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
+        QTimer::singleShot(1000, this, SLOT(hideTimer_timeout()));
     } else {
         ui_banner->timer->clear();
         banner->hide();
@@ -324,7 +323,7 @@ void qmdiEditor::displayBannerMessage(QString message, int time) {
     showUpperWidget(banner);
     ui_banner->label->setText(message);
     m_timerHideout = time;
-    QTimer::singleShot(1000, this, SLOT(on_hideTimer_timeout()));
+    QTimer::singleShot(1000, this, SLOT(hideTimer_timeout()));
 }
 
 void qmdiEditor::hideBannerMessage() {
@@ -581,7 +580,7 @@ void qmdiEditor::transformBlockCase() {
     }
 }
 
-void qmdiEditor::on_fileMessage_clicked(const QString &s) {
+void qmdiEditor::fileMessage_clicked(const QString &s) {
     if (s == ":reload") {
         loadFile(fileName);
         hideBannerMessage();
