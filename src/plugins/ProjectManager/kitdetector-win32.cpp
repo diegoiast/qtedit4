@@ -74,7 +74,7 @@ static auto findCompilerToolsWindows(std::vector<KitDetector::ExtraPath> &detect
     if (std::filesystem::exists(cmakePath)) {
         auto extraPath = KitDetector::ExtraPath();
         extraPath.name = "CMake";
-        extraPath.compiler_path = (std::filesystem::path(programFiles) / "CMake").string();
+        extraPath.compiler_path = (std::filesystem::path(programFiles) / "CMake" / "bin").string();
         extraPath.comment = "@rem Found CMake";
         extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
         detected.push_back(extraPath);
@@ -85,7 +85,8 @@ static auto findCompilerToolsWindows(std::vector<KitDetector::ExtraPath> &detect
     if (std::filesystem::exists(cmakePath)) {
         auto extraPath = KitDetector::ExtraPath();
         extraPath.name = "CMake (x86)";
-        extraPath.compiler_path = (std::filesystem::path(programFiles86) / "CMake").string();
+        extraPath.compiler_path =
+            (std::filesystem::path(programFiles86) / "CMake" / "bin").string();
         extraPath.comment = "@rem Found CMake (x86)";
         extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
         detected.push_back(extraPath);

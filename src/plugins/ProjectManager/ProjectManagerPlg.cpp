@@ -283,7 +283,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     connect(rescanKits, &QAction::triggered, this, [this]() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-        auto kits = findKitDefinitions(dataPath.toStdString());
+        auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
         kitsModel->setKitDefinitions(kits);
     });
     connect(recreateKits, &QAction::triggered, this, [this]() {
@@ -298,7 +298,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             }
         }
         regenerateKits(dataPath);
-        auto kits = findKitDefinitions(dataPath.toStdString());
+        auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
         kitsModel->setKitDefinitions(kits);
     });
     connect(openKitsinFM, &QAction::triggered, this, []() {
@@ -346,7 +346,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->kitComboBox->setModel(kitsModel);
 
     auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    auto kits = findKitDefinitions(dataPath.toStdString());
+    auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
     kitsModel->setKitDefinitions(kits);
 
     projectModel = new ProjectBuildModel();

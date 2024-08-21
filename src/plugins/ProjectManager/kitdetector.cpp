@@ -131,7 +131,7 @@ static auto safeGetEnv(const char *name) -> std::string {
     std::string buff;
     buff.resize(bufferSize);
     bufferSize = GetEnvironmentVariableA(name, &buff[0], bufferSize);
-    if (!bufferSize) {
+    if (bufferSize > 0) {
         buff.resize(bufferSize);
     }
     return buff;
@@ -184,7 +184,7 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
     };
 
     auto homeDirEnv = safeGetEnv(HOME_DIR_ENV);
-    if (homeDirEnv.empty()) {
+    if (!homeDirEnv.empty()) {
         auto homedir = std::filesystem::path(homeDirEnv) / "qt";
         knownLocations.push_back(homedir);
     }
@@ -232,7 +232,7 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
                     auto extraPath = ExtraPath();
                     auto relativePath = std::filesystem::relative(entry.path(), root);
 
-                    extraPath.name = std::string("Qt") + relativePath.string();
+                    extraPath.name = std::string("Qt - ") + relativePath.string();
                     extraPath.compiler_path = entry.path().string();
                     if (unix_target) {
                         extraPath.comment = "# qt installation";
