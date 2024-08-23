@@ -15,8 +15,8 @@ function(download_breeze_icons VERSION)
     endif()
 
     file(ARCHIVE_EXTRACT INPUT "${ZIP_FILE}" DESTINATION "${CMAKE_BINARY_DIR}")
-    install(
-        DIRECTORY   "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons/"
+    file(COPY
+       "${CMAKE_BINARY_DIR}/breeze-icons-${VERSION}/icons/"
         DESTINATION "${CMAKE_BINARY_DIR}/share/icons/breeze/"
     )
 endfunction()

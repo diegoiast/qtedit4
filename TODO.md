@@ -80,13 +80,14 @@
 1. Flatpack support
 1. Linux: create desktop entry
 1. Windows: verify that this can be used as global editor
+1. Windows: Otter browser has a nice installer.
 1. Restore window position properly
 
 
 ## Internal
 
 1. ~~Name the main window~~
-1. Icon for main window
+1. ~~Icon for main window~~
 1. Hex editor support for binary files
 1. Image viewer
 1. Markdown display
@@ -99,3 +100,4 @@
 1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
 1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then".
 1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
+1. Breadcrumb: https://github.com/Qt-Widgets/wwwidgets-breadcrumb-color-combobox-led-spinbox-navigator-ip-etc

@@ -3,13 +3,14 @@ AppName=qtedit4
 AppVersion=0.1
 DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
-UninstallDisplayIcon={app}\bin\qtedit4.exe
+UninstallDisplayIcon={app}\qtedit4.ico
 OutputDir=dist
 OutputBaseFilename=qtedit4-win64
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ShowComponentSizes=yes
+SetupIconFile=qtedit4.ico
 
 [Files]
 Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}";
@@ -29,12 +30,14 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\actions\22\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\breeze\actions\32\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\breeze\devices\16\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags: ignoreversion
+Source: "dist\windows-msvc\usr\qtedit4.ico"; DestDir: "{app}\"; Flags: ignoreversion
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*";
 
 [Icons]
 Name: "{group}\qtedit4"; Filename: "{app}\qtedit4.exe"
+Name: "{userdesktop}\qtedit4"; Filename: "{app}\qtedit4.exe"; IconFilename: "{app}\qtedit4.ico"
 
 ;[Tasks]
 ;Name: desktopicon; Description: "Create a desktop icon"; GroupDescription: "Additional icons:"

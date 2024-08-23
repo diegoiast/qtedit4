@@ -69,7 +69,7 @@ set(qtedit4_sources
 )
 
 if (WIN32)
-    add_executable(qtedit4 WIN32 ${qtedit4_sources})
+    add_executable(qtedit4 WIN32 ${qtedit4_sources} qtedit4.rc)
 else()
     add_executable(qtedit4 ${qtedit4_sources})
 endif()
@@ -104,6 +104,8 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/
 
 if (WIN32)
     install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
+            DESTINATION /)
+    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.ico
             DESTINATION /)
 else()
     install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
