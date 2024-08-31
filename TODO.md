@@ -101,3 +101,9 @@
 1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then".
 1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
 1. Breadcrumb: https://github.com/Qt-Widgets/wwwidgets-breadcrumb-color-combobox-led-spinbox-navigator-ip-etc
+1. Lots: https://timschneeberger.me/qt/
+1. Lots: https://github.com/progzdeveloper/QtExtra
+1. light? dark? https://github.com/Qt-Widgets/ThemeSupport-determine-OS-currently-active-theme
+1. FLutent design: https://github.com/githubuser0xFFFF/QtFluentDesign
+1. Modern style: https://github.com/Qt-Widgets/Lightly_modern_style_theme
+1. Adwita for QT: https://github.com/Qt-Widgets/adwaita-qt-style-qstyle
