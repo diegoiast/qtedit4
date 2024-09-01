@@ -5,7 +5,9 @@ project (qtedit4)
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
 include(cmake/CPM.cmake)
+include(cmake/mold-linker.cmake)
 include(cmake/icons-breeze.cmake)
+
 set(QMDILIB_BUILD_EXAMPLES off)
 set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:diegoiast/qmdilib#main")
