@@ -43,63 +43,63 @@ TextEditorPlugin::TextEditorPlugin() {
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Trim spaces"))
                                      .setDescription(tr("Remove spaces from end of lines, on save"))
-                                     .setKey(ConfigNames::TrimSpaces)
+                                     .setKey(Config::TrimSpacesKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(false)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Wrap lines"))
                                      .setDescription(tr("Wrap lines at window size"))
-                                     .setKey(ConfigNames::WrapLines)
+                                     .setKey(Config::WrapLinesKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(false)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Auto reload"))
                                      .setDescription(tr("Reload text when file changes on disk"))
-                                     .setKey(ConfigNames::AutoReload)
+                                     .setKey(Config::AutoReloadKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show white space"))
                                      .setDescription("Display marks above tabs, and spaces")
-                                     .setKey(ConfigNames::ShowWhiteSpace)
+                                     .setKey(Config::ShowWhiteKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Draw indentations"))
                                      .setDescription("Display marks on first indentations of lines")
-                                     .setKey(ConfigNames::ShowIndentations)
+                                     .setKey(Config::ShowIndentationsKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Highlight brackets"))
                                      .setDescription("Draws a background arround matching brakcet")
-                                     .setKey(ConfigNames::HighlightBrackets)
+                                     .setKey(Config::HighlightBracketsKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show line numbers"))
                                      .setDescription("Show or hide the line numbers panel")
-                                     .setKey(ConfigNames::ShowLineNumbers)
+                                     .setKey(Config::ShowLineKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show right margin"))
                                      .setDescription("Shows a a margin at the end of line")
-                                     .setKey(ConfigNames::Margin)
+                                     .setKey(Config::MarginKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Wrap index"))
                                      .setDescription(tr("Character at which the margin is drawn"))
-                                     .setKey(ConfigNames::MarginOffset)
+                                     .setKey(Config::MarginOffsetKey)
                                      .setType(qmdiConfigItem::UInt16)
                                      .setDefaultValue(80)
                                      .build());
@@ -160,13 +160,14 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     }
 }
 
-bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int z) {
+bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int) {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
     auto loaded = editor->loadFile(fileName);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
+
+    applySettings(editor);
     return loaded;
-    Q_UNUSED(z);
 }
 
 void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
@@ -181,6 +182,27 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
 void TextEditorPlugin::getData() {}
 
 void TextEditorPlugin::setData() {}
+
+void TextEditorPlugin::applySettings(qmdiClient *client) {
+    auto editor = static_cast<qmdiEditor *>(client);
+
+    if (getConfig().getTrimSpaces()) {
+        // editor->
+    }
+
+    if (getConfig().getWrapLines()) {
+        editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
+    } else {
+        editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+    }
+
+    editor->setDrawSolidEdge(getConfig().getMargin());
+    editor->setDrawAnyWhitespace(getConfig().getShowWhite());
+    editor->setDrawIndentations(getConfig().getShowIndentations());
+    editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());
+    editor->setLineNumbersVisible(getConfig().getShowLine());
+    // uint16_t marginOffset();
+}
 
 void TextEditorPlugin::fileNew(QAction *) {
     qmdiEditor *editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
