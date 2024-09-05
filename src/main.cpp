@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
+    auto configFilePath = filePath + "/qtedit4.conf";
     auto windowIcon = QIcon(":qtedit4.ico");
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
+    pluginManager.loadConfig(configFilePath);
     pluginManager.updateGUI();
     pluginManager.hideUnusedPanels();
     pluginManager.restoreSettings();

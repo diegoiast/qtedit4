@@ -28,6 +28,14 @@ class BuildRunOutput;
 } // namespace Ui
 
 class ProjectManagerPlugin : public IPlugin {
+
+    struct ConfigNames {
+        auto constexpr static SupportCPP = "CPP";
+        auto constexpr static SupportRust = "Rust";
+        auto constexpr static SupportGo = "Go";
+        auto constexpr static ExtraPath = "ExtraPath";
+    };
+
     Q_OBJECT
   public:
     ProjectManagerPlugin();

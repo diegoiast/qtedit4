@@ -36,7 +36,73 @@ TextEditorPlugin::TextEditorPlugin() {
     #endif
     */
 
-    connect(myNewActions, SIGNAL(triggered(QAction *)), this, SLOT(fileNew(QAction *)));
+    connect(myNewActions, &QActionGroup::triggered, this, &TextEditorPlugin::fileNew);
+
+    config.pluginName = "Text editor";
+    config.description = "Default text editor, based on QutePart";
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Trim spaces"))
+                                     .setDescription(tr("Remove spaces from end of lines, on save"))
+                                     .setKey(ConfigNames::TrimSpaces)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Wrap lines"))
+                                     .setDescription(tr("Wrap lines at window size"))
+                                     .setKey(ConfigNames::WrapLines)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Auto reload"))
+                                     .setDescription(tr("Reload text when file changes on disk"))
+                                     .setKey(ConfigNames::AutoReload)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Show white space"))
+                                     .setDescription("Display marks above tabs, and spaces")
+                                     .setKey(ConfigNames::ShowWhiteSpace)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Draw indentations"))
+                                     .setDescription("Display marks on first indentations of lines")
+                                     .setKey(ConfigNames::ShowIndentations)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Highlight brackets"))
+                                     .setDescription("Draws a background arround matching brakcet")
+                                     .setKey(ConfigNames::HighlightBrackets)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Show line numbers"))
+                                     .setDescription("Show or hide the line numbers panel")
+                                     .setKey(ConfigNames::ShowLineNumbers)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Show right margin"))
+                                     .setDescription("Shows a a margin at the end of line")
+                                     .setKey(ConfigNames::Margin)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Wrap index"))
+                                     .setDescription(tr("Character at which the margin is drawn"))
+                                     .setKey(ConfigNames::MarginOffset)
+                                     .setType(qmdiConfigItem::UInt16)
+                                     .setDefaultValue(80)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}

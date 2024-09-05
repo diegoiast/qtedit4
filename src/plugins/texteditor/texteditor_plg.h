@@ -13,6 +13,19 @@
 class QsvColorDefFactory;
 
 class TextEditorPlugin : public IPlugin {
+
+    struct ConfigNames {
+        static constexpr auto TrimSpaces = "TrimSpaces";
+        static constexpr auto Margin = "Margin";
+        static constexpr auto WrapLines = "WrapLines";
+        static constexpr auto AutoReload = "AutoReload";
+        static constexpr auto ShowWhiteSpace = "ShowWhiteSpace";
+        static constexpr auto ShowIndentations = "ShowIndentations";
+        static constexpr auto HighlightBrackets = "HighlightBrackets";
+        static constexpr auto ShowLineNumbers = "ShowLineNumbers";
+        static constexpr auto MarginOffset = "MarginOffset";
+    };
+
     Q_OBJECT
   public:
     TextEditorPlugin();

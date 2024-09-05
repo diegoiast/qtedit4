@@ -168,6 +168,37 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     alwaysEnabled = true;
 
     directoryModel = nullptr;
+
+    config.pluginName = "Project manager";
+    config.description = "Add support for building using CMake/Cargo/Go";
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("C++ support"))
+                                     .setDescription(tr("Detect CMake based projects"))
+                                     .setKey(ConfigNames::SupportCPP)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Rust support"))
+                                     .setDescription(tr("Detect Rust/Cargo based projects"))
+                                     .setKey(ConfigNames::SupportRust)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("GoLang support"))
+                                     .setDescription(tr("Detect Go based projects"))
+                                     .setKey(ConfigNames::SupportGo)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName("Extra paths")
+                                     .setDescription("Add new paths for compilers/tools")
+                                     .setKey(ConfigNames::ExtraPath)
+                                     .setType(qmdiConfigItem::StringList)
+                                     .setDefaultValue(QStringList())
+                                     .build());
 }
 
 void ProjectManagerPlugin::showAbout() {
