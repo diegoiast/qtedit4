@@ -202,6 +202,18 @@ void TextEditorPlugin::applySettings(qmdiClient *client) {
     editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());
     editor->setLineNumbersVisible(getConfig().getShowLine());
     // uint16_t marginOffset();
+    editor->repaint();
+}
+
+void TextEditorPlugin::configurationHasBeenModified() {
+    for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
+        auto client = mdiServer->getClient(i);
+        auto editor = dynamic_cast<qmdiEditor *>(client);
+        if (!editor) {
+            continue;
+        }
+        applySettings(editor);
+    }
 }
 
 void TextEditorPlugin::fileNew(QAction *) {

@@ -47,18 +47,19 @@ class TextEditorPlugin : public IPlugin {
     TextEditorPlugin();
     ~TextEditorPlugin();
 
-    void showAbout();
-    QWidget *getConfigDialog();
-    QActionGroup *newFileActions();
-    QStringList myExtensions();
-    int canOpenFile(const QString fileName);
-    bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1);
-    void navigateFile(qmdiClient *client, int x, int y, int z);
-    void getData();
-    void setData();
+    void showAbout() override;
+    QWidget *getConfigDialog() override;
+    QActionGroup *newFileActions() override;
+    QStringList myExtensions() override;
+    int canOpenFile(const QString fileName) override;
+    bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1) override;
+    void navigateFile(qmdiClient *client, int x, int y, int z) override;
+    void getData() override;
+    void setData() override;
     void applySettings(qmdiClient *);
 
   public slots:
+    virtual void configurationHasBeenModified() override;
     void fileNew(QAction *);
 
   private:
