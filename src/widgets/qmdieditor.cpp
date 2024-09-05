@@ -58,6 +58,10 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     textOperationsMenu->addAction(actionCapitalize);
     textOperationsMenu->addAction(actionLowerCase);
     textOperationsMenu->addAction(actionChangeCase);
+    textOperationsMenu->addAction(this->deleteLineAction());
+    textOperationsMenu->addAction(this->joinLinesAction());
+    textOperationsMenu->addAction(this->moveLineUpAction());
+    textOperationsMenu->addAction(this->moveLineDownAction());
 
     bookmarksMenu = new QMenu(tr("Bookmarks"), this);
     bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu");
