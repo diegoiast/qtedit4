@@ -77,7 +77,7 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Highlight brackets"))
-                                     .setDescription("Draws a background arround matching brakcet")
+                                     .setDescription("Draws a background around matching brakcet")
                                      .setKey(Config::HighlightBracketsKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
