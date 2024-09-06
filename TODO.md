@@ -17,7 +17,7 @@
 1. ~~Auto deduct json for rust dirs~~
 1. ~~Auto deduct json for go dirs~~
 1. ~~Terminal adds extra lines (sometimes?)~~
-1. ~~Automatic kit detection~~~
+1. ~~Automatic kit detection~~
 1. ~~Loading of large (real life) projects take too long (example: zed)~~
 1. Sort order is wrong. It should sort by path and not string (visble again in zed)
 1. Add GUI editor for json
@@ -41,7 +41,7 @@
 1. Current line number should be bold
 1. Verify dark mode
 1. Support for themes
-1. Smart home/end
+1. Smart home/end + enable/disable
 1. Load syntax files from disk
 1. Download syntax files from kate.org
 
@@ -53,10 +53,10 @@
 1. ~~Bottom view should be collapsible~~
 1. All actions in menus, toolbars shold be "added" to the main window
 1. Add actions to be forced at the end
-1. API for config - each plugin should be able to define
+1. ~~API for config - each plugin should be able to define
    what options it needs (all via some json) and gui
    needs to be created for user to modify this json. (also - raw json
-   access maybe?)
+   access maybe?)~~
 
 ## Editor plugin
 
@@ -71,6 +71,7 @@
 1. Line ending on save (Unix/Windows/Keep original)
 1. Trim spaces on save (edit?)
 1. F4 to switch header/definition
+1. Switch indentator/language
 
 ## Meta
 

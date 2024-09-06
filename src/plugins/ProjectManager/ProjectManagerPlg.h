@@ -29,12 +29,20 @@ class BuildRunOutput;
 
 class ProjectManagerPlugin : public IPlugin {
 
-    struct ConfigNames {
-        auto constexpr static SupportCPP = "CPP";
-        auto constexpr static SupportRust = "Rust";
-        auto constexpr static SupportGo = "Go";
-        auto constexpr static ExtraPath = "ExtraPath";
+    struct Config {
+        CONFIG_DEFINE(SupportCPP, bool);
+        CONFIG_DEFINE(SupportRust, bool);
+        CONFIG_DEFINE(SupportGo, bool);
+        CONFIG_DEFINE(ExtraPath, QStringList);
+        CONFIG_DEFINE(OpenDirs, QStringList);
+        CONFIG_DEFINE(FilterIn, QString);
+        CONFIG_DEFINE(FilterOut, QString);
+        qmdiPluginConfig *config;
     };
+    Config &getConfig() {
+        static Config configObject{&this->config};
+        return configObject;
+    }
 
     Q_OBJECT
   public:

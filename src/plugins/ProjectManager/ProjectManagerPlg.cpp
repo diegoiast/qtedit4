@@ -104,6 +104,8 @@ class ProjectBuildModel : public QAbstractListModel {
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role) const override;
+
+    QStringList getAllOpenDirs() const;
 };
 
 void ProjectBuildModel::addConfig(std::shared_ptr<ProjectBuildConfig> config) {
@@ -159,6 +161,14 @@ QVariant ProjectBuildModel::data(const QModelIndex &index, int role) const {
     return {};
 }
 
+QStringList ProjectBuildModel::getAllOpenDirs() const {
+    auto dirs = QStringList();
+    for (const auto &v : configs) {
+        dirs.append(v->sourceDir);
+    }
+    return dirs;
+}
+
 ProjectManagerPlugin::ProjectManagerPlugin() {
     name = tr("Project manager");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
@@ -174,30 +184,49 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("C++ support"))
                                      .setDescription(tr("Detect CMake based projects"))
-                                     .setKey(ConfigNames::SupportCPP)
+                                     .setKey(Config::SupportCPPKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Rust support"))
                                      .setDescription(tr("Detect Rust/Cargo based projects"))
-                                     .setKey(ConfigNames::SupportRust)
+                                     .setKey(Config::SupportRustKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("GoLang support"))
                                      .setDescription(tr("Detect Go based projects"))
-                                     .setKey(ConfigNames::SupportGo)
+                                     .setKey(Config::SupportGoKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName("Extra paths")
                                      .setDescription("Add new paths for compilers/tools")
-                                     .setKey(ConfigNames::ExtraPath)
+                                     .setKey(Config::ExtraPathKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName("Open directories")
+                                     .setKey(Config::OpenDirsKey)
+                                     .setType(qmdiConfigItem::StringList)
+                                     .setDefaultValue(QStringList())
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::FilterInKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::FilterOutKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
                                      .build());
 }
 
@@ -443,20 +472,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
+    IPlugin::loadConfig(settings);
     auto dirsToLoad = QStringList();
-    settings.beginGroup("ProjectManager");
-
-    settings.beginGroup("Loaded");
-    foreach (auto s, settings.childKeys()) {
-        if (!s.startsWith("dir")) {
-            continue;
-        }
-        auto dirName = settings.value(s).toString();
-        dirsToLoad << dirName;
-    }
-    settings.endGroup();
-
-    settings.endGroup();
+    dirsToLoad = getConfig().getOpenDirs();
 
     QTimer::singleShot(0, [this, dirsToLoad]() {
         for (auto &dirName : dirsToLoad) {
@@ -476,19 +494,10 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
-    settings.beginGroup("ProjectManager");
-    settings.setValue("Filter-Out", gui->filterOutFiles->text());
-    settings.setValue("Filter-In", gui->filterFiles->text());
-
-    settings.remove("Loaded");
-    settings.beginGroup("Loaded");
-    for (auto i = 0; i < projectModel->rowCount(); i++) {
-        auto config = projectModel->getConfig(i);
-        settings.setValue(QString("dir%1").arg(i), config->sourceDir);
-    }
-    settings.endGroup();
-
-    settings.endGroup();
+    getConfig().setFilterIn(gui->filterFiles->text());
+    getConfig().setFilterOut(gui->filterOutFiles->text());
+    getConfig().setOpenDirs(projectModel->getAllOpenDirs());
+    IPlugin::saveConfig(settings);
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {

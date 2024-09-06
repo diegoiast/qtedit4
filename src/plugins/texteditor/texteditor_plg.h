@@ -12,17 +12,6 @@
 
 class QsvColorDefFactory;
 
-// clang-format off
-#define CONFIG_DEFINE(key, type) \
-    static constexpr auto key##Key = #key; \
-    type get##key() const { \
-        return config->getVariable<type>(key##Key); \
-    } \
-    void set##key(const type &value) { \
-        config->setVariable<type>(key##Key, value); \
-    }
-// clang-format on
-
 class TextEditorPlugin : public IPlugin {
 
     struct Config {
