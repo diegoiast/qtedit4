@@ -217,7 +217,7 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
                                      .setUserEditable(false)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setKey(Config::FilterInKey)
+                                     .setKey(Config::FilterShowKey)
                                      .setType(qmdiConfigItem::String)
                                      .setDefaultValue("")
                                      .setUserEditable(false)
@@ -494,7 +494,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
-    getConfig().setFilterIn(gui->filterFiles->text());
+    getConfig().setFilterShow(gui->filterFiles->text());
     getConfig().setFilterOut(gui->filterOutFiles->text());
     getConfig().setOpenDirs(projectModel->getAllOpenDirs());
     IPlugin::saveConfig(settings);

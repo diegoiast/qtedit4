@@ -35,7 +35,7 @@ class ProjectManagerPlugin : public IPlugin {
         CONFIG_DEFINE(SupportGo, bool);
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
-        CONFIG_DEFINE(FilterIn, QString);
+        CONFIG_DEFINE(FilterShow, QString);
         CONFIG_DEFINE(FilterOut, QString);
         qmdiPluginConfig *config;
     };
