@@ -57,6 +57,7 @@
    what options it needs (all via some json) and gui
    needs to be created for user to modify this json. (also - raw json
    access maybe?)~~
+1. ~~Saving does not query open files, should stall and ask for saving.~~
 
 ## Editor plugin
 

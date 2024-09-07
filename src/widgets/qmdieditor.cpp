@@ -134,7 +134,7 @@ bool qmdiEditor::canCloseClient() {
         return true;
     }
 
-    QMessageBox msgBox(QMessageBox::Warning, tr("qtedit4"),
+    QMessageBox msgBox(QMessageBox::Warning, mdiClientName,
                        tr("The document has been modified.\nDo you want to save your changes?"),
                        QMessageBox::Yes | QMessageBox::Default, this);
 
