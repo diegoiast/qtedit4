@@ -24,8 +24,6 @@ set(CMAKE_AUTOUIC ON)
 
 set(qtedit4_sources
     ${qmdilib_SOURCE_DIR}/demos/common/common.qrc
-    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/configdialog.cpp
-    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/configdialog.h
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/iplugin.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.h

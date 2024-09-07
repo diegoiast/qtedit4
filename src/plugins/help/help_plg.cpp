@@ -11,7 +11,6 @@
 #include <QMessageBox>
 
 #include "help_plg.h"
-#include "qmdiserver.h"
 
 HelpPlugin::HelpPlugin() {
     name = tr("Help system browser");

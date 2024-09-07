@@ -112,8 +112,6 @@ void TextEditorPlugin::showAbout() {
                              "This plugin gives a QtSourceView based text editor");
 }
 
-QWidget *TextEditorPlugin::getConfigDialog() { return nullptr; }
-
 QActionGroup *TextEditorPlugin::newFileActions() { return myNewActions; }
 
 QStringList TextEditorPlugin::myExtensions() {
@@ -178,10 +176,6 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
     editor->goTo(x, y);
     Q_UNUSED(z);
 }
-
-void TextEditorPlugin::getData() {}
-
-void TextEditorPlugin::setData() {}
 
 void TextEditorPlugin::applySettings(qmdiClient *client) {
     auto editor = static_cast<qmdiEditor *>(client);
