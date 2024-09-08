@@ -53,12 +53,13 @@
 1. ~~Save restore cursor position in open windows~~
 1. ~~Bottom view should be collapsible~~
 1. ~~All actions in menus, toolbars shold be "added" to the main window: was a bug~~
-1. ~~API for config - each plugin should be able to define
-   what options it needs (all via some json) and gui
-   needs to be created for user to modify this json. (also - raw json
-   access maybe?)~~
+1. ~~API for config - each plugin should be able to define~~
+   ~~what options it needs (all via some json) and gui~~
+   ~~needs to be created for user to modify this json. (also - raw json~~
+   ~~access maybe?)~~
 1. ~~Saving does not query open files, should stall and ask for saving.~~
 1. Shortcuts manager
+1. Fix plugin manager demo with new config API, and shortcuts manager
 1. Add actions to be forced at the end
 
 ## Editor plugin
@@ -70,7 +71,7 @@
 1. Copy path, full, relative
 1. Make all actions availalbe from menus
 1. Control+N should open a new tab.
-1. Save zoom level per document
+1. ~~Save zoom level per document~~
 1. Line ending on save (Unix/Windows/Keep original)
 1. Trim spaces on save (edit?)
 1. F4 to switch header/definition

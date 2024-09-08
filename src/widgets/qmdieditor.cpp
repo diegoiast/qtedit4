@@ -168,8 +168,7 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
     auto cursor = textCursor();
     auto row = document()->findBlock(cursor.position()).blockNumber();
     auto col = cursor.columnNumber();
-    // auto zoom = (100 * (this->font().pointSize() / static_cast<double>(baseFontSize)));
-    auto zoom = 0;
+    auto zoom = font().pointSize();
     return std::make_tuple(row, col, zoom);
 }
 

@@ -158,8 +158,16 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     }
 }
 
-bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int) {
+bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+
+    // In the future - the zoom, will be used to set state to the lines, if the value is really
+    // large. I will assume that font size bigger than 500 is not really existant.
+    if (zoom < 1000000) {
+        auto f = editor->font();
+        f.setPointSize(zoom);
+        editor->setFont(f);
+    }
     auto loaded = editor->loadFile(fileName);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
