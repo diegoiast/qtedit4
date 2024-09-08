@@ -160,6 +160,19 @@ bool qmdiEditor::canCloseClient() {
  */
 QString qmdiEditor::mdiClientFileName() { return getFileName(); }
 
+/**
+ * @brief Return status of editor
+ * @return row, column,  zoom
+ */
+std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
+    auto cursor = textCursor();
+    auto row = document()->findBlock(cursor.position()).blockNumber();
+    auto col = cursor.columnNumber();
+    // auto zoom = (100 * (this->font().pointSize() / static_cast<double>(baseFontSize)));
+    auto zoom = 0;
+    return std::make_tuple(row, col, zoom);
+}
+
 void qmdiEditor::setupActions() {
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);

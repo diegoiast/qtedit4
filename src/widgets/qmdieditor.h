@@ -34,6 +34,7 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
 
     virtual bool canCloseClient() override;
     virtual QString mdiClientFileName() override;
+    virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
 
     void setupActions();
     QString getFileName() const { return fileName; }

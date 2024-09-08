@@ -19,45 +19,47 @@
 1. ~~Terminal adds extra lines (sometimes?)~~
 1. ~~Automatic kit detection~~
 1. ~~Loading of large (real life) projects take too long (example: zed)~~
+1. ~~Plugins config loading should be done only when the main UI is up.~~
 1. Sort order is wrong. It should sort by path and not string (visble again in zed)
+1. Detect build errors/warnings
 1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
 1. Auto deduct json for Android dirs
-1. ~~Plugins config loading should be done only when the main UI is up. ~~
 
 ## File manager plugin
 
 1. Right click on a file should open a menu
-    1. Basic file operations
+    1. Basic file operations (rename, delete, copy, paste?, move)
     1. If is a file? Edit
     1. If is a dir? add as project
+    1. Copy file 
 
 ## QutePart
 
-1. Pascal indentator
-1. Fix crash in Kotlin indentator
 1. Red line should be bellow text
+1. Fix crash in Kotlin indentator
 1. Goto matching bracket
 1. Current line number should be bold
+1. Smart home/end + enable/disable
 1. Verify dark mode
 1. Support for themes
-1. Smart home/end + enable/disable
 1. Load syntax files from disk
 1. Download syntax files from kate.org
+1. Pascal indentator
 
 ## qmdilib
 
 1. ~~Save config in global space.~~
-1. Shortcuts manager
-1. Save restore cursor position in open windows
+1. ~~Save restore cursor position in open windows~~
 1. ~~Bottom view should be collapsible~~
-1. All actions in menus, toolbars shold be "added" to the main window
-1. Add actions to be forced at the end
+1. ~~All actions in menus, toolbars shold be "added" to the main window: was a bug~~
 1. ~~API for config - each plugin should be able to define
    what options it needs (all via some json) and gui
    needs to be created for user to modify this json. (also - raw json
    access maybe?)~~
 1. ~~Saving does not query open files, should stall and ask for saving.~~
+1. Shortcuts manager
+1. Add actions to be forced at the end
 
 ## Editor plugin
 
