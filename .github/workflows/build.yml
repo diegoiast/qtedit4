@@ -179,7 +179,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Create Pre-Release
-        if: !startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
         id: create_prerelease
         uses: actions/create-release@v1
         with:
