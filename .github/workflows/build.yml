@@ -48,7 +48,6 @@ jobs:
               cxx: "clang++",
               generators: "Ninja",
             }
-          - {
               name: "Ubuntu GCC",
               build_dir: "ubuntu-gcc",
               os: ubuntu-22.04,
@@ -66,12 +65,6 @@ jobs:
               cxx: "clang++",
               generators: "Ninja",
             }
-
-    env:
-      APPIMAGE_NAME: qtedit4-qt671-x86_64.AppImage
-      SETUP_NAME: qtedit4-qt671-x86_64.exe
-      APPIMAGE_PATH: build/${{ env.APPIMAGE_NAME }}
-      SETUP_PATH: dist/qtedit4-win64.exe
 
     steps:
       - uses: actions/checkout@v4
@@ -101,7 +94,7 @@ jobs:
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
         run: |
-          cmake --build  "build/${{ matrix.config.build_dir }}" --parallel --verbose
+          cmake --build "build/${{ matrix.config.build_dir }}" --parallel --verbose
       - name: Install
         working-directory: ${{ github.workspace }}
         id: runcmakeinstall
@@ -118,7 +111,7 @@ jobs:
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
 
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=${{ env.APPIMAGE_PATH }}
+          export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
@@ -128,8 +121,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.APPIMAGE_NAME }}
-          path: ${{ env.APPIMAGE_PATH }}
+          name: qtedit4-qt671-x86_64.AppImage
+          path: build/qtedit4-qt671-x86_64.AppImage
 
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
@@ -145,8 +138,8 @@ jobs:
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.SETUP_NAME }}
-          path: ${{ env.SETUP_PATH }}
+          name: qtedit4-qt671-x86_64.exe
+          path: dist/qtedit4-win64.exe
 
       - name: Create Release
         if: startsWith(github.ref, 'refs/tags/')
@@ -158,25 +151,29 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc' && startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.APPIMAGE_PATH }}
-          asset_name: ${{ env.APPIMAGE_NAME }}
+          asset_path: build/qtedit4-qt671-x86_64.AppImage
+          asset_name: qtedit4-qt671-x86_64.AppImage
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Release Asset (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl' && startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ env.SETUP_PATH }}
-          asset_name: ${{ env.SETUP_NAME }}
+          asset_path: dist/qtedit4-win64.exe
+          asset_name: qtedit4-qt671-x86_64.exe
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Pre-Release
         if: github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
@@ -188,22 +185,26 @@ jobs:
           draft: false
           prerelease: true
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Pre-release Asset (Linux)
-        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc' && !startsWith(github.ref, 'refs/tags/')
+        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_prerelease.outputs.upload_url }}
-          asset_path: ${{ env.APPIMAGE_PATH }}
-          asset_name: ${{ env.APPIMAGE_NAME }}
+          asset_path: build/qtedit4-qt671-x86_64.AppImage
+          asset_name: qtedit4-qt671-x86_64.AppImage
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload Pre-release Asset (Windows)
-        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl' && !startsWith(github.ref, 'refs/tags/')
+        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl' && github.event_name == 'push' && !startsWith(github.ref, 'refs/tags/')
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_prerelease.outputs.upload_url }}
-          asset_path: ${{ env.SETUP_PATH }}
-          asset_name: ${{ env.SETUP_NAME }}
+          asset_path: dist/qtedit4-win64.exe
+          asset_name: qtedit4-qt671-x86_64.exe
           asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
