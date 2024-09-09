@@ -227,37 +227,37 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
             continue;
         }
         for (const auto &entry : std::filesystem::recursive_directory_iterator(root)) {
-            if (entry.is_directory()) {
-                if (isValidQtInstallation(entry.path())) {
-                    auto extraPath = ExtraPath();
-                    auto relativePath = std::filesystem::relative(entry.path(), root);
-
-                    extraPath.name = std::string("Qt - ") + relativePath.string();
-                    extraPath.compiler_path = entry.path().string();
-                    if (unix_target) {
-                        extraPath.comment = "# qt installation";
-                        extraPath.command = "export QTDIR=%1";
-                        extraPath.command += "\n";
-                        extraPath.command += "export QT_DIR=%1";
-                        extraPath.command += "\n";
-                        extraPath.command += "export PATH=$QTDIR/bin:$PATH";
-                    } else {
-                        extraPath.comment = "@rem qt installation";
-                        extraPath.command = "SET QTDIR=%1";
-                        extraPath.command += "\n";
-                        extraPath.command += "SET QT_DIR=%1";
-                        extraPath.command += "\n";
-                        extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
-                    }
-
-                    replaceAll(extraPath.command, "%1", entry.path().string());
-                    replaceAll(extraPath.comment, "%1", entry.path().string());
-                    detected.push_back(extraPath);
-                }
+            if (!entry.is_directory()) {
+                continue;
             }
+            if (!isValidQtInstallation(entry.path())) {
+                continue;
+            }
+
+            auto extraPath = ExtraPath();
+            auto relativePath = std::filesystem::relative(entry.path(), root);
+            extraPath.name = std::string("Qt - ") + relativePath.string();
+            extraPath.compiler_path = entry.path().string();
+            if (unix_target) {
+                extraPath.comment = "# qt installation";
+                extraPath.command = "export QTDIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "export QT_DIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "export PATH=$QTDIR/bin:$PATH";
+            } else {
+                extraPath.comment = "@rem qt installation";
+                extraPath.command = "SET QTDIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "SET QT_DIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
+            }
+            replaceAll(extraPath.command, "%1", entry.path().string());
+            replaceAll(extraPath.comment, "%1", entry.path().string());
+            detected.push_back(extraPath);
         }
     }
-
     return detected;
 }
 
@@ -281,9 +281,13 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
     auto SCRIPT_EXTENSION = unix_target ? SCRIPT_EXTENSION_UNIX : SCRIPT_EXTENSION_WIN32;
     auto SCRIPT_HEADER = unix_target ? SCRIPT_HEADER_UNIX : SCRIPT_HEADER_WIN32;
     auto SCRIPT_SUFFIX = unix_target ? SCRIPT_SUFFIX_UNIX : SCRIPT_SUFFIX_WIN32;
+    auto compilersSize = std::max(1UL, compilers.size());
+    auto qtinstallSize = std::max(1UL, qtInstalls.size());
+    for (auto i = 0ul; i < compilersSize; ++i) {
+        for (auto j = 0ul; j < qtinstallSize; ++j) {
+            auto cc = compilers.empty() ? ExtraPath() : compilers[i];
+            auto qtInst = qtInstalls.empty() ? ExtraPath() : qtInstalls[j];
 
-    for (auto &cc : compilers) {
-        for (auto &qtInst : qtInstalls) {
             auto scriptName = std::string("qtedit-kit-")
                                   .append(std::to_string(kitNumber))
                                   .append(SCRIPT_EXTENSION);
@@ -304,17 +308,23 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
                 scriptFile << tt.command;
                 scriptFile << "\n";
             }
+
             scriptFile << "\n";
-            scriptFile << cc.comment;
-            scriptFile << "\n";
-            scriptFile << cc.command;
-            scriptFile << "\n";
-            scriptFile << "\n";
-            scriptFile << qtInst.comment;
-            scriptFile << "\n";
-            scriptFile << qtInst.command;
-            scriptFile << "\n";
-            scriptFile << "\n";
+            if (!cc.command.empty()) {
+                scriptFile << cc.comment;
+                scriptFile << "\n";
+                scriptFile << cc.command;
+                scriptFile << "\n";
+                scriptFile << "\n";
+            }
+
+            if (!qtInst.command.empty()) {
+                scriptFile << qtInst.comment;
+                scriptFile << "\n";
+                scriptFile << qtInst.command;
+                scriptFile << "\n";
+                scriptFile << "\n";
+            }
             scriptFile << SCRIPT_SUFFIX;
 #if defined(__unix__)
             auto c_path = scriptPath.c_str();

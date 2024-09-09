@@ -22,7 +22,7 @@ Tasks for v0.0.1
 1. ~~Automatic kit detection~~
 1. ~~Loading of large (real life) projects take too long (example: zed)~~
 1. ~~Plugins config loading should be done only when the main UI is up.~~
-1. Kits without Qt
+1. ~~Kits without Qt~~
 1. Sort order is wrong. It should sort by path and not string (visble again in zed)
 1. Detect build errors/warnings
 1. Add GUI editor for json

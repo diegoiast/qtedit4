@@ -80,9 +80,7 @@ static auto regenerateKits(const QString &directoryPath) {
 
     QFileInfoList fileList = dir.entryInfoList(QDir::Files);
     foreach (const QFileInfo &fileInfo, fileList) {
-        if (QFile::remove(fileInfo.absoluteFilePath())) {
-            qDebug() << "Deleted:" << fileInfo.absoluteFilePath();
-        } else {
+        if (!QFile::remove(fileInfo.absoluteFilePath())) {
             qDebug() << "Failed to delete:" << fileInfo.absoluteFilePath();
         }
     }
