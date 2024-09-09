@@ -72,7 +72,7 @@ Tasks for v0.0.1
 
 1. ~~Quick jump inside open files~~
 1. ~~Save zoom level per document~~
-1. File watcher on created file not stopped while saving
+1. ~~File watcher on created file not stopped while saving~~
 1. Control+N should open a new tab.
 1. Line ending on save (Unix/Windows/Keep original)
 1. Trim spaces on save (edit?)

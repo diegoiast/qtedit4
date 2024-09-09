@@ -269,8 +269,22 @@ void qmdiEditor::setupActions() {
     toggleBookmarkAction()->setShortcut(QKeySequence());
 }
 
+bool qmdiEditor::getModificationsLookupEnabled()
+{
+    return fileModifications;
+}
+
+void qmdiEditor::setModificationsLookupEnabled(bool value)
+{
+    fileModifications = value;
+}
+
 void qmdiEditor::on_fileChanged(const QString &filename) {
     if (this->fileName != filename) {
+        return;
+    }
+    
+    if (!fileModifications) {
         return;
     }
 
@@ -380,8 +394,8 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
         fileSystemWatcher->removePaths(sl);
     }
 
-    // bool modificationsEnabledState = getModificationsLookupEnabled();
-    // setModificationsLookupEnabled(false);
+    bool modificationsEnabledState = getModificationsLookupEnabled();
+    setModificationsLookupEnabled(false);
     hideBannerMessage();
     this->setReadOnly(false);
     // QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -422,7 +436,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     mdiClientName = getShortFileName();
     fileName = newFileName;
 
-    // setModificationsLookupEnabled(modificationsEnabledState);
+    setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
 
     // QApplication::restoreOverrideCursor();
@@ -434,8 +448,9 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
     }
-    // bool modificationsEnabledState = getModificationsLookupEnabled();
-    // setModificationsLookupEnabled(false);
+    
+    bool modificationsEnabledState = getModificationsLookupEnabled();
+    setModificationsLookupEnabled(false);
     hideBannerMessage();
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
@@ -471,14 +486,16 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
         block = block.next();
     }
     file.close();
+    document()->setModified(false);
 
+    QApplication::processEvents();
+    QApplication::restoreOverrideCursor();
+    
     this->fileName = newFileName;
     this->mdiClientName = getShortFileName();
     // removeModifications();
-    // setModificationsLookupEnabled(modificationsEnabledState);
     fileSystemWatcher->addPath(newFileName);
-
-    QApplication::restoreOverrideCursor();
+    setModificationsLookupEnabled(modificationsEnabledState);
 
     auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
     auto i = w->indexOf(this);

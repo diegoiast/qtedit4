@@ -38,6 +38,8 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
 
     void setupActions();
     QString getFileName() const { return fileName; }
+    bool getModificationsLookupEnabled();
+    void setModificationsLookupEnabled(bool);
 
   public slots:
     void on_fileChanged(const QString &filename);
@@ -79,6 +81,7 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QWidget *banner;
     Ui::BannerMessage *ui_banner;
     int m_timerHideout;
+    bool fileModifications = true;
 
     QString fileName;
     QMenu *bookmarksMenu;
