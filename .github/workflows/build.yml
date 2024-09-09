@@ -4,6 +4,9 @@ on:
     branches:
       - main
       - github-actions
+    tags:
+      - 'v*.*.*' # Trigger on tag pushes (e.g., v1.0.0)
+
   pull_request:
     branches:
       - main
@@ -27,15 +30,15 @@ jobs:
               cxx: "cl",
               generators: "Ninja",
             }
-          #        - {
-          #            name: "Windows MinGW",
-          #            build_dir: "windows-mingw",
-          #            os: windows-latest,
-          #            build_type: "Release",
-          #            cc: "gcc",
-          #            cxx: "g++",
-          #            generators: "Ninja"
-          #          }
+#        - {
+#            name: "Windows MinGW",
+#            build_dir: "windows-mingw",
+#            os: windows-latest,
+#            build_type: "Release",
+#            cc: "gcc",
+#            cxx: "g++",
+#            generators: "Ninja"
+#          }
           - {
               name: "Windows Clang 16",
               build_dir: "windows-clang",
@@ -64,6 +67,12 @@ jobs:
               generators: "Ninja",
             }
 
+    env:
+      APPIMAGE_NAME: qtedit4-qt671-x86_64.AppImage
+      SETUP_NAME: qtedit4-qt671-x86_64.exe
+      APPIMAGE_PATH: build/${{ env.APPIMAGE_NAME }}
+      SETUP_PATH: dist/qtedit4-win64.exe
+
     steps:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
@@ -81,7 +90,7 @@ jobs:
       - name: Setup MSVC (optional)
         if: ${{ matrix.config.cxx == 'cl' }}
         uses: ilammy/msvc-dev-cmd@v1
-      - name: Confiure
+      - name: Configure
         working-directory: ${{ github.workspace }}
         id: runcmake
         run: |
@@ -107,9 +116,9 @@ jobs:
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
- 
+
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
+          export OUTPUT=${{ env.APPIMAGE_PATH }}
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
@@ -119,8 +128,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt671-x86_64.AppImage
-          path: build/qtedit4-qt671-x86_64.AppImage
+          name: ${{ env.APPIMAGE_NAME }}
+          path: ${{ env.APPIMAGE_PATH }}
 
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
@@ -136,5 +145,65 @@ jobs:
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt671-x86_64.exe
-          path: dist/qtedit4-win64.exe
+          name: ${{ env.SETUP_NAME }}
+          path: ${{ env.SETUP_PATH }}
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/')
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Upload Release Asset (Linux)
+        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc' && startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.APPIMAGE_PATH }}
+          asset_name: ${{ env.APPIMAGE_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Release Asset (Windows)
+        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl' && startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.SETUP_PATH }}
+          asset_name: ${{ env.SETUP_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Create Pre-Release
+        if: !startsWith(github.ref, 'refs/tags/')
+        id: create_prerelease
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.sha }}
+          release_name: Pre-release ${{ github.sha }}
+          draft: false
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+
+      - name: Upload Pre-release Asset (Linux)
+        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_prerelease.outputs.upload_url }}
+          asset_path: ${{ env.APPIMAGE_PATH }}
+          asset_name: ${{ env.APPIMAGE_NAME }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload Pre-release Asset (Windows)
+        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl' && !startsWith(github.ref, 'refs/tags/')
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_prerelease.outputs.upload_url }}
+          asset_path: ${{ env.SETUP_PATH }}
+          asset_name: ${{ env.SETUP_NAME }}
+          asset_content_type: application/octet-stream
