@@ -16,12 +16,13 @@ class TextEditorPlugin : public IPlugin {
 
     struct Config {
         CONFIG_DEFINE(TrimSpaces, bool)
-        CONFIG_DEFINE(Margin, bool)
+        CONFIG_DEFINE(SmartHome, bool)
         CONFIG_DEFINE(WrapLines, bool);
         CONFIG_DEFINE(AutoReload, bool)
         CONFIG_DEFINE(ShowWhite, bool)
         CONFIG_DEFINE(ShowIndentations, bool)
         CONFIG_DEFINE(HighlightBrackets, bool)
+        CONFIG_DEFINE(Margin, bool)
         CONFIG_DEFINE(ShowLine, bool)
         CONFIG_DEFINE(MarginOffset, int)
         qmdiPluginConfig *config;

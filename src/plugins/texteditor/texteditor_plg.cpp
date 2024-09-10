@@ -62,6 +62,13 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
+                                 .setDisplayName(tr("Smart home/end"))
+                                 .setDescription(tr("Move cursor to logical/phisical home/end"))
+                                 .setKey(Config::SmartHomeKey)
+                                 .setType(qmdiConfigItem::Bool)
+                                 .setDefaultValue(true)
+                                 .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show white space"))
                                      .setDescription("Display marks above tabs, and spaces")
                                      .setKey(Config::ShowWhiteKey)
@@ -198,12 +205,13 @@ void TextEditorPlugin::applySettings(qmdiClient *client) {
         editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
 
-    editor->setDrawSolidEdge(getConfig().getMargin());
     editor->setDrawAnyWhitespace(getConfig().getShowWhite());
     editor->setDrawIndentations(getConfig().getShowIndentations());
     editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());
     editor->setLineNumbersVisible(getConfig().getShowLine());
-    // uint16_t marginOffset();
+    editor->setSmartHomeEnd(getConfig().getSmartHome());
+    editor->setDrawSolidEdge(getConfig().getMargin());
+    editor->setLineLengthEdge(getConfig().getMarginOffset());
     editor->repaint();
 }
 

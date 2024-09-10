@@ -43,7 +43,7 @@ Tasks for v0.0.1
 1. ~~Red line should be bellow text: made semi transpatent~~
 1. ~~Current line number should be bold~~
 1. ~~Verify dark mode~~
-1. Smart home/end + enable/disable
+1. ~~Smart home/end + enable/disable~~
 1. Goto matching bracket
 1. Fix crash in Kotlin indentator
 1. Support for themes
