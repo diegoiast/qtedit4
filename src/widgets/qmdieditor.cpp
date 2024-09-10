@@ -269,21 +269,15 @@ void qmdiEditor::setupActions() {
     toggleBookmarkAction()->setShortcut(QKeySequence());
 }
 
-bool qmdiEditor::getModificationsLookupEnabled()
-{
-    return fileModifications;
-}
+bool qmdiEditor::getModificationsLookupEnabled() { return fileModifications; }
 
-void qmdiEditor::setModificationsLookupEnabled(bool value)
-{
-    fileModifications = value;
-}
+void qmdiEditor::setModificationsLookupEnabled(bool value) { fileModifications = value; }
 
 void qmdiEditor::on_fileChanged(const QString &filename) {
     if (this->fileName != filename) {
         return;
     }
-    
+
     if (!fileModifications) {
         return;
     }
@@ -448,7 +442,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
     }
-    
+
     bool modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
@@ -490,7 +484,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
     QApplication::processEvents();
     QApplication::restoreOverrideCursor();
-    
+
     this->fileName = newFileName;
     this->mdiClientName = getShortFileName();
     // removeModifications();

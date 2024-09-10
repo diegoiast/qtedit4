@@ -62,12 +62,12 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                 .setDisplayName(tr("Smart home/end"))
-                                 .setDescription(tr("Move cursor to logical/phisical home/end"))
-                                 .setKey(Config::SmartHomeKey)
-                                 .setType(qmdiConfigItem::Bool)
-                                 .setDefaultValue(true)
-                                 .build());
+                                     .setDisplayName(tr("Smart home/end"))
+                                     .setDescription(tr("Move cursor to logical/physical home/end"))
+                                     .setKey(Config::SmartHomeKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show white space"))
                                      .setDescription("Display marks above tabs, and spaces")
