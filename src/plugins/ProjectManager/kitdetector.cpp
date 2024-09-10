@@ -5,6 +5,7 @@
  *  License MIT
  */
 
+#define NOMINMAX
 #include "kitdetector.h"
 #include <fstream>
 #include <iostream>
