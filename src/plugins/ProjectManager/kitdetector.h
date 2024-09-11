@@ -29,7 +29,8 @@ struct ExtraPath {
 #endif
 
 auto findCompilers(bool unix_target) -> std::vector<ExtraPath>;
-auto findQtVersions(bool unix_target) -> std::vector<ExtraPath>;
+auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
+                    std::vector<ExtraPath> &detectedCompilers) -> void;
 auto findCompilerTools(bool unix_target) -> std::vector<ExtraPath>;
 
 auto deleteOldKitFiles(const std::filesystem::path &directoryPath) -> void;

@@ -239,6 +239,8 @@ static auto safeGetEnv(const char *name) -> std::string {
     bufferSize = GetEnvironmentVariableA(name, &buff[0], bufferSize);
     if (bufferSize > 0) {
         buff.resize(bufferSize);
+    } else {
+        buff.clear();
     }
     return buff;
 #else
@@ -344,7 +346,8 @@ auto findCompilers(bool unix_target) -> std::vector<ExtraPath> {
     return detected;
 }
 
-auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
+auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
+                    std::vector<ExtraPath> &detectedCompilers) -> void {
     auto knownLocations = std::vector<std::filesystem::path>{
         // clang-format off
         "/usr/local/Qt",
@@ -374,21 +377,13 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
         knownLocations.push_back(homedir);
     }
 
-    auto detected = std::vector<ExtraPath>();
     auto path_env = safeGetEnv("PATH");
     auto ss = std::stringstream(path_env);
     auto dir = std::string();
-    while (std::getline(ss, dir, ENV_SEPARATOR)) {
-        auto full_path = std::filesystem::path(dir) / (std::string("qmake") + BINARY_EXT);
-        if (!std::filesystem::exists(full_path)) {
-            continue;
-        }
-        if (isCompilerAlreadyFound(detected, dir)) {
-            continue;
-        }
-        auto extraPath = ExtraPath();
 
-        extraPath.name = std::string("Qt - ") + dir;
+    auto addDir = [&detectedQt, unix_target](const std::string &dir, std::string &name) {
+        auto extraPath = ExtraPath();
+        extraPath.name = std::string("Qt - ") + name;
         extraPath.compiler_path = dir;
         if (unix_target) {
             extraPath.comment = "# qt installation";
@@ -401,10 +396,21 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
             extraPath.command += "\n";
             extraPath.command += "SET QT_DIR=%1";
         }
-
         replaceAll(extraPath.command, "%1", dir);
         replaceAll(extraPath.comment, "%1", dir);
-        detected.push_back(extraPath);
+        detectedQt.push_back(extraPath);
+    };
+
+    while (std::getline(ss, dir, ENV_SEPARATOR)) {
+        auto qmake_path = std::filesystem::path(dir) / (std::string("qmake") + BINARY_EXT);
+        if (!std::filesystem::exists(qmake_path)) {
+            continue;
+        }
+        if (isCompilerAlreadyFound(detectedQt, dir)) {
+            continue;
+        }
+        auto relativePath = std::filesystem::path(dir).parent_path().filename().string();
+        addDir(dir, relativePath);
     }
 
     for (const auto &root : knownLocations) {
@@ -418,32 +424,10 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
             if (!isValidQtInstallation(entry.path())) {
                 continue;
             }
-
-            auto extraPath = ExtraPath();
-            auto relativePath = std::filesystem::relative(entry.path(), root);
-            extraPath.name = std::string("Qt - ") + relativePath.string();
-            extraPath.compiler_path = entry.path().string();
-            if (unix_target) {
-                extraPath.comment = "# qt installation";
-                extraPath.command = "export QTDIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "export QT_DIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "export PATH=$QTDIR/bin:$PATH";
-            } else {
-                extraPath.comment = "@rem qt installation";
-                extraPath.command = "SET QTDIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "SET QT_DIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "SET PATH=%QTDIR%\\bin:%PATH%";
-            }
-            replaceAll(extraPath.command, "%1", entry.path().string());
-            replaceAll(extraPath.comment, "%1", entry.path().string());
-            detected.push_back(extraPath);
+            auto relativePath = std::filesystem::relative(entry.path(), root).string();
+            addDir(entry.path().string(), relativePath);
         }
     }
-    return detected;
 }
 
 auto findCompilerTools(bool /*unix_target*/) -> std::vector<ExtraPath> {
@@ -519,11 +503,7 @@ void generateKitFiles(const std::filesystem::path &directoryPath,
     }
 }
 
-void deleteOldKitFiles(const std::filesystem::path &directoryPath) {
-    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
-    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
-    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
-
+auto deleteOldKitFiles(const std::filesystem::path &directoryPath) -> void {
     // first delete older auto generated kits:
     std::filesystem::directory_iterator dirIt(directoryPath), endIt;
     for (; dirIt != endIt; ++dirIt) {

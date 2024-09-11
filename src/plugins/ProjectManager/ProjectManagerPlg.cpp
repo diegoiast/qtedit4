@@ -12,7 +12,6 @@
 #include <QTimer>
 
 #include <CommandPaletteWidget/CommandPalette>
-#include <iostream>
 
 #include "GenericItems.h"
 #include "ProjectBuildConfig.h"
@@ -70,12 +69,13 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
 }
 
 static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
-    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
-    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
-    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
-
     KitDetector::deleteOldKitFiles(directoryPath);
-    KitDetector::generateKitFiles(directoryPath, tools, compilersFound, qtInstalls,
+
+    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
+    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
+    auto qtVersionsFound = std::vector<KitDetector::ExtraPath>();
+    KitDetector::findQtVersions(KitDetector::platformUnix, qtVersionsFound, compilersFound);
+    KitDetector::generateKitFiles(directoryPath, tools, compilersFound, qtVersionsFound,
                                   KitDetector::platformUnix);
 }
 
