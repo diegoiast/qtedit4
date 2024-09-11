@@ -183,6 +183,21 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
         // clang-format on
     };
 
+    const std::vector<std::string> envVars = {
+        // clang-format off
+        "QTDIR",
+        "QT_DIR",
+        "QT6DIR"
+        // clang-format on
+    };
+
+    for (const auto &envVar : envVars) {
+        auto envValue = safeGetEnv(envVar.c_str());
+        if (!envValue.empty()) {
+            knownLocations.push_back(std::filesystem::path(envValue));
+        }
+    }
+
     auto homeDirEnv = safeGetEnv(HOME_DIR_ENV);
     if (!homeDirEnv.empty()) {
         auto homedir = std::filesystem::path(homeDirEnv) / "qt";
