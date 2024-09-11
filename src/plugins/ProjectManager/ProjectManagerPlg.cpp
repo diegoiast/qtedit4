@@ -69,9 +69,9 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
 }
 
 static auto regenerateKits(const QString &directoryPath) {
-    auto compilersFound = KitDetector::findCompilers();
+    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
     auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
-    auto tools = KitDetector::findCompilerTools();
+    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
 
     // first delete older auto generated kits:
     auto filters = QStringList() << "qtedit4-kit-*.sh";

@@ -2,7 +2,7 @@
  * \file kitdefinitions.cpp
  * \brief Implementation of kit detector
  * \author Diego Iastrubni (diegoiast@gmail.com)
- *  License MIT
+ * SPDX-License-Identifier: MIT
  */
 
 #include "kitdetector.h"
@@ -11,15 +11,22 @@
 #include <sstream>
 
 #if defined(__unix__)
-#include "kitdetector-unix.cpp"
 #include <sys/stat.h>
+
 constexpr auto HOME_DIR_ENV = "HOME";
 constexpr auto BINARY_EXT = "";
 constexpr auto ENV_SEPARATOR = ':';
 #endif
 
 #if defined(_WIN32)
-#include "kitdetector-win32.cpp"
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+
+#include <functional>
+#include <qDebug>
+#include <shlobj.h>
+#include <windows.h>
+
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
 constexpr auto BINARY_EXT = ".exe";
 constexpr auto ENV_SEPARATOR = ';';
@@ -111,6 +118,103 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
+static auto replaceAll(std::string &str, const std::string &from, const std::string &to)
+    -> std::string & {
+    size_t start_pos = 0;
+    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+        str.replace(start_pos, from.length(), to);
+        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+    }
+    return str;
+}
+
+#if defined(_WIN32)
+static auto wstringToString(const std::wstring &wstr) -> std::string {
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), nullptr, 0,
+                                          nullptr, nullptr);
+    std::string str(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), (int)wstr.length(), &str[0], size_needed, nullptr,
+                        nullptr);
+    return str;
+}
+
+static auto checkVisualStudioVersion(PWSTR basePath, const std::wstring &version,
+                                     KitDetector::ExtraPath &extraPath) -> bool {
+    std::wstring basePathW(basePath);
+    std::filesystem::path versionPath =
+        std::filesystem::path(basePathW) / "Microsoft Visual Studio" / version;
+    if (std::filesystem::exists(versionPath)) {
+        extraPath.name = wstringToString(version);
+        extraPath.compiler_path = wstringToString(versionPath);
+        extraPath.comment = "@rem VS " + wstringToString(version);
+        extraPath.command = "call %1\\VC\\Auxiliary\\Build\\vcvarsall.bat";
+        KitDetector::replaceAll(extraPath.command, "%1", versionPath.string());
+        return true;
+    }
+    return false;
+}
+
+static auto findCompilersWindows(std::vector<KitDetector::ExtraPath> &detected) -> void {
+    PWSTR programFiles = nullptr;
+    PWSTR programFiles86 = nullptr;
+
+    SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFiles);
+    SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFiles86);
+
+    // clang-format off
+    auto versions = std::vector<std::wstring>{
+        L"2022\\Community",
+        L"2022\\Professional",
+        L"2022\\Enterprise",
+        L"2019\\Community",
+        L"2019\\Professional",
+        L"2019\\Enterprise"
+    };
+    // clang-format on
+
+    for (const auto &version : versions) {
+        auto extraPath = KitDetector::ExtraPath();
+        if (programFiles[0] && checkVisualStudioVersion(programFiles, version, extraPath)) {
+            detected.push_back(extraPath);
+        }
+        if (programFiles86[0] && checkVisualStudioVersion(programFiles86, version, extraPath)) {
+            detected.push_back(extraPath);
+        }
+    }
+    CoTaskMemFree(programFiles86);
+    CoTaskMemFree(programFiles);
+}
+
+static auto findCompilerToolsWindows(std::vector<KitDetector::ExtraPath> &detected) -> void {
+    auto cmakePath = std::filesystem::path();
+    PWSTR programFiles = nullptr;
+    PWSTR programFiles86 = nullptr;
+
+    SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFiles);
+    cmakePath = std::filesystem::path(programFiles) / "CMake" / "bin" / "cmake.exe";
+    if (std::filesystem::exists(cmakePath)) {
+        auto extraPath = KitDetector::ExtraPath();
+        extraPath.name = "CMake";
+        extraPath.compiler_path = (std::filesystem::path(programFiles) / "CMake" / "bin").string();
+        extraPath.comment = "@rem Found CMake";
+        extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+        detected.push_back(extraPath);
+    }
+
+    SHGetKnownFolderPath(FOLDERID_ProgramFilesX86, 0, NULL, &programFiles86);
+    cmakePath = std::filesystem::path(programFiles86) / "CMake" / "bin" / "cmake.exe";
+    if (std::filesystem::exists(cmakePath)) {
+        auto extraPath = KitDetector::ExtraPath();
+        extraPath.name = "CMake (x86)";
+        extraPath.compiler_path =
+            (std::filesystem::path(programFiles86) / "CMake" / "bin").string();
+        extraPath.comment = "@rem Found CMake (x86)";
+        extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+        detected.push_back(extraPath);
+    }
+}
+#endif
+
 [[maybe_unused]] static auto isCompilerAlreadyFound(const std::vector<ExtraPath> &detected,
                                                     const std::string &cc) -> bool {
     auto canonnical_cc = std::filesystem::canonical(cc);
@@ -140,29 +244,6 @@ static auto safeGetEnv(const char *name) -> std::string {
 #endif
 }
 
-auto replaceAll(std::string &str, const std::string &from, const std::string &to) -> std::string & {
-    size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-    }
-    return str;
-}
-
-auto findCompilers() -> std::vector<ExtraPath> {
-    auto detected = std::vector<ExtraPath>();
-
-#if defined(__unix__)
-    findCompilersUnix(detected);
-#endif
-
-#if defined(_WIN32)
-    findCompilersWindows(detected);
-#endif
-
-    return detected;
-}
-
 auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
     std::filesystem::path qmakePath = path / "bin" / (std::string("qmake") + BINARY_EXT);
 
@@ -172,6 +253,92 @@ auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
         return false;
     }
     return std::filesystem::exists(qmakePath);
+}
+
+using PathCallback = std::function<void(const std::filesystem::path &path,
+                                        const std::filesystem::path &full_filename)>;
+
+static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> void {
+    auto path_env = safeGetEnv("PATH");
+    if (path_env.empty()) {
+        return;
+    }
+    auto ss = std::stringstream(path_env);
+    auto dir = std::string();
+    while (std::getline(ss, dir, ENV_SEPARATOR)) {
+        auto full_path = std::filesystem::path(dir) / std::filesystem::path(cmd);
+#if defined(__unix__)
+        if (access(full_path.c_str(), X_OK) != 0) {
+            continue;
+        }
+#else
+        if (_waccess(full_path.c_str(), 04) != 0) {
+            continue;
+        }
+#endif
+        callback(std::filesystem::path(dir), full_path);
+    }
+    return;
+}
+
+auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
+                              const std::string path_env, std::string cc_name, std::string cxx_name,
+                              bool unix_target) -> void {
+    for (auto version = 4; version < 20; version++) {
+        auto cc = std::string(cc_name) + "-" + std::to_string(version) + BINARY_EXT;
+        auto ss = std::stringstream(path_env);
+        auto dir = std::string();
+
+        findCommandInPath(
+            cc, [version, &cc, &detected, &cxx_name, unix_target](auto path, auto full_path) {
+                // if (isCompilerAlreadyFound(detected, full_path)) {
+                //     return;
+                // }
+
+                auto extraPath = KitDetector::ExtraPath();
+                auto cxx = cxx_name + "-" + std::to_string(version);
+                if (unix_target) {
+                    extraPath.name = cc;
+                    extraPath.compiler_path = full_path.string();
+                    extraPath.comment = "# detected " + full_path.string();
+                    extraPath.command += "export CC=" + cc;
+                    extraPath.command += "\n";
+                    extraPath.command += "export CXX=" + cxx;
+                } else {
+                    extraPath.name = cc;
+                    extraPath.compiler_path = full_path.string();
+                    extraPath.comment = "@rem detected " + full_path.string();
+                    extraPath.command += "SET CC=" + cc;
+                    extraPath.command += "\n";
+                    extraPath.command += "SET CXX=" + cxx;
+                }
+                detected.push_back(extraPath);
+            });
+    }
+}
+
+auto static findCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
+    -> void {
+    auto path_env = safeGetEnv("PATH");
+    if (path_env.empty()) {
+        return;
+    }
+    findCompilersImpl(detected, path_env, "gcc", "g++", unix_target);
+    findCompilersImpl(detected, path_env, "clang", "clang++", unix_target);
+}
+
+////////////////////////////////////////////
+// public API
+
+auto findCompilers(bool unix_target) -> std::vector<ExtraPath> {
+    auto detected = std::vector<ExtraPath>();
+    findCompilersInPath(detected, unix_target);
+
+#if defined(_WIN32)
+    findCompilersWindows(detected);
+#endif
+
+    return detected;
 }
 
 auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
@@ -276,11 +443,8 @@ auto findQtVersions(bool unix_target) -> std::vector<ExtraPath> {
     return detected;
 }
 
-auto findCompilerTools() -> std::vector<ExtraPath> {
+auto findCompilerTools(bool /*unix_target*/) -> std::vector<ExtraPath> {
     auto detected = std::vector<ExtraPath>();
-#if defined(__unix__)
-    findCompilerToolsUnix(detected);
-#endif
 
 #if defined(_WIN32)
     findCompilerToolsWindows(detected);
