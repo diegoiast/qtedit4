@@ -7,9 +7,9 @@
 
 #include "kitdetector.h"
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <sstream>
-#include <functional>
 
 #if defined(__unix__)
 #include <sys/stat.h>
@@ -285,8 +285,8 @@ static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> 
 }
 
 auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
-                              const std::string &path_env, const std::string &cc_name, const std::string &cxx_name,
-                              bool unix_target) -> void {
+                              const std::string &path_env, const std::string &cc_name,
+                              const std::string &cxx_name, bool unix_target) -> void {
     for (auto version = 4; version < 20; version++) {
         auto cc = cc_name + "-" + std::to_string(version) + BINARY_EXT;
         auto ss = std::stringstream(path_env);
@@ -456,8 +456,8 @@ auto findCompilerTools(bool /*unix_target*/) -> std::vector<ExtraPath> {
     return detected;
 }
 
-void generateKitFiles(const std::filesystem::path &path, const std::vector<ExtraPath> &tools,
-                      const std::vector<ExtraPath> &compilers,
+void generateKitFiles(const std::filesystem::path &directoryPath,
+                      const std::vector<ExtraPath> &tools, const std::vector<ExtraPath> &compilers,
                       const std::vector<ExtraPath> &qtInstalls, bool unix_target) {
     auto kitNumber = 1;
     auto SCRIPT_EXTENSION = unix_target ? SCRIPT_EXTENSION_UNIX : SCRIPT_EXTENSION_WIN32;
@@ -473,7 +473,7 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
             auto scriptName = std::string("qtedit-kit-")
                                   .append(std::to_string(kitNumber))
                                   .append(SCRIPT_EXTENSION);
-            auto scriptPath = path / scriptName;
+            auto scriptPath = directoryPath / scriptName;
             std::ofstream scriptFile(scriptPath.string());
             if (!scriptFile) {
                 std::cerr << "Error: Could not create script file at " << scriptPath << std::endl;
@@ -515,6 +515,27 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
             }
 #endif
             kitNumber++;
+        }
+    }
+}
+
+void deleteOldKitFiles(const std::filesystem::path &directoryPath) {
+    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
+    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
+    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
+
+    // first delete older auto generated kits:
+    std::filesystem::directory_iterator dirIt(directoryPath), endIt;
+    for (; dirIt != endIt; ++dirIt) {
+        auto fn = dirIt->path().filename().string();
+        auto is_generated_kit = fn.find("qtedit-kit-");
+        if (dirIt->is_regular_file() && is_generated_kit == 0) {
+            try {
+                std::filesystem::remove(dirIt->path());
+            } catch (const std::filesystem::filesystem_error &e) {
+                std::cerr << "Failed to delete: " << dirIt->path() << " - " << e.what()
+                          << std::endl;
+            }
         }
     }
 }

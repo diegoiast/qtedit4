@@ -12,6 +12,7 @@
 #include <QTimer>
 
 #include <CommandPaletteWidget/CommandPalette>
+#include <iostream>
 
 #include "GenericItems.h"
 #include "ProjectBuildConfig.h"
@@ -68,24 +69,13 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
     return output;
 }
 
-static auto regenerateKits(const QString &directoryPath) {
+static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
     auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
     auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
     auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
 
-    // first delete older auto generated kits:
-    auto filters = QStringList() << "qtedit4-kit-*.sh";
-    auto dir = QDir(directoryPath);
-    dir.setNameFilters(filters);
-
-    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
-    foreach (const QFileInfo &fileInfo, fileList) {
-        if (!QFile::remove(fileInfo.absoluteFilePath())) {
-            qDebug() << "Failed to delete:" << fileInfo.absoluteFilePath();
-        }
-    }
-
-    KitDetector::generateKitFiles(directoryPath.toStdString(), tools, compilersFound, qtInstalls,
+    KitDetector::deleteOldKitFiles(directoryPath);
+    KitDetector::generateKitFiles(directoryPath, tools, compilersFound, qtInstalls,
                                   KitDetector::platformUnix);
 }
 
@@ -355,7 +345,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 }
             }
         }
-        regenerateKits(dataPath);
+        regenerateKits(std::filesystem::path(dataPath.toStdString()));
         rescanKits->trigger();
     });
     connect(openKitsinFM, &QAction::triggered, this, []() {
