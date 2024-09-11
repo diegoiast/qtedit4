@@ -294,9 +294,9 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
 
         findCommandInPath(
             cc, [version, &cc, &detected, &cxx_name, unix_target](auto path, auto full_path) {
-                // if (isCompilerAlreadyFound(detected, full_path)) {
-                //     return;
-                // }
+                if (isCompilerAlreadyFound(detected, full_path.string())) {
+                    return;
+                }
 
                 auto extraPath = KitDetector::ExtraPath();
                 auto cxx = cxx_name + "-" + std::to_string(version);
@@ -481,7 +481,7 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
             }
 
             auto scriptDisplay = std::string(SCRIPT_HEADER);
-            replaceAll(scriptDisplay, "@@NAME@@", "AUTO: " + cc.name + " " + qtInst.name);
+            replaceAll(scriptDisplay, "@@NAME@@", cc.name + ", " + qtInst.name + " *");
 
             scriptFile << scriptDisplay;
             for (auto &tt : tools) {
