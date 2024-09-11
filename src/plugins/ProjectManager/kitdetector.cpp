@@ -9,9 +9,11 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <functional>
 
 #if defined(__unix__)
 #include <sys/stat.h>
+#include <unistd.h>
 
 constexpr auto HOME_DIR_ENV = "HOME";
 constexpr auto BINARY_EXT = "";
