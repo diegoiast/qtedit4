@@ -242,7 +242,8 @@ static auto safeGetEnv(const char *name) -> std::string {
     }
     return buff;
 #else
-    return std::getenv(name);
+    auto v = std::getenv(name);
+    return v ? std::string(v) : std::string();
 #endif
 }
 
