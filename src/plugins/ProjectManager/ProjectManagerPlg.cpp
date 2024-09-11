@@ -344,7 +344,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
         kitsModel->setKitDefinitions(kits);
     });
-    connect(recreateKits, &QAction::triggered, this, [this]() {
+    connect(recreateKits, &QAction::triggered, this, [rescanKits]() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         {
             auto d = QDir(dataPath);
@@ -356,8 +356,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             }
         }
         regenerateKits(dataPath);
-        auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
-        kitsModel->setKitDefinitions(kits);
+        rescanKits->trigger();
     });
     connect(openKitsinFM, &QAction::triggered, this, []() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
