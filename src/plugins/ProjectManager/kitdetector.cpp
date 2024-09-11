@@ -5,7 +5,6 @@
  *  License MIT
  */
 
-#define NOMINMAX
 #include "kitdetector.h"
 #include <fstream>
 #include <iostream>
@@ -282,8 +281,8 @@ void generateKitFiles(const std::filesystem::path &path, const std::vector<Extra
     auto SCRIPT_EXTENSION = unix_target ? SCRIPT_EXTENSION_UNIX : SCRIPT_EXTENSION_WIN32;
     auto SCRIPT_HEADER = unix_target ? SCRIPT_HEADER_UNIX : SCRIPT_HEADER_WIN32;
     auto SCRIPT_SUFFIX = unix_target ? SCRIPT_SUFFIX_UNIX : SCRIPT_SUFFIX_WIN32;
-    auto compilersSize = std::max(1UL, compilers.size());
-    auto qtinstallSize = std::max(1UL, qtInstalls.size());
+    auto compilersSize = std::max<size_t>(1, compilers.size());
+    auto qtinstallSize = std::max<size_t>(1, qtInstalls.size());
     for (auto i = 0ul; i < compilersSize; ++i) {
         for (auto j = 0ul; j < qtinstallSize; ++j) {
             auto cc = compilers.empty() ? ExtraPath() : compilers[i];
