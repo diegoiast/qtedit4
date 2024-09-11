@@ -285,10 +285,10 @@ static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> 
 }
 
 auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
-                              const std::string path_env, std::string cc_name, std::string cxx_name,
+                              const std::string &path_env, const std::string &cc_name, const std::string &cxx_name,
                               bool unix_target) -> void {
     for (auto version = 4; version < 20; version++) {
-        auto cc = std::string(cc_name) + "-" + std::to_string(version) + BINARY_EXT;
+        auto cc = cc_name + "-" + std::to_string(version) + BINARY_EXT;
         auto ss = std::stringstream(path_env);
         auto dir = std::string();
 
