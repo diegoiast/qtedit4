@@ -401,8 +401,52 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         detectedQt.push_back(extraPath);
     };
 
+    auto detectInstallToolchains = [unix_target, &detectedCompilers](std::string dir) {
+        // we got something like: c:\Qt\6.7.2\mingw_64
+        auto tools_path = std::filesystem::path(dir).parent_path().parent_path();
+        tools_path /= "Tools";
+
+        for (const auto &subEntry : std::filesystem::directory_iterator(tools_path)) {
+            if (subEntry.is_directory()) {
+                auto dirName = subEntry.path().filename().string();
+                auto l = dirName.rfind("mingw", 0);
+                if (l != 0) {
+                    continue;
+                }
+                auto extraPath = ExtraPath();
+                extraPath.name = dirName;
+                extraPath.compiler_path = dir;
+                if (unix_target) {
+                    // TODO
+                    // I am unsure what this part of the code does, as it makes no sence.
+                    // Maybe in a msys environment, or wsl... not dealing with that now.
+                    extraPath.comment = "# MingW installation from Qt (I*)";
+                    extraPath.command += "export MINGW_DIR=%1";
+                    extraPath.command += "\n";
+                    extraPath.command += "export PATH=\"${PATH};${MINGW_DIR}/bin";
+                } else {
+                    extraPath.comment = "@rem MingW installation from Qt (*)";
+                    extraPath.command += "set MINGW_DIR=%1";
+                    extraPath.command += "\n";
+                    extraPath.command += "set PATH=%PATH%;%MINGW_DIR%\\bin";
+                    extraPath.command += "\n";
+                    extraPath.command += "set CC=x86_64-w64-mingw32-gcc.exe";
+                    extraPath.command += "\n";
+                    extraPath.command += "set CXX=x86_64-w64-mingw32-g++.exe";
+                    extraPath.command += "\n";
+                    extraPath.command += "set CMAKE_GENERATOR=MinGW Makefiles";
+                    extraPath.command += "\n";
+                    extraPath.command += "set CMAKE_MAKE_PROGRAM=mingw32-make.exe";
+                }
+                replaceAll(extraPath.command, "%1", subEntry.path().string());
+                detectedCompilers.push_back(extraPath);
+            }
+        }
+    };
+
     while (std::getline(ss, dir, ENV_SEPARATOR)) {
-        auto qmake_path = std::filesystem::path(dir) / (std::string("qmake") + BINARY_EXT);
+        auto qmake_path =
+            std::filesystem::path(dir) / std::string("bin") / (std::string("qmake") + BINARY_EXT);
         if (!std::filesystem::exists(qmake_path)) {
             continue;
         }
@@ -411,6 +455,7 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         }
         auto relativePath = std::filesystem::path(dir).parent_path().filename().string();
         addDir(dir, relativePath);
+        detectInstallToolchains(dir);
     }
 
     for (const auto &root : knownLocations) {
@@ -426,6 +471,7 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
             }
             auto relativePath = std::filesystem::relative(entry.path(), root).string();
             addDir(entry.path().string(), relativePath);
+            detectInstallToolchains(entry.path().string());
         }
     }
 }
