@@ -14,6 +14,7 @@
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
+#include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 
 int main(int argc, char *argv[]) {
@@ -57,6 +58,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
+    pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.updateGUI();
     pluginManager.hideUnusedPanels();
     pluginManager.restoreSettings();
