@@ -146,7 +146,7 @@ static auto checkVisualStudioVersion(PWSTR basePath, const std::wstring &version
     std::filesystem::path versionPath =
         std::filesystem::path(basePathW) / "Microsoft Visual Studio" / version;
     if (std::filesystem::exists(versionPath)) {
-        extraPath.name = wstringToString(version);
+        extraPath.name = "MSVC " + wstringToString(version);
         extraPath.compiler_path = wstringToString(versionPath);
         extraPath.comment = "@rem VS " + wstringToString(version);
         extraPath.command = "call %1\\VC\\Auxiliary\\Build\\vcvarsall.bat";
@@ -401,10 +401,9 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         detectedQt.push_back(extraPath);
     };
 
-    auto detectInstallToolchains = [unix_target, &detectedCompilers](std::string dir) {
-        // we got something like: c:\Qt\6.7.2\mingw_64
-        auto tools_path = std::filesystem::path(dir).parent_path().parent_path();
-        tools_path /= "Tools";
+    auto detectInstallToolchains = [unix_target, &detectedCompilers](std::filesystem::path dir) {
+        // we got something like: c:\Qt\6.7.2
+        auto tools_path = dir / "Tools";
 
         for (const auto &subEntry : std::filesystem::directory_iterator(tools_path)) {
             if (subEntry.is_directory()) {
@@ -414,8 +413,8 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
                     continue;
                 }
                 auto extraPath = ExtraPath();
-                extraPath.name = dirName;
-                extraPath.compiler_path = dir;
+                extraPath.name = "MinGW " + dirName;
+                extraPath.compiler_path = dir.string();
                 if (unix_target) {
                     // TODO
                     // I am unsure what this part of the code does, as it makes no sence.
@@ -471,8 +470,8 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
             }
             auto relativePath = std::filesystem::relative(entry.path(), root).string();
             addDir(entry.path().string(), relativePath);
-            detectInstallToolchains(entry.path().string());
         }
+        detectInstallToolchains(root);
     }
 }
 
