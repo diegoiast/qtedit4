@@ -28,12 +28,14 @@ struct ExtraPath {
 [[maybe_unused]] constexpr auto platformWindows = !true;
 #endif
 
-auto findCompilers() -> std::vector<ExtraPath>;
-auto findQtVersions(bool unix_target) -> std::vector<ExtraPath>;
-auto findCompilerTools() -> std::vector<ExtraPath>;
+auto findCompilers(bool unix_target) -> std::vector<ExtraPath>;
+auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
+                    std::vector<ExtraPath> &detectedCompilers) -> void;
+auto findCompilerTools(bool unix_target) -> std::vector<ExtraPath>;
 
-void generateKitFiles(const std::filesystem::path &path, const std::vector<ExtraPath> &tools,
-                      const std::vector<ExtraPath> &compilers,
-                      const std::vector<ExtraPath> &qtInstalls, bool unix_target);
+auto deleteOldKitFiles(const std::filesystem::path &directoryPath) -> void;
+auto generateKitFiles(const std::filesystem::path &directoryPath,
+                      const std::vector<ExtraPath> &tools, const std::vector<ExtraPath> &compilers,
+                      const std::vector<ExtraPath> &qtInstalls, bool unix_target) -> void;
 
 } // namespace KitDetector

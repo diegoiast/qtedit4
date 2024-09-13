@@ -68,24 +68,14 @@ static auto expand(const QString &input, const QHash<QString, QString> &hashTabl
     return output;
 }
 
-static auto regenerateKits(const QString &directoryPath) {
-    auto compilersFound = KitDetector::findCompilers();
-    auto qtInstalls = KitDetector::findQtVersions(KitDetector::platformUnix);
-    auto tools = KitDetector::findCompilerTools();
+static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
+    KitDetector::deleteOldKitFiles(directoryPath);
 
-    // first delete older auto generated kits:
-    auto filters = QStringList() << "qtedit4-kit-*.sh";
-    auto dir = QDir(directoryPath);
-    dir.setNameFilters(filters);
-
-    QFileInfoList fileList = dir.entryInfoList(QDir::Files);
-    foreach (const QFileInfo &fileInfo, fileList) {
-        if (!QFile::remove(fileInfo.absoluteFilePath())) {
-            qDebug() << "Failed to delete:" << fileInfo.absoluteFilePath();
-        }
-    }
-
-    KitDetector::generateKitFiles(directoryPath.toStdString(), tools, compilersFound, qtInstalls,
+    auto tools = KitDetector::findCompilerTools(KitDetector::platformUnix);
+    auto compilersFound = KitDetector::findCompilers(KitDetector::platformUnix);
+    auto qtVersionsFound = std::vector<KitDetector::ExtraPath>();
+    KitDetector::findQtVersions(KitDetector::platformUnix, qtVersionsFound, compilersFound);
+    KitDetector::generateKitFiles(directoryPath, tools, compilersFound, qtVersionsFound,
                                   KitDetector::platformUnix);
 }
 
@@ -344,7 +334,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
         kitsModel->setKitDefinitions(kits);
     });
-    connect(recreateKits, &QAction::triggered, this, [this]() {
+    connect(recreateKits, &QAction::triggered, this, [rescanKits]() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
         {
             auto d = QDir(dataPath);
@@ -355,9 +345,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 }
             }
         }
-        regenerateKits(dataPath);
-        auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
-        kitsModel->setKitDefinitions(kits);
+        regenerateKits(std::filesystem::path(dataPath.toStdString()));
+        rescanKits->trigger();
     });
     connect(openKitsinFM, &QAction::triggered, this, []() {
         auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
@@ -535,18 +524,18 @@ void ProjectManagerPlugin::addProject_clicked() {
     if (dirName.isEmpty()) {
         return;
     }
-    auto config = projectModel->findConfigDir(dirName);
-    if (config) {
+    auto buildConfig = projectModel->findConfigDir(dirName);
+    if (buildConfig) {
         return;
     }
-    config = ProjectBuildConfig::buildFromDirectory(dirName);
-    if (!config->fileName.isEmpty()) {
+    buildConfig = ProjectBuildConfig::buildFromDirectory(dirName);
+    if (!buildConfig->fileName.isEmpty()) {
         // Auto generated config files have no filename
         qDebug("on_addProject_clicked() : adding %s to the watch dir",
-               config->fileName.toStdString().c_str());
-        configWatcher.addPath(config->fileName);
+               buildConfig->fileName.toStdString().c_str());
+        configWatcher.addPath(buildConfig->fileName);
     }
-    projectModel->addConfig(config);
+    projectModel->addConfig(buildConfig);
     directoryModel->addDirectory(dirName);
     getManager()->saveSettings();
 }
@@ -568,35 +557,35 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
     // TODO - on startu this is called 2 times. I am unsure why yet.
     //        so this works around it. Its not the best solution.
     static auto lastProjectSelected = std::shared_ptr<ProjectBuildConfig>();
-    std::shared_ptr<ProjectBuildConfig> config = {};
+    auto buildConfig = std::shared_ptr<ProjectBuildConfig>();
     if (index >= 0) {
-        config = projectModel->getConfig(index);
+        buildConfig = projectModel->getConfig(index);
     }
 
-    if (lastProjectSelected == config) {
+    if (lastProjectSelected == buildConfig) {
         return;
     }
 
-    lastProjectSelected = config;
+    lastProjectSelected = buildConfig;
     this->directoryModel->removeAllDirs();
-    if (!config) {
+    if (!buildConfig) {
         this->gui->filterFiles->clear();
         this->gui->filterFiles->setEnabled(false);
         this->gui->filterOutFiles->clear();
         this->gui->filterOutFiles->setEnabled(false);
     } else {
         auto hash = getConfigHash();
-        auto s1 = expand(config->displayFilter, hash);
-        auto s2 = expand(config->hideFilter, hash);
+        auto s1 = expand(buildConfig->displayFilter, hash);
+        auto s2 = expand(buildConfig->hideFilter, hash);
         this->gui->filterFiles->setEnabled(true);
         this->gui->filterFiles->setText(s1);
         this->gui->filterOutFiles->setEnabled(true);
         this->gui->filterOutFiles->setText(s2);
-        this->directoryModel->addDirectory(config->sourceDir);
+        this->directoryModel->addDirectory(buildConfig->sourceDir);
     }
 
-    updateTasksUI(config);
-    updateExecutablesUI(config);
+    updateTasksUI(buildConfig);
+    updateExecutablesUI(buildConfig);
 }
 
 void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
@@ -753,8 +742,8 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
     qDebug("Config file modified - %s", path.toStdString().data());
 }
 
-auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void {
-    if (!config || config->tasksInfo.size() == 0) {
+auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
+    if (!buildConfig || buildConfig->tasksInfo.size() == 0) {
         this->selectedTask = nullptr;
         this->gui->taskButton->setText("...");
         this->gui->taskButton->setToolTip("...");
@@ -766,19 +755,19 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
         this->availableTasksMenu->clear();
     } else {
         auto taskIndex = 0;
-        if (!config->activeTaskName.isEmpty()) {
-            taskIndex = config->findIndexOfTask(config->activeTaskName);
+        if (!buildConfig->activeTaskName.isEmpty()) {
+            taskIndex = buildConfig->findIndexOfTask(buildConfig->activeTaskName);
             if (taskIndex < 0) {
                 taskIndex = 0;
             }
         }
-        auto taskName = config->tasksInfo[taskIndex].name;
-        auto taskCommand = config->tasksInfo[taskIndex].command;
+        auto taskName = buildConfig->tasksInfo[taskIndex].name;
+        auto taskCommand = buildConfig->tasksInfo[taskIndex].command;
 
         this->gui->taskButton->setEnabled(true);
         this->gui->taskButton->setText(taskName);
         this->gui->taskButton->setToolTip(taskCommand);
-        this->selectedTask = &config->tasksInfo[taskIndex];
+        this->selectedTask = &buildConfig->tasksInfo[taskIndex];
 
         this->buildAction->setEnabled(true);
         this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
@@ -788,12 +777,12 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
         this->availableTasksMenu->hide();
         this->availableTasksMenu->clear();
         this->mdiServer->mdiHost->updateGUI();
-        if (config->tasksInfo.size() == 1) {
+        if (buildConfig->tasksInfo.size() == 1) {
             gui->taskButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (const auto &taskInfo : std::as_const(config->tasksInfo)) {
+            for (const auto &taskInfo : std::as_const(buildConfig->tasksInfo)) {
                 auto action = new QAction(taskInfo.name, this);
                 menu->addAction(action);
                 actions.append(action);
@@ -805,17 +794,17 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
                 this->availableTasksMenu->addAction(action);
             }
             gui->taskButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
                 auto index = actions.indexOf(action);
-                auto taskName = config->tasksInfo[index].name;
-                auto taskCommand = config->tasksInfo[index].command;
+                auto taskName = buildConfig->tasksInfo[index].name;
+                auto taskCommand = buildConfig->tasksInfo[index].command;
 
-                config->activeTaskName = taskName;
+                buildConfig->activeTaskName = taskName;
                 this->gui->taskButton->setEnabled(true);
                 this->gui->taskButton->setText(taskName);
                 this->gui->taskButton->setToolTip(taskCommand);
-                this->selectedTask = &config->tasksInfo[index];
-                config->activeTaskName = this->selectedTask->name;
+                this->selectedTask = &buildConfig->tasksInfo[index];
+                buildConfig->activeTaskName = this->selectedTask->name;
 
                 this->buildAction->setEnabled(true);
                 this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
@@ -825,8 +814,9 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> con
     }
 }
 
-auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> config) -> void {
-    if (!config || config->executables.size() == 0) {
+auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> buildConfig)
+    -> void {
+    if (!buildConfig || buildConfig->executables.size() == 0) {
         this->selectedTarget = nullptr;
         this->gui->runButton->setText("...");
         this->gui->runButton->setToolTip("...");
@@ -837,20 +827,21 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         this->availableExecutablesMenu->clear();
     } else {
         auto executableIndex = 0;
-        if (!config->activeExecutableName.isEmpty()) {
-            executableIndex = config->findIndexOfExecutable(config->activeExecutableName);
+        if (!buildConfig->activeExecutableName.isEmpty()) {
+            executableIndex = buildConfig->findIndexOfExecutable(buildConfig->activeExecutableName);
             if (executableIndex < 0) {
                 executableIndex = 0;
             }
         }
 
-        auto executableName = config->executables[executableIndex].name;
-        auto executablePath = findExecForPlatform(config->executables[executableIndex].executables);
+        auto executableName = buildConfig->executables[executableIndex].name;
+        auto executablePath =
+            findExecForPlatform(buildConfig->executables[executableIndex].executables);
 
         this->gui->runButton->setEnabled(true);
         this->gui->runButton->setText(executableName);
         this->gui->runButton->setToolTip(QDir::toNativeSeparators(executablePath));
-        this->selectedTarget = &config->executables[executableIndex];
+        this->selectedTarget = &buildConfig->executables[executableIndex];
 
         this->runAction->setEnabled(true);
         this->runAction->setText(
@@ -860,12 +851,12 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
         this->availableExecutablesMenu->hide();
         this->availableExecutablesMenu->clear();
         this->mdiServer->mdiHost->updateGUI();
-        if (config->executables.size() == 1) {
+        if (buildConfig->executables.size() == 1) {
             this->gui->runButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
             QList<QAction *> actions;
-            for (const auto &target : std::as_const(config->executables)) {
+            for (const auto &target : std::as_const(buildConfig->executables)) {
                 QAction *action = new QAction(target.name, this);
                 menu->addAction(action);
                 actions.append(action);
@@ -877,15 +868,16 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
             }
             this->mdiServer->mdiHost->updateGUI();
             this->gui->runButton->setMenu(menu);
-            connect(menu, &QMenu::triggered, this, [this, actions, config](QAction *action) {
+            connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
                 auto index = actions.indexOf(action);
-                auto executableName = config->executables[index].name;
-                auto executablePath = findExecForPlatform(config->executables[index].executables);
+                auto executableName = buildConfig->executables[index].name;
+                auto executablePath =
+                    findExecForPlatform(buildConfig->executables[index].executables);
                 this->gui->runButton->setEnabled(true);
                 this->gui->runButton->setText(executableName);
                 this->gui->runButton->setToolTip(executablePath);
-                this->selectedTarget = &config->executables[index];
-                config->activeExecutableName = this->selectedTarget->name;
+                this->selectedTarget = &buildConfig->executables[index];
+                buildConfig->activeExecutableName = this->selectedTarget->name;
 
                 this->runAction->setEnabled(true);
                 this->runAction->setText(QString(tr("Run: %1")).arg(executableName));

@@ -72,8 +72,8 @@ class ProjectManagerPlugin : public IPlugin {
     void projectFile_modified(const QString &path);
 
   private:
-    auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
-    auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> config) -> void;
+    auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
+    auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
 
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
