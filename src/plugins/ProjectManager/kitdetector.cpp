@@ -417,7 +417,7 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
                 extraPath.compiler_path = dir.string();
                 if (unix_target) {
                     // TODO
-                    // I am unsure what this part of the code does, as it makes no sence.
+                    // I am unsure what this part of the code does, as it makes no sense.
                     // Maybe in a msys environment, or wsl... not dealing with that now.
                     extraPath.comment = "# MingW installation from Qt (I*)";
                     extraPath.command += "export MINGW_DIR=%1";
