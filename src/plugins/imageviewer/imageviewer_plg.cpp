@@ -3,8 +3,7 @@
 
 #include <QFileInfo>
 
-ImageViewrPlugin::ImageViewrPlugin()
-{
+ImageViewrPlugin::ImageViewrPlugin() {
     name = tr("Image viewer plugin - based on QutePart");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
@@ -13,20 +12,15 @@ ImageViewrPlugin::ImageViewrPlugin()
     alwaysEnabled = false;
 }
 
-ImageViewrPlugin::~ImageViewrPlugin()
-{
-    
-}
+ImageViewrPlugin::~ImageViewrPlugin() {}
 
-QStringList ImageViewrPlugin::myExtensions()
-{
+QStringList ImageViewrPlugin::myExtensions() {
     QStringList s;
     s << tr("Images", "ImageViewrPlugin::myExtensions") + " (*.jpg *.jpeg *.bmp *.png *.pcx *.ico)";
     return s;
 }
 
-int ImageViewrPlugin::canOpenFile(const QString fileName)
-{
+int ImageViewrPlugin::canOpenFile(const QString fileName) {
     if (fileName.endsWith(".jpg", Qt::CaseInsensitive)) {
         return 5;
     } else if (fileName.endsWith(".jpeg", Qt::CaseInsensitive)) {
@@ -42,25 +36,17 @@ int ImageViewrPlugin::canOpenFile(const QString fileName)
     } else {
         return -1;
     }
-
 }
 
-bool ImageViewrPlugin::openFile(const QString fileName, int x, int y, int z)
-{
-    auto tabWidget = dynamic_cast<QTabWidget*>(mdiServer);
+bool ImageViewrPlugin::openFile(const QString fileName, int x, int y, int z) {
+    auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
     auto viewer = new QImageViewer(getManager());
-    viewer->loadFile(fileName);    
+    viewer->loadFile(fileName);
     auto fi = QFileInfo(fileName);
     tabWidget->addTab(viewer, fi.fileName());
     return true;
 }
 
-void ImageViewrPlugin::showAbout()
-{
-    
-}
+void ImageViewrPlugin::showAbout() {}
 
-void ImageViewrPlugin::actionAbout_triggered()
-{
-    
-}
+void ImageViewrPlugin::actionAbout_triggered() {}

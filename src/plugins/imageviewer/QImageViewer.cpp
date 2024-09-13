@@ -1,24 +1,24 @@
 #include "QImageViewer.h"
-#include <QtWidgets/QScrollBar>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QFileDialog>
+#include <QtCore/QDebug>
 #include <QtGui/QImageReader>
 #include <QtGui/QImageWriter>
 #include <QtGui/QPainter>
-#include <QtCore/QDebug>
 #include <QtPrintSupport/QPrintDialog>
+#include <QtWidgets/QFileDialog>
+#include <QtWidgets/QScrollBar>
+#include <QtWidgets/QVBoxLayout>
 
 //
 // https://doc.qt.io/qt-5/qtwidgets-widgets-imageviewer-example.html
 // https://stackoverflow.com/questions/53193010/how-to-resize-a-qlabel-with-pixmap-inside-a-qscrollarea
 //
 
-QImageViewer::QImageViewer (QWidget* parent) : QWidget(parent) {
+QImageViewer::QImageViewer(QWidget *parent) : QWidget(parent) {
 
     _zoomFactor = 1.0;
 
     // Setup the widgets
-    QVBoxLayout* layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
 
     _imageLabel = new QLabel();
@@ -35,10 +35,9 @@ QImageViewer::QImageViewer (QWidget* parent) : QWidget(parent) {
     _imageLabel->setPixmap(QPixmap::fromImage(_image));
 }
 
-QImageViewer::~QImageViewer () {
-}
+QImageViewer::~QImageViewer() {}
 
-bool QImageViewer::loadFile (const QString& file) {
+bool QImageViewer::loadFile(const QString &file) {
 
     QImageReader reader(file);
 
@@ -55,7 +54,7 @@ bool QImageViewer::loadFile (const QString& file) {
     return true;
 }
 
-bool QImageViewer::saveFile (const QString& file) {
+bool QImageViewer::saveFile(const QString &file) {
 
     if (file.isEmpty() == true) {
         return false;
@@ -72,18 +71,20 @@ bool QImageViewer::saveFile (const QString& file) {
     return f;
 }
 
-bool QImageViewer::saveFileDialog (const QString& file) {
+bool QImageViewer::saveFileDialog(const QString &file) {
 
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image File"), file, tr("Image Files (*.png *.jpg *.bmp)"), nullptr, QFileDialog::DontUseNativeDialog);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Image File"), file,
+                                                    tr("Image Files (*.png *.jpg *.bmp)"), nullptr,
+                                                    QFileDialog::DontUseNativeDialog);
 
     return saveFile(fileName);
 }
 
-void QImageViewer::setImage (const QImage& image) {
+void QImageViewer::setImage(const QImage &image) {
 
-    //qDebug() << image;
+    // qDebug() << image;
 
-    _image      = image.copy();
+    _image = image.copy();
     _zoomFactor = 1.0;
 
     _imageLabel->setPixmap(QPixmap::fromImage(_image));
@@ -91,22 +92,13 @@ void QImageViewer::setImage (const QImage& image) {
     zoomReset();
 }
 
-const QImage& QImageViewer::image () const {
+const QImage &QImageViewer::image() const { return _image; }
 
-    return _image;
-}
+void QImageViewer::setText(const QString &text) { _imageLabel->setText(text); }
 
-void QImageViewer::setText (const QString& text) {
+double QImageViewer::zoomFactor() const { return _zoomFactor; }
 
-    _imageLabel->setText(text);
-}
-
-double QImageViewer::zoomFactor () const {
-
-    return _zoomFactor;
-}
-
-void QImageViewer::zoom (double factor) {
+void QImageViewer::zoom(double factor) {
 
     _zoomFactor = factor;
 
@@ -117,22 +109,13 @@ void QImageViewer::zoom (double factor) {
 #endif
 }
 
-void QImageViewer::zoomIn () {
+void QImageViewer::zoomIn() { zoom(zoomFactor() * 1.25); }
 
-    zoom(zoomFactor() * 1.25);
-}
+void QImageViewer::zoomOut() { zoom(zoomFactor() * 0.8); }
 
-void QImageViewer::zoomOut () {
+void QImageViewer::zoomReset() { zoom(1.0); }
 
-    zoom(zoomFactor() * 0.8);
-}
-
-void QImageViewer::zoomReset () {
-
-    zoom(1.0);
-}
-
-void QImageViewer::print () {
+void QImageViewer::print() {
 
     QPrintDialog dialog(&_printer, this);
 
@@ -159,35 +142,31 @@ void QImageViewer::print () {
 #endif
 }
 
-void QImageViewer::keyPressEvent (QKeyEvent* event) {
+void QImageViewer::keyPressEvent(QKeyEvent *event) {
 
-    //qDebug() << "Key =" << event->key();
+    // qDebug() << "Key =" << event->key();
 
     switch (event->key()) {
-        case Qt::Key_Escape:
-            zoomReset();
-            break;
-        case Qt::Key_Plus:
-            zoomIn();
-            break;
-        case Qt::Key_Minus:
-            zoomOut();
-            break;
-        default:
-            QWidget::keyPressEvent(event);
-            break;
+    case Qt::Key_Escape:
+        zoomReset();
+        break;
+    case Qt::Key_Plus:
+        zoomIn();
+        break;
+    case Qt::Key_Minus:
+        zoomOut();
+        break;
+    default:
+        QWidget::keyPressEvent(event);
+        break;
     }
 }
 
-void QImageViewer::enterEvent (QEvent* event) {
+void QImageViewer::enterEvent(QEvent *event) {
 
     Q_UNUSED(event);
 
     setFocus();
 }
 
-void QImageViewer::leaveEvent (QEvent* event) {
-
-    Q_UNUSED(event);
-}
-
+void QImageViewer::leaveEvent(QEvent *event) { Q_UNUSED(event); }
