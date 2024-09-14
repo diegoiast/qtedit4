@@ -13,6 +13,7 @@ set(DISABLE_QUTEPART_TESTS on)
 CPMAddPackage("gh:diegoiast/qmdilib#main")
 CPMAddPackage("gh:diegoiast/qutepart-cpp#qt6-port-take2")
 CPMAddPackage("gh:diegoiast/command-palette-widget#main")
+CPMAddPackage("gh:palacaze/image-viewer#master")
 download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
@@ -47,8 +48,6 @@ set(qtedit4_sources
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/help/help_plg.cpp
     src/plugins/help/help_plg.h
-    src/plugins/imageviewer/QImageViewer.h
-    src/plugins/imageviewer/QImageViewer.cpp
     src/plugins/imageviewer/imageviewer_plg.cpp
     src/plugins/imageviewer/imageviewer_plg.h
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
@@ -84,7 +83,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src/widgets
 )
-target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget Qt6::PrintSupport)
+target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget Qt6::PrintSupport Pal::ImageViewer)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

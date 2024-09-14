@@ -1,7 +1,34 @@
-#include "imageviewer_plg.h"
-#include "QImageViewer.h"
+/**
+ * \file imageviewer_plg
+ * \brief Definition of
+ * \author Diego Iastrubni diegoiast@gmail.com
+ * License MIT
+ * \see class name
+ */
+
 
 #include <QFileInfo>
+#include <pal/image-viewer.h>
+#include "imageviewer_plg.h"
+
+class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
+public:
+    QString thisFileName;
+    qmdiImageViewer(QWidget *p, const QString &fileName) : pal::ImageViewer(p) {
+        this->setImage(QImage(fileName));
+        auto fi = QFileInfo(fileName);
+        this->mdiClientName = fi.fileName();
+        this->thisFileName = fileName;
+    }
+    
+    virtual QString mdiClientFileName() override {
+        return thisFileName;
+    }
+    
+    virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override {
+        return {};
+    }
+};
 
 ImageViewrPlugin::ImageViewrPlugin() {
     name = tr("Image viewer plugin - based on QutePart");
@@ -40,13 +67,8 @@ int ImageViewrPlugin::canOpenFile(const QString fileName) {
 
 bool ImageViewrPlugin::openFile(const QString fileName, int x, int y, int z) {
     auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
-    auto viewer = new QImageViewer(getManager());
-    viewer->loadFile(fileName);
     auto fi = QFileInfo(fileName);
-    tabWidget->addTab(viewer, fi.fileName());
+    auto viewer = new qmdiImageViewer(tabWidget, fileName);
+    mdiServer->addClient(viewer);
     return true;
 }
-
-void ImageViewrPlugin::showAbout() {}
-
-void ImageViewrPlugin::actionAbout_triggered() {}
