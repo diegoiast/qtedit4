@@ -34,6 +34,8 @@ set(qtedit4_sources
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginwindow.ui
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.h
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystemwidget.cpp
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystemwidget.h
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
 
     src/widgets/qmdieditor.cpp
