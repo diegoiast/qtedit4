@@ -6,13 +6,12 @@
  * \see class name
  */
 
-
+#include "imageviewer_plg.h"
 #include <QFileInfo>
 #include <pal/image-viewer.h>
-#include "imageviewer_plg.h"
 
 class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
-public:
+  public:
     QString thisFileName;
     qmdiImageViewer(QWidget *p, const QString &fileName) : pal::ImageViewer(p) {
         this->setImage(QImage(fileName));
@@ -20,14 +19,10 @@ public:
         this->mdiClientName = fi.fileName();
         this->thisFileName = fileName;
     }
-    
-    virtual QString mdiClientFileName() override {
-        return thisFileName;
-    }
-    
-    virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override {
-        return {};
-    }
+
+    virtual QString mdiClientFileName() override { return thisFileName; }
+
+    virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override { return {}; }
 };
 
 ImageViewrPlugin::ImageViewrPlugin() {
