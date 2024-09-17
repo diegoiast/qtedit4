@@ -143,12 +143,19 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     }
 
     static const QStringList extensions = {
-        ".c",    ".cpp", ".cxx", ".h",  ".hpp", ".hxx", ".inc",   ".pro", ".pri", ".txt", ".inc",
-        ".java", ".js",  ".py",  ".rb", ".pas", "bas",  ".swift", ".bat", ".sh",  ".md"};
+        ".c",   ".cpp",    ".cxx",   ".h",      ".hpp",     ".hxx",    ".inc",
+        ".pro", ".pri",    ".txt",   ".inc",    ".java",    ".js",     ".py",
+        ".rb",  ".pas",    "bas",    ".swift",  ".mk",      ".bat",    ".sh",
+        ".md",  ".user",   ".bak",   ".txt",    ".text",    ".dox",    ".desktop",
+        ".old", "license", "readme", "copying", "Makefile", "Doxyfile"};
     for (const QString &ext : extensions) {
         if (fileName.endsWith(ext, Qt::CaseInsensitive)) {
             return 5;
         }
+    }
+
+    if (fileName.startsWith(".")) {
+        return 5;
     }
     return 2;
 }
