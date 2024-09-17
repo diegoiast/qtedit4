@@ -55,7 +55,6 @@ QsvTextOperationsWidget::QsvTextOperationsWidget(QWidget *parent) : QObject(pare
             m_document = pt->document();
         }
     }
-    connect(parent, SIGNAL(widgetResized()), this, SLOT(adjustBottomWidget()));
     parent->installEventFilter(this);
 }
 
@@ -74,7 +73,7 @@ void QsvTextOperationsWidget::initSearchWidget() {
     m_search->hide();
 
     connect(searchFormUi->searchText, SIGNAL(textChanged(QString)), this,
-            SLOT(on_searchText_modified(QString)));
+            SLOT(searchText_modified(QString)));
     connect(searchFormUi->nextButton, SIGNAL(clicked()), this, SLOT(searchNext()));
     connect(searchFormUi->previousButton, SIGNAL(clicked()), this, SLOT(searchPrev()));
     connect(searchFormUi->closeButton, SIGNAL(clicked()), this, SLOT(showSearch()));
@@ -175,6 +174,12 @@ bool QsvTextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
     if (obj != parent()) {
         return false;
     }
+
+    if (event->type() == QEvent::Resize) {
+        adjustBottomWidget();
+        return false;
+    }
+
     if (event->type() != QEvent::KeyPress) {
         return false;
     }
