@@ -91,6 +91,8 @@ Tasks for v0.0.1
 1. Defer loading 50msec after creation (will improve firs time load)
 1. Need to find a way to keep original line ending
 1. Save content of unnamed files
+1. When saving/loading a file - and it not recognized, the UI 
+   should reflect it somehow. See `updateFileDetails()`.
 
 ## Meta
 

@@ -145,6 +145,7 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     bookmarksMenu->addAction(textEditor->prevBookmarkAction());
 
     this->menus["&File"]->addAction(actionSave);
+    this->menus["&File"]->addAction(actionSaveAs);
     this->menus["&Edit"]->addAction(actionUndo);
     this->menus["&Edit"]->addAction(actionRedo);
     this->menus["&Edit"]->addSeparator();
@@ -519,21 +520,6 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
         textEditor->setPlainText(textStream.readAll());
         file.close();
 
-        auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), newFileName);
-        if (langInfo.isValid()) {
-            textEditor->setHighlighter(langInfo.id);
-            textEditor->setIndentAlgorithm(langInfo.indentAlg);
-            buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
-
-            auto delegate = static_cast<BoldItemDelegate *>(comboChangeHighlighter->itemDelegate());
-            delegate->boldItemStr = langInfo.names[0];
-
-            auto i = comboChangeHighlighter->findText(delegate->boldItemStr);
-            if (i > 0) {
-                comboChangeHighlighter->setCurrentIndex(i);
-            }
-        }
-
         this->fileName = fileInfo.absoluteFilePath();
         fileSystemWatcher->addPath(newFileName);
         if (!fileInfo.isWritable()) {
@@ -551,6 +537,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     mdiClientName = getShortFileName();
     fileName = newFileName;
 
+    updateFileDetails();
     setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
 
@@ -637,6 +624,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     auto i = w->indexOf(this);
     w->setTabText(i, mdiClientName);
     w->setTabToolTip(i, mdiClientFileName());
+    updateFileDetails();
     return true;
 }
 
@@ -818,6 +806,27 @@ void qmdiEditor::chooseIndenter(QAction *action) {
     auto act = buttonChangeIndenter->menu()->actions();
     auto j = act.indexOf(action);
     textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
+}
+
+void qmdiEditor::updateFileDetails() {
+    auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
+    if (langInfo.isValid()) {
+        textEditor->setHighlighter(langInfo.id);
+        textEditor->setIndentAlgorithm(langInfo.indentAlg);
+        buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
+
+        auto delegate = static_cast<BoldItemDelegate *>(comboChangeHighlighter->itemDelegate());
+        delegate->boldItemStr = langInfo.names[0];
+
+        auto i = comboChangeHighlighter->findText(delegate->boldItemStr);
+        if (i > 0) {
+            comboChangeHighlighter->setCurrentIndex(i);
+        }
+
+        auto s = buttonChangeIndenter->menu()->actions()[langInfo.indentAlg]->text();
+        buttonChangeIndenter->setText(s);
+    }
+    // TODO else ...? what should we do if the file is not recognized?
 }
 
 void qmdiEditor::updateIndenterMenu() {

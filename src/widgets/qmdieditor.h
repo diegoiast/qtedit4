@@ -68,6 +68,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void chooseIndenter(QAction *action);
 
   private slots:
+    void updateFileDetails();
     void updateIndenterMenu();
     void updateHighlighterMenu();
 
