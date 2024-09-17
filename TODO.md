@@ -110,10 +110,9 @@ Tasks for v0.0.1
 
 1. ~~Name the main window~~
 1. ~~Icon for main window~~
-1. Hex editor support for binary files (https://github.com/Simsys/qhexedit2)
+1. ~~Hex editor support for binary files, https://github.com/Dax89/QHexView~~
 1. ~~Image viewer (used palacaze/image-viewer)~~
 1. Markdown display
-1. Internal web browser? why not
 1. First run actions
     1. Create kits
     1. Windows:
@@ -122,8 +121,9 @@ Tasks for v0.0.1
         1. Download ninja
         1. Download git
         1. Download Qt (?)
+        1. SCM support
 1. Project plugin will need a refactor, its getting too ugly.
-1. SCM support
+1. Internal web browser? why not
 1. Global hotkeys https://github.com/Skycoder42/QHotkey/blob/master/README.md
 1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
 1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then")

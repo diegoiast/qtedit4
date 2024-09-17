@@ -15,6 +15,8 @@ CPMAddPackage("gh:diegoiast/qmdilib#main")
 CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
 CPMAddPackage("gh:diegoiast/command-palette-widget#main")
 CPMAddPackage("gh:palacaze/image-viewer#master")
+CPMAddPackage("gh:Dax89/QHexView#v5.0.0")
+
 download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
@@ -53,6 +55,8 @@ set(qtedit4_sources
     src/plugins/help/help_plg.h
     src/plugins/imageviewer/imageviewer_plg.cpp
     src/plugins/imageviewer/imageviewer_plg.h
+    src/plugins/hexviewer/hexviewer_plg.cpp
+    src/plugins/hexviewer/hexviewer_plg.h
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.h
     src/plugins/ProjectManager/ProjectManagerPlg.cpp
@@ -86,7 +90,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src/widgets
 )
-target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget Qt6::PrintSupport Pal::ImageViewer)
+target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget Qt6::PrintSupport Pal::ImageViewer QHexView)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
