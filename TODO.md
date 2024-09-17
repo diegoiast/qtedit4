@@ -32,11 +32,16 @@ Tasks for v0.0.1
 ## File manager plugin
 
 1. Right click on a file should open a menu
-    1. Basic file operations (rename, delete, copy, paste?, move)
-    1. If is a file? Edit
+    1. ~~Basic file operations (rename, delete, copy, paste)~~
+    1. ~~If is a file? Edit~~
     1. If is a dir? add as project
-    1. Copy file name (relative, full, etc)
     1. New empty file
+    1. New dir
+    1. Multiple selection
+    1. Copy multiple files
+    1. Delete multiple files
+    1. Cut is not implemented
+    1. Copy file name (relative, full, etc)
 
 ## QutePart
 
@@ -74,8 +79,8 @@ Tasks for v0.0.1
 1. ~~Save zoom level per document~~
 1. ~~File watcher on created file not stopped while saving~~
 1. Control+N should open a new tab.
-1. Line ending on save (Unix/Windows/Keep original)
-1. Trim spaces on save (edit?)
+1. ~~Line ending on save (Unix/Windows/Keep original)~~~
+1. ~~Trim spaces on save (edit?)~~
 1. Add line/column to margin display
 1. Copy path, full, relative
 1. Save content of unnamed files
@@ -85,6 +90,7 @@ Tasks for v0.0.1
 1. When loading a file - if it seems binary, load with another plugin
    (hardocde to hexedit?)
 1. Defer loading 50msec after creation (will improve firs time load)
+1. Need to find a way to keep original line ending
 
 ## Meta
 
@@ -103,7 +109,7 @@ Tasks for v0.0.1
 1. ~~Name the main window~~
 1. ~~Icon for main window~~
 1. Hex editor support for binary files (https://github.com/Simsys/qhexedit2)
-1. Image viewer (https://github.com/sisakat/SiImageViewer)
+1. ~~Image viewer (used palacaze/image-viewer)~~
 1. Markdown display
 1. Internal web browser? why not
 1. First run actions

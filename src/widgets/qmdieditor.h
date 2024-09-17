@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "endlinestyle.h"
 #include <qmdiclient.h>
 #include <qutepart/qutepart.h>
 
@@ -70,6 +71,10 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
 
   protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
+
+  public:
+    EndLineStyle endLineStyle = EndLineStyle::KeepOriginalEndline;
+    bool trimSpacesOnSave = false;
 
   private:
     QsvTextOperationsWidget *operationsWidget;

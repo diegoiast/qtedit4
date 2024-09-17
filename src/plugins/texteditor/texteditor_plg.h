@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "endlinestyle.h"
 #include "iplugin.h"
 
 class QsvColorDefFactory;
@@ -25,6 +26,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(Margin, bool)
         CONFIG_DEFINE(ShowLine, bool)
         CONFIG_DEFINE(MarginOffset, int)
+        CONFIG_DEFINE(LineEndingSave, EndLineStyle)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {

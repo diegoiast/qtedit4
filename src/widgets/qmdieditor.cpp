@@ -437,6 +437,18 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     return true;
 }
 
+QString cleanUpLine(QString str, bool cleanupTrailingSpaces) {
+    while (!str.isEmpty() && (str.endsWith('\n') || str.endsWith('\r'))) {
+        str.chop(1);
+    }
+
+    if (cleanupTrailingSpaces) {
+        str = str.trimmed();
+    }
+
+    return str;
+}
+
 bool qmdiEditor::saveFile(const QString &newFileName) {
     QStringList sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
@@ -454,29 +466,38 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
         return false;
     }
 
-    QTextStream textStream(&file);
-    QTextBlock block = document()->begin();
+    auto textStream = QTextStream(&file);
+    auto block = document()->begin();
+    auto stopProcessing = false;
+    QTextCursor cursor(document());
     while (block.isValid()) {
-        //		if (endOfLine==KeepOldStyle){
-        textStream << block.text();
-        // TODO WTF? - which type the file originally had?
-        textStream << "\n";
-        /*		} else {
-                                QString s = block.text();
-                                int i = s.length();
+        QString s = block.text();
+        s = cleanUpLine(s, trimSpacesOnSave);
+        if (trimSpacesOnSave) {
+            cursor.setPosition(block.position());
+            cursor.select(QTextCursor::BlockUnderCursor);
+            cursor.insertText(s);
+        }
 
-                                if (!s.isEmpty()) if ((s[i-1] == '\n') || (s[i-1] == '\r'))
-                                        s = s.left( i-1 );
-                                if (!s.isEmpty()) if ((s[i-1] == '\n') || (s[i-1] == '\r'))
-                                        s = s.left( i-1 );
-                                textStream << s;
-                                switch (endOfLine) {
-                                        case DOS:	textStream << "\r\n"; break;
-                                        case Unix: 	textStream << "\n"; break;
-                                        case Mac:	textStream << "\r"; break;
-                                        default:	return 0; // just to keep gcc happy
-                                }
-                        }*/
+        switch (endLineStyle) {
+        case EndLineStyle::WindowsEndLine:
+            textStream << s;
+            textStream << "\r\n";
+            break;
+        case EndLineStyle::UnixEndLine:
+            textStream << s;
+            textStream << "\n";
+            break;
+        case KeepOriginalEndline:
+            // TODO - this is broken
+            textStream << document()->toPlainText();
+            stopProcessing = true;
+            break;
+        }
+
+        if (stopProcessing) {
+            break;
+        }
         block = block.next();
     }
     file.close();
