@@ -10,11 +10,13 @@
 
 #include "endlinestyle.h"
 #include <qmdiclient.h>
+#include <qtoolbutton.h>
 #include <qutepart/qutepart.h>
 
 class QsvTextOperationsWidget;
 class QFileSystemWatcher;
 
+class QComboBox;
 namespace Ui {
 class BannerMessage;
 };
@@ -26,7 +28,7 @@ available for the qmdiHost.
 
 @author Diego Iastrubni <diegoiast@gmail.com>
 */
-class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
+class qmdiEditor : public QWidget, public qmdiClient {
     Q_OBJECT
 
   public:
@@ -62,21 +64,33 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     void transformBlockCase();
     void gotoMatchingBracket();
 
+    void chooseHighliter(const QString &newText);
+    void chooseIndenter(QAction *action);
+
   private slots:
+    void updateIndenterMenu();
+    void updateHighlighterMenu();
+
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
-
-  signals:
-    void widgetResized();
-
-  protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
   public:
     EndLineStyle endLineStyle = EndLineStyle::KeepOriginalEndline;
     bool trimSpacesOnSave = false;
 
+    // No longer inheriting Qutepart, instead use "static inheritance"
+    void goTo(int x, int y) { textEditor->goTo(x, y); }
+    void setLineWrapMode(QPlainTextEdit::LineWrapMode mode) { textEditor->setLineWrapMode(mode); }
+    void setDrawAnyWhitespace(bool b) { textEditor->setDrawAnyWhitespace(b); }
+    void setDrawIndentations(bool b) { textEditor->setDrawIndentations(b); }
+    void setBracketHighlightingEnabled(bool b) { textEditor->setBracketHighlightingEnabled(b); }
+    void setLineNumbersVisible(bool b) { textEditor->setLineNumbersVisible(b); }
+    void setSmartHomeEnd(bool b) { textEditor->setSmartHomeEnd(b); }
+    void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
+    void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
+
   private:
+    Qutepart::Qutepart *textEditor;
     QsvTextOperationsWidget *operationsWidget;
     QString getShortFileName();
 
@@ -92,6 +106,8 @@ class qmdiEditor : public Qutepart::Qutepart, public qmdiClient {
     QMenu *bookmarksMenu;
     QMenu *textOperationsMenu;
 
+    QToolButton *buttonChangeIndenter = nullptr;
+    QComboBox *comboChangeHighlighter = nullptr;
     QAction *actionSave = nullptr;
     QAction *actionSaveAs = nullptr;
     QAction *actionUndo = nullptr;

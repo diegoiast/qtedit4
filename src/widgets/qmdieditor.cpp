@@ -6,21 +6,25 @@
  * \see class name
  */
 
+#include <QActionGroup>
 #include <QApplication>
+#include <QComboBox>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
+#include <QScrollArea>
 #include <QStyle>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTextDocument>
+#include <QToolBar>
 
 #include "qmdieditor.h"
 #include "qmdiserver.h"
-
 #include "textoperationswidget.h"
 #include "ui_bannermessage.h"
 
@@ -30,19 +34,90 @@
 #define DEFAULT_EDITOR_FONT "Monospace"
 #endif
 
-qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
-    operationsWidget = new QsvTextOperationsWidget(this);
+#include <QCompleter>
+#include <QMenu>
+#include <QScrollArea>
+#include <QScrollBar>
+#include <QStyledItemDelegate>
+
+class BoldItemDelegate : public QStyledItemDelegate {
+    // Q_OBJECT
+
+  public:
+    QString boldItemStr = "";
+    BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override {
+        QString text = index.data(Qt::DisplayRole).toString();
+        painter->save();
+
+        bool isSelected = option.state & QStyle::State_Selected;
+        if (isSelected) {
+            painter->fillRect(option.rect, option.palette.highlight());
+            painter->setPen(option.palette.highlightedText().color());
+        } else {
+            painter->setPen(option.palette.text().color());
+        }
+
+        QFont font = painter->font();
+        if (text == boldItemStr) {
+            font.setBold(true);
+        }
+        painter->setFont(font);
+        QRect textRect = option.rect.adjusted(4, 0, -4, 0);
+        // painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, text);
+        painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+
+        painter->restore();
+    }
+};
+
+namespace Qutepart {
+QStringList getAvailableHighlihters() {
+    extern QMap<QString, QString> languageNameToXmlFileName;
+    return languageNameToXmlFileName.keys();
+}
+} // namespace Qutepart
+
+qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
+    textEditor = new Qutepart::Qutepart(this);
+    operationsWidget = new QsvTextOperationsWidget(textEditor);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
+    QToolBar *toolbar = new QToolBar(this);
+    QVBoxLayout *layout = new QVBoxLayout(this);
+
+    setupActions();
+    toolbar->addWidget(comboChangeHighlighter);
+    toolbar->addWidget(buttonChangeIndenter);
+
+    QWidget *spacer = new QWidget();
+    spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    toolbar->addWidget(spacer);
+    QLabel *staticLabel = new QLabel("", toolbar);
+    toolbar->addWidget(staticLabel);
+
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(textEditor);
+    layout->addWidget(toolbar);
+
+    connect(textEditor, &QPlainTextEdit::cursorPositionChanged, this, [this, staticLabel]() {
+        QTextCursor cursor = textEditor->textCursor();
+        int line = cursor.blockNumber() + 1;
+        int column = cursor.columnNumber() + 1;
+        staticLabel->setText(QString("%1:%2").arg(line).arg(column));
+    });
+
     connect(fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(on_fileChanged(QString)));
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(10);
     monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
-    setFont(monospacedFont);
-    setLineWrapMode(LineWrapMode::NoWrap);
+    textEditor->setFont(monospacedFont);
+    textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
-    setupActions();
 
     banner = new QWidget(this);
     banner->setFont(QApplication::font());
@@ -58,17 +133,17 @@ qmdiEditor::qmdiEditor(QWidget *p) : Qutepart::Qutepart(p) {
     textOperationsMenu->addAction(actionCapitalize);
     textOperationsMenu->addAction(actionLowerCase);
     textOperationsMenu->addAction(actionChangeCase);
-    textOperationsMenu->addAction(this->deleteLineAction());
-    textOperationsMenu->addAction(this->joinLinesAction());
-    textOperationsMenu->addAction(this->moveLineUpAction());
-    textOperationsMenu->addAction(this->moveLineDownAction());
+    textOperationsMenu->addAction(textEditor->deleteLineAction());
+    textOperationsMenu->addAction(textEditor->joinLinesAction());
+    textOperationsMenu->addAction(textEditor->moveLineUpAction());
+    textOperationsMenu->addAction(textEditor->moveLineDownAction());
 
     bookmarksMenu = new QMenu(tr("Bookmarks"), this);
     bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu");
-    bookmarksMenu->addAction(toggleBookmarkAction());
+    bookmarksMenu->addAction(textEditor->toggleBookmarkAction());
     bookmarksMenu->addSeparator();
-    bookmarksMenu->addAction(nextBookmarkAction());
-    bookmarksMenu->addAction(prevBookmarkAction());
+    bookmarksMenu->addAction(textEditor->nextBookmarkAction());
+    bookmarksMenu->addAction(textEditor->prevBookmarkAction());
 
     this->menus["&File"]->addAction(actionSave);
     this->menus["&Edit"]->addAction(actionUndo);
@@ -130,7 +205,7 @@ QString qmdiEditor::getShortFileName() {
 }
 
 bool qmdiEditor::canCloseClient() {
-    if (!document()->isModified()) {
+    if (!textEditor->document()->isModified()) {
         return true;
     }
 
@@ -165,14 +240,16 @@ QString qmdiEditor::mdiClientFileName() { return getFileName(); }
  * @return row, column,  zoom
  */
 std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
-    auto cursor = textCursor();
-    auto row = document()->findBlock(cursor.position()).blockNumber();
+    auto cursor = textEditor->textCursor();
+    auto row = textEditor->document()->findBlock(cursor.position()).blockNumber();
     auto col = cursor.columnNumber();
     auto zoom = font().pointSize();
     return std::make_tuple(row, col, zoom);
 }
 
 void qmdiEditor::setupActions() {
+    comboChangeHighlighter = new QComboBox(this);
+    buttonChangeIndenter = new QToolButton(this);
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
@@ -205,6 +282,16 @@ void qmdiEditor::setupActions() {
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketLeft)
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketRight));
 
+    auto highlighters = Qutepart::getAvailableHighlihters();
+    comboChangeHighlighter->setObjectName("qmdiEditor::comboChangeHighlighter");
+    comboChangeHighlighter->addItems(highlighters);
+    BoldItemDelegate *delegate = new BoldItemDelegate(comboChangeHighlighter);
+    comboChangeHighlighter->setItemDelegate(delegate);
+
+    buttonChangeIndenter->setObjectName("qmdiEditor::changeIndenter");
+    buttonChangeIndenter->setText(tr("Change indentation"));
+    buttonChangeIndenter->setPopupMode(QToolButton::InstantPopup);
+
     actionSave->setObjectName("qmdiEditor::actionSave");
     actionSaveAs->setObjectName("qmdiEditor::actionSaveAs");
     actionUndo->setObjectName("qmdiEditor::actionUndo");
@@ -223,28 +310,54 @@ void qmdiEditor::setupActions() {
     actionChangeCase->setObjectName("qsvEditor::actionChangeCase");
     actionFindMatchingBracket->setObjectName("qsvEditor::ctionFindMatchingBracket");
 
-    connect(this, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
-    connect(this, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
+    connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
+    connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
+    connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
+    connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
 
-    connect(actionSave, SIGNAL(triggered()), this, SLOT(doSave()));
-    connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(doSaveAs()));
-    connect(actionUndo, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(actionRedo, SIGNAL(triggered()), this, SLOT(redo()));
-    connect(actionCopy, SIGNAL(triggered()), this, SLOT(copy()));
-    connect(actionCut, SIGNAL(triggered()), this, SLOT(cut()));
-    connect(actionPaste, SIGNAL(triggered()), this, SLOT(paste()));
-    connect(actionFind, SIGNAL(triggered()), operationsWidget, SLOT(showSearch()));
-    connect(actionFindNext, SIGNAL(triggered()), operationsWidget, SLOT(searchNext()));
-    connect(actionFindPrev, SIGNAL(triggered()), operationsWidget, SLOT(searchPrev()));
-    connect(actionReplace, SIGNAL(triggered()), operationsWidget, SLOT(showReplace()));
-    connect(actionGotoLine, SIGNAL(triggered()), operationsWidget, SLOT(showGotoLine()));
+    QMenu *indentMenu = new QMenu(tr("Indentation"), this);
+    QActionGroup *indentGroup = new QActionGroup(this);
+    indentGroup->addAction(indentMenu->addAction(tr("None")))->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("Normal - using previous line")))
+        ->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("C-Style indentation")))->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("Lisp based indentatio")))->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("Scheme based indentation")))
+        ->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("XML based indentation")))->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("Python based indentation")))
+        ->setCheckable(true);
+    indentGroup->addAction(indentMenu->addAction(tr("Ruby based indentation")))->setCheckable(true);
+    indentGroup->setExclusive(true);
 
-    connect(actionCapitalize, SIGNAL(triggered()), this, SLOT(transformBlockToUpper()));
-    connect(actionLowerCase, SIGNAL(triggered()), this, SLOT(transformBlockToLower()));
-    connect(actionChangeCase, SIGNAL(triggered()), this, SLOT(transformBlockCase()));
-    connect(actionFindMatchingBracket, SIGNAL(triggered()), this, SLOT(gotoMatchingBracket()));
+    buttonChangeIndenter->setMenu(indentMenu);
+    connect(indentGroup, &QActionGroup::triggered, this, &qmdiEditor::chooseIndenter);
+    connect(indentMenu, &QMenu::aboutToShow, this, &qmdiEditor::updateIndenterMenu);
+
+    connect(comboChangeHighlighter, &QComboBox::currentTextChanged, this,
+            &qmdiEditor::chooseHighliter);
+    connect(actionSave, &QAction::triggered, this, &qmdiEditor::doSave);
+    connect(actionSaveAs, &QAction::triggered, this, &qmdiEditor::doSaveAs);
+    connect(actionUndo, &QAction::triggered, textEditor, &QPlainTextEdit::undo);
+    connect(actionRedo, &QAction::triggered, textEditor, &QPlainTextEdit::redo);
+    connect(actionCopy, &QAction::triggered, textEditor, &QPlainTextEdit::copy);
+    connect(actionCut, &QAction::triggered, textEditor, &QPlainTextEdit::cut);
+    connect(actionPaste, &QAction::triggered, textEditor, &QPlainTextEdit::paste);
+    connect(actionFind, &QAction::triggered, operationsWidget,
+            &QsvTextOperationsWidget::showSearch);
+    connect(actionFindNext, &QAction::triggered, operationsWidget,
+            &QsvTextOperationsWidget::searchNext);
+    connect(actionFindPrev, &QAction::triggered, operationsWidget,
+            &QsvTextOperationsWidget::searchPrev);
+    connect(actionReplace, &QAction::triggered, operationsWidget,
+            &QsvTextOperationsWidget::showReplace);
+    connect(actionGotoLine, &QAction::triggered, operationsWidget,
+            &QsvTextOperationsWidget::showGotoLine);
+
+    connect(actionCapitalize, &QAction::triggered, this, &qmdiEditor::transformBlockToUpper);
+    connect(actionLowerCase, &QAction::triggered, this, &qmdiEditor::transformBlockToLower);
+    connect(actionChangeCase, &QAction::triggered, this, &qmdiEditor::transformBlockCase);
+    connect(actionFindMatchingBracket, &QAction::triggered, this, &qmdiEditor::gotoMatchingBracket);
     // 	connect( actiohAskHelp, SIGNAL(triggered()), this, SLOT(helpShowHelp()));
 
     addAction(actionSave);
@@ -266,7 +379,7 @@ void qmdiEditor::setupActions() {
     addAction(actionFindMatchingBracket);
 
     // default is control+b - which we want to use for build
-    toggleBookmarkAction()->setShortcut(QKeySequence());
+    textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
 }
 
 bool qmdiEditor::getModificationsLookupEnabled() { return fileModifications; }
@@ -297,7 +410,7 @@ void qmdiEditor::on_fileChanged(const QString &filename) {
 
 void qmdiEditor::adjustBottomAndTopWidget() {
     if (topWidget) {
-        QWidget *parent = viewport();
+        QWidget *parent = textEditor->viewport();
         QRect r = parent->rect();
         topWidget->adjustSize();
         r.adjust(10, 0, -10, 0);
@@ -308,7 +421,7 @@ void qmdiEditor::adjustBottomAndTopWidget() {
         topWidget->show();
     }
     if (bottomWidget) {
-        QWidget *parent = viewport();
+        QWidget *parent = textEditor->viewport();
         QRect r = parent->rect();
         bottomWidget->adjustSize();
         r.adjust(10, 0, -10, 0);
@@ -391,9 +504,9 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     bool modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
-    this->setReadOnly(false);
-    // QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    // QApplication::processEvents();
+    textEditor->setReadOnly(false);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
     if (!newFileName.isEmpty()) {
         QFile file(newFileName);
         QFileInfo fileInfo(file);
@@ -404,19 +517,28 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
         }
 
         QTextStream textStream(&file);
-        setPlainText(textStream.readAll());
+        textEditor->setPlainText(textStream.readAll());
         file.close();
 
         auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), newFileName);
         if (langInfo.isValid()) {
-            setHighlighter(langInfo.id);
-            setIndentAlgorithm(langInfo.indentAlg);
+            textEditor->setHighlighter(langInfo.id);
+            textEditor->setIndentAlgorithm(langInfo.indentAlg);
+            buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
+
+            auto delegate = static_cast<BoldItemDelegate *>(comboChangeHighlighter->itemDelegate());
+            delegate->boldItemStr = langInfo.names[0];
+
+            auto i = comboChangeHighlighter->findText(delegate->boldItemStr);
+            if (i > 0) {
+                comboChangeHighlighter->setCurrentIndex(i);
+            }
         }
 
         this->fileName = fileInfo.absoluteFilePath();
         fileSystemWatcher->addPath(newFileName);
         if (!fileInfo.isWritable()) {
-            this->setReadOnly(true);
+            textEditor->setReadOnly(true);
             displayBannerMessage(
                 tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
                    "change the file attributes for write access'>here to force write access.</a>"),
@@ -424,7 +546,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
         }
     } else {
         this->fileName.clear();
-        clear();
+        textEditor->clear();
     }
 
     mdiClientName = getShortFileName();
@@ -433,7 +555,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
 
-    // QApplication::restoreOverrideCursor();
+    QApplication::restoreOverrideCursor();
     return true;
 }
 
@@ -467,9 +589,9 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     }
 
     auto textStream = QTextStream(&file);
-    auto block = document()->begin();
+    auto block = textEditor->document()->begin();
     auto stopProcessing = false;
-    QTextCursor cursor(document());
+    QTextCursor cursor(textEditor->document());
     while (block.isValid()) {
         QString s = block.text();
         s = cleanUpLine(s, trimSpacesOnSave);
@@ -490,7 +612,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
             break;
         case KeepOriginalEndline:
             // TODO - this is broken
-            textStream << document()->toPlainText();
+            textStream << textEditor->document()->toPlainText();
             stopProcessing = true;
             break;
         }
@@ -501,7 +623,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
         block = block.next();
     }
     file.close();
-    document()->setModified(false);
+    textEditor->document()->setModified(false);
 
     QApplication::processEvents();
     QApplication::restoreOverrideCursor();
@@ -520,7 +642,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 }
 
 void qmdiEditor::smartHome() {
-    auto c = textCursor();
+    auto c = textEditor->textCursor();
     int blockLen = c.block().text().length();
     if (blockLen == 0) {
         return;
@@ -543,11 +665,11 @@ void qmdiEditor::smartHome() {
     if ((originalPosition == startOfLine) || (startOfLine + i != originalPosition)) {
         c.setPosition(startOfLine + i, moveAnchor);
     }
-    setTextCursor(c);
+    textEditor->setTextCursor(c);
 }
 
 void qmdiEditor::smartEnd() {
-    QTextCursor c = textCursor();
+    QTextCursor c = textEditor->textCursor();
     int blockLen = c.block().text().length();
     if (blockLen == 0) {
         return;
@@ -572,11 +694,11 @@ void qmdiEditor::smartEnd() {
         c.setPosition(startOfLine + i, moveAnchor);
     }
 
-    setTextCursor(c);
+    textEditor->setTextCursor(c);
 }
 
 void qmdiEditor::transformBlockToUpper() {
-    QTextCursor cursor = textCursor();
+    QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
     QString s_after = s_before.toUpper();
 
@@ -585,12 +707,12 @@ void qmdiEditor::transformBlockToUpper() {
         cursor.deleteChar();
         cursor.insertText(s_after);
         cursor.endEditBlock();
-        setTextCursor(cursor);
+        textEditor->setTextCursor(cursor);
     }
 }
 
 void qmdiEditor::transformBlockToLower() {
-    QTextCursor cursor = textCursor();
+    QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
     QString s_after = s_before.toLower();
 
@@ -599,12 +721,12 @@ void qmdiEditor::transformBlockToLower() {
         cursor.deleteChar();
         cursor.insertText(s_after);
         cursor.endEditBlock();
-        setTextCursor(cursor);
+        textEditor->setTextCursor(cursor);
     }
 }
 
 void qmdiEditor::transformBlockCase() {
-    QTextCursor cursor = textCursor();
+    QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
     QString s_after = s_before;
     int s_len = s_before.length();
@@ -624,7 +746,7 @@ void qmdiEditor::transformBlockCase() {
         cursor.deleteChar();
         cursor.insertText(s_after);
         cursor.endEditBlock();
-        setTextCursor(cursor);
+        textEditor->setTextCursor(cursor);
     }
 }
 
@@ -634,7 +756,7 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
         hideBannerMessage();
     } else if (s == ":forcerw") {
         hideBannerMessage();
-        this->setReadOnly(false);
+        textEditor->setReadOnly(false);
     }
 }
 
@@ -683,9 +805,37 @@ void qmdiEditor::gotoMatchingBracket() {
 #endif
 }
 
-bool qmdiEditor::eventFilter(QObject *obj, QEvent *event) {
-    if (event->type() == QEvent::Resize) {
-        emit widgetResized();
+void qmdiEditor::chooseHighliter(const QString &newText) {
+    auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
+    if (langInfo.isValid()) {
+        textEditor->setHighlighter(langInfo.id);
+        // textEditor->setIndentAlgorithm(langInfo.indentAlg);
+        // buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
     }
-    return Qutepart::eventFilter(obj, event);
+}
+
+void qmdiEditor::chooseIndenter(QAction *action) {
+    buttonChangeIndenter->setText(action->text());
+    auto act = buttonChangeIndenter->menu()->actions();
+    auto j = act.indexOf(action);
+    textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
+}
+
+void qmdiEditor::updateIndenterMenu() {
+    auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), this->getFileName());
+    auto k = 0;
+    for (auto i : buttonChangeIndenter->menu()->actions()) {
+        QFont font = i->font();
+        if (langInfo.isValid() && k == langInfo.indentAlg) {
+            font.setBold(true);
+        } else {
+            font.setBold(false);
+        }
+        i->setFont(font);
+        k++;
+    }
+}
+
+void qmdiEditor::updateHighlighterMenu() {
+    // todo
 }
