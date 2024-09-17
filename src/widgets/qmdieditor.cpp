@@ -118,7 +118,6 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     textEditor->setFont(monospacedFont);
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
-
     banner = new QWidget(this);
     banner->setFont(QApplication::font());
     banner->hide();
