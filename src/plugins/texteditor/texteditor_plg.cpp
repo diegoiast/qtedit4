@@ -142,27 +142,15 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
         }
     }
 
-    if (fileName.endsWith(".c", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".cpp", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".cxx", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".h", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".hpp", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".hxx", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".inc", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".pro", Qt::CaseInsensitive)) {
-        return 5;
-    } else if (fileName.endsWith(".pri", Qt::CaseInsensitive)) {
-        return 5;
-    } else {
-        return 1;
+    static const QStringList extensions = {
+        ".c",    ".cpp", ".cxx", ".h",  ".hpp", ".hxx", ".inc",   ".pro", ".pri", ".txt", ".inc",
+        ".java", ".js",  ".py",  ".rb", ".pas", "bas",  ".swift", ".bat", ".sh",  ".md"};
+    for (const QString &ext : extensions) {
+        if (fileName.endsWith(ext, Qt::CaseInsensitive)) {
+            return 5;
+        }
     }
+    return 2;
 }
 
 bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {
