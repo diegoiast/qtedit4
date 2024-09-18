@@ -40,6 +40,8 @@
 #include <QScrollBar>
 #include <QStyledItemDelegate>
 
+#define PLAIN_TEXT_HIGHIGHTER "Plain text"
+
 class BoldItemDelegate : public QStyledItemDelegate {
     // Q_OBJECT
 
@@ -76,7 +78,9 @@ class BoldItemDelegate : public QStyledItemDelegate {
 namespace Qutepart {
 QStringList getAvailableHighlihters() {
     extern QMap<QString, QString> languageNameToXmlFileName;
-    return languageNameToXmlFileName.keys();
+    auto l = languageNameToXmlFileName.keys();
+    l.append(PLAIN_TEXT_HIGHIGHTER);
+    return l;
 }
 } // namespace Qutepart
 
@@ -796,8 +800,8 @@ void qmdiEditor::chooseHighliter(const QString &newText) {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
     if (langInfo.isValid()) {
         textEditor->setHighlighter(langInfo.id);
-        // textEditor->setIndentAlgorithm(langInfo.indentAlg);
-        // buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
+    } else {
+        textEditor->removeHighlighter();
     }
 }
 
@@ -825,6 +829,22 @@ void qmdiEditor::updateFileDetails() {
 
         auto s = buttonChangeIndenter->menu()->actions()[langInfo.indentAlg]->text();
         buttonChangeIndenter->setText(s);
+    } else {
+        textEditor->removeHighlighter();
+        textEditor->setIndentAlgorithm(Qutepart::IndentAlg::INDENT_ALG_NONE);
+
+        auto a = buttonChangeIndenter->menu()->actions().at(Qutepart::IndentAlg::INDENT_ALG_NONE);
+
+        a->setChecked(true);
+        buttonChangeIndenter->setText(a->text());
+
+        auto delegate = static_cast<BoldItemDelegate *>(comboChangeHighlighter->itemDelegate());
+        delegate->boldItemStr = PLAIN_TEXT_HIGHIGHTER;
+
+        auto i = comboChangeHighlighter->findText(delegate->boldItemStr);
+        if (i > 0) {
+            comboChangeHighlighter->setCurrentIndex(i);
+        }
     }
     // TODO else ...? what should we do if the file is not recognized?
 }
