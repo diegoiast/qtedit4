@@ -1,16 +1,41 @@
 #include <QAction>
 #include <QActionGroup>
+#include <QChar>
 #include <QCoreApplication>
+#include <QFile>
 #include <QMainWindow>
 #include <QMessageBox>
+#include <QString>
 #include <QStringList>
 #include <QUrl>
-
 #include <qmdiactiongroup.h>
 #include <qmdiserver.h>
 
 #include "qmdieditor.h"
 #include "texteditor_plg.h"
+
+bool isPlainText(const QString &str) {
+    if (str.isEmpty()) {
+        return true;
+    }
+    auto textCharCount = 0;
+    auto totalCharCount = 0;
+    for (const auto &ch : str) {
+        totalCharCount++;
+        if (ch == '\0') {
+            return false;
+        }
+        if (ch.isLetterOrNumber() || ch.isPunct() || ch.isSpace() || ch.isSymbol() || ch.isMark()) {
+            textCharCount++;
+        } else if (ch.category() == QChar::Other_Control && ch.unicode() < 32) {
+            if (ch == '\n' || ch == '\r' || ch == '\t') {
+                textCharCount++;
+            }
+        }
+    }
+    auto textRatio = static_cast<double>(textCharCount) / totalCharCount;
+    return textRatio > 0.90;
+}
 
 TextEditorPlugin::TextEditorPlugin() {
     name = tr("Text editor plugin - based on QutePart");
@@ -157,7 +182,22 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     if (fileName.startsWith(".")) {
         return 5;
     }
-    return 2;
+
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        QString firstLines = in.readLine();
+        firstLines.append(in.readLine());
+        firstLines.append(in.readLine());
+        firstLines.append(in.readLine());
+        firstLines.append(in.readLine());
+        file.close();
+        if (isPlainText(firstLines)) {
+            return 5;
+        }
+    }
+
+    return 1;
 }
 
 bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {

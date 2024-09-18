@@ -58,7 +58,7 @@ int HexViewrPlugin::canOpenFile(const QString fileName) {
     if (!fileName.contains(".")) {
         return 5;
     }
-    return 1;
+    return 2;
 }
 
 bool HexViewrPlugin::openFile(const QString fileName, int x, int y, int z) {
