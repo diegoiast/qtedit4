@@ -26,6 +26,7 @@
 #include <QTextBlock>
 #include <QTextDocument>
 #include <QToolBar>
+#include <pluginmanager.h>
 
 #include "qmdieditor.h"
 #include "qmdiserver.h"
@@ -38,12 +39,35 @@
 #define DEFAULT_EDITOR_FONT "Monospace"
 #endif
 
-
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
-class BoldItemDelegate : public QStyledItemDelegate {
-    // Q_OBJECT
+auto static getCorrespondingFile(const QString &fileName) -> QString {
+    static const QStringList cExtensions = {"c", "cpp", "cxx", "cc", "c++"};
+    static const QStringList headerExtensions = {"h", "hpp", "hh"};
 
+    auto fileInfo = QFileInfo(fileName);
+    auto baseName = fileInfo.baseName();    // Get the base name without extension
+    auto dirPath = fileInfo.absolutePath(); // Get the directory path
+
+    if (cExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
+        for (const auto &headerExt : headerExtensions) {
+            auto headerFileName = dirPath + "/" + baseName + "." + headerExt;
+            if (QFileInfo::exists(headerFileName)) {
+                return headerFileName;
+            }
+        }
+    } else if (headerExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
+        for (const auto &cExt : cExtensions) {
+            auto cFileName = dirPath + "/" + baseName + "." + cExt;
+            if (QFileInfo::exists(cFileName)) {
+                return cFileName;
+            }
+        }
+    }
+    return {};
+}
+
+class BoldItemDelegate : public QStyledItemDelegate {
   public:
     QString boldItemStr = "";
     BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
@@ -139,6 +163,8 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     textOperationsMenu->addAction(textEditor->joinLinesAction());
     textOperationsMenu->addAction(textEditor->moveLineUpAction());
     textOperationsMenu->addAction(textEditor->moveLineDownAction());
+    textOperationsMenu->addSeparator();
+    textOperationsMenu->addAction(actionToggleHeader);
 
     bookmarksMenu = new QMenu(tr("Bookmarks"), this);
     bookmarksMenu->setObjectName("qmdiEditor::bookmarksMenu");
@@ -158,8 +184,7 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     this->menus["&Edit"]->addSeparator();
     this->menus["&Edit"]->addMenu(textOperationsMenu);
     this->menus["&Edit"]->addMenu(bookmarksMenu);
-    // menus["&Edit"]->addAction( actionTogglebreakpoint );
-    // menus["&Edit"]->addAction(actionFindMatchingBracket);
+    menus["&Edit"]->addAction(actionFindMatchingBracket);
 
     this->menus["&Search"]->addAction(actionFind);
     this->menus["&Search"]->addAction(actionFindNext);
@@ -276,6 +301,7 @@ void qmdiEditor::setupActions() {
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
     actionChangeCase = new QAction(tr("Change ca&se"), this);
     actionFindMatchingBracket = new QAction(tr("Find matching bracket"), this);
+    actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
 
     actionSave->setShortcut(QKeySequence::Save);
     actionFind->setShortcut(QKeySequence::Find);
@@ -290,6 +316,7 @@ void qmdiEditor::setupActions() {
                                             << QKeySequence(Qt::CTRL | Qt::Key_6)
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketLeft)
                                             << QKeySequence(Qt::CTRL | Qt::Key_BracketRight));
+    actionToggleHeader->setShortcut(Qt::Key_F4);
 
     auto highlighters = Qutepart::getAvailableHighlihters();
     comboChangeHighlighter->setObjectName("qmdiEditor::comboChangeHighlighter");
@@ -314,10 +341,11 @@ void qmdiEditor::setupActions() {
     actionReplace->setObjectName("qmdiEditor::actionReplace");
     actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
 
-    actionCapitalize->setObjectName("qsvEditor::actionCapitalize");
-    actionLowerCase->setObjectName("qsvEditor::actionLowerCase");
-    actionChangeCase->setObjectName("qsvEditor::actionChangeCase");
-    actionFindMatchingBracket->setObjectName("qsvEditor::ctionFindMatchingBracket");
+    actionCapitalize->setObjectName("qmdiEditor::actionCapitalize");
+    actionLowerCase->setObjectName("qmdiEditor::actionLowerCase");
+    actionChangeCase->setObjectName("qmdiEditor::actionChangeCase");
+    actionFindMatchingBracket->setObjectName("qmdiEditor::ctionFindMatchingBracket");
+    actionToggleHeader->setObjectName("qmdiEditor::actiohToggleHeader");
 
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
@@ -376,7 +404,7 @@ void qmdiEditor::setupActions() {
     connect(actionLowerCase, &QAction::triggered, this, &qmdiEditor::transformBlockToLower);
     connect(actionChangeCase, &QAction::triggered, this, &qmdiEditor::transformBlockCase);
     connect(actionFindMatchingBracket, &QAction::triggered, this, &qmdiEditor::gotoMatchingBracket);
-    // 	connect( actiohAskHelp, SIGNAL(triggered()), this, SLOT(helpShowHelp()));
+    connect(actionToggleHeader, &QAction::triggered, this, &qmdiEditor::toggleHeaderImpl);
 
     addAction(actionSave);
     addAction(actionSaveAs);
@@ -395,6 +423,10 @@ void qmdiEditor::setupActions() {
     addAction(actionLowerCase);
     addAction(actionChangeCase);
     addAction(actionFindMatchingBracket);
+    addAction(actionToggleHeader);
+
+    // not implemented yet in QutePart
+    actionFindMatchingBracket->setEnabled(false);
 
     // default is control+b - which we want to use for build
     textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
@@ -810,6 +842,16 @@ void qmdiEditor::gotoMatchingBracket() {
 #endif
 }
 
+void qmdiEditor::toggleHeaderImpl() {
+    auto otherFile = getCorrespondingFile(getFileName());
+    if (!otherFile.isEmpty()) {
+        auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+        if (pluginManager) {
+            pluginManager->openFile(otherFile);
+        }
+    }
+}
+
 void qmdiEditor::chooseHighliter(const QString &newText) {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
     if (langInfo.isValid()) {
@@ -860,7 +902,11 @@ void qmdiEditor::updateFileDetails() {
             comboChangeHighlighter->setCurrentIndex(i);
         }
     }
-    // TODO else ...? what should we do if the file is not recognized?
+
+    auto isCplusplusSource = (fileName.endsWith(".h", Qt::CaseInsensitive) ||
+                              fileName.endsWith(".cpp") || fileName.endsWith(".cc")) ||
+                             fileName.endsWith(".cxx");
+    actionToggleHeader->setEnabled(isCplusplusSource);
 }
 
 void qmdiEditor::updateIndenterMenu() {

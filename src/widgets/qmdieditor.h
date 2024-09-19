@@ -63,6 +63,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void transformBlockToLower();
     void transformBlockCase();
     void gotoMatchingBracket();
+    void toggleHeaderImpl();
 
     void chooseHighliter(const QString &newText);
     void chooseIndenter(QAction *action);
@@ -129,5 +130,5 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QAction *actionCopyFileName = nullptr;
     QAction *actionCopyFilePath = nullptr;
 
-    QAction *actiohAskHelp = nullptr;
+    QAction *actionToggleHeader = nullptr;
 };
