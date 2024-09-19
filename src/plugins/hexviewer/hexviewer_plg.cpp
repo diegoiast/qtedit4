@@ -7,6 +7,8 @@
  */
 
 #include "hexviewer_plg.h"
+#include "qclipboard.h"
+#include <QApplication>
 #include <QFileInfo>
 #include <model/buffer/qmemorybuffer.h>
 #include <qhexview.h>
@@ -14,13 +16,26 @@
 class qmdiHexViewer : public QHexView, public qmdiClient {
   public:
     QString thisFileName;
-    qmdiHexViewer(QWidget *p, const QString &fileName) : QHexView(p) {
-        QHexDocument *document = QHexDocument::fromMappedFile(fileName, this);
-        this->setDocument(document);
-
+    qmdiHexViewer(QWidget *p, const QString &fileName) : QHexView(p), qmdiClient() {
+        auto document = QHexDocument::fromMappedFile(fileName, this);
         auto fi = QFileInfo(fileName);
+        auto actionCopyFileName = new QAction(tr("Copy filename to clipboard"), this);
+        auto actionCopyFilePath = new QAction(tr("Copy full path to clipboard"), this);
+        connect(actionCopyFileName, &QAction::triggered, this, [this]() {
+            auto c = QApplication::clipboard();
+            c->setText(this->mdiClientFileName());
+        });
+        connect(actionCopyFilePath, &QAction::triggered, this, [this]() {
+            auto c = QApplication::clipboard();
+            c->setText(mdiClientName);
+        });
+
+        this->setDocument(document);
         this->mdiClientName = fi.fileName();
         this->thisFileName = fileName;
+        this->contextMenu.addSeparator();
+        this->contextMenu.addAction(actionCopyFileName);
+        this->contextMenu.addAction(actionCopyFilePath);
     }
 
     virtual QString mdiClientFileName() override { return thisFileName; }

@@ -8,7 +8,9 @@
 
 #include <QActionGroup>
 #include <QApplication>
+#include <QClipboard>
 #include <QComboBox>
+#include <QCompleter>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -17,7 +19,9 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QScrollArea>
+#include <QScrollBar>
 #include <QStyle>
+#include <QStyledItemDelegate>
 #include <QTabWidget>
 #include <QTextBlock>
 #include <QTextDocument>
@@ -34,11 +38,6 @@
 #define DEFAULT_EDITOR_FONT "Monospace"
 #endif
 
-#include <QCompleter>
-#include <QMenu>
-#include <QScrollArea>
-#include <QScrollBar>
-#include <QStyledItemDelegate>
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
@@ -178,6 +177,10 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     this->toolbars[tr("main")]->addAction(actionGotoLine);
     this->toolbars[tr("main")]->addAction(actionFindPrev);
     this->toolbars[tr("main")]->addAction(actionFindNext);
+
+    this->contextMenu.addSeparator();
+    this->contextMenu.addAction(actionCopyFileName);
+    this->contextMenu.addAction(actionCopyFilePath);
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -237,7 +240,7 @@ bool qmdiEditor::canCloseClient() {
  * This function is override from qmdiClient::mdiClientFileName(),
  * and will tell the qmdiServer which file is opened by this mdi client.
  */
-QString qmdiEditor::mdiClientFileName() { return getFileName(); }
+QString qmdiEditor::mdiClientFileName() { return fileName; }
 
 /**
  * @brief Return status of editor
@@ -266,6 +269,8 @@ void qmdiEditor::setupActions() {
     actionFindPrev = new QAction(QIcon::fromTheme("go-previous"), tr("Find &previous"), this);
     actionReplace = new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
     actionGotoLine = new QAction(QIcon::fromTheme("go-jump"), tr("&Goto line"), this);
+    actionCopyFileName = new QAction(tr("Copy filename to clipboard"), this);
+    actionCopyFilePath = new QAction(tr("Copy full path to clipboard"), this);
 
     actionCapitalize = new QAction(tr("Change to &capital letters"), this);
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
@@ -318,6 +323,15 @@ void qmdiEditor::setupActions() {
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
+
+    connect(actionCopyFileName, &QAction::triggered, actionCopyFileName, [this]() {
+        auto c = QApplication::clipboard();
+        c->setText(getShortFileName());
+    });
+    connect(actionCopyFilePath, &QAction::triggered, actionCopyFilePath, [this]() {
+        auto c = QApplication::clipboard();
+        c->setText(getFileName());
+    });
 
     QMenu *indentMenu = new QMenu(tr("Indentation"), this);
     QActionGroup *indentGroup = new QActionGroup(this);

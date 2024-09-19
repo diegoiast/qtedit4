@@ -87,12 +87,13 @@ Tasks for v0.0.1
    ~~should reflect it somehow. See `updateFileDetails()`.~~
 1. ~~When loading a file - if it seems binary, load with another plugin~~
   ~~(hardocde to hexedit?)~~
-1. Copy path, full, relative
+1. ~~Copy path, full~~
 1. Make all actions availalbe from menus
 1. F4 to switch header/definition
 1. Defer loading 50msec after creation (will improve firs time load)
 1. Need to find a way to keep original line ending
 1. Save content of unnamed files
+1. Copy path relative to project
 
 ## Meta
 
@@ -130,8 +131,11 @@ Tasks for v0.0.1
 1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
 1. Breadcrumb: https://github.com/Qt-Widgets/wwwidgets-breadcrumb-color-combobox-led-spinbox-navigator-ip-etc
 1. Lots: https://timschneeberger.me/qt/
+    1. https://github.com/timschneeb/FlatTabWidget
+    1. https://github.com/timschneeb/QAnimatedSlider
 1. Lots: https://github.com/progzdeveloper/QtExtra
 1. light? dark? https://github.com/Qt-Widgets/ThemeSupport-determine-OS-currently-active-theme
 1. Flutent design: https://github.com/githubuser0xFFFF/QtFluentDesign
 1. Modern style: https://github.com/Qt-Widgets/Lightly_modern_style_theme
 1. Adwita for QT: https://github.com/Qt-Widgets/adwaita-qt-style-qstyle
+1. QJsonModel: https://github.com/dridk/QJsonModel

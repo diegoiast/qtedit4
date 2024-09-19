@@ -126,6 +126,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QAction *actionLowerCase = nullptr;
     QAction *actionChangeCase = nullptr;
     QAction *actionFindMatchingBracket = nullptr;
+    QAction *actionCopyFileName = nullptr;
+    QAction *actionCopyFilePath = nullptr;
 
     QAction *actiohAskHelp = nullptr;
 };

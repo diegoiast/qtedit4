@@ -7,6 +7,8 @@
  */
 
 #include "imageviewer_plg.h"
+#include <QApplication>
+#include <QClipboard>
 #include <QFileInfo>
 #include <pal/image-viewer.h>
 
@@ -14,10 +16,23 @@ class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
   public:
     QString thisFileName;
     qmdiImageViewer(QWidget *p, const QString &fileName) : pal::ImageViewer(p) {
-        this->setImage(QImage(fileName));
         auto fi = QFileInfo(fileName);
+        auto actionCopyFileName = new QAction(tr("Copy filename to clipboard"), this);
+        auto actionCopyFilePath = new QAction(tr("Copy full path to clipboard"), this);
+        connect(actionCopyFileName, &QAction::triggered, this, [this]() {
+            auto c = QApplication::clipboard();
+            c->setText(this->mdiClientFileName());
+        });
+        connect(actionCopyFilePath, &QAction::triggered, this, [this]() {
+            auto c = QApplication::clipboard();
+            c->setText(mdiClientName);
+        });
+        this->setImage(QImage(fileName));
         this->mdiClientName = fi.fileName();
         this->thisFileName = fileName;
+        this->contextMenu.addSeparator();
+        this->contextMenu.addAction(actionCopyFileName);
+        this->contextMenu.addAction(actionCopyFilePath);
     }
 
     virtual QString mdiClientFileName() override { return thisFileName; }
