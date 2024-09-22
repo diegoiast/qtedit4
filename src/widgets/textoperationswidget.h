@@ -25,12 +25,12 @@ class gotoLineForm;
 
 class QsvTextEdit;
 
-class QsvTextOperationsWidget : public QObject {
+class TextOperationsWidget : public QObject {
     Q_OBJECT
     friend class QsvTextEdit;
 
   public:
-    QsvTextOperationsWidget(QWidget *parent);
+    TextOperationsWidget(QWidget *parent);
     void initSearchWidget();
     void initReplaceWidget();
     void initGotoLineWidget();
@@ -64,15 +64,15 @@ class QsvTextOperationsWidget : public QObject {
     bool issue_search(const QString &text, QTextCursor newCursor,
                       QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *l, bool moveCursor);
 
-    QTextCursor m_searchCursor;
-    QTextDocument *m_document;
-    QTimer m_replaceTimer;
-    QTimer m_searchTimer;
+    QTextCursor searchCursor;
+    QTextDocument *document;
+    QTimer replaceTimer;
+    QTimer searchTimer;
 
   public:
-    QWidget *m_search;
-    QWidget *m_replace;
-    QWidget *m_gotoLine;
+    QWidget *searchWidget;
+    QWidget *replaceWidget;
+    QWidget *gotoLineWidget;
     QColor searchFoundColor;
     QColor searchNotFoundColor;
 

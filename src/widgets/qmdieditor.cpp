@@ -109,7 +109,7 @@ QStringList getAvailableHighlihters() {
 
 qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     textEditor = new Qutepart::Qutepart(this);
-    operationsWidget = new QsvTextOperationsWidget(textEditor);
+    operationsWidget = new TextOperationsWidget(textEditor);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
     QToolBar *toolbar = new QToolBar(this);
@@ -390,15 +390,15 @@ void qmdiEditor::setupActions() {
     connect(actionCut, &QAction::triggered, textEditor, &QPlainTextEdit::cut);
     connect(actionPaste, &QAction::triggered, textEditor, &QPlainTextEdit::paste);
     connect(actionFind, &QAction::triggered, operationsWidget,
-            &QsvTextOperationsWidget::showSearch);
+            &TextOperationsWidget::showSearch);
     connect(actionFindNext, &QAction::triggered, operationsWidget,
-            &QsvTextOperationsWidget::searchNext);
+            &TextOperationsWidget::searchNext);
     connect(actionFindPrev, &QAction::triggered, operationsWidget,
-            &QsvTextOperationsWidget::searchPrev);
+            &TextOperationsWidget::searchPrev);
     connect(actionReplace, &QAction::triggered, operationsWidget,
-            &QsvTextOperationsWidget::showReplace);
+            &TextOperationsWidget::showReplace);
     connect(actionGotoLine, &QAction::triggered, operationsWidget,
-            &QsvTextOperationsWidget::showGotoLine);
+            &TextOperationsWidget::showGotoLine);
 
     connect(actionCapitalize, &QAction::triggered, this, &qmdiEditor::transformBlockToUpper);
     connect(actionLowerCase, &QAction::triggered, this, &qmdiEditor::transformBlockToLower);

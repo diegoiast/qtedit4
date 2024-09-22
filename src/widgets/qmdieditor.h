@@ -13,7 +13,7 @@
 #include <qtoolbutton.h>
 #include <qutepart/qutepart.h>
 
-class QsvTextOperationsWidget;
+class TextOperationsWidget;
 class QFileSystemWatcher;
 
 class QComboBox;
@@ -93,7 +93,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
   private:
     Qutepart::Qutepart *textEditor;
-    QsvTextOperationsWidget *operationsWidget;
+    TextOperationsWidget *operationsWidget;
     QString getShortFileName();
 
     QFileSystemWatcher *fileSystemWatcher;
