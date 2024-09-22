@@ -1,0 +1,32 @@
+{
+   "updates":{
+      "windows":{
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.1",
+         "latest-version":"0.0.1",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.1/qtedit4-qt671-v0.0.1-x86_64.exe",
+         "changelog":"First relese for Windows",
+         "mandatory":true
+      },
+      "windows-testing":{
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3",
+         "latest-version":"0.0.3",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3/qtedit4-qt671-v0.0.3-x86_64.exe",
+         "changelog":"Version 0.0.3",
+         "mandatory":false
+      },
+      "linux":{
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.1",
+         "latest-version":"0.0.1",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.1/qtedit4-qt671-v0.0.1-x86_64.AppImage",
+         "changelog":"First relese for Linux",
+         "mandatory":false
+      },
+      "linux-testing":{
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3",
+         "latest-version":"0.0.3",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3/qtedit4-qt671-v0.0.3-x86_64.exe",
+         "changelog":"Version 0.0.3",
+         "mandatory":false
+      }
+   }
+}
