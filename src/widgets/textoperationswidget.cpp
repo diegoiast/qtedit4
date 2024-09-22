@@ -538,8 +538,8 @@ void TextOperationsWidget::replaceText_modified(QString s) {
 }
 
 bool TextOperationsWidget::issue_search(const QString &text, QTextCursor newCursor,
-                                        QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *l,
-                                        bool moveCursor) {
+                                        QFlags<QTextDocument::FindFlag> findOptions,
+                                        QLineEdit *lineEdit, bool moveCursor) {
     auto c = document->find(text, newCursor, findOptions);
     auto found = !c.isNull();
 
@@ -551,18 +551,18 @@ bool TextOperationsWidget::issue_search(const QString &text, QTextCursor newCurs
         found = !c.isNull();
     }
 
-    auto p = l->palette();
+    auto p = lineEdit->palette();
     if (found) {
         p.setColor(QPalette::Base, searchFoundColor);
     } else {
         if (!text.isEmpty()) {
             p.setColor(QPalette::Base, searchNotFoundColor);
         } else {
-            p.setColor(QPalette::Base, l->style()->standardPalette().base().color());
+            p.setColor(QPalette::Base, lineEdit->style()->standardPalette().base().color());
         }
         c = searchCursor;
     }
-    l->setPalette(p);
+    lineEdit->setPalette(p);
 
     if (moveCursor) {
         auto start = c.selectionStart();
@@ -571,5 +571,8 @@ bool TextOperationsWidget::issue_search(const QString &text, QTextCursor newCurs
         c.setPosition(start, QTextCursor::KeepAnchor);
         setTextCursor(c);
     }
+
+    // sometimes, the line editor looses focus. I am unsure why.
+    lineEdit->setFocus();
     return found;
 }
