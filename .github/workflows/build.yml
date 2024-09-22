@@ -4,6 +4,8 @@ on:
     branches:
       - main
       - github-actions
+    tags:
+      - 'v*'
   pull_request:
     branches:
       - main
@@ -27,15 +29,15 @@ jobs:
               cxx: "cl",
               generators: "Ninja",
             }
-          #        - {
-          #            name: "Windows MinGW",
-          #            build_dir: "windows-mingw",
-          #            os: windows-latest,
-          #            build_type: "Release",
-          #            cc: "gcc",
-          #            cxx: "g++",
-          #            generators: "Ninja"
-          #          }
+          # - {
+          #     name: "Windows MinGW",
+          #     build_dir: "windows-mingw",
+          #     os: windows-latest,
+          #     build_type: "Release",
+          #     cc: "gcc",
+          #     cxx: "g++",
+          #     generators: "Ninja"
+          #   }
           - {
               name: "Windows Clang 16",
               build_dir: "windows-clang",
@@ -78,7 +80,7 @@ jobs:
           python-version: "3.11"
       - name: Install cmake-format
         run: pip3 install cmake-format
-      - name: Setup MSVC (optional)
+      - name: Setup MSVC (Windows)
         if: ${{ matrix.config.cxx == 'cl' }}
         uses: ilammy/msvc-dev-cmd@v1
       - name: Confiure
@@ -99,7 +101,17 @@ jobs:
         run: |
           cmake --install "build/${{ matrix.config.build_dir }}" --prefix="dist/${{ matrix.config.build_dir }}/usr"
 
-      - name: Create AppImage
+      - name: Set version tag or commit SHA
+        id: version
+        run: |
+          if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF##refs/tags/}" >> $GITHUB_ENV
+          else
+            echo "version=${GITHUB_SHA::7}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Create AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
           # Qt plugin does not bundle the needed plugins, do this manually
@@ -109,18 +121,18 @@ jobs:
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
  
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=build/qtedit4-qt671-x86_64.AppImage
+          export OUTPUT=build/qtedit4-qt671-${{ env.version }}-x86_64.AppImage
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
           chmod +x linuxdeploy*.AppImage
           ./linuxdeploy-x86_64.AppImage --appdir "dist/${{ matrix.config.build_dir }}" --plugin qt --output appimage
-      - name: Upload AppImage
+      - name: Upload AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt671-x86_64.AppImage
-          path: build/qtedit4-qt671-x86_64.AppImage
+          name: qtedit4-qt671-${{ env.version }}-x86_64.AppImage
+          path: build/qtedit4-qt671-${{ env.version }}-x86_64.AppImage
 
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
@@ -132,9 +144,35 @@ jobs:
         with:
           path: "setup_script.iss"
           options: /O+
-      - name: Upload setup
+      - name: Rename and upload setup (Windows)
+        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
+        run: |
+          copy dist\qtedit4-win64.exe dist\qtedit4-qt671-${{ env.version }}-x86_64.exe
+        shell: cmd
+      - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt671-x86_64.exe
-          path: dist/qtedit4-win64.exe
+          name: qtedit4-qt671-${{ env.version }}-x86_64.exe
+          path: dist/qtedit4-qt671-${{ env.version }}-x86_64.exe
+
+  create-release:
+    name: Draft GitHub Release
+    needs: build-cmake
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: ./artifacts
+      - name: Create Draft Release
+        run: |
+          gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --generate-notes --draft
+      - name: Upload assets to release
+        run: |
+          gh release upload ${{ github.ref_name }} ./artifacts/*

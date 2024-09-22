@@ -90,7 +90,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src/widgets
 )
-target_link_libraries(qtedit4 PUBLIC qmdilib qutepart CommandPaletteWidget Qt6::PrintSupport Pal::ImageViewer QHexView)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
