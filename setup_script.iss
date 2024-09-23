@@ -32,6 +32,24 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\qtedit4.ico"; DestDir: "{app}\"; Flags: ignoreversion
 
+[Registry]
+; Associate qtedit4 with .txt files
+Root: HKCR; Subkey: ".txt"; ValueType: string; ValueName: ""; ValueData: "qtedit4.File"; Flags: createvalueifdoesntexist
+
+; Define the file type description for qtedit4
+Root: HKCR; Subkey: "qtedit4.File"; ValueType: string; ValueName: ""; ValueData: "Text Document (qtedit4)"
+
+; Set the default icon for .txt files associated with qtedit4
+Root: HKCR; Subkey: "qtedit4.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\qtedit4.exe,0"
+
+; Add "Edit with qtedit4" to the right-click context menu
+Root: HKCR; Subkey: "qtedit4.File\shell\edit"; ValueType: string; ValueName: ""; ValueData: "Edit with qtedit4"
+Root: HKCR; Subkey: "qtedit4.File\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{app}\qtedit4.exe"" ""%1"""
+
+; Optional: Register for "Open" action if you want to make double-click open with qtedit4
+Root: HKCR; Subkey: "qtedit4.File\shell\open"; ValueType: string; ValueName: ""; ValueData: "Open with qtedit4"
+Root: HKCR; Subkey: "qtedit4.File\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\qtedit4.exe"" ""%1"""
+
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*";
 

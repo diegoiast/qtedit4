@@ -28,6 +28,8 @@ Tasks for v0.0.1
 1. Add GUI editor for json
 1. Scripts files - run directly (in console, embeded)
 1. Auto deduct json for Android dirs
+1. Copy file name (relative, full, etc)
+1. When a file is removed/added - update the model. Or - add a "refresh" button.
 
 ## File manager plugin
 
@@ -94,6 +96,12 @@ Tasks for v0.0.1
 1. Need to find a way to keep original line ending
 1. Save content of unnamed files
 1. Copy path relative to project
+1. Preview content:
+    1. Markdown
+    1. Json - QJsonModel: https://github.com/dridk/QJsonModel
+    1. XML - easy to make an XML model with ChatGPT
+    1. SVG
+    1. XPM 
 
 ## Meta
 
@@ -102,9 +110,8 @@ Tasks for v0.0.1
 1. TGZ build for linux
 1. OSX build
 1. Flatpack support
-1. Linux: create desktop entry
-1. Windows: verify that this can be used as global editor
-1. Windows: Otter browser has a nice installer.
+1. ~~Linux: create desktop entry~~
+1. ~~Windows: verify that this can be used as global editor~~
 
 
 ## Internal
@@ -113,7 +120,6 @@ Tasks for v0.0.1
 1. ~~Icon for main window~~
 1. ~~Hex editor support for binary files, https://github.com/Dax89/QHexView~~
 1. ~~Image viewer (used palacaze/image-viewer)~~
-1. Markdown display
 1. First run actions
     1. Create kits
     1. Windows:
@@ -134,8 +140,14 @@ Tasks for v0.0.1
     1. https://github.com/timschneeb/FlatTabWidget
     1. https://github.com/timschneeb/QAnimatedSlider
 1. Lots: https://github.com/progzdeveloper/QtExtra
+    1. Docking system?
+    1. About dialog?
+    1. QLongSpinbox
+    1. QtSlideButton
+    1. 
+1. Spell checking: https://github.com/progzdeveloper/Qt5Extra/tree/main/qtspellchecking
 1. light? dark? https://github.com/Qt-Widgets/ThemeSupport-determine-OS-currently-active-theme
 1. Flutent design: https://github.com/githubuser0xFFFF/QtFluentDesign
 1. Modern style: https://github.com/Qt-Widgets/Lightly_modern_style_theme
 1. Adwita for QT: https://github.com/Qt-Widgets/adwaita-qt-style-qstyle
-1. QJsonModel: https://github.com/dridk/QJsonModel
+
