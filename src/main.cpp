@@ -6,6 +6,7 @@
  */
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QDir>
 #include <QIcon>
 #include <QStandardPaths>
@@ -17,6 +18,13 @@
 #include "plugins/hexviewer/hexviewer_plg.h"
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
+
+std::string getAppImagePath() {
+    if (const char *env_p = std::getenv("APPIMAGE")) {
+        return std::string(env_p);
+    }
+    return "";
+}
 
 int main(int argc, char *argv[]) {
     QCoreApplication::setApplicationName("qtedit4");
@@ -48,6 +56,12 @@ int main(int argc, char *argv[]) {
         qDebug() << "No icons found, using our own. Icons search path" << paths;
     }
 
+    QCommandLineParser parser;
+    parser.addHelpOption();
+    parser.addPositionalArgument(app.tr("files"), app.tr("Files to open."), "[files...]");
+    parser.process(app);
+
+    QStringList filesToOpen = parser.positionalArguments();
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
@@ -65,5 +79,7 @@ int main(int argc, char *argv[]) {
     pluginManager.hideUnusedPanels();
     pluginManager.restoreSettings();
     pluginManager.show();
+
+    pluginManager.openFiles(parser.positionalArguments());
     return app.exec();
 }
