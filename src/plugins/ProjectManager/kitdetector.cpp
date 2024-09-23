@@ -260,8 +260,7 @@ auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
     return std::filesystem::exists(qmakePath);
 }
 
-using PathCallback = std::function<void(const std::filesystem::path &path,
-                                        const std::filesystem::path &full_filename)>;
+using PathCallback = std::function<void(const std::filesystem::path &full_filename)>;
 
 static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> void {
     auto path_env = safeGetEnv("PATH");
@@ -281,7 +280,7 @@ static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> 
             continue;
         }
 #endif
-        callback(std::filesystem::path(dir), full_path);
+        callback(full_path);
     }
     return;
 }
@@ -294,31 +293,30 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
         auto ss = std::stringstream(path_env);
         auto dir = std::string();
 
-        findCommandInPath(
-            cc, [version, &cc, &detected, &cxx_name, unix_target](auto path, auto full_path) {
-                if (isCompilerAlreadyFound(detected, full_path.string())) {
-                    return;
-                }
+        findCommandInPath(cc, [version, &cc, &detected, &cxx_name, unix_target](auto full_path) {
+            if (isCompilerAlreadyFound(detected, full_path.string())) {
+                return;
+            }
 
-                auto extraPath = KitDetector::ExtraPath();
-                auto cxx = cxx_name + "-" + std::to_string(version);
-                if (unix_target) {
-                    extraPath.name = cc;
-                    extraPath.compiler_path = full_path.string();
-                    extraPath.comment = "# detected " + full_path.string();
-                    extraPath.command += "export CC=" + cc;
-                    extraPath.command += "\n";
-                    extraPath.command += "export CXX=" + cxx;
-                } else {
-                    extraPath.name = cc;
-                    extraPath.compiler_path = full_path.string();
-                    extraPath.comment = "@rem detected " + full_path.string();
-                    extraPath.command += "SET CC=" + cc;
-                    extraPath.command += "\n";
-                    extraPath.command += "SET CXX=" + cxx;
-                }
-                detected.push_back(extraPath);
-            });
+            auto extraPath = KitDetector::ExtraPath();
+            auto cxx = cxx_name + "-" + std::to_string(version);
+            if (unix_target) {
+                extraPath.name = cc;
+                extraPath.compiler_path = full_path.string();
+                extraPath.comment = "# detected " + full_path.string();
+                extraPath.command += "export CC=" + cc;
+                extraPath.command += "\n";
+                extraPath.command += "export CXX=" + cxx;
+            } else {
+                extraPath.name = cc;
+                extraPath.compiler_path = full_path.string();
+                extraPath.comment = "@rem detected " + full_path.string();
+                extraPath.command += "SET CC=" + cc;
+                extraPath.command += "\n";
+                extraPath.command += "SET CXX=" + cxx;
+            }
+            detected.push_back(extraPath);
+        });
     }
 }
 
