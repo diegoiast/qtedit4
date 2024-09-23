@@ -20,6 +20,7 @@
 #include <string>
 
 #ifdef _WIN32
+#include <QFile>
 #include <windows.h>
 #else
 #include <QDesktopServices>
@@ -71,7 +72,7 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
 auto static getExecutablePath() -> std::string {
     std::string path;
 
-#ifdef __linux__
+#if defined(__unix__)
     const char *appImagePath = std::getenv("APPIMAGE");
     if (appImagePath) {
         return std::string(appImagePath);
@@ -82,15 +83,14 @@ auto static getExecutablePath() -> std::string {
     if (count != -1) {
         path = std::string(result, (count > 0) ? count : 0);
     }
+    if (path.empty()) {
+        path = std::filesystem::absolute(std::filesystem::path(program_invocation_name)).string();
+    }
 #elif _WIN32
     char result[MAX_PATH];
     GetModuleFileNameA(NULL, result, MAX_PATH);
     path = std::string(result);
 #endif
-
-    if (path.empty()) {
-        path = std::filesystem::absolute(std::filesystem::path(program_invocation_name)).string();
-    }
 
     return path;
 }
@@ -117,6 +117,7 @@ auto static canInstallDesktopFile() -> bool {
 }
 
 auto static refreshSystemMenus() -> void {
+#if defined(__unix__)
     std::string desktopEnv =
         std::getenv("XDG_CURRENT_DESKTOP") ? std::getenv("XDG_CURRENT_DESKTOP") : "";
 
@@ -131,6 +132,7 @@ auto static refreshSystemMenus() -> void {
         // Generic approach for other environments
         std::system("update-menus");
     }
+#endif
 }
 
 HelpPlugin::HelpPlugin() {
@@ -150,7 +152,7 @@ HelpPlugin::HelpPlugin() {
     auto actionAboutQt = new QAction(tr("About Qt"), this);
     connect(actionAboutQt, &QAction::triggered, this, []() { QApplication::aboutQt(); });
 
-    if (canInstallDesktopFile() || true) {
+    if (canInstallDesktopFile()) {
         auto installDesktopFile = new QAction(tr("Install desktop file"), this);
         connect(installDesktopFile, &QAction::triggered, this, [this]() {
             auto svgResourcePath = ":qtedit4.svg";
