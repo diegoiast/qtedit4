@@ -120,6 +120,7 @@ Tasks for v0.0.1
 1. ~~Icon for main window~~
 1. ~~Hex editor support for binary files, https://github.com/Dax89/QHexView~~
 1. ~~Image viewer (used palacaze/image-viewer)~~
+1. ~~Updater: https://github.com/alex-spataru/QSimpleUpdater~~
 1. First run actions
     1. Create kits
     1. Windows:
@@ -132,7 +133,6 @@ Tasks for v0.0.1
 1. Project plugin will need a refactor, its getting too ugly.
 1. Internal web browser? why not
 1. Global hotkeys https://github.com/Skycoder42/QHotkey/blob/master/README.md
-1. Updater: https://github.com/alex-spataru/QSimpleUpdater, https://github.com/Skycoder42/QtAutoUpdater
 1. Terminal widget: https://github.com/lxqt/qtermwidget (see what Kate did "back then")
 1. QtAwesome icon set: https://github.com/gamecreature/QtAwesome
 1. Breadcrumb: https://github.com/Qt-Widgets/wwwidgets-breadcrumb-color-combobox-led-spinbox-navigator-ip-etc

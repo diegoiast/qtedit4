@@ -18,6 +18,7 @@ CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
 CPMAddPackage("gh:diegoiast/command-palette-widget#main")
 CPMAddPackage("gh:palacaze/image-viewer#master")
 CPMAddPackage("gh:Dax89/QHexView#5.0")
+CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
 
 download_breeze_icons(6.4.0)
 
@@ -92,7 +93,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src/widgets
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

@@ -21,7 +21,5 @@ class HelpPlugin : public IPlugin {
     void showAbout();
   public slots:
     void actionAbout_triggered();
-
-  private:
-    QAction *actionAbout;
+    void checkForUpdates_triggered();
 };

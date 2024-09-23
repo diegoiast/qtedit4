@@ -25,7 +25,15 @@
 #else
 #include <QDesktopServices>
 #include <QFile>
+#include <QSimpleUpdater.h>
 #include <unistd.h>
+#endif
+
+#if defined(__linux__)
+#define TESTING_CHANNEL "linux-testing"
+#elif defined(_WIN32)
+#define TESTING_CHANNEL "windows-testing"
+#else
 #endif
 
 auto static createDesktopMenuItem(const std::string &execPath, const std::string &svgIconContent)
@@ -143,8 +151,11 @@ HelpPlugin::HelpPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-    actionAbout = new QAction(tr("&About"), this);
-    connect(actionAbout, SIGNAL(triggered()), this, SLOT(actionAbout_triggered()));
+    auto actionAbout = new QAction(tr("&About"), this);
+    connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
+    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
+    connect(actionCheckForUpdates, &QAction::triggered, this,
+            &HelpPlugin::checkForUpdates_triggered);
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
     connect(actionVisitHomePage, &QAction::triggered, this,
@@ -172,9 +183,10 @@ HelpPlugin::HelpPlugin() {
             refreshSystemMenus();
         });
         menus["&Help"]->addAction(installDesktopFile);
-        menus["&Help"]->addSeparator();
     }
 
+    menus["&Help"]->addAction(actionCheckForUpdates);
+    menus["&Help"]->addSeparator();
     menus["&Help"]->addAction(actionVisitHomePage);
     menus["&Help"]->addAction(actionAboutQt);
     menus["&Help"]->addAction(actionAbout);
@@ -190,4 +202,13 @@ void HelpPlugin::showAbout() {
 void HelpPlugin::actionAbout_triggered() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
                              "QtEdit4 - a text editor");
+}
+
+void HelpPlugin::checkForUpdates_triggered() {
+    auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
+    // QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+    QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
+    QSimpleUpdater::getInstance()->setNotifyOnFinish(url, true);
+    QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
+    QSimpleUpdater::getInstance()->checkForUpdates(url);
 }
