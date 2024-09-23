@@ -389,8 +389,7 @@ void qmdiEditor::setupActions() {
     connect(actionCopy, &QAction::triggered, textEditor, &QPlainTextEdit::copy);
     connect(actionCut, &QAction::triggered, textEditor, &QPlainTextEdit::cut);
     connect(actionPaste, &QAction::triggered, textEditor, &QPlainTextEdit::paste);
-    connect(actionFind, &QAction::triggered, operationsWidget,
-            &TextOperationsWidget::showSearch);
+    connect(actionFind, &QAction::triggered, operationsWidget, &TextOperationsWidget::showSearch);
     connect(actionFindNext, &QAction::triggered, operationsWidget,
             &TextOperationsWidget::searchNext);
     connect(actionFindPrev, &QAction::triggered, operationsWidget,

@@ -61,10 +61,8 @@ class TextOperationsWidget : public QObject {
 
   protected:
     bool eventFilter(QObject *obj, QEvent *event);
-    bool issue_search(const QString &text,
-                      QTextCursor newCursor,
-                      QFlags<QTextDocument::FindFlag> findOptions,
-                      QLineEdit *lineEdit,
+    bool issue_search(const QString &text, QTextCursor newCursor,
+                      QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *lineEdit,
                       bool moveCursor);
 
     QTextCursor searchCursor;
