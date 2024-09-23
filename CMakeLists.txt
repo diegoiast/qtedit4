@@ -11,11 +11,13 @@ include(cmake/icons-breeze.cmake)
 set(QMDILIB_BUILD_EXAMPLES off)
 set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
+set(QHEXVIEW_ENABLE_DIALOGS on)
+
 CPMAddPackage("gh:diegoiast/qmdilib#main")
 CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
 CPMAddPackage("gh:diegoiast/command-palette-widget#main")
 CPMAddPackage("gh:palacaze/image-viewer#master")
-CPMAddPackage("gh:Dax89/QHexView#v5.0.0")
+CPMAddPackage("gh:Dax89/QHexView#5.0")
 
 download_breeze_icons(6.4.0)
 
