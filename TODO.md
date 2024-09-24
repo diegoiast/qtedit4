@@ -23,6 +23,10 @@ Tasks for v0.0.1
 1. ~~Loading of large (real life) projects take too long (example: zed)~~
 1. ~~Plugins config loading should be done only when the main UI is up.~~
 1. ~~Kits without Qt~~
+1. ~~Search~~: 
+    1. ~~Not working~~
+    1. ~~Save/restore: "search for", "include files", "exclude"~~
+    1. ~~Allow file does not work (search for "main" in files called "main.cxx")~~
 1. Sort order is wrong. It should sort by path and not string (visble again in zed)
 1. Detect build errors/warnings
 1. Add GUI editor for json
@@ -81,7 +85,7 @@ Tasks for v0.0.1
 1. ~~Save zoom level per document~~
 1. ~~File watcher on created file not stopped while saving~~
 1. ~~Control+N should open a new tab.~~
-1. ~~Line ending on save (Unix/Windows/Keep original)~~~
+1. ~~Line ending on save (Unix/Windows/Keep original)~~
 1. ~~Trim spaces on save (edit?)~~
 1. ~~Add line/column to margin display~~
 1. ~~Switch indentator/language~~

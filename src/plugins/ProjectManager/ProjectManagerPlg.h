@@ -17,6 +17,7 @@ class FilterOutProxyModel;
 class KitDefinitionModel;
 
 class CommandPalette;
+class ProjectSearch;
 
 struct ProjectBuildConfig;
 struct TaskInfo;
@@ -30,13 +31,13 @@ class BuildRunOutput;
 class ProjectManagerPlugin : public IPlugin {
 
     struct Config {
-        CONFIG_DEFINE(SupportCPP, bool);
-        CONFIG_DEFINE(SupportRust, bool);
-        CONFIG_DEFINE(SupportGo, bool);
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
         CONFIG_DEFINE(FilterShow, QString);
         CONFIG_DEFINE(FilterOut, QString);
+        CONFIG_DEFINE(SearchPattern, QString);
+        CONFIG_DEFINE(SearchInclude, QString);
+        CONFIG_DEFINE(SearchExclude, QString);
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -90,6 +91,7 @@ class ProjectManagerPlugin : public IPlugin {
     DirectoryModel *directoryModel = nullptr;
     FilterOutProxyModel *filesFilterModel = nullptr;
     CommandPalette *commandPalette = nullptr;
+    ProjectSearch *searchPanelUI = nullptr;
 
     QAction *runAction = nullptr;
     QAction *buildAction = nullptr;

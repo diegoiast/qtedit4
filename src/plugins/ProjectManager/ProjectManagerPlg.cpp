@@ -170,33 +170,14 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     config.pluginName = "Project manager";
     config.description = "Add support for building using CMake/Cargo/Go";
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("C++ support"))
-                                     .setDescription(tr("Detect CMake based projects"))
-                                     .setKey(Config::SupportCPPKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Rust support"))
-                                     .setDescription(tr("Detect Rust/Cargo based projects"))
-                                     .setKey(Config::SupportRustKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("GoLang support"))
-                                     .setDescription(tr("Detect Go based projects"))
-                                     .setKey(Config::SupportGoKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName("Extra paths")
                                      .setDescription("Add new paths for compilers/tools")
                                      .setKey(Config::ExtraPathKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
                                      .build());
+
+    // project GUI
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName("Open directories")
                                      .setKey(Config::OpenDirsKey)
@@ -212,6 +193,26 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setKey(Config::FilterOutKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
+
+    // search GUI
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchPatternKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchIncludeKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchExcludeKey)
                                      .setType(qmdiConfigItem::String)
                                      .setDefaultValue("")
                                      .setUserEditable(false)
@@ -380,11 +381,11 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         getManager()->openFile(buildConfig->fileName);
     });
 
-    auto *searchPanelUI = new ProjectSearch(manager, directoryModel);
+    searchPanelUI = new ProjectSearch(manager, directoryModel);
     auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
-    connect(projectSearch, &QAction::triggered, this, [seachID, manager, searchPanelUI]() {
+    connect(projectSearch, &QAction::triggered, this, [seachID, manager, this]() {
         manager->showPanel(Panels::West, seachID);
         searchPanelUI->setFocusOnSearch();
     });
@@ -460,9 +461,11 @@ void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); 
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
-    auto dirsToLoad = QStringList();
-    dirsToLoad = getConfig().getOpenDirs();
 
+    searchPanelUI->setSearchPattern(getConfig().getSearchPattern());
+    searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
+    searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
+    auto dirsToLoad = getConfig().getOpenDirs();
     QTimer::singleShot(0, [this, dirsToLoad]() {
         for (auto &dirName : dirsToLoad) {
             auto config = projectModel->findConfigDir(dirName);
@@ -481,9 +484,10 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
-    getConfig().setFilterShow(gui->filterFiles->text());
-    getConfig().setFilterOut(gui->filterOutFiles->text());
     getConfig().setOpenDirs(projectModel->getAllOpenDirs());
+    getConfig().setSearchPattern(searchPanelUI->getSearchPattern());
+    getConfig().setSearchInclude(searchPanelUI->getSearchInclude());
+    getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
     IPlugin::saveConfig(settings);
 }
 
