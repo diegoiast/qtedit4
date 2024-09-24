@@ -11,10 +11,7 @@
 #include "endlinestyle.h"
 #include "iplugin.h"
 
-class QsvColorDefFactory;
-
 class TextEditorPlugin : public IPlugin {
-
     struct Config {
         CONFIG_DEFINE(TrimSpaces, bool)
         CONFIG_DEFINE(SmartHome, bool)
@@ -40,7 +37,6 @@ class TextEditorPlugin : public IPlugin {
     ~TextEditorPlugin();
 
     void showAbout() override;
-    QActionGroup *newFileActions() override;
     QStringList myExtensions() override;
     int canOpenFile(const QString fileName) override;
     bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1) override;
@@ -49,13 +45,5 @@ class TextEditorPlugin : public IPlugin {
 
   public slots:
     virtual void configurationHasBeenModified() override;
-    void fileNew(QAction *);
-
-  private:
-    QActionGroup *myNewActions;
-    QAction *actionNewFile;
-    QAction *actionNewCPP;
-    QAction *actionNewHeader;
-
-    QsvColorDefFactory *editorColors;
+    void fileNew();
 };

@@ -45,14 +45,6 @@ TextEditorPlugin::TextEditorPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-    actionNewFile = new QAction(tr("New blank file"), this);
-    actionNewCPP = new QAction(tr("New source"), this);
-    actionNewHeader = new QAction(tr("New header"), this);
-    myNewActions = new QActionGroup(this);
-    myNewActions->addAction(actionNewFile);
-    myNewActions->addAction(actionNewCPP);
-    myNewActions->addAction(actionNewHeader);
-
     /*
     #if defined(WIN32)
         auto installPrefix = QCoreApplication::applicationDirPath();
@@ -61,10 +53,8 @@ TextEditorPlugin::TextEditorPlugin() {
     #endif
     */
 
-    connect(myNewActions, &QActionGroup::triggered, this, &TextEditorPlugin::fileNew);
-
-    config.pluginName = "Text editor";
-    config.description = "Default text editor, based on QutePart";
+    config.pluginName = tr("Text editor");
+    config.description = tr("Default text editor, based on QutePart");
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Trim spaces"))
                                      .setDescription(tr("Remove spaces from end of lines, on save"))
@@ -144,8 +134,6 @@ void TextEditorPlugin::showAbout() {
                              "This plugin gives a QtSourceView based text editor");
 }
 
-QActionGroup *TextEditorPlugin::newFileActions() { return myNewActions; }
-
 QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
     s << tr("Sources", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc)";
@@ -157,6 +145,9 @@ QStringList TextEditorPlugin::myExtensions() {
 }
 
 int TextEditorPlugin::canOpenFile(const QString fileName) {
+    if (fileName.isEmpty()) {
+        return 5;
+    }
     auto u = QUrl(fileName);
 
     // if the scheme is a single line, lets assume this is a windows drive
@@ -260,7 +251,7 @@ void TextEditorPlugin::configurationHasBeenModified() {
     }
 }
 
-void TextEditorPlugin::fileNew(QAction *) {
+void TextEditorPlugin::fileNew() {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
     mdiServer->addClient(editor);
 }

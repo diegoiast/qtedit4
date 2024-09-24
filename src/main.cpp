@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QStandardPaths>
+#include <QToolButton>
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -69,10 +70,13 @@ int main(int argc, char *argv[]) {
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
     auto windowIcon = QIcon(":qtedit4.ico");
+
+    auto textEditorPlugin = new TextEditorPlugin;
+
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
-    pluginManager.addPlugin(new TextEditorPlugin);
+    pluginManager.addPlugin(textEditorPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
@@ -82,6 +86,9 @@ int main(int argc, char *argv[]) {
     pluginManager.hideUnusedPanels();
     pluginManager.restoreSettings();
     pluginManager.show();
+
+    pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
+                          [textEditorPlugin]() { textEditorPlugin->fileNew(); });
 
     pluginManager.openFiles(parser.positionalArguments());
     return app.exec();
