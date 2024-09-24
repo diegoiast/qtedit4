@@ -24,6 +24,8 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
+#include <QHBoxLayout>
+#include <QLabel>
 #include <unistd.h>
 #endif
 
@@ -198,8 +200,25 @@ void HelpPlugin::showAbout() {
 }
 
 void HelpPlugin::actionAbout_triggered() {
-    QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
-                             "QtEdit4 - a text editor");
+    auto appName = QCoreApplication::applicationName();
+    auto version = QCoreApplication::applicationVersion();
+    auto aboutText = QString(tr("<h2>%1 %2</h2>"
+                                "<p>A versatile text editor</p>"
+                                "<p>Home page: <a "
+                                "href='%3/'>%3"
+                                "diegoiast/qtedit4/</a></p>"
+                                "<p>Licensed under the GNU General Public License v3.0 (GPLv3)</p>"
+                                "<p>Copyright © 2024 Diego Iastrubni</p>"))
+                         .arg(appName, version, "https://github.com/diegoiast/qtedit4");
+
+    auto aboutBox = QMessageBox(getManager());
+    aboutBox.setWindowTitle(tr("About %1").arg(appName));
+    aboutBox.setText(aboutText);
+    aboutBox.setTextFormat(Qt::RichText);
+    aboutBox.setIconPixmap(QPixmap(":/icons/qtedit4.png")
+                               .scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    aboutBox.exec();
 }
 
 void HelpPlugin::checkForUpdates_triggered() {
