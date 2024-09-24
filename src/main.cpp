@@ -30,7 +30,7 @@ std::string getAppImagePath() {
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("qtedit4");
-    QCoreApplication::setApplicationVersion("0.0.1");
+    QCoreApplication::setApplicationVersion("0.0.1-dev");
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.
