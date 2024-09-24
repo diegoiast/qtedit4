@@ -11,7 +11,9 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QFile>
 #include <QMessageBox>
+#include <QSimpleUpdater.h>
 #include <QUrl>
 #include <cstdlib>
 #include <filesystem>
@@ -20,12 +22,8 @@
 #include <string>
 
 #ifdef _WIN32
-#include <QFile>
 #include <windows.h>
 #else
-#include <QDesktopServices>
-#include <QFile>
-#include <QSimpleUpdater.h>
 #include <unistd.h>
 #endif
 
