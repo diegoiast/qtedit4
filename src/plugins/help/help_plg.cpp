@@ -204,10 +204,8 @@ void HelpPlugin::actionAbout_triggered() {
     auto version = QCoreApplication::applicationVersion();
     auto aboutText = QString(tr("<h2>%1 %2</h2>"
                                 "<p>A versatile text editor</p>"
-                                "<p>Home page: <a "
-                                "href='%3/'>%3"
-                                "diegoiast/qtedit4/</a></p>"
-                                "<p>Licensed under the GNU General Public License v3.0 (GPLv3)</p>"
+                                "<p>Home page: <a href='%3'>%3</a></p>"
+                                "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
                                 "<p>Copyright © 2024 Diego Iastrubni</p>"))
                          .arg(appName, version, "https://github.com/diegoiast/qtedit4");
 
