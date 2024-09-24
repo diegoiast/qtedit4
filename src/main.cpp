@@ -20,10 +20,14 @@
 #include "plugins/texteditor/texteditor_plg.h"
 
 std::string getAppImagePath() {
+#if defined(WIN32)
+    return "";
+#else
     if (const char *env_p = std::getenv("APPIMAGE")) {
         return std::string(env_p);
     }
     return "";
+#endif
 }
 
 int main(int argc, char *argv[]) {
@@ -61,7 +65,6 @@ int main(int argc, char *argv[]) {
     parser.addPositionalArgument(app.tr("files"), app.tr("Files to open."), "[files...]");
     parser.process(app);
 
-    QStringList filesToOpen = parser.positionalArguments();
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
