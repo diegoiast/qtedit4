@@ -111,6 +111,17 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
+
+    auto values = QStringList() << tr("Unix end of line") << tr("Windows end of line")
+                                << tr("Keep original end of line");
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("End of line style"))
+                                     .setDescription(tr("Which line ends to use when saving"))
+                                     .setKey(Config::LineEndingSaveKey)
+                                     .setType(qmdiConfigItem::OneOf)
+                                     .setPossibleValue(values)
+                                     .setDefaultValue(EndLineStyle::KeepOriginalEndline)
+                                     .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show right margin"))
                                      .setDescription("Shows a a margin at the end of line")
@@ -119,7 +130,7 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Wrap index"))
+                                     .setDisplayName(tr("Margin position"))
                                      .setDescription(tr("Character at which the margin is drawn"))
                                      .setKey(Config::MarginOffsetKey)
                                      .setType(qmdiConfigItem::UInt16)
@@ -220,10 +231,6 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
 void TextEditorPlugin::applySettings(qmdiClient *client) {
     auto editor = static_cast<qmdiEditor *>(client);
 
-    if (getConfig().getTrimSpaces()) {
-        // editor->
-    }
-
     if (getConfig().getWrapLines()) {
         editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     } else {
@@ -237,6 +244,8 @@ void TextEditorPlugin::applySettings(qmdiClient *client) {
     editor->setSmartHomeEnd(getConfig().getSmartHome());
     editor->setDrawSolidEdge(getConfig().getMargin());
     editor->setLineLengthEdge(getConfig().getMarginOffset());
+    editor->endLineStyle = getConfig().getLineEndingSave();
+    editor->trimSpacesOnSave = getConfig().getTrimSpaces();
     editor->repaint();
 }
 

@@ -594,16 +594,45 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     return true;
 }
 
-QString cleanUpLine(QString str, bool cleanupTrailingSpaces) {
-    while (!str.isEmpty() && (str.endsWith('\n') || str.endsWith('\r'))) {
-        str.chop(1);
+QString cleanUpLine(const QString &str, bool cleanupTrailingSpaces, EndLineStyle endline) {
+    auto result = str;
+    auto hadCRLF = result.endsWith("\r\n");
+    auto hadLF = !hadCRLF && result.endsWith('\n');
+    auto hadCR = !hadCRLF && !hadLF && result.endsWith('\r');
+
+    if (hadCRLF) {
+        result.chop(2);
+    } else if (hadLF || hadCR) {
+        result.chop(1);
     }
 
     if (cleanupTrailingSpaces) {
-        str = str.trimmed();
+        result = result.trimmed();
     }
 
-    return str;
+    switch (endline) {
+    case UnixEndLine:
+        result.append('\n');
+        break;
+    case WindowsEndLine:
+        result.append("\r\n");
+        break;
+    case KeepOriginalEndline:
+        if (hadCRLF) {
+            result.append("\r\n");
+        } else if (hadLF) {
+            result.append('\n');
+        } else if (hadCR) {
+            result.append('\r');
+        } else {
+            // TODO this is broken. When loading the file, all new lines are
+            // stripped into the document.
+            result.append("\r");
+        }
+        break;
+    }
+
+    return result;
 }
 
 bool qmdiEditor::saveFile(const QString &newFileName) {
@@ -625,36 +654,17 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
     auto textStream = QTextStream(&file);
     auto block = textEditor->document()->begin();
-    auto stopProcessing = false;
     QTextCursor cursor(textEditor->document());
     while (block.isValid()) {
         QString s = block.text();
-        s = cleanUpLine(s, trimSpacesOnSave);
+        s = cleanUpLine(s, trimSpacesOnSave, endLineStyle);
         if (trimSpacesOnSave) {
             cursor.setPosition(block.position());
             cursor.select(QTextCursor::BlockUnderCursor);
             cursor.insertText(s);
         }
 
-        switch (endLineStyle) {
-        case EndLineStyle::WindowsEndLine:
-            textStream << s;
-            textStream << "\r\n";
-            break;
-        case EndLineStyle::UnixEndLine:
-            textStream << s;
-            textStream << "\n";
-            break;
-        case KeepOriginalEndline:
-            // TODO - this is broken
-            textStream << textEditor->document()->toPlainText();
-            stopProcessing = true;
-            break;
-        }
-
-        if (stopProcessing) {
-            break;
-        }
+        textStream << s;
         block = block.next();
     }
     file.close();
