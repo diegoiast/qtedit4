@@ -17,7 +17,8 @@ CPMAddPackage("gh:diegoiast/qmdilib#main")
 CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
 CPMAddPackage("gh:diegoiast/command-palette-widget#main")
 CPMAddPackage("gh:palacaze/image-viewer#master")
-CPMAddPackage("gh:Dax89/QHexView#5.0")
+# latest commit from the 5.0 branch
+CPMAddPackage("gh:Dax89/QHexView#9a93fc0b26695210dcb947d6d92abe92fbde87b0")
 CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
 
 download_breeze_icons(6.4.0)

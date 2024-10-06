@@ -10,9 +10,9 @@
 #include "qclipboard.h"
 #include <QApplication>
 #include <QFileInfo>
-#include <dialogs/hexfinddialog.h>
-#include <model/buffer/qmemorybuffer.h>
-#include <qhexview.h>
+#include <QHexView/dialogs/hexfinddialog.h>
+#include <QHexView/model/buffer/qmemorybuffer.h>
+#include <QHexView/qhexview.h>
 
 class qmdiHexViewer : public QHexView, public qmdiClient {
   public:
