@@ -28,6 +28,9 @@ std::string getAppImagePath() {
 }
 
 int main(int argc, char *argv[]) {
+    Q_INIT_RESOURCE(qutepart_syntax_files);
+    Q_INIT_RESOURCE(qutepart_theme_data);
+
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("qtedit4");
     QCoreApplication::setApplicationVersion("0.0.1-dev");

@@ -1,5 +1,7 @@
+#include "thememanager.h"
 #include <QAction>
 #include <QActionGroup>
+#include <QApplication>
 #include <QChar>
 #include <QCoreApplication>
 #include <QFile>
@@ -44,6 +46,7 @@ TextEditorPlugin::TextEditorPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
+    themeManager = new Qutepart::ThemeManager();
 
     /*
     #if defined(WIN32)
@@ -145,6 +148,12 @@ void TextEditorPlugin::showAbout() {
                              "This plugin gives a QtSourceView based text editor");
 }
 
+void TextEditorPlugin::loadConfig(QSettings &settings) {
+    themeManager->loadFromDir(":/qutepart/themes/");
+    qDebug() << "Loaded some themes" << themeManager->getLoadedFiles().length();
+    IPlugin::loadConfig(settings);
+}
+
 QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
     s << tr("Sources", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc)";
@@ -202,7 +211,7 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
 }
 
 bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {
-    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
 
     // In the future - the zoom, will be used to set state to the lines, if the value is really
     // large. I will assume that font size bigger than 500 is not really existent.
@@ -261,6 +270,6 @@ void TextEditorPlugin::configurationHasBeenModified() {
 }
 
 void TextEditorPlugin::fileNew() {
-    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     mdiServer->addClient(editor);
 }

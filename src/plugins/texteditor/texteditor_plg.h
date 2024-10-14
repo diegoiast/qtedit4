@@ -8,6 +8,10 @@
 
 #pragma once
 
+namespace Qutepart {
+class ThemeManager;
+}
+
 #include "endlinestyle.h"
 #include "iplugin.h"
 
@@ -15,7 +19,7 @@ class TextEditorPlugin : public IPlugin {
     struct Config {
         CONFIG_DEFINE(TrimSpaces, bool)
         CONFIG_DEFINE(SmartHome, bool)
-        CONFIG_DEFINE(WrapLines, bool);
+        CONFIG_DEFINE(WrapLines, bool)
         CONFIG_DEFINE(AutoReload, bool)
         CONFIG_DEFINE(ShowWhite, bool)
         CONFIG_DEFINE(ShowIndentations, bool)
@@ -30,6 +34,7 @@ class TextEditorPlugin : public IPlugin {
         static Config configObject{&this->config};
         return configObject;
     }
+    Qutepart::ThemeManager *themeManager;
 
     Q_OBJECT
   public:
@@ -37,6 +42,8 @@ class TextEditorPlugin : public IPlugin {
     ~TextEditorPlugin();
 
     void showAbout() override;
+    virtual void loadConfig(QSettings &settings) override;
+
     QStringList myExtensions() override;
     int canOpenFile(const QString fileName) override;
     bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1) override;
