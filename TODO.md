@@ -98,6 +98,7 @@ Tasks for v0.0.1
 1. ~~Copy path, full~~
 1. ~~Make all actions availalbe from menus~~
 1. ~~F4 to switch header/definition~~
+1. ~~Change font~~
 1. Defer loading 50msec after creation (will improve firs time load)
 1. Need to find a way to keep original line ending
 1. Save content of unnamed files
@@ -156,3 +157,5 @@ Tasks for v0.0.1
 1. Flutent design: https://github.com/githubuser0xFFFF/QtFluentDesign
 1. Modern style: https://github.com/Qt-Widgets/Lightly_modern_style_theme
 1. Adwita for QT: https://github.com/Qt-Widgets/adwaita-qt-style-qstyle
+1. QNoto: 
+1. Progress indicator: https://github.com/epasveer/QProgressIndicator

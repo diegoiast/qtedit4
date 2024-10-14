@@ -55,6 +55,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QString getFileName() const { return fileName; }
     bool getModificationsLookupEnabled();
     void setModificationsLookupEnabled(bool);
+    inline void setEditorFont(QFont newFont) {
+        textEditor->setFont(newFont);
+    }
 
   public slots:
     void on_fileChanged(const QString &filename);

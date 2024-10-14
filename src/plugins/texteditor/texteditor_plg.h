@@ -15,6 +15,8 @@ class ThemeManager;
 #include "endlinestyle.h"
 #include "iplugin.h"
 
+class qmdiEditor;
+
 class TextEditorPlugin : public IPlugin {
     struct Config {
         CONFIG_DEFINE(TrimSpaces, bool)
@@ -28,6 +30,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(ShowLine, bool)
         CONFIG_DEFINE(MarginOffset, int)
         CONFIG_DEFINE(LineEndingSave, EndLineStyle)
+        CONFIG_DEFINE(Font, QString)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -48,7 +51,7 @@ class TextEditorPlugin : public IPlugin {
     int canOpenFile(const QString fileName) override;
     bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1) override;
     void navigateFile(qmdiClient *client, int x, int y, int z) override;
-    void applySettings(qmdiClient *);
+    void applySettings(qmdiEditor *editor);
 
   public slots:
     virtual void configurationHasBeenModified() override;

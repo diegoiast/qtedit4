@@ -140,7 +140,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
     monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
-    textEditor->setFont(monospacedFont);
+    setEditorFont(monospacedFont);
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     banner = new QWidget(this);

@@ -139,6 +139,18 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setType(qmdiConfigItem::UInt16)
                                      .setDefaultValue(80)
                                      .build());
+
+    QFont monospacedFont = qApp->font();
+    monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
+    monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
+
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Display font"))
+                                     .setKey(Config::FontKey)
+                                     .setType(qmdiConfigItem::Font)
+                                     .setDefaultValue(monospacedFont)
+                                     .setValue(monospacedFont)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
@@ -237,14 +249,16 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
     Q_UNUSED(z);
 }
 
-void TextEditorPlugin::applySettings(qmdiClient *client) {
-    auto editor = static_cast<qmdiEditor *>(client);
+void TextEditorPlugin::applySettings(qmdiEditor *editor) {
 
     if (getConfig().getWrapLines()) {
         editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     } else {
         editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
+
+    auto newFont = QFont();
+    newFont.fromString(getConfig().getFont());
 
     editor->setDrawAnyWhitespace(getConfig().getShowWhite());
     editor->setDrawIndentations(getConfig().getShowIndentations());
@@ -255,6 +269,7 @@ void TextEditorPlugin::applySettings(qmdiClient *client) {
     editor->setLineLengthEdge(getConfig().getMarginOffset());
     editor->endLineStyle = getConfig().getLineEndingSave();
     editor->trimSpacesOnSave = getConfig().getTrimSpaces();
+    editor->setEditorFont(newFont);
     editor->repaint();
 }
 
