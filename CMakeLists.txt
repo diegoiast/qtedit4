@@ -4,24 +4,37 @@ project (qtedit4)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 
-include(cmake/CPM.cmake)
 include(cmake/mold-linker.cmake)
-include(cmake/icons-breeze.cmake)
 
 set(QMDILIB_BUILD_EXAMPLES off)
 set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
+set(QTEDIT4_WORK_OFFLINE on)
 
-CPMAddPackage("gh:diegoiast/qmdilib#main")
-CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
-CPMAddPackage("gh:diegoiast/command-palette-widget#main")
-CPMAddPackage("gh:palacaze/image-viewer#master")
-# latest commit from the 5.0 branch
-CPMAddPackage("gh:Dax89/QHexView#9a93fc0b26695210dcb947d6d92abe92fbde87b0")
-CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
+if (QTEDIT4_WORK_OFFLINE)
+    # for this to work, you need to make these libraries available yourself.
+    add_subdirectory("lib/qmdilib")
+    add_subdirectory("lib/qutepart-cpp")
+    add_subdirectory("lib/command-palette-widget")
+    add_subdirectory("lib/qhexview")
+    add_subdirectory("lib/qsimpleupdater")
+    add_subdirectory("lib/image-viewer")
+else()
+    include(cmake/CPM.cmake)
+    include(cmake/icons-breeze.cmake)
+    
+    CPMAddPackage("gh:diegoiast/qmdilib#main")
+    CPMAddPackage("gh:diegoiast/qutepart-cpp#main")
+    CPMAddPackage("gh:diegoiast/command-palette-widget#main")
+    CPMAddPackage("gh:palacaze/image-viewer#master")
+    #latest commit from the 5.0 branch
+    CPMAddPackage("gh:Dax89/QHexView#9a93fc0b26695210dcb947d6d92abe92fbde87b0")
+    CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
+    
+    download_breeze_icons(6.4.0)
+endif()
 
-download_breeze_icons(6.4.0)
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
 set(CMAKE_CXX_STANDARD 17)
@@ -44,6 +57,7 @@ set(qtedit4_sources
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystemwidget.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystemwidget.h
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
+    ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
@@ -55,6 +69,8 @@ set(qtedit4_sources
     src/widgets/gotolineform.ui
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
+    src/plugins/texteditor/thememanager.cpp
+    src/plugins/texteditor/thememanager.h
     src/plugins/help/help_plg.cpp
     src/plugins/help/help_plg.h
     src/plugins/imageviewer/imageviewer_plg.cpp
