@@ -324,7 +324,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         }
     });
 
-    auto menu = new QMenu();
+    auto menu = new QMenu(getManager());
     auto rescanKits = new QAction(tr("Rescan kits"), menu);
     auto recreateKits = new QAction(tr("Recreate kits"), menu);
     auto openKitsinFM = new QAction(tr("Open kits dir in file manager"), menu);
