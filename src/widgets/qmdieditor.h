@@ -58,6 +58,11 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setEditorFont(QFont newFont) {
         textEditor->setFont(newFont);
     }
+    inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
+    inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
+    inline void setEditorHighlighter(QString id, const Qutepart::Theme *theme) {
+        textEditor->setHighlighter(id, theme);
+    }
 
   public slots:
     void on_fileChanged(const QString &filename);
@@ -82,7 +87,6 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
     void chooseHighliter(const QString &newText);
     void chooseIndenter(const QAction *action);
-    void chooseTheme(const QAction *action);
 
   private slots:
     void updateFileDetails();
@@ -127,7 +131,6 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
     QComboBox *comboChangeHighlighter = nullptr;
     QToolButton *buttonChangeIndenter = nullptr;
-    QToolButton *buttonChangeTheme = nullptr;
     QAction *actionSave = nullptr;
     QAction *actionSaveAs = nullptr;
     QAction *actionUndo = nullptr;

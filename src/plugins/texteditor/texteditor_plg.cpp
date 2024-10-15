@@ -1,4 +1,5 @@
 #include "thememanager.h"
+#include <CommandPaletteWidget/commandpalette.h>
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -9,8 +10,10 @@
 #include <QMessageBox>
 #include <QString>
 #include <QStringList>
+#include <QStringListModel>
 #include <QUrl>
 #include <qmdiactiongroup.h>
+#include <qmdihost.h>
 #include <qmdiserver.h>
 
 #include "qmdieditor.h"
@@ -154,6 +157,62 @@ TextEditorPlugin::TextEditorPlugin() {
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
+
+void TextEditorPlugin::on_client_merged(qmdiHost *) {
+    chooseTheme = new QAction(tr("Choose theme"), getManager());
+    menus[tr("Se&ttings")]->addAction(chooseTheme);
+
+    connect(chooseTheme, &QAction::triggered, this, [this]() {
+        auto current = getManager()->currentClient();
+        auto editor = dynamic_cast<qmdiEditor *>(current);
+        if (!editor) {
+            return;
+        }
+        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
+        auto originalTheme = editor->getEditorTheme();
+
+        newThemeSelected = false;
+        chooseTheme->setDisabled(true);
+        auto list = QStringList(tr("System colors"));
+        for (auto &t : themeManager->getLoadedFiles()) {
+            auto m = themeManager->getThemeMetaData(t);
+            list.append(m.name);
+        }
+
+        auto model = new QStringListModel(list, getManager());
+        auto p = new CommandPalette(getManager());
+        p->setDataModel(model);
+        p->show();
+
+        connect(p, &CommandPalette::didHide, this, [this, p, editor, originalTheme, langInfo]() {
+            if (!newThemeSelected) {
+                editor->setEditorTheme(originalTheme);
+                editor->setEditorHighlighter(langInfo.id, originalTheme);
+            }
+            chooseTheme->setEnabled(true);
+            p->deleteLater();
+            // todo set theme globally
+        });
+        connect(p, &CommandPalette::didSelectItem, this,
+                [langInfo, editor, this](const QModelIndex index, const QAbstractItemModel *) {
+                    Qutepart::Theme *newTheme = nullptr;
+                    auto themeDescription = index.data(Qt::DisplayRole).toString();
+                    auto themeFileName = themeManager->getNameFromDesc(themeDescription);
+                    auto themeMetaData = themeManager->getThemeMetaData(themeFileName);
+                    if (!themeMetaData.name.isEmpty()) {
+                        newTheme = new Qutepart::Theme();
+                        newTheme->loadTheme(themeFileName);
+                    }
+
+                    editor->setEditorTheme(newTheme);
+                    editor->setEditorHighlighter(langInfo.id, newTheme);
+                });
+        connect(p, &CommandPalette::didChooseItem, this, [this]() {
+            // don't restore theme on closing
+            newThemeSelected = true;
+        });
+    });
+}
 
 void TextEditorPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",

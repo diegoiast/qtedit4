@@ -115,7 +115,6 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     setupActions();
     toolbar->addWidget(comboChangeHighlighter);
     toolbar->addWidget(buttonChangeIndenter);
-    toolbar->addWidget(buttonChangeTheme);
 
     QWidget *spacer = new QWidget();
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -280,7 +279,6 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
 void qmdiEditor::setupActions() {
     comboChangeHighlighter = new QComboBox(this);
     buttonChangeIndenter = new QToolButton(this);
-    buttonChangeTheme = new QToolButton(this);
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
@@ -326,10 +324,6 @@ void qmdiEditor::setupActions() {
     buttonChangeIndenter->setObjectName("qmdiEditor::changeIndenter");
     buttonChangeIndenter->setText(tr("Change indentation"));
     buttonChangeIndenter->setPopupMode(QToolButton::InstantPopup);
-
-    buttonChangeTheme->setObjectName("qmdiEditor::buttonChangeTheme");
-    buttonChangeTheme->setText(tr("Change theme"));
-    buttonChangeTheme->setPopupMode(QToolButton::InstantPopup);
 
     actionSave->setObjectName("qmdiEditor::actionSave");
     actionSaveAs->setObjectName("qmdiEditor::actionSaveAs");
@@ -382,20 +376,6 @@ void qmdiEditor::setupActions() {
     buttonChangeIndenter->setMenu(indentMenu);
     connect(indentGroup, &QActionGroup::triggered, this, &qmdiEditor::chooseIndenter);
     connect(indentMenu, &QMenu::aboutToShow, this, &qmdiEditor::updateIndenterMenu);
-
-    auto themeMenu = new QMenu(tr("Theme"), this);
-    auto themeGroup = new QActionGroup(this);
-    themeGroup->addAction(themeMenu->addAction(tr("System colors")));
-    for (auto &t : themeManager->getLoadedFiles()) {
-        auto m = themeManager->getThemeMetaData(t);
-        auto a = themeMenu->addAction(m.name);
-        a->setProperty("filename", t);
-        themeGroup->addAction(a);
-    }
-    themeGroup->setExclusive(true);
-    buttonChangeTheme->setMenu(themeMenu);
-    connect(themeGroup, &QActionGroup::triggered, this, &qmdiEditor::chooseTheme);
-    // connect(themeGroup, &QMenu::aboutToShow, this, &qmdiEditor::updateIThemeMenu);
 
     connect(comboChangeHighlighter, &QComboBox::currentTextChanged, this,
             &qmdiEditor::chooseHighliter);
@@ -892,21 +872,6 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
     auto act = buttonChangeIndenter->menu()->actions();
     auto j = act.indexOf(action);
     textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
-}
-
-void qmdiEditor::chooseTheme(const QAction *action) {
-    Qutepart::Theme *newTheme = nullptr;
-    auto themeFileName = action->property("filename").toString();
-    auto langName = comboChangeHighlighter->currentText();
-    auto langInfo = ::Qutepart::chooseLanguage({}, langName, {});
-    auto themeMetaData = themeManager->getThemeMetaData(themeFileName);
-    if (!themeMetaData.name.isEmpty()) {
-        newTheme = new Qutepart::Theme();
-        newTheme->loadTheme(themeFileName);
-    }
-
-    textEditor->setTheme(newTheme);
-    textEditor->setHighlighter(langInfo.id, newTheme);
 }
 
 void qmdiEditor::updateFileDetails() {

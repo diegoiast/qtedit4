@@ -44,7 +44,8 @@ class TextEditorPlugin : public IPlugin {
     TextEditorPlugin();
     ~TextEditorPlugin();
 
-    void showAbout() override;
+    virtual void on_client_merged(qmdiHost *host) override;
+    virtual void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
 
     QStringList myExtensions() override;
@@ -56,4 +57,11 @@ class TextEditorPlugin : public IPlugin {
   public slots:
     virtual void configurationHasBeenModified() override;
     void fileNew();
+
+  private:
+    QAction *chooseTheme;
+
+    // TODO - this needs to be a local variable, or at lest the nested
+    //        hack of functions needs to be removed , see chooseTheme, &QAction::triggered
+    bool newThemeSelected = false;
 };
