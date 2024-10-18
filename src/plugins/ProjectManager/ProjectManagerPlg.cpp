@@ -170,8 +170,8 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     config.pluginName = "Project manager";
     config.description = "Add support for building using CMake/Cargo/Go";
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName("Extra paths")
-                                     .setDescription("Add new paths for compilers/tools")
+                                     .setDisplayName(tr("Extra paths"))
+                                     .setDescription(tr("Add new paths for compilers/tools"))
                                      .setKey(Config::ExtraPathKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
@@ -179,7 +179,7 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
 
     // project GUI
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName("Open directories")
+                                     .setDisplayName(tr("Open directories"))
                                      .setKey(Config::OpenDirsKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
@@ -408,9 +408,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     buildAction->setEnabled(false);
     clearAction->setEnabled(false);
 
-    connect(runAction, SIGNAL(triggered()), this, SLOT(runButton_clicked()));
-    connect(buildAction, SIGNAL(triggered()), this, SLOT(runTask_clicked()));
-    connect(clearAction, SIGNAL(triggered()), this, SLOT(clearProject_clicked()));
+    connect(runAction, &QAction::triggered, this, &ProjectManagerPlugin::runButton_clicked);
+    connect(buildAction, &QAction::triggered, this, &ProjectManagerPlugin::runTask_clicked);
+    connect(clearAction, &QAction::triggered, this, &ProjectManagerPlugin::clearProject_clicked);
 
     runAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_R));
     buildAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_B));

@@ -154,6 +154,12 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(monospacedFont)
                                      .setValue(monospacedFont)
                                      .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::ThemeKey)
+                                     .setType(qmdiConfigItem::Font)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
@@ -169,7 +175,6 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
             return;
         }
         auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
-        auto originalTheme = editor->getEditorTheme();
 
         newThemeSelected = false;
         chooseTheme->setDisabled(true);
@@ -178,37 +183,61 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
             auto m = themeManager->getThemeMetaData(t);
             list.append(m.name);
         }
+        list.sort(Qt::CaseSensitive);
 
         auto model = new QStringListModel(list, getManager());
         auto p = new CommandPalette(getManager());
         p->setDataModel(model);
         p->show();
 
-        connect(p, &CommandPalette::didHide, this, [this, p, editor, originalTheme, langInfo]() {
+        connect(p, &CommandPalette::didHide, this, [this, p, editor, langInfo]() {
             if (!newThemeSelected) {
-                editor->setEditorTheme(originalTheme);
-                editor->setEditorHighlighter(langInfo.id, originalTheme);
+                editor->setEditorTheme(this->theme);
+                editor->setEditorHighlighter(langInfo.id, this->theme);
+            } else {
+                // apply it globally
+                auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
+                delete this->theme;
+                this->theme = newTheme;
+                for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
+                    auto client = mdiServer->getClient(i);
+                    auto e = dynamic_cast<qmdiEditor *>(client);
+                    if (!e) {
+                        // current editor already has this enabled
+                        continue;
+                    }
+
+                    auto langInfo = ::Qutepart::chooseLanguage({}, {}, e->mdiClientFileName());
+                    e->setEditorTheme(this->theme);
+                    e->setEditorHighlighter(langInfo.id, this->theme);
+                }
+
+                auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
+                getConfig().setTheme(themeFileName);
             }
             chooseTheme->setEnabled(true);
             p->deleteLater();
-            // todo set theme globally
+            editor->setFocus();
         });
         connect(p, &CommandPalette::didSelectItem, this,
                 [langInfo, editor, this](const QModelIndex index, const QAbstractItemModel *) {
-                    Qutepart::Theme *newTheme = nullptr;
+                    auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
+                    if (newTheme != this->theme) {
+                        delete newTheme;
+                    }
                     auto themeDescription = index.data(Qt::DisplayRole).toString();
                     auto themeFileName = themeManager->getNameFromDesc(themeDescription);
                     auto themeMetaData = themeManager->getThemeMetaData(themeFileName);
                     if (!themeMetaData.name.isEmpty()) {
                         newTheme = new Qutepart::Theme();
-                        newTheme->loadTheme(themeFileName);
+                        const_cast<Qutepart::Theme *>(newTheme)->loadTheme(themeFileName);
                     }
 
                     editor->setEditorTheme(newTheme);
                     editor->setEditorHighlighter(langInfo.id, newTheme);
                 });
-        connect(p, &CommandPalette::didChooseItem, this, [this]() {
-            // don't restore theme on closing
+        connect(p, &CommandPalette::didChooseItem, this, [editor, this]() {
+            // don't restore theme on closing - user choose his new theme
             newThemeSelected = true;
         });
     });
@@ -220,9 +249,18 @@ void TextEditorPlugin::showAbout() {
 }
 
 void TextEditorPlugin::loadConfig(QSettings &settings) {
-    themeManager->loadFromDir(":/qutepart/themes/");
-    qDebug() << "Loaded some themes" << themeManager->getLoadedFiles().length();
     IPlugin::loadConfig(settings);
+    themeManager->loadFromDir(":/qutepart/themes/");
+    qDebug() << "Loaded themes, count=" << themeManager->getLoadedFiles().length();
+
+    auto themeFileName = getConfig().getTheme();
+    delete this->theme;
+    this->theme = new Qutepart::Theme();
+    if (!this->theme->loadTheme(themeFileName)) {
+        qDebug() << "Failed loading thene " << themeFileName;
+        delete this->theme;
+        this->theme = nullptr;
+    }
 }
 
 QStringList TextEditorPlugin::myExtensions() {
@@ -309,7 +347,6 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
 }
 
 void TextEditorPlugin::applySettings(qmdiEditor *editor) {
-
     if (getConfig().getWrapLines()) {
         editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     } else {
@@ -330,6 +367,12 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     editor->trimSpacesOnSave = getConfig().getTrimSpaces();
     editor->setEditorFont(newFont);
     editor->repaint();
+
+    if (this->theme != editor->getEditorTheme()) {
+        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
+        editor->setEditorTheme(this->theme);
+        editor->setEditorHighlighter(langInfo.id, this->theme);
+    }
 }
 
 void TextEditorPlugin::configurationHasBeenModified() {

@@ -492,6 +492,11 @@ void qmdiEditor::hideTimer_timeout() {
     }
 }
 
+void qmdiEditor::focusInEvent(QFocusEvent *event) {
+    QWidget::focusInEvent(event);
+    textEditor->setFocus();
+}
+
 void qmdiEditor::showUpperWidget(QWidget *w) {
     topWidget = w;
     adjustBottomAndTopWidget();

@@ -10,6 +10,7 @@
 
 namespace Qutepart {
 class ThemeManager;
+class Theme;
 }
 
 #include "endlinestyle.h"
@@ -31,6 +32,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(MarginOffset, int)
         CONFIG_DEFINE(LineEndingSave, EndLineStyle)
         CONFIG_DEFINE(Font, QString)
+        CONFIG_DEFINE(Theme, QString)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -38,6 +40,7 @@ class TextEditorPlugin : public IPlugin {
         return configObject;
     }
     Qutepart::ThemeManager *themeManager;
+    Qutepart::Theme *theme = nullptr;
 
     Q_OBJECT
   public:

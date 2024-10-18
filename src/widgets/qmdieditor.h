@@ -111,6 +111,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
     void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
 
+  protected:
+    void focusInEvent(QFocusEvent *event) override;
+
   private:
     Qutepart::ThemeManager *themeManager = nullptr;
     Qutepart::Qutepart *textEditor = nullptr;
