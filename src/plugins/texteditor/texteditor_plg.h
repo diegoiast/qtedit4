@@ -11,7 +11,7 @@
 namespace Qutepart {
 class ThemeManager;
 class Theme;
-}
+} // namespace Qutepart
 
 #include "endlinestyle.h"
 #include "iplugin.h"
