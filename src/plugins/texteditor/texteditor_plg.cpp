@@ -224,6 +224,7 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                     auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
                     if (newTheme != this->theme) {
                         delete newTheme;
+                        newTheme = nullptr;
                     }
                     auto themeDescription = index.data(Qt::DisplayRole).toString();
                     auto themeFileName = themeManager->getNameFromDesc(themeDescription);
