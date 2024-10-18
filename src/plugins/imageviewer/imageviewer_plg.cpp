@@ -33,6 +33,33 @@ class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
         this->contextMenu.addSeparator();
         this->contextMenu.addAction(actionCopyFileName);
         this->contextMenu.addAction(actionCopyFilePath);
+
+        auto zoomInAction = new QAction(this);
+        zoomInAction->setAutoRepeat(true);
+        zoomInAction->setToolTip(tr("Zoom int image"));
+        zoomInAction->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ZoomIn));
+        connect(zoomInAction, &QAction::triggered, this, [this]() { this->zoomIn(); });
+
+        auto zoomOutAction = new QAction(this);
+        zoomOutAction->setAutoRepeat(true);
+        zoomOutAction->setToolTip(tr("Fit image out"));
+        zoomOutAction->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ZoomOut));
+        connect(zoomOutAction, &QAction::triggered, this, [this]() { this->zoomOut(); });
+
+        auto zoomFitAction = new QAction(this);
+        zoomFitAction->setToolTip(tr("Fit image to window"));
+        zoomFitAction->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::ZoomFitBest));
+        connect(zoomFitAction, &QAction::triggered, this, &ImageViewer::zoomFit);
+
+        auto zoomOriginalAction = new QAction(this);
+        zoomOriginalAction->setToolTip(tr("Show image at original size"));
+        zoomOriginalAction->setIcon(QIcon::fromTheme("zoom-original"));
+        connect(zoomOriginalAction, &QAction::triggered, this, &ImageViewer::zoomOriginal);
+
+        this->toolbars[tr("main")]->addAction(zoomInAction);
+        this->toolbars[tr("main")]->addAction(zoomOutAction);
+        this->toolbars[tr("main")]->addAction(zoomFitAction);
+        this->toolbars[tr("main")]->addAction(zoomOriginalAction);
     }
 
     virtual QString mdiClientFileName() override { return thisFileName; }

@@ -59,7 +59,10 @@ TextOperationsWidget::TextOperationsWidget(QWidget *parent) : QObject(parent) {
 }
 
 void TextOperationsWidget::initSearchWidget() {
-    searchWidget = new QWidget((QWidget *)parent());
+    auto parentWidget = (QWidget *)parent();
+
+    searchWidget = new QWidget(parentWidget);
+    searchWidget->setPalette(parentWidget->style()->standardPalette());
     searchWidget->setObjectName("m_search");
     searchFormUi = new Ui::searchForm();
     searchFormUi->setupUi(searchWidget);
@@ -85,7 +88,9 @@ void TextOperationsWidget::initSearchWidget() {
 }
 
 void TextOperationsWidget::initReplaceWidget() {
-    replaceWidget = new QWidget((QWidget *)parent());
+    auto parentWidget = (QWidget *)parent();
+    replaceWidget = new QWidget(parentWidget);
+    replaceWidget->setPalette(parentWidget->style()->standardPalette());
     replaceWidget->setObjectName("m_replace");
     replaceFormUi = new Ui::replaceForm();
     replaceFormUi->setupUi(replaceWidget);
@@ -119,7 +124,10 @@ void TextOperationsWidget::initReplaceWidget() {
 }
 
 void TextOperationsWidget::initGotoLineWidget() {
-    gotoLineWidget = new QWidget((QWidget *)parent());
+    auto parentWidget = (QWidget *)parent();
+
+    gotoLineWidget = new QWidget(parentWidget);
+    gotoLineWidget->setPalette(parentWidget->style()->standardPalette());
     gotoLineWidget->setObjectName("gotoLine");
     gotoLineFormUi = new Ui::gotoLineForm();
     gotoLineFormUi->setupUi(gotoLineWidget);

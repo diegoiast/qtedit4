@@ -11,7 +11,9 @@
 #include <QAction>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QFile>
 #include <QMessageBox>
+#include <QSimpleUpdater.h>
 #include <QUrl>
 #include <cstdlib>
 #include <filesystem>
@@ -20,12 +22,18 @@
 #include <string>
 
 #ifdef _WIN32
-#include <QFile>
 #include <windows.h>
 #else
-#include <QDesktopServices>
-#include <QFile>
+#include <QHBoxLayout>
+#include <QLabel>
 #include <unistd.h>
+#endif
+
+#if defined(__linux__)
+#define TESTING_CHANNEL "linux-testing"
+#elif defined(_WIN32)
+#define TESTING_CHANNEL "windows-testing"
+#else
 #endif
 
 auto static createDesktopMenuItem(const std::string &execPath, const std::string &svgIconContent)
@@ -143,8 +151,11 @@ HelpPlugin::HelpPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-    actionAbout = new QAction(tr("&About"), this);
-    connect(actionAbout, SIGNAL(triggered()), this, SLOT(actionAbout_triggered()));
+    auto actionAbout = new QAction(tr("&About"), this);
+    connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
+    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
+    connect(actionCheckForUpdates, &QAction::triggered, this,
+            &HelpPlugin::checkForUpdates_triggered);
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
     connect(actionVisitHomePage, &QAction::triggered, this,
@@ -172,9 +183,10 @@ HelpPlugin::HelpPlugin() {
             refreshSystemMenus();
         });
         menus["&Help"]->addAction(installDesktopFile);
-        menus["&Help"]->addSeparator();
     }
 
+    menus["&Help"]->addAction(actionCheckForUpdates);
+    menus["&Help"]->addSeparator();
     menus["&Help"]->addAction(actionVisitHomePage);
     menus["&Help"]->addAction(actionAboutQt);
     menus["&Help"]->addAction(actionAbout);
@@ -188,6 +200,30 @@ void HelpPlugin::showAbout() {
 }
 
 void HelpPlugin::actionAbout_triggered() {
-    QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
-                             "QtEdit4 - a text editor");
+    auto appName = QCoreApplication::applicationName();
+    auto version = QCoreApplication::applicationVersion();
+    auto aboutText = QString(tr("<h2>%1 %2</h2>"
+                                "<p>A versatile text editor</p>"
+                                "<p>Home page: <a href='%3'>%3</a></p>"
+                                "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
+                                "<p>Copyright © 2024 Diego Iastrubni</p>"))
+                         .arg(appName, version, "https://github.com/diegoiast/qtedit4");
+
+    auto aboutBox = QMessageBox(getManager());
+    aboutBox.setWindowTitle(tr("About %1").arg(appName));
+    aboutBox.setText(aboutText);
+    aboutBox.setTextFormat(Qt::RichText);
+    aboutBox.setIconPixmap(QPixmap(":/icons/qtedit4.png")
+                               .scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+
+    aboutBox.exec();
+}
+
+void HelpPlugin::checkForUpdates_triggered() {
+    auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
+    // QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+    QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
+    QSimpleUpdater::getInstance()->setNotifyOnFinish(url, true);
+    QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
+    QSimpleUpdater::getInstance()->checkForUpdates(url);
 }

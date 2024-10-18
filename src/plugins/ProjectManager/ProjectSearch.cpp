@@ -65,6 +65,18 @@ ProjectSearch::~ProjectSearch() { delete ui; }
 
 void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
+const QString ProjectSearch::getSearchPattern() { return ui->searchFor->text(); }
+
+void ProjectSearch::setSearchPattern(const QString s) { ui->searchFor->setText(s); }
+
+const QString ProjectSearch::getSearchInclude() { return ui->includeFiles->text(); }
+
+void ProjectSearch::setSearchInclude(const QString s) { ui->includeFiles->setText(s); }
+
+const QString ProjectSearch::getSearchExclude() { return ui->excludeFiles->text(); }
+
+void ProjectSearch::setSearchExclude(const QString s) { ui->excludeFiles->setText(s); }
+
 void ProjectSearch::searchButton_clicked() {
     this->ui->treeWidget->clear();
     auto allowList = ui->includeFiles->text();
@@ -88,7 +100,7 @@ void ProjectSearch::searchButton_clicked() {
             if (!FilenameMatches(fullFileName, allowList, denyList)) {
                 continue;
             };
-            searchFile(shortFilename.toStdString(), text, [foundData](auto line, auto line_number) {
+            searchFile(fullFileName.toStdString(), text, [foundData](auto line, auto line_number) {
                 foundData->push_back({line, line_number});
             });
 

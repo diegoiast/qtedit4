@@ -10,6 +10,7 @@
 #include <QDir>
 #include <QIcon>
 #include <QStandardPaths>
+#include <QToolButton>
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -31,8 +32,12 @@ std::string getAppImagePath() {
 }
 
 int main(int argc, char *argv[]) {
-    QCoreApplication::setApplicationName("qtedit4");
+    Q_INIT_RESOURCE(qutepart_syntax_files);
+    Q_INIT_RESOURCE(qutepart_theme_data);
+
     QApplication app(argc, argv);
+    QCoreApplication::setApplicationName("qtedit4");
+    QCoreApplication::setApplicationVersion("0.0.1-dev");
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.
@@ -45,7 +50,7 @@ int main(int argc, char *argv[]) {
     auto iconsPath = "/../share/icons";
 #endif
 
-    // On bare bones Linux installs, Windows or OSX,we might now have freedesktop
+    // On bare bones Linux installs, Windows or OSX, we might not have a freedesktop
     // icons thus - we use our bundled icons.
     if (needsIcons) {
         auto base = QDir(QCoreApplication::applicationDirPath() + iconsPath).absolutePath();
@@ -69,10 +74,13 @@ int main(int argc, char *argv[]) {
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
     auto windowIcon = QIcon(":qtedit4.ico");
+
+    auto textEditorPlugin = new TextEditorPlugin;
+
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
-    pluginManager.addPlugin(new TextEditorPlugin);
+    pluginManager.addPlugin(textEditorPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
@@ -82,6 +90,9 @@ int main(int argc, char *argv[]) {
     pluginManager.hideUnusedPanels();
     pluginManager.restoreSettings();
     pluginManager.show();
+
+    pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
+                          [textEditorPlugin]() { textEditorPlugin->fileNew(); });
 
     pluginManager.openFiles(parser.positionalArguments());
     return app.exec();

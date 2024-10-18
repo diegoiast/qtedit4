@@ -13,13 +13,25 @@
 #include <qtoolbutton.h>
 #include <qutepart/qutepart.h>
 
+#if defined(WIN32)
+#define DEFAULT_EDITOR_FONT "Courier new"
+#define DEFAULT_EDITOR_FONT_SIZE 10
+#else
+#define DEFAULT_EDITOR_FONT "Monospace"
+#define DEFAULT_EDITOR_FONT_SIZE 10
+#endif
+
 class TextOperationsWidget;
 class QFileSystemWatcher;
 
 class QComboBox;
 namespace Ui {
 class BannerMessage;
-};
+}
+
+namespace Qutepart {
+class ThemeManager;
+}
 
 /**
 A source editor with MDI interface.
@@ -32,7 +44,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     Q_OBJECT
 
   public:
-    qmdiEditor(QWidget *p);
+    qmdiEditor(QWidget *p, Qutepart::ThemeManager *theme);
     ~qmdiEditor();
 
     virtual bool canCloseClient() override;
@@ -43,6 +55,12 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QString getFileName() const { return fileName; }
     bool getModificationsLookupEnabled();
     void setModificationsLookupEnabled(bool);
+    inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
+    inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
+    inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
+    inline void setEditorHighlighter(QString id, const Qutepart::Theme *theme) {
+        textEditor->setHighlighter(id, theme);
+    }
 
   public slots:
     void on_fileChanged(const QString &filename);
@@ -66,7 +84,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void toggleHeaderImpl();
 
     void chooseHighliter(const QString &newText);
-    void chooseIndenter(QAction *action);
+    void chooseIndenter(const QAction *action);
 
   private slots:
     void updateFileDetails();
@@ -91,9 +109,13 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
     void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
 
+  protected:
+    void focusInEvent(QFocusEvent *event) override;
+
   private:
-    Qutepart::Qutepart *textEditor;
-    TextOperationsWidget *operationsWidget;
+    Qutepart::ThemeManager *themeManager = nullptr;
+    Qutepart::Qutepart *textEditor = nullptr;
+    TextOperationsWidget *operationsWidget = nullptr;
     QString getShortFileName();
 
     QFileSystemWatcher *fileSystemWatcher;
@@ -108,8 +130,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QMenu *bookmarksMenu;
     QMenu *textOperationsMenu;
 
-    QToolButton *buttonChangeIndenter = nullptr;
     QComboBox *comboChangeHighlighter = nullptr;
+    QToolButton *buttonChangeIndenter = nullptr;
     QAction *actionSave = nullptr;
     QAction *actionSaveAs = nullptr;
     QAction *actionUndo = nullptr;

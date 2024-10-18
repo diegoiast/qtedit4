@@ -28,16 +28,12 @@
 #include <QToolBar>
 #include <pluginmanager.h>
 
+#include "../plugins/texteditor/thememanager.h"
+
 #include "qmdieditor.h"
 #include "qmdiserver.h"
 #include "textoperationswidget.h"
 #include "ui_bannermessage.h"
-
-#if defined(WIN32)
-#define DEFAULT_EDITOR_FONT "Courier new"
-#else
-#define DEFAULT_EDITOR_FONT "Monospace"
-#endif
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
@@ -107,7 +103,8 @@ QStringList getAvailableHighlihters() {
 }
 } // namespace Qutepart
 
-qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
+qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
+    : QWidget(p), themeManager(themes) {
     textEditor = new Qutepart::Qutepart(this);
     operationsWidget = new TextOperationsWidget(textEditor);
     mdiClientName = tr("NO NAME");
@@ -140,9 +137,9 @@ qmdiEditor::qmdiEditor(QWidget *p) : QWidget(p) {
     connect(fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(on_fileChanged(QString)));
 
     QFont monospacedFont = this->font();
-    monospacedFont.setPointSize(10);
+    monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
     monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
-    textEditor->setFont(monospacedFont);
+    setEditorFont(monospacedFont);
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     banner = new QWidget(this);
@@ -495,6 +492,11 @@ void qmdiEditor::hideTimer_timeout() {
     }
 }
 
+void qmdiEditor::focusInEvent(QFocusEvent *event) {
+    QWidget::focusInEvent(event);
+    textEditor->setFocus();
+}
+
 void qmdiEditor::showUpperWidget(QWidget *w) {
     topWidget = w;
     adjustBottomAndTopWidget();
@@ -594,16 +596,45 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     return true;
 }
 
-QString cleanUpLine(QString str, bool cleanupTrailingSpaces) {
-    while (!str.isEmpty() && (str.endsWith('\n') || str.endsWith('\r'))) {
-        str.chop(1);
+QString cleanUpLine(const QString &str, bool cleanupTrailingSpaces, EndLineStyle endline) {
+    auto result = str;
+    auto hadCRLF = result.endsWith("\r\n");
+    auto hadLF = !hadCRLF && result.endsWith('\n');
+    auto hadCR = !hadCRLF && !hadLF && result.endsWith('\r');
+
+    if (hadCRLF) {
+        result.chop(2);
+    } else if (hadLF || hadCR) {
+        result.chop(1);
     }
 
     if (cleanupTrailingSpaces) {
-        str = str.trimmed();
+        result = result.trimmed();
     }
 
-    return str;
+    switch (endline) {
+    case UnixEndLine:
+        result.append('\n');
+        break;
+    case WindowsEndLine:
+        result.append("\r\n");
+        break;
+    case KeepOriginalEndline:
+        if (hadCRLF) {
+            result.append("\r\n");
+        } else if (hadLF) {
+            result.append('\n');
+        } else if (hadCR) {
+            result.append('\r');
+        } else {
+            // TODO this is broken. When loading the file, all new lines are
+            // stripped into the document.
+            result.append("\r");
+        }
+        break;
+    }
+
+    return result;
 }
 
 bool qmdiEditor::saveFile(const QString &newFileName) {
@@ -625,36 +656,17 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
     auto textStream = QTextStream(&file);
     auto block = textEditor->document()->begin();
-    auto stopProcessing = false;
     QTextCursor cursor(textEditor->document());
     while (block.isValid()) {
         QString s = block.text();
-        s = cleanUpLine(s, trimSpacesOnSave);
+        s = cleanUpLine(s, trimSpacesOnSave, endLineStyle);
         if (trimSpacesOnSave) {
             cursor.setPosition(block.position());
             cursor.select(QTextCursor::BlockUnderCursor);
             cursor.insertText(s);
         }
 
-        switch (endLineStyle) {
-        case EndLineStyle::WindowsEndLine:
-            textStream << s;
-            textStream << "\r\n";
-            break;
-        case EndLineStyle::UnixEndLine:
-            textStream << s;
-            textStream << "\n";
-            break;
-        case KeepOriginalEndline:
-            // TODO - this is broken
-            textStream << textEditor->document()->toPlainText();
-            stopProcessing = true;
-            break;
-        }
-
-        if (stopProcessing) {
-            break;
-        }
+        textStream << s;
         block = block.next();
     }
     file.close();
@@ -854,13 +866,13 @@ void qmdiEditor::toggleHeaderImpl() {
 void qmdiEditor::chooseHighliter(const QString &newText) {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
     if (langInfo.isValid()) {
-        textEditor->setHighlighter(langInfo.id);
+        textEditor->setHighlighter(langInfo.id, nullptr);
     } else {
         textEditor->removeHighlighter();
     }
 }
 
-void qmdiEditor::chooseIndenter(QAction *action) {
+void qmdiEditor::chooseIndenter(const QAction *action) {
     buttonChangeIndenter->setText(action->text());
     auto act = buttonChangeIndenter->menu()->actions();
     auto j = act.indexOf(action);
@@ -870,7 +882,7 @@ void qmdiEditor::chooseIndenter(QAction *action) {
 void qmdiEditor::updateFileDetails() {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
     if (langInfo.isValid()) {
-        textEditor->setHighlighter(langInfo.id);
+        textEditor->setHighlighter(langInfo.id, nullptr);
         textEditor->setIndentAlgorithm(langInfo.indentAlg);
         buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
 

@@ -22,6 +22,13 @@ class ProjectSearch : public QWidget {
     ~ProjectSearch();
     void setFocusOnSearch();
 
+    auto getSearchPattern() -> const QString;
+    auto setSearchPattern(const QString) -> void;
+    auto getSearchInclude() -> const QString;
+    auto setSearchInclude(const QString) -> void;
+    auto getSearchExclude() -> const QString;
+    auto setSearchExclude(const QString) -> void;
+
   private slots:
     void searchButton_clicked();
     void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *foundData);

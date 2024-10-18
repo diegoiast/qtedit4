@@ -1,5 +1,8 @@
+#include "thememanager.h"
+#include <CommandPaletteWidget/commandpalette.h>
 #include <QAction>
 #include <QActionGroup>
+#include <QApplication>
 #include <QChar>
 #include <QCoreApplication>
 #include <QFile>
@@ -7,8 +10,10 @@
 #include <QMessageBox>
 #include <QString>
 #include <QStringList>
+#include <QStringListModel>
 #include <QUrl>
 #include <qmdiactiongroup.h>
+#include <qmdihost.h>
 #include <qmdiserver.h>
 
 #include "qmdieditor.h"
@@ -44,14 +49,7 @@ TextEditorPlugin::TextEditorPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
-
-    actionNewFile = new QAction(tr("New blank file"), this);
-    actionNewCPP = new QAction(tr("New source"), this);
-    actionNewHeader = new QAction(tr("New header"), this);
-    myNewActions = new QActionGroup(this);
-    myNewActions->addAction(actionNewFile);
-    myNewActions->addAction(actionNewCPP);
-    myNewActions->addAction(actionNewHeader);
+    themeManager = new Qutepart::ThemeManager();
 
     /*
     #if defined(WIN32)
@@ -61,10 +59,8 @@ TextEditorPlugin::TextEditorPlugin() {
     #endif
     */
 
-    connect(myNewActions, &QActionGroup::triggered, this, &TextEditorPlugin::fileNew);
-
-    config.pluginName = "Text editor";
-    config.description = "Default text editor, based on QutePart";
+    config.pluginName = tr("Text editor");
+    config.description = tr("Default text editor, based on QutePart");
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Trim spaces"))
                                      .setDescription(tr("Remove spaces from end of lines, on save"))
@@ -121,6 +117,17 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
+
+    auto values = QStringList() << tr("Unix end of line") << tr("Windows end of line")
+                                << tr("Keep original end of line");
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("End of line style"))
+                                     .setDescription(tr("Which line ends to use when saving"))
+                                     .setKey(Config::LineEndingSaveKey)
+                                     .setType(qmdiConfigItem::OneOf)
+                                     .setPossibleValue(values)
+                                     .setDefaultValue(EndLineStyle::KeepOriginalEndline)
+                                     .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show right margin"))
                                      .setDescription("Shows a a margin at the end of line")
@@ -129,22 +136,132 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Wrap index"))
+                                     .setDisplayName(tr("Margin position"))
                                      .setDescription(tr("Character at which the margin is drawn"))
                                      .setKey(Config::MarginOffsetKey)
                                      .setType(qmdiConfigItem::UInt16)
                                      .setDefaultValue(80)
                                      .build());
+
+    QFont monospacedFont = qApp->font();
+    monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
+    monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
+
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Display font"))
+                                     .setKey(Config::FontKey)
+                                     .setType(qmdiConfigItem::Font)
+                                     .setDefaultValue(monospacedFont)
+                                     .setValue(monospacedFont)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::ThemeKey)
+                                     .setType(qmdiConfigItem::Font)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
+
+void TextEditorPlugin::on_client_merged(qmdiHost *) {
+    chooseTheme = new QAction(tr("Choose theme"), getManager());
+    menus[tr("Se&ttings")]->addAction(chooseTheme);
+
+    connect(chooseTheme, &QAction::triggered, this, [this]() {
+        auto current = getManager()->currentClient();
+        auto editor = dynamic_cast<qmdiEditor *>(current);
+        if (!editor) {
+            return;
+        }
+        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
+
+        newThemeSelected = false;
+        chooseTheme->setDisabled(true);
+        auto list = QStringList(tr("System colors"));
+        for (auto &t : themeManager->getLoadedFiles()) {
+            auto m = themeManager->getThemeMetaData(t);
+            list.append(m.name);
+        }
+        list.sort(Qt::CaseSensitive);
+
+        auto model = new QStringListModel(list, getManager());
+        auto p = new CommandPalette(getManager());
+        p->setDataModel(model);
+        p->show();
+
+        connect(p, &CommandPalette::didHide, this, [this, p, editor, langInfo]() {
+            if (!newThemeSelected) {
+                editor->setEditorTheme(this->theme);
+                editor->setEditorHighlighter(langInfo.id, this->theme);
+            } else {
+                // apply it globally
+                auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
+                delete this->theme;
+                this->theme = newTheme;
+                for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
+                    auto client = mdiServer->getClient(i);
+                    auto e = dynamic_cast<qmdiEditor *>(client);
+                    if (!e) {
+                        // current editor already has this enabled
+                        continue;
+                    }
+
+                    auto langInfo = ::Qutepart::chooseLanguage({}, {}, e->mdiClientFileName());
+                    e->setEditorTheme(this->theme);
+                    e->setEditorHighlighter(langInfo.id, this->theme);
+                }
+
+                auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
+                getConfig().setTheme(themeFileName);
+            }
+            chooseTheme->setEnabled(true);
+            p->deleteLater();
+            editor->setFocus();
+        });
+        connect(p, &CommandPalette::didSelectItem, this,
+                [langInfo, editor, this](const QModelIndex index, const QAbstractItemModel *) {
+                    auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
+                    if (newTheme != this->theme) {
+                        delete newTheme;
+                    }
+                    auto themeDescription = index.data(Qt::DisplayRole).toString();
+                    auto themeFileName = themeManager->getNameFromDesc(themeDescription);
+                    auto themeMetaData = themeManager->getThemeMetaData(themeFileName);
+                    if (!themeMetaData.name.isEmpty()) {
+                        newTheme = new Qutepart::Theme();
+                        const_cast<Qutepart::Theme *>(newTheme)->loadTheme(themeFileName);
+                    }
+
+                    editor->setEditorTheme(newTheme);
+                    editor->setEditorHighlighter(langInfo.id, newTheme);
+                });
+        connect(p, &CommandPalette::didChooseItem, this, [editor, this]() {
+            // don't restore theme on closing - user choose his new theme
+            newThemeSelected = true;
+        });
+    });
+}
 
 void TextEditorPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
                              "This plugin gives a QtSourceView based text editor");
 }
 
-QActionGroup *TextEditorPlugin::newFileActions() { return myNewActions; }
+void TextEditorPlugin::loadConfig(QSettings &settings) {
+    IPlugin::loadConfig(settings);
+    themeManager->loadFromDir(":/qutepart/themes/");
+    qDebug() << "Loaded themes, count=" << themeManager->getLoadedFiles().length();
+
+    auto themeFileName = getConfig().getTheme();
+    delete this->theme;
+    this->theme = new Qutepart::Theme();
+    if (!this->theme->loadTheme(themeFileName)) {
+        qDebug() << "Failed loading thene " << themeFileName;
+        delete this->theme;
+        this->theme = nullptr;
+    }
+}
 
 QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
@@ -157,6 +274,9 @@ QStringList TextEditorPlugin::myExtensions() {
 }
 
 int TextEditorPlugin::canOpenFile(const QString fileName) {
+    if (fileName.isEmpty()) {
+        return 5;
+    }
     auto u = QUrl(fileName);
 
     // if the scheme is a single line, lets assume this is a windows drive
@@ -200,7 +320,7 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
 }
 
 bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {
-    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
 
     // In the future - the zoom, will be used to set state to the lines, if the value is really
     // large. I will assume that font size bigger than 500 is not really existent.
@@ -226,18 +346,15 @@ void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
     Q_UNUSED(z);
 }
 
-void TextEditorPlugin::applySettings(qmdiClient *client) {
-    auto editor = static_cast<qmdiEditor *>(client);
-
-    if (getConfig().getTrimSpaces()) {
-        // editor->
-    }
-
+void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     if (getConfig().getWrapLines()) {
         editor->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     } else {
         editor->setLineWrapMode(QPlainTextEdit::NoWrap);
     }
+
+    auto newFont = QFont();
+    newFont.fromString(getConfig().getFont());
 
     editor->setDrawAnyWhitespace(getConfig().getShowWhite());
     editor->setDrawIndentations(getConfig().getShowIndentations());
@@ -246,7 +363,16 @@ void TextEditorPlugin::applySettings(qmdiClient *client) {
     editor->setSmartHomeEnd(getConfig().getSmartHome());
     editor->setDrawSolidEdge(getConfig().getMargin());
     editor->setLineLengthEdge(getConfig().getMarginOffset());
+    editor->endLineStyle = getConfig().getLineEndingSave();
+    editor->trimSpacesOnSave = getConfig().getTrimSpaces();
+    editor->setEditorFont(newFont);
     editor->repaint();
+
+    if (this->theme != editor->getEditorTheme()) {
+        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
+        editor->setEditorTheme(this->theme);
+        editor->setEditorHighlighter(langInfo.id, this->theme);
+    }
 }
 
 void TextEditorPlugin::configurationHasBeenModified() {
@@ -260,7 +386,7 @@ void TextEditorPlugin::configurationHasBeenModified() {
     }
 }
 
-void TextEditorPlugin::fileNew(QAction *) {
-    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer));
+void TextEditorPlugin::fileNew() {
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     mdiServer->addClient(editor);
 }

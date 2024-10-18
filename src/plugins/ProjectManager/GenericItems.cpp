@@ -160,9 +160,8 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             }
             auto options = QRegularExpression::UnanchoredWildcardConversion;
             auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
-            auto escapedFile = QRegularExpression::escape(fileName);
             auto regex = QRegularExpression(pattern);
-            bool matches = regex.match(escapedFile).hasMatch();
+            bool matches = regex.match(fileName).hasMatch();
             if (matches) {
                 return false;
             }
@@ -180,9 +179,8 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             }
             auto options = QRegularExpression::UnanchoredWildcardConversion;
             auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
-            auto escapedFile = QRegularExpression::escape(fileName);
             auto regex = QRegularExpression(pattern);
-            bool matches = regex.match(escapedFile).hasMatch();
+            bool matches = regex.match(fileName).hasMatch();
             if (matches) {
                 filterMatchFound = true;
                 break;

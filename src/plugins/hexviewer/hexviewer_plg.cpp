@@ -10,8 +10,9 @@
 #include "qclipboard.h"
 #include <QApplication>
 #include <QFileInfo>
-#include <model/buffer/qmemorybuffer.h>
-#include <qhexview.h>
+#include <QHexView/dialogs/hexfinddialog.h>
+#include <QHexView/model/buffer/qmemorybuffer.h>
+#include <QHexView/qhexview.h>
 
 class qmdiHexViewer : public QHexView, public qmdiClient {
   public:
@@ -36,6 +37,30 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         this->contextMenu.addSeparator();
         this->contextMenu.addAction(actionCopyFileName);
         this->contextMenu.addAction(actionCopyFilePath);
+
+        auto actionFind = new QAction(tr("Find"), this);
+        actionFind->setShortcut(QKeySequence::Find);
+        actionFind = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditFind), tr("&Find"), this);
+        connect(actionFind, &QAction::triggered, this, [this]() {
+            auto d = new HexFindDialog(HexFindDialog::Type::Find, this);
+            d->exec();
+        });
+        toolbars[tr("main")]->addAction(actionFind);
+
+#if 0     
+        auto actionReplace =
+            new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
+        actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
+        actionReplace = new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
+        connect(actionReplace, &QAction::triggered, this, [this]() {
+            auto d = new HexFindDialog(HexFindDialog::Type::Replace, this);
+            d->exec();
+        });
+
+        toolbars[tr("main")]->addAction(actionReplace);
+#else
+        this->setReadOnly(true);
+#endif
     }
 
     virtual QString mdiClientFileName() override { return thisFileName; }
