@@ -389,4 +389,5 @@ void TextEditorPlugin::configurationHasBeenModified() {
 void TextEditorPlugin::fileNew() {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     mdiServer->addClient(editor);
+    applySettings(editor);
 }
