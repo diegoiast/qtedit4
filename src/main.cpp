@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("qtedit4");
-    QCoreApplication::setApplicationVersion("0.0.1-dev");
+    QCoreApplication::setApplicationVersion("0.0.2-beta1");
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.
