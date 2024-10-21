@@ -5,3 +5,4 @@ out/
 CMakeLists.txt.user
 .vs/
 .cache/
+lib/*
