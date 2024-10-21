@@ -329,11 +329,10 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
         f.setPointSize(zoom);
         editor->setFont(f);
     }
+    applySettings(editor);
     auto loaded = editor->loadFile(fileName);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
-
-    applySettings(editor);
     return loaded;
 }
 
