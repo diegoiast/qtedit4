@@ -39,10 +39,6 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         this->contextMenu.addSeparator();
         this->contextMenu.addAction(actionCopyFileName);
         this->contextMenu.addAction(actionCopyFilePath);
-
-        auto a = this->hexDocument()->canUndo();
-        auto b = document->canUndo();
-
         setupActions();
     }
 
@@ -89,8 +85,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
     }
 
     virtual bool canCloseClient() override {
-        auto isModified = this->hexDocument()->canUndo();
-        if (!isModified) {
+        if (!this->hexDocument()->isModified()) {
             return true;
         }
 
@@ -109,6 +104,8 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         } else if (ret == QMessageBox::Cancel) {
             return false;
         }
+
+        this->hexDocument()->clearModified();
         return true;
     }
 
