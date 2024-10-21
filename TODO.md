@@ -57,9 +57,9 @@ Tasks for v0.0.1
 1. ~~Current line number should be bold~~
 1. ~~Verify dark mode~~
 1. ~~Smart home/end + enable/disable~~
+1. ~~Support for themes~~
 1. Goto matching bracket
 1. Fix crash in Kotlin indentator
-1. Support for themes
 1. Load syntax files from disk
 1. Download syntax files from kate.org
 1. Pascal indentator
@@ -103,7 +103,9 @@ Tasks for v0.0.1
 1. Need to find a way to keep original line ending
 1. Save content of unnamed files
 1. Copy path relative to project
-1. Handle "save using original line ending". Currently its broken.
+1. Keep modifications to indentator, syntax
+    1. In memory
+    1. On disk - for next run
 1. Preview content:
     1. Markdown
     1. Json - QJsonModel: https://github.com/dridk/QJsonModel
@@ -113,7 +115,7 @@ Tasks for v0.0.1
 
 ## Meta
 
-1. Restore window position properly
+1. ~~Restore window position properly~~
 1. MSI build
 1. TGZ build for linux
 1. OSX build
