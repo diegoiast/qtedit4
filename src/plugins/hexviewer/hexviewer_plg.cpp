@@ -13,13 +13,13 @@
 #include <QHexView/dialogs/hexfinddialog.h>
 #include <QHexView/model/buffer/qmemorybuffer.h>
 #include <QHexView/qhexview.h>
+#include <QLineEdit>
+#include <QMessageBox>
 
 class qmdiHexViewer : public QHexView, public qmdiClient {
   public:
     QString thisFileName;
     qmdiHexViewer(QWidget *p, const QString &fileName) : QHexView(p), qmdiClient() {
-        auto document = QHexDocument::fromMappedFile(fileName, this);
-        auto fi = QFileInfo(fileName);
         auto actionCopyFileName = new QAction(tr("Copy filename to clipboard"), this);
         auto actionCopyFilePath = new QAction(tr("Copy full path to clipboard"), this);
         connect(actionCopyFileName, &QAction::triggered, this, [this]() {
@@ -31,6 +31,8 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
             c->setText(mdiClientName);
         });
 
+        auto fi = QFileInfo(fileName);
+        auto document = QHexDocument::fromMappedFile(fileName, this);
         this->setDocument(document);
         this->mdiClientName = fi.fileName();
         this->thisFileName = fileName;
@@ -38,34 +40,95 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         this->contextMenu.addAction(actionCopyFileName);
         this->contextMenu.addAction(actionCopyFilePath);
 
-        auto actionFind = new QAction(tr("Find"), this);
-        actionFind->setShortcut(QKeySequence::Find);
-        actionFind = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditFind), tr("&Find"), this);
-        connect(actionFind, &QAction::triggered, this, [this]() {
-            auto d = new HexFindDialog(HexFindDialog::Type::Find, this);
-            d->exec();
-        });
-        toolbars[tr("main")]->addAction(actionFind);
+        auto a = this->hexDocument()->canUndo();
+        auto b = document->canUndo();
 
-#if 0     
+        setupActions();
+    }
+
+    void setupActions() {
+        auto actionFind =
+            new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditFind), tr("&Find"), this);
         auto actionReplace =
             new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
+        auto actionCopyBinary =
+            new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (binary"), this);
+        auto actionCopyAsHex = new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (HEX)"), this);
+        auto actionPastBinary =
+            new QAction(QIcon::fromTheme("edit-copy"), tr("Paste (binary)"), this);
+        auto actionPastAsHex = new QAction(QIcon::fromTheme("edit-copy"), tr("Paste (hex)"), this);
+
+        actionFind->setShortcut(QKeySequence::Find);
         actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-        actionReplace = new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
+        actionCopyBinary->setShortcut(QKeySequence::Copy);
+        actionCopyAsHex->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_C));
+        actionPastBinary->setShortcut(QKeySequence::Paste);
+        actionPastAsHex->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_V));
+
+        connect(actionFind, &QAction::triggered, this, [this]() {
+            auto d = new HexFindDialog(HexFindDialog::Type::Find, this);
+            if (auto l = d->findChild<QLineEdit *>("qhexview_lefind")) {
+                l->setFocus();
+            }
+            d->exec();
+        });
+
         connect(actionReplace, &QAction::triggered, this, [this]() {
             auto d = new HexFindDialog(HexFindDialog::Type::Replace, this);
             d->exec();
         });
 
+        toolbars[tr("main")]->addAction(actionFind);
         toolbars[tr("main")]->addAction(actionReplace);
-#else
-        this->setReadOnly(true);
-#endif
+        this->menus["&Search"]->addAction(actionFind);
+        this->menus["&Search"]->addAction(actionReplace);
+        this->menus["&Search"]->addAction(actionCopyBinary);
+        this->menus["&Search"]->addAction(actionCopyAsHex);
+        this->menus["&Search"]->addAction(actionPastBinary);
+        this->menus["&Search"]->addAction(actionPastAsHex);
+    }
+
+    virtual bool canCloseClient() override {
+        auto isModified = this->hexDocument()->canUndo();
+        if (!isModified) {
+            return true;
+        }
+
+        QMessageBox msgBox(
+            QMessageBox::Warning, mdiClientName,
+            tr("The (binary) document has been modified.\nDo you want to save your changes?"),
+            QMessageBox::Yes | QMessageBox::Default, this);
+
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Yes);
+
+        int ret = msgBox.exec();
+
+        if (ret == QMessageBox::Yes) {
+            return doSave();
+        } else if (ret == QMessageBox::Cancel) {
+            return false;
+        }
+        return true;
     }
 
     virtual QString mdiClientFileName() override { return thisFileName; }
 
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override { return {}; }
+
+    bool doSave() {
+        QFile file(thisFileName);
+        if (!file.open(QIODevice::WriteOnly)) {
+            QMessageBox msgBox(QMessageBox::Warning, mdiClientName, tr("Could not save file"),
+                               QMessageBox::Ok, this);
+            msgBox.exec();
+            return false;
+        }
+
+        bool success = hexDocument()->saveTo(&file);
+        file.close();
+        return success;
+    }
 };
 
 HexViewrPlugin::HexViewrPlugin() {
