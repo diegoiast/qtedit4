@@ -8,10 +8,10 @@
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.2",
-         "latest-version":"0.0.2",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.2/qtedit4-qt671-v0.0.2-x86_64.exe",
-         "changelog":"Editor fixes (theme support, config)",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha1",
+         "latest-version":"0.0.3-alpha1",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha1/qtedit4-qt671-v0.0.3-alpha1-x86_64.exe",
+         "changelog":"???",
          "mandatory":false
       },
       "linux":{
@@ -22,10 +22,10 @@
          "mandatory":true
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.2",
-         "latest-version":"0.0.2",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.2/qtedit4-qt671-v0.0.2-x86_64.exe",
-         "changelog":"Editor fixes (theme support, config)",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha1",
+         "latest-version":"0.0.3-alpha1",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha1/qtedit4-qt671-v0.0.3-alpha1-x86_64.exe",
+         "changelog":"???",
          "mandatory":false
       }
    }

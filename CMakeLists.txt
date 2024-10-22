@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
@@ -154,17 +153,3 @@ else()
             PATTERN "*"
             PATTERN "*")
 endif()
-
-######################
-
-# add_executable(generic-item-complete
-#         tests/generic-item-complete-window.cpp
-#         tests/generic-item-complete-test.cpp
-#         src/plugins/ProjectManager/GenericItems.cpp
-# )
-# target_link_libraries(generic-item-complete Qt::Widgets)
-# target_include_directories(generic-item-complete PUBLIC
-#         tests/
-#         .
-# )
-# set_target_properties(generic-item-complete PROPERTIES EXCLUDE_FROM_ALL TRUE)
