@@ -330,11 +330,10 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
         f.setPointSize(zoom);
         editor->setFont(f);
     }
+    applySettings(editor);
     auto loaded = editor->loadFile(fileName);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
-
-    applySettings(editor);
     return loaded;
 }
 
@@ -390,4 +389,5 @@ void TextEditorPlugin::configurationHasBeenModified() {
 void TextEditorPlugin::fileNew() {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     mdiServer->addClient(editor);
+    applySettings(editor);
 }

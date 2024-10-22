@@ -202,12 +202,27 @@ void HelpPlugin::showAbout() {
 void HelpPlugin::actionAbout_triggered() {
     auto appName = QCoreApplication::applicationName();
     auto version = QCoreApplication::applicationVersion();
-    auto aboutText = QString(tr("<h2>%1 %2</h2>"
-                                "<p>A versatile text editor</p>"
-                                "<p>Home page: <a href='%3'>%3</a></p>"
-                                "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
-                                "<p>Copyright © 2024 Diego Iastrubni</p>"))
-                         .arg(appName, version, "https://github.com/diegoiast/qtedit4");
+    auto aboutText =
+        QString(
+            tr("<h2>%1 %2</h2>"
+               "<p>A versatile text editor</p>"
+               "<p>Home page: <a href='%3'>%3</a></p>"
+               "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
+               "<p>This project uses <a href='https://www.qt.io/'>Qt6</a>, and the following "
+               "libraries:</p>"
+               "<ul>"
+               "<li><a href='https://github.com/diegoiast/qmdilib'>qmdilib</a></li>"
+               "<li><a href='https://github.com/diegoiast/qutepart-cpp'>qutepart-cpp</a></li>"
+               "<li><a "
+               "href='https://github.com/diegoiast/"
+               "command-palette-widget'>command-palette-widget</a></li>"
+               "<li><a href='https://github.com/palacaze/image-viewer'>image-viewer</a></li>"
+               "<li><a href='https://github.com/Dax89/QHexView'>QHexView</a></li>"
+               "<li><a "
+               "href='https://github.com/alex-spataru/QSimpleUpdater'>QSimpleUpdater</a></li>"
+               "</ul>"
+               "<p>Copyright © 2024 <a href='mailto:diegoiast@gmail.com'>Diego Iastrubni</a> </p>"))
+            .arg(appName, version, "https://github.com/diegoiast/qtedit4");
 
     auto aboutBox = QMessageBox(getManager());
     aboutBox.setWindowTitle(tr("About %1").arg(appName));
