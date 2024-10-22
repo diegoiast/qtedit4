@@ -161,3 +161,5 @@ Tasks for v0.0.1
 1. Adwita for QT: https://github.com/Qt-Widgets/adwaita-qt-style-qstyle
 1. QNoto: 
 1. Progress indicator: https://github.com/epasveer/QProgressIndicator
+1. https://github.com/progzdeveloper/Qt5Extra/tree/main/qtspellchecking
+

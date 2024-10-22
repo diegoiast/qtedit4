@@ -7,7 +7,7 @@ QTDIR="$HOME/qt/6.7.1/gcc_64/"
 export matrix_config_build_dir=ubuntu-gcc
 export PATH=$QTDIR/bin:$PATH
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-export OUTPUT=dist/qtedit4-qt671-v0.0.1-x86_64.AppImage
+export OUTPUT=dist/qtedit4-qt671-v0.0.2-x86_64.AppImage
 
 rm -fr "build/${matrix_config_build_dir}"
 rm -fr "dist"
