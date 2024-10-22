@@ -600,7 +600,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
 
     auto hash = getConfigHash();
     auto project = getCurrentConfig();
-    auto executablePath = findExecForPlatform(info->executables);
+    auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto currentTask = expand(executablePath, hash);
     auto workingDirectory = info->runDirectory;
     if (workingDirectory.isEmpty()) {
