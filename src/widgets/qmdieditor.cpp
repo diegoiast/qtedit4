@@ -557,7 +557,6 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     hideBannerMessage();
     textEditor->setReadOnly(false);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QApplication::processEvents();
     if (!newFileName.isEmpty()) {
         QFile file(newFileName);
         QFileInfo fileInfo(file);
@@ -672,7 +671,6 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     file.close();
     textEditor->document()->setModified(false);
 
-    QApplication::processEvents();
     QApplication::restoreOverrideCursor();
 
     this->fileName = newFileName;
@@ -879,8 +877,17 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
     textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
 }
 
+/**
+ * @brief qmdiEditor::updateFileDetails
+ *
+ * Called when a file is opened, or saved. Then, the "best" indentator, and
+ * syntax is chosen, and fix the UI to refelect it (the bottom combo box).
+ *
+ * Called on save and load.
+ */
 void qmdiEditor::updateFileDetails() {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
+
     if (langInfo.isValid()) {
         textEditor->setHighlighter(langInfo.id, nullptr);
         textEditor->setIndentAlgorithm(langInfo.indentAlg);
@@ -914,9 +921,13 @@ void qmdiEditor::updateFileDetails() {
         }
     }
 
-    auto isCplusplusSource = (fileName.endsWith(".h", Qt::CaseInsensitive) ||
-                              fileName.endsWith(".cpp") || fileName.endsWith(".cc")) ||
-                             fileName.endsWith(".cxx");
+    auto isCplusplusSource = fileName.endsWith(".h", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".hh", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".hpp", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".cpp", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".cc", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".c++", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".cxx", Qt::CaseInsensitive);
     actionToggleHeader->setEnabled(isCplusplusSource);
 }
 

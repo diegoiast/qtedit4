@@ -59,8 +59,15 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
     inline void setEditorHighlighter(QString id, const Qutepart::Theme *theme) {
+        if (this->syntaxLangID == id) {
+            return;
+        }
+        this->syntaxLangID = id;
         textEditor->setHighlighter(id, theme);
     }
+
+    inline const QString &getSyntaxID() const { return this->syntaxLangID; }
+    inline const QString &getIndentatorID() const { return this->indentationID; }
 
   public slots:
     void on_fileChanged(const QString &filename);
@@ -113,10 +120,13 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void focusInEvent(QFocusEvent *event) override;
 
   private:
+    QString getShortFileName();
+
     Qutepart::ThemeManager *themeManager = nullptr;
     Qutepart::Qutepart *textEditor = nullptr;
     TextOperationsWidget *operationsWidget = nullptr;
-    QString getShortFileName();
+    QString syntaxLangID;
+    QString indentationID;
 
     QFileSystemWatcher *fileSystemWatcher;
     QWidget *topWidget = nullptr;

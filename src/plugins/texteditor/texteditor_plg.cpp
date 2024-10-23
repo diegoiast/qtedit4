@@ -174,7 +174,6 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
         if (!editor) {
             return;
         }
-        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
 
         newThemeSelected = false;
         chooseTheme->setDisabled(true);
@@ -190,10 +189,11 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
         p->setDataModel(model);
         p->show();
 
-        connect(p, &CommandPalette::didHide, this, [this, p, editor, langInfo]() {
+        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
+        connect(p, &CommandPalette::didHide, this, [this, p, editor]() {
             if (!newThemeSelected) {
                 editor->setEditorTheme(this->theme);
-                editor->setEditorHighlighter(langInfo.id, this->theme);
+                editor->setEditorHighlighter(editor->getSyntaxID(), this->theme);
             } else {
                 // apply it globally
                 auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
@@ -207,9 +207,8 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                         continue;
                     }
 
-                    auto langInfo = ::Qutepart::chooseLanguage({}, {}, e->mdiClientFileName());
                     e->setEditorTheme(this->theme);
-                    e->setEditorHighlighter(langInfo.id, this->theme);
+                    e->setEditorHighlighter(editor->getSyntaxID(), this->theme);
                 }
 
                 auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
@@ -220,7 +219,7 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
             editor->setFocus();
         });
         connect(p, &CommandPalette::didSelectItem, this,
-                [langInfo, editor, this](const QModelIndex index, const QAbstractItemModel *) {
+                [editor, this](const QModelIndex index, const QAbstractItemModel *) {
                     auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
                     if (newTheme != this->theme) {
                         delete newTheme;
@@ -235,9 +234,9 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                     }
 
                     editor->setEditorTheme(newTheme);
-                    editor->setEditorHighlighter(langInfo.id, newTheme);
+                    editor->setEditorHighlighter(editor->getSyntaxID(), newTheme);
                 });
-        connect(p, &CommandPalette::didChooseItem, this, [editor, this]() {
+        connect(p, &CommandPalette::didChooseItem, this, [this]() {
             // don't restore theme on closing - user choose his new theme
             newThemeSelected = true;
         });
@@ -371,7 +370,7 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     if (this->theme != editor->getEditorTheme()) {
         auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
         editor->setEditorTheme(this->theme);
-        editor->setEditorHighlighter(langInfo.id, this->theme);
+        editor->setEditorHighlighter(editor->getSyntaxID(), this->theme);
     }
 }
 
