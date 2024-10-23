@@ -54,49 +54,14 @@ class DirectoryModel : public QAbstractTableModel {
 
 class FilterOutProxyModel : public QSortFilterProxyModel {
   public:
-    explicit FilterOutProxyModel(QObject *parent = nullptr) : QSortFilterProxyModel(parent) {}
-
-    void setFilterWildcards(const QString &wildcards) {
-        m_filterWildcards = wildcards;
-        invalidateFilter();
-    }
-
-    void setFilterOutWildcard(const QString &wildcard) {
-        m_filterOutWildcard = wildcard;
-        invalidateFilter();
-    }
+    explicit FilterOutProxyModel(QObject *parent = nullptr);
+    void setFilterWildcards(const QString &wildcards);
+    void setFilterOutWildcard(const QString &wildcard);
 
   protected:
-    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override {
-        QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
-        QString filePath = sourceModel()->data(index, Qt::DisplayRole).toString();
-        return FilenameMatches(filePath, m_filterWildcards, m_filterOutWildcard);
-    }
-
-    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override {
-        QString leftData = sourceModel()->data(left).toString();
-        QString rightData = sourceModel()->data(right).toString();
-
-        auto l = countOccurrences(leftData, '/');
-        auto r = countOccurrences(rightData, '/');
-        if (l < r) {
-            return true;
-        }
-        if (l > r) {
-            return false;
-        }
-        return QSortFilterProxyModel::lessThan(left, right);
-    }
-
-    static int countOccurrences(const QString &str, QChar target) {
-        int count = 0;
-        for (const QChar &ch : str) {
-            if (ch == target) {
-                count++;
-            }
-        }
-        return count;
-    }
+    bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
+    static int countOccurrences(const QString &str, const QString &targets);
 
   private:
     QString m_filterWildcards;

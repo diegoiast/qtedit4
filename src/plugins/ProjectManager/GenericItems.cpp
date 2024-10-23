@@ -189,3 +189,46 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
     }
     return filterMatchFound;
 }
+
+FilterOutProxyModel::FilterOutProxyModel(QObject *parent) : QSortFilterProxyModel(parent) {}
+
+void FilterOutProxyModel::setFilterWildcards(const QString &wildcards) {
+    m_filterWildcards = wildcards;
+    invalidateFilter();
+}
+
+void FilterOutProxyModel::setFilterOutWildcard(const QString &wildcard) {
+    m_filterOutWildcard = wildcard;
+    invalidateFilter();
+}
+
+bool FilterOutProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_parent) const {
+    QModelIndex index = sourceModel()->index(source_row, 0, source_parent);
+    QString filePath = sourceModel()->data(index, Qt::DisplayRole).toString();
+    return FilenameMatches(filePath, m_filterWildcards, m_filterOutWildcard);
+}
+
+bool FilterOutProxyModel::lessThan(const QModelIndex &left, const QModelIndex &right) const {
+    auto leftData = sourceModel()->data(left).toString();
+    auto rightData = sourceModel()->data(right).toString();
+    auto l = countOccurrences(leftData, "/\\");
+    auto r = countOccurrences(rightData, "/\\");
+
+    if (l < r) {
+        return true;
+    }
+    if (l > r) {
+        return false;
+    }
+    return QSortFilterProxyModel::lessThan(left, right);
+}
+
+int FilterOutProxyModel::countOccurrences(const QString &str, const QString &targets) {
+    auto count = 0;
+    for (auto &ch : str) {
+        if (targets.contains(ch)) {
+            count++;
+        }
+    }
+    return count;
+}
