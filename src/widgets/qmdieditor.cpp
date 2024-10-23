@@ -881,7 +881,7 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
  * @brief qmdiEditor::updateFileDetails
  *
  * Called when a file is opened, or saved. Then, the "best" indentator, and
- * syntax is chosen, and fix the UI to refelect it (the bottom combo box).
+ * syntax is chosen, and fix the UI to reflect it (the bottom combo box).
  *
  * Called on save and load.
  */

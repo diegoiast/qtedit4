@@ -5,11 +5,6 @@
 #include <QFileSystemWatcher>
 #include <QProcess>
 
-class QDockWidget;
-class QTreeView;
-class QCompleter;
-class QSortFilterProxyModel;
-
 class ProjectBuildModel;
 class FoldersModel;
 class DirectoryModel;
