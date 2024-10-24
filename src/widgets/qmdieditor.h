@@ -59,9 +59,12 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
     inline void setEditorHighlighter(QString id, const Qutepart::Theme *theme) {
-        if (this->syntaxLangID == id) {
-            return;
-        }
+        /*
+            TODO: themes and synyax are merged. When we de-couple them this will get restoredr
+            if (this->syntaxLangID == id) {
+                return;
+            }
+        */
         this->syntaxLangID = id;
         textEditor->setHighlighter(id, theme);
     }

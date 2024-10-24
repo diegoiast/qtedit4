@@ -189,7 +189,6 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
         p->setDataModel(model);
         p->show();
 
-        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
         connect(p, &CommandPalette::didHide, this, [this, p, editor]() {
             if (!newThemeSelected) {
                 editor->setEditorTheme(this->theme);
@@ -328,6 +327,11 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
         auto f = editor->font();
         f.setPointSize(zoom);
         editor->setFont(f);
+    }
+
+    auto langInfo = ::Qutepart::chooseLanguage({}, {}, fileName);
+    if (langInfo.isValid()) {
+        editor->setEditorHighlighter(langInfo.id, theme);
     }
     applySettings(editor);
     auto loaded = editor->loadFile(fileName);
