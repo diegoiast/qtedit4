@@ -68,6 +68,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
         this->syntaxLangID = id;
         textEditor->setHighlighter(id, theme);
     }
+    inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
 
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
     inline const QString &getIndentatorID() const { return this->indentationID; }

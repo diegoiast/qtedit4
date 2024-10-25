@@ -27,6 +27,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(ShowWhite, bool)
         CONFIG_DEFINE(ShowIndentations, bool)
         CONFIG_DEFINE(HighlightBrackets, bool)
+        CONFIG_DEFINE(MarkCurrentWord, bool)
         CONFIG_DEFINE(Margin, bool)
         CONFIG_DEFINE(ShowLine, bool)
         CONFIG_DEFINE(MarginOffset, int)

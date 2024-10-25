@@ -110,6 +110,14 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Mark current word"))
+            .setDescription("Select the word under cursor in the whole document")
+            .setKey(Config::MarkCurrentWordKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(true)
+            .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show line numbers"))
                                      .setDescription("Show or hide the line numbers panel")
@@ -250,7 +258,6 @@ void TextEditorPlugin::showAbout() {
 void TextEditorPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
     themeManager->loadFromDir(":/qutepart/themes/");
-    qDebug() << "Loaded themes, count=" << themeManager->getLoadedFiles().length();
 
     auto themeFileName = getConfig().getTheme();
     delete this->theme;
@@ -362,6 +369,7 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     editor->setDrawAnyWhitespace(getConfig().getShowWhite());
     editor->setDrawIndentations(getConfig().getShowIndentations());
     editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());
+    editor->setEditorMarkWord(getConfig().getMarkCurrentWord());
     editor->setLineNumbersVisible(getConfig().getShowLine());
     editor->setSmartHomeEnd(getConfig().getSmartHome());
     editor->setDrawSolidEdge(getConfig().getMargin());
@@ -372,7 +380,6 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     editor->repaint();
 
     if (this->theme != editor->getEditorTheme()) {
-        auto langInfo = ::Qutepart::chooseLanguage({}, {}, editor->mdiClientFileName());
         editor->setEditorTheme(this->theme);
         editor->setEditorHighlighter(editor->getSyntaxID(), this->theme);
     }
