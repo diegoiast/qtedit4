@@ -215,7 +215,7 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                     }
 
                     e->setEditorTheme(this->theme);
-                    e->setEditorHighlighter(editor->getSyntaxID(), this->theme);
+                    e->setEditorHighlighter(e->getSyntaxID(), this->theme);
                 }
 
                 auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
