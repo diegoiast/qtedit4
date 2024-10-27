@@ -63,6 +63,32 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
     return {};
 }
 
+auto static getLineEnding(QIODevice &stream) -> QString {
+    if (stream.atEnd()) {
+        return {};
+    }
+
+    auto pos = stream.pos();
+    auto ending = QString();
+    while (!stream.atEnd()) {
+        QChar ch = stream.read(1).at(0);
+        if (ch == '\r' || ch == '\n') {
+            ending += ch;
+            if (!stream.atEnd()) {
+                ch = stream.read(1).at(0);
+                if (ch == '\r' || ch == '\n') {
+                    if (ch != ending[0]) {
+                        ending += ch;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    stream.seek(pos);
+    return ending;
+}
+
 class BoldItemDelegate : public QStyledItemDelegate {
   public:
     QString boldItemStr = "";
@@ -97,8 +123,9 @@ class BoldItemDelegate : public QStyledItemDelegate {
 namespace Qutepart {
 QStringList getAvailableHighlihters() {
     extern QMap<QString, QString> languageNameToXmlFileName;
-    auto l = languageNameToXmlFileName.keys();
+    auto l = QList<QString>();
     l.append(PLAIN_TEXT_HIGHIGHTER);
+    l.append(languageNameToXmlFileName.keys());
     return l;
 }
 } // namespace Qutepart
@@ -134,7 +161,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
         staticLabel->setText(QString("%1:%2").arg(line).arg(column));
     });
 
-    connect(fileSystemWatcher, SIGNAL(fileChanged(QString)), this, SLOT(on_fileChanged(QString)));
+    connect(fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, &qmdiEditor::on_fileChanged);
+    fileModifications = true;
 
     QFont monospacedFont = this->font();
     monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
@@ -428,9 +456,16 @@ void qmdiEditor::setupActions() {
     textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
 }
 
-bool qmdiEditor::getModificationsLookupEnabled() { return fileModifications; }
-
-void qmdiEditor::setModificationsLookupEnabled(bool value) { fileModifications = value; }
+void qmdiEditor::setModificationsLookupEnabled(bool value) {
+    fileModifications = value;
+    if (!fileName.isEmpty()) {
+        if (fileModifications) {
+            fileSystemWatcher->addPath(fileName);
+        } else {
+            fileSystemWatcher->removePath(fileName);
+        }
+    }
+}
 
 void qmdiEditor::on_fileChanged(const QString &filename) {
     if (this->fileName != filename) {
@@ -547,31 +582,32 @@ bool qmdiEditor::doSaveAs() {
 
 bool qmdiEditor::loadFile(const QString &newFileName) {
     // clear older watches, and add a new one
-    QStringList sl = fileSystemWatcher->directories();
+    auto sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
     }
 
-    bool modificationsEnabledState = getModificationsLookupEnabled();
+    auto modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
     textEditor->setReadOnly(false);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     if (!newFileName.isEmpty()) {
-        QFile file(newFileName);
-        QFileInfo fileInfo(file);
-
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        auto file = QFile(newFileName);
+        if (!file.open(QIODevice::ReadOnly)) {
             QApplication::restoreOverrideCursor();
             return false;
         }
 
-        QTextStream textStream(&file);
+        this->originalLineEndig = getLineEnding(file);
+        auto textStream = QTextStream(&file);
+        textStream.seek(0);
         textEditor->setPlainText(textStream.readAll());
+
+        QFileInfo fileInfo(file);
         file.close();
 
         this->fileName = fileInfo.absoluteFilePath();
-        fileSystemWatcher->addPath(newFileName);
         if (!fileInfo.isWritable()) {
             textEditor->setReadOnly(true);
             displayBannerMessage(
@@ -590,50 +626,8 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     updateFileDetails();
     setModificationsLookupEnabled(modificationsEnabledState);
     // removeModifications();
-
     QApplication::restoreOverrideCursor();
     return true;
-}
-
-QString cleanUpLine(const QString &str, bool cleanupTrailingSpaces, EndLineStyle endline) {
-    auto result = str;
-    auto hadCRLF = result.endsWith("\r\n");
-    auto hadLF = !hadCRLF && result.endsWith('\n');
-    auto hadCR = !hadCRLF && !hadLF && result.endsWith('\r');
-
-    if (hadCRLF) {
-        result.chop(2);
-    } else if (hadLF || hadCR) {
-        result.chop(1);
-    }
-
-    if (cleanupTrailingSpaces) {
-        result = result.trimmed();
-    }
-
-    switch (endline) {
-    case UnixEndLine:
-        result.append('\n');
-        break;
-    case WindowsEndLine:
-        result.append("\r\n");
-        break;
-    case KeepOriginalEndline:
-        if (hadCRLF) {
-            result.append("\r\n");
-        } else if (hadLF) {
-            result.append('\n');
-        } else if (hadCR) {
-            result.append('\r');
-        } else {
-            // TODO this is broken. When loading the file, all new lines are
-            // stripped into the document.
-            result.append("\r");
-        }
-        break;
-    }
-
-    return result;
 }
 
 bool qmdiEditor::saveFile(const QString &newFileName) {
@@ -658,8 +652,9 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     QTextCursor cursor(textEditor->document());
     while (block.isValid()) {
         QString s = block.text();
-        s = cleanUpLine(s, trimSpacesOnSave, endLineStyle);
+
         if (trimSpacesOnSave) {
+            s = s.trimmed();
             cursor.setPosition(block.position());
             cursor.select(QTextCursor::BlockUnderCursor);
             cursor.insertText(s);
@@ -667,6 +662,20 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
         textStream << s;
         block = block.next();
+
+        if (block.isValid()) {
+            switch (this->endLineStyle) {
+            case UnixEndLine:
+                textStream << "\n";
+                break;
+            case WindowsEndLine:
+                textStream << "\r\n";
+                break;
+            case KeepOriginalEndline:
+                textStream << originalLineEndig;
+                break;
+            }
+        }
     }
     file.close();
     textEditor->document()->setModified(false);

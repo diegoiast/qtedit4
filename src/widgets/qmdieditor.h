@@ -53,7 +53,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
     void setupActions();
     QString getFileName() const { return fileName; }
-    bool getModificationsLookupEnabled();
+    inline bool getModificationsLookupEnabled() const { return fileModifications; }
     void setModificationsLookupEnabled(bool);
     inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
     inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
@@ -106,19 +106,24 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void hideTimer_timeout();
 
   public:
+    QString originalLineEndig = {};
     EndLineStyle endLineStyle = EndLineStyle::KeepOriginalEndline;
     bool trimSpacesOnSave = false;
 
     // No longer inheriting Qutepart, instead use "static inheritance"
-    void goTo(int x, int y) { textEditor->goTo(x, y); }
-    void setLineWrapMode(QPlainTextEdit::LineWrapMode mode) { textEditor->setLineWrapMode(mode); }
-    void setDrawAnyWhitespace(bool b) { textEditor->setDrawAnyWhitespace(b); }
-    void setDrawIndentations(bool b) { textEditor->setDrawIndentations(b); }
-    void setBracketHighlightingEnabled(bool b) { textEditor->setBracketHighlightingEnabled(b); }
-    void setLineNumbersVisible(bool b) { textEditor->setLineNumbersVisible(b); }
-    void setSmartHomeEnd(bool b) { textEditor->setSmartHomeEnd(b); }
-    void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
-    void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
+    inline void goTo(int x, int y) { textEditor->goTo(x, y); }
+    inline void setLineWrapMode(QPlainTextEdit::LineWrapMode mode) {
+        textEditor->setLineWrapMode(mode);
+    }
+    inline void setDrawAnyWhitespace(bool b) { textEditor->setDrawAnyWhitespace(b); }
+    inline void setDrawIndentations(bool b) { textEditor->setDrawIndentations(b); }
+    inline void setBracketHighlightingEnabled(bool b) {
+        textEditor->setBracketHighlightingEnabled(b);
+    }
+    inline void setLineNumbersVisible(bool b) { textEditor->setLineNumbersVisible(b); }
+    inline void setSmartHomeEnd(bool b) { textEditor->setSmartHomeEnd(b); }
+    inline void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
+    inline void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
 
   protected:
     void focusInEvent(QFocusEvent *event) override;
