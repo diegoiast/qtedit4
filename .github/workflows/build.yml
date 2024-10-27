@@ -65,6 +65,15 @@ jobs:
               cxx: "clang++",
               generators: "Ninja",
             }
+          - {
+              name: "OSX",
+              build_dir: "ubuntu-osx",
+              os: ubuntu-22.04,
+              build_type: "Release",
+              cc: "clang",
+              cxx: "clang++",
+              generators: "Ninja",
+            }
 
     steps:
       - uses: actions/checkout@v4
@@ -111,6 +120,14 @@ jobs:
           fi
         shell: bash
 
+      - name: Create TGZ archive (Linux)
+        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
+        run: |
+            mkdir -p dist/qtedit4/
+            ln -s  ../ubuntu-gcc/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
+            tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
+        shell: bash
+
       - name: Create AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
@@ -127,12 +144,20 @@ jobs:
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
           chmod +x linuxdeploy*.AppImage
           ./linuxdeploy-x86_64.AppImage --appdir "dist/${{ matrix.config.build_dir }}" --plugin qt --output appimage
+
       - name: Upload AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-qt671-${{ env.version }}-x86_64.AppImage
           path: build/qtedit4-qt671-${{ env.version }}-x86_64.AppImage
+
+      - name: Upload TGZ archive (Linux)
+        if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
+        uses: actions/upload-artifact@v4
+        with:
+          name: qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz
+          path: "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz"
 
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
