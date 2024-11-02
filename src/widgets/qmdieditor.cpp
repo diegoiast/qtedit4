@@ -873,7 +873,7 @@ void qmdiEditor::toggleHeaderImpl() {
 void qmdiEditor::chooseHighliter(const QString &newText) {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
     if (langInfo.isValid()) {
-        textEditor->setHighlighter(langInfo.id, nullptr);
+        textEditor->setHighlighter(langInfo.id);
     } else {
         textEditor->removeHighlighter();
     }
@@ -898,7 +898,7 @@ void qmdiEditor::updateFileDetails() {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
 
     if (langInfo.isValid()) {
-        textEditor->setHighlighter(langInfo.id, nullptr);
+        textEditor->setHighlighter(langInfo.id);
         textEditor->setIndentAlgorithm(langInfo.indentAlg);
         buttonChangeIndenter->menu()->actions().at(langInfo.indentAlg)->setChecked(true);
 

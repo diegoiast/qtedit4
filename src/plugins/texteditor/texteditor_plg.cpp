@@ -200,7 +200,7 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
         connect(p, &CommandPalette::didHide, this, [this, p, editor]() {
             if (!newThemeSelected) {
                 editor->setEditorTheme(this->theme);
-                editor->setEditorHighlighter(editor->getSyntaxID(), this->theme);
+                editor->setEditorHighlighter(editor->getSyntaxID());
             } else {
                 // apply it globally
                 auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
@@ -215,11 +215,14 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                     }
 
                     e->setEditorTheme(this->theme);
-                    e->setEditorHighlighter(e->getSyntaxID(), this->theme);
                 }
 
-                auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
-                getConfig().setTheme(themeFileName);
+                if (newTheme) {
+                    auto themeFileName = themeManager->getNameFromDesc(newTheme->metaData.name);
+                    getConfig().setTheme(themeFileName);
+                } else {
+                    getConfig().setTheme("");
+                }
             }
             chooseTheme->setEnabled(true);
             p->deleteLater();
@@ -230,8 +233,8 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                     auto newTheme = const_cast<Qutepart::Theme *>(editor->getEditorTheme());
                     if (newTheme != this->theme) {
                         delete newTheme;
-                        newTheme = nullptr;
                     }
+                    newTheme = nullptr;
                     auto themeDescription = index.data(Qt::DisplayRole).toString();
                     auto themeFileName = themeManager->getNameFromDesc(themeDescription);
                     auto themeMetaData = themeManager->getThemeMetaData(themeFileName);
@@ -239,9 +242,7 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                         newTheme = new Qutepart::Theme();
                         const_cast<Qutepart::Theme *>(newTheme)->loadTheme(themeFileName);
                     }
-
                     editor->setEditorTheme(newTheme);
-                    editor->setEditorHighlighter(editor->getSyntaxID(), newTheme);
                 });
         connect(p, &CommandPalette::didChooseItem, this, [this]() {
             // don't restore theme on closing - user choose his new theme
@@ -338,7 +339,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
 
     auto langInfo = ::Qutepart::chooseLanguage({}, {}, fileName);
     if (langInfo.isValid()) {
-        editor->setEditorHighlighter(langInfo.id, theme);
+        editor->setEditorHighlighter(langInfo.id);
     }
     applySettings(editor);
     auto loaded = editor->loadFile(fileName);
@@ -381,7 +382,6 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
 
     if (this->theme != editor->getEditorTheme()) {
         editor->setEditorTheme(this->theme);
-        editor->setEditorHighlighter(editor->getSyntaxID(), this->theme);
     }
 }
 
