@@ -188,6 +188,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     textOperationsMenu->addAction(textEditor->joinLinesAction());
     textOperationsMenu->addAction(textEditor->moveLineUpAction());
     textOperationsMenu->addAction(textEditor->moveLineDownAction());
+    textOperationsMenu->addAction(textEditor->toggleCommentAction());
     textOperationsMenu->addSeparator();
     textOperationsMenu->addAction(actionToggleHeader);
 
