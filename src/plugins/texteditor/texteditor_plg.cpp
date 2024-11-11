@@ -16,8 +16,8 @@
 #include <qmdihost.h>
 #include <qmdiserver.h>
 
-#include "qmdieditor.h"
 #include "texteditor_plg.h"
+#include "widgets/qmdieditor.h"
 
 bool isPlainText(const QString &str) {
     if (str.isEmpty()) {

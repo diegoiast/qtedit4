@@ -23,6 +23,8 @@
 
 class TextOperationsWidget;
 class QFileSystemWatcher;
+class QPushButton;
+class TextPreview;
 
 class QComboBox;
 namespace Ui {
@@ -148,6 +150,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
     QComboBox *comboChangeHighlighter = nullptr;
     QToolButton *buttonChangeIndenter = nullptr;
+    QPushButton *previewButton = nullptr;
+    TextPreview *textPreview;
+
     QAction *actionSave = nullptr;
     QAction *actionSaveAs = nullptr;
     QAction *actionUndo = nullptr;

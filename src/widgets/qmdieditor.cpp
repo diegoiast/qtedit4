@@ -18,22 +18,30 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPlainTextEdit>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QSplitter>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTabWidget>
 #include <QTextBlock>
-#include <QTextDocument>
+#include <QTextBrowser>
+#include <QTextEdit>
 #include <QToolBar>
+#include <QTreeView>
 #include <pluginmanager.h>
 
 #include "../plugins/texteditor/thememanager.h"
 
 #include "qmdieditor.h"
 #include "qmdiserver.h"
-#include "textoperationswidget.h"
-#include "ui_bannermessage.h"
+
+#include "widgets/textoperationswidget.h"
+#include "widgets/textpreview.h"
+#include "widgets/ui_bannermessage.h"
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
@@ -143,15 +151,24 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     toolbar->addWidget(comboChangeHighlighter);
     toolbar->addWidget(buttonChangeIndenter);
 
-    QWidget *spacer = new QWidget();
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    QWidget *spacer = new QWidget(this);
+    QLabel *staticLabel = new QLabel("", toolbar);
+
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
-    QLabel *staticLabel = new QLabel("", toolbar);
     toolbar->addWidget(staticLabel);
+    toolbar->addWidget(previewButton);
+
+    textPreview = new TextPreview(this);
+    textPreview->setVisible(false);
+
+    splitter->addWidget(textEditor);
+    splitter->addWidget(textPreview);
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(textEditor);
+    layout->addWidget(splitter);
     layout->addWidget(toolbar);
 
     connect(textEditor, &QPlainTextEdit::cursorPositionChanged, this, [this, staticLabel]() {
@@ -308,6 +325,39 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
 void qmdiEditor::setupActions() {
     comboChangeHighlighter = new QComboBox(this);
     buttonChangeIndenter = new QToolButton(this);
+    previewButton = new QPushButton(this);
+    previewButton->setText(tr("Preview"));
+    // previewButton->setEnabled(false);
+    previewButton->setFlat(true);
+    previewButton->setCheckable(true);
+
+    auto updatePreview = [=]() {
+        if (!this->previewButton->isChecked()) {
+            return;
+        }
+
+        if (mdiClientName.endsWith(".md", Qt::CaseInsensitive)) {
+            textPreview->previewText(textEditor->toPlainText(), TextPreview::Markdown);
+        } else if (mdiClientName.endsWith(".svg", Qt::CaseInsensitive)) {
+            textPreview->previewText(textEditor->toPlainText(), TextPreview::SVG);
+        } else if (mdiClientName.endsWith(".xpm", Qt::CaseInsensitive)) {
+            textPreview->previewText(textEditor->toPlainText(), TextPreview::XPM);
+        } else if (comboChangeHighlighter->currentText().contains("JSON", Qt::CaseInsensitive)) {
+            textPreview->previewText(textEditor->toPlainText(), TextPreview::JSON);
+        } else if (comboChangeHighlighter->currentText().contains("XML", Qt::CaseInsensitive)) {
+            textPreview->previewText(textEditor->toPlainText(), TextPreview::XML);
+        }
+    };
+
+    connect(previewButton, &QAbstractButton::toggled, this, [=](bool toggled) {
+        this->textPreview->setVisible(toggled);
+        if (toggled) {
+            updatePreview();
+        }
+    });
+
+    connect(textEditor, &QPlainTextEdit::textChanged, this, updatePreview);
+
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);

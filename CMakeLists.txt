@@ -31,12 +31,16 @@ else()
     CPMAddPackage("gh:Dax89/QHexView#40f40f5d6a546646904c094ebefc8216067ab586")
     # latest commit in master 
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
+
+    # Using private fork until upstream fixes the cmake file
+    # CPMAddPackage("gh:/dridk/QJsonModel#ed3652666d4954c2262eb5ceee8fda3e613f8c0c")
+    CPMAddPackage("gh:/diegoiast/QJsonModel#11f754b47ac791dd00c40ba2352268ca1453a9fd")
     
     download_breeze_icons(6.4.0)
 endif()
 
 
-find_package(Qt6 COMPONENTS Widgets PrintSupport Network)
+find_package(Qt6 COMPONENTS Widgets PrintSupport Network Svg Xml)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
@@ -67,6 +71,10 @@ set(qtedit4_sources
     src/widgets/searchform.ui  
     src/widgets/bannermessage.ui
     src/widgets/gotolineform.ui
+    src/widgets/textpreview.cpp
+    src/widgets/textpreview.h
+    src/widgets/xmltreemodel.cpp
+    src/widgets/xmltreemodel.h
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp
@@ -101,16 +109,17 @@ set(qtedit4_sources
 if (WIN32)
     add_executable(qtedit4 WIN32 ${qtedit4_sources} qtedit4.rc)
 else()
-    add_executable(qtedit4 ${qtedit4_sources})
+    add_executable(qtedit4 ${qtedit4_sources}
+            src/widgets/xmltreemodel.h src/widgets/xmltreemodel.cpp)
 endif()
 
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
     ${qutepart_SOURCE_DIR}/include 
-    src/widgets
+    src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
