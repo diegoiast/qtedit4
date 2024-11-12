@@ -47,7 +47,7 @@ auto TextPreview::previewText(const QString &str, PreviewType type) -> void {
     }
     case JSON: {
         setCurrentIndex(2);
-        auto model = new QJsonModel();
+        auto model = new QJsonModel(this);
         model->loadJson(str.toUtf8());
         treeView->setModel(model);
         treeView->expandAll();

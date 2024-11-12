@@ -34,7 +34,7 @@ else()
 
     # Using private fork until upstream fixes the cmake file
     # CPMAddPackage("gh:/dridk/QJsonModel#ed3652666d4954c2262eb5ceee8fda3e613f8c0c")
-    CPMAddPackage("gh:/diegoiast/QJsonModel#11f754b47ac791dd00c40ba2352268ca1453a9fd")
+    CPMAddPackage("gh:/diegoiast/QJsonModel#b4252600ce35cc695ec60807098f9cc36aaa0b1d")
     
     download_breeze_icons(6.4.0)
 endif()

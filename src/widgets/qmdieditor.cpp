@@ -331,24 +331,6 @@ void qmdiEditor::setupActions() {
     previewButton->setFlat(true);
     previewButton->setCheckable(true);
 
-    auto updatePreview = [=]() {
-        if (!this->previewButton->isChecked()) {
-            return;
-        }
-
-        if (mdiClientName.endsWith(".md", Qt::CaseInsensitive)) {
-            textPreview->previewText(textEditor->toPlainText(), TextPreview::Markdown);
-        } else if (mdiClientName.endsWith(".svg", Qt::CaseInsensitive)) {
-            textPreview->previewText(textEditor->toPlainText(), TextPreview::SVG);
-        } else if (mdiClientName.endsWith(".xpm", Qt::CaseInsensitive)) {
-            textPreview->previewText(textEditor->toPlainText(), TextPreview::XPM);
-        } else if (comboChangeHighlighter->currentText().contains("JSON", Qt::CaseInsensitive)) {
-            textPreview->previewText(textEditor->toPlainText(), TextPreview::JSON);
-        } else if (comboChangeHighlighter->currentText().contains("XML", Qt::CaseInsensitive)) {
-            textPreview->previewText(textEditor->toPlainText(), TextPreview::XML);
-        }
-    };
-
     connect(previewButton, &QAbstractButton::toggled, this, [=](bool toggled) {
         this->textPreview->setVisible(toggled);
         if (toggled) {
@@ -356,7 +338,7 @@ void qmdiEditor::setupActions() {
         }
     });
 
-    connect(textEditor, &QPlainTextEdit::textChanged, this, updatePreview);
+    connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
@@ -516,6 +498,26 @@ void qmdiEditor::setModificationsLookupEnabled(bool value) {
             fileSystemWatcher->removePath(fileName);
         }
     }
+}
+
+bool qmdiEditor::isMarkDownDocument() const {
+    return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isXPMDocument() const {
+    return mdiClientName.endsWith(".xpm", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isSVGDocument() const {
+    return mdiClientName.endsWith(".svg", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isXMLDocument() const {
+    return comboChangeHighlighter->currentText().contains("XML", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isJSONDocument() const {
+    return comboChangeHighlighter->currentText().contains("JSON", Qt::CaseInsensitive);
 }
 
 void qmdiEditor::on_fileChanged(const QString &filename) {
@@ -981,6 +983,14 @@ void qmdiEditor::updateFileDetails() {
         }
     }
 
+    auto shouldOpenPreview = hasPreview();
+    previewButton->setEnabled(shouldOpenPreview);
+    if (shouldOpenPreview) {
+        previewButton->setChecked(autoPreview);
+    } else {
+        previewButton->setChecked(false);
+    }
+
     auto isCplusplusSource = fileName.endsWith(".h", Qt::CaseInsensitive) ||
                              fileName.endsWith(".hh", Qt::CaseInsensitive) ||
                              fileName.endsWith(".hpp", Qt::CaseInsensitive) ||
@@ -1008,4 +1018,22 @@ void qmdiEditor::updateIndenterMenu() {
 
 void qmdiEditor::updateHighlighterMenu() {
     // todo
+}
+
+void qmdiEditor::updatePreview() {
+    if (!this->previewButton->isChecked()) {
+        return;
+    }
+
+    if (isMarkDownDocument()) {
+        textPreview->previewText(textEditor->toPlainText(), TextPreview::Markdown);
+    } else if (isSVGDocument()) {
+        textPreview->previewText(textEditor->toPlainText(), TextPreview::SVG);
+    } else if (isXPMDocument()) {
+        textPreview->previewText(textEditor->toPlainText(), TextPreview::XPM);
+    } else if (isJSONDocument()) {
+        textPreview->previewText(textEditor->toPlainText(), TextPreview::JSON);
+    } else if (isXMLDocument()) {
+        textPreview->previewText(textEditor->toPlainText(), TextPreview::XML);
+    }
 }

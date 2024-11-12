@@ -72,6 +72,16 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
     inline const QString &getIndentatorID() const { return this->indentationID; }
 
+    bool isMarkDownDocument() const;
+    bool isXPMDocument() const;
+    bool isSVGDocument() const;
+    bool isXMLDocument() const;
+    bool isJSONDocument() const;
+    inline bool hasPreview() const {
+        return isMarkDownDocument() || isXPMDocument() || isSVGDocument() || isXMLDocument() ||
+               isJSONDocument();
+    }
+
   public slots:
     void on_fileChanged(const QString &filename);
     void adjustBottomAndTopWidget();
@@ -100,6 +110,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void updateFileDetails();
     void updateIndenterMenu();
     void updateHighlighterMenu();
+    void updatePreview();
 
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
@@ -108,6 +119,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QString originalLineEndig = {};
     EndLineStyle endLineStyle = EndLineStyle::KeepOriginalEndline;
     bool trimSpacesOnSave = false;
+    bool autoPreview = true;
 
     // No longer inheriting Qutepart, instead use "static inheritance"
     inline void goTo(int x, int y) { textEditor->goTo(x, y); }
@@ -165,13 +177,11 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QAction *actionFindPrev = nullptr;
     QAction *actionReplace = nullptr;
     QAction *actionGotoLine = nullptr;
-
     QAction *actionCapitalize = nullptr;
     QAction *actionLowerCase = nullptr;
     QAction *actionChangeCase = nullptr;
     QAction *actionFindMatchingBracket = nullptr;
     QAction *actionCopyFileName = nullptr;
     QAction *actionCopyFilePath = nullptr;
-
     QAction *actionToggleHeader = nullptr;
 };

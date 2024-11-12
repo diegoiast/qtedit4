@@ -91,29 +91,39 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show white space"))
-                                     .setDescription("Display marks above tabs, and spaces")
+                                     .setDescription(tr("Display marks above tabs, and spaces"))
                                      .setKey(Config::ShowWhiteKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Draw indentations"))
-                                     .setDescription("Display marks on first indentations of lines")
-                                     .setKey(Config::ShowIndentationsKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Highlight brackets"))
-                                     .setDescription("Draws a background around matching brakcet")
-                                     .setKey(Config::HighlightBracketsKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
     config.configItems.push_back(
         qmdiConfigItem::Builder()
+            .setDisplayName(tr("Draw indentations"))
+            .setDescription(tr("Display marks on first indentations of lines"))
+            .setKey(Config::ShowIndentationsKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(true)
+            .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Highlight brackets"))
+            .setDescription(tr("Draws a background around matching brakcet"))
+            .setKey(Config::HighlightBracketsKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(true)
+            .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Auto preview"))
+            .setDescription(tr("Opens a preview panel for supported files"))
+            .setKey(Config::AutoPreviewKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(true)
+            .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
             .setDisplayName(tr("Mark current word"))
-            .setDescription("Select the word under cursor in the whole document")
+            .setDescription(tr("Select the word under cursor in the whole document"))
             .setKey(Config::MarkCurrentWordKey)
             .setType(qmdiConfigItem::Bool)
             .setDefaultValue(true)
@@ -377,6 +387,7 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     editor->setLineLengthEdge(getConfig().getMarginOffset());
     editor->endLineStyle = getConfig().getLineEndingSave();
     editor->trimSpacesOnSave = getConfig().getTrimSpaces();
+    editor->autoPreview = getConfig().getAutoPreview();
     editor->setEditorFont(newFont);
     editor->repaint();
 
