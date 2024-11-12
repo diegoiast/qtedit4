@@ -35,7 +35,8 @@ auto ThemeManager::getThemeMetaData(const QString fileName) const -> ThemeMetaDa
 
 auto ThemeManager::getNameFromDesc(const QString description) const -> QString {
     // TODO - there must be an implementation in O(1), instead of O(n)
-    for (auto &k : themes.keys()) {
+    auto keys = themes.keys();
+    for (auto &k : keys) {
         auto i = themes[k];
         if (i.name == description) {
             return k;
