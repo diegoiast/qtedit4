@@ -1,23 +1,23 @@
 #include "textpreview.h"
 #include "xmltreemodel.h"
 
+#include <pal/image-viewer.h>
 #include <QAbstractItemModel>
 #include <QHeaderView>
 #include <QJsonModel.hpp>
-#include <QLabel>
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QTextBrowser>
-#include <QScrollBar>>
+#include <QScrollBar>
 #include <QTreeView>
 #include <QVector>
 
 TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     markdownPreview = new QTextBrowser(this);
-    imagePreview = new QLabel(this);
+    imagePreview = new pal::ImageViewer(this);
     treeView = new QTreeView(this);
+    imagePreview->zoomOriginal();
 
-    imagePreview->setAlignment(Qt::AlignCenter);
     addWidget(markdownPreview);
     addWidget(imagePreview);
     addWidget(treeView);
@@ -42,14 +42,14 @@ auto TextPreview::previewText(const QString &filename, const QString &str, Previ
         pixmap.fill(Qt::transparent);
         QPainter painter(&pixmap);
         renderer.render(&painter);
-        imagePreview->setPixmap(pixmap);
+        imagePreview->setImage(pixmap.toImage());
         break;
     }
     case XPM: {
         setCurrentIndex(1);
         QPixmap pixmap;
         pixmap.loadFromData(str.toUtf8());
-        imagePreview->setPixmap(pixmap);
+        imagePreview->setImage(pixmap.toImage());
         break;
     }
     case JSON: {

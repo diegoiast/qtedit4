@@ -11,6 +11,10 @@ class QTextBrowser;
 class QLabel;
 class QTreeView;
 
+namespace pal {
+class ImageViewer;
+}
+
 class TextPreview : public QStackedWidget {
   public:
     explicit TextPreview(QWidget *p);
@@ -28,6 +32,6 @@ class TextPreview : public QStackedWidget {
 
   private:
     QTextBrowser *markdownPreview = nullptr;
-    QLabel *imagePreview = nullptr;
+    pal::ImageViewer *imagePreview = nullptr;
     QTreeView *treeView = nullptr;
 };
