@@ -8,6 +8,7 @@
 #include <QPainter>
 #include <QSvgRenderer>
 #include <QTextBrowser>
+#include <QScrollBar>>
 #include <QTreeView>
 #include <QVector>
 
@@ -24,11 +25,16 @@ TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
 
 auto TextPreview::previewText(const QString &filename, const QString &str, PreviewType type) -> void {
     switch (type) {
-    case Markdown:
+    case Markdown: {
+        auto scrollBar = markdownPreview->verticalScrollBar();
+        auto scrollPosition = scrollBar->value();
+
         setCurrentIndex(0);
         markdownPreview->setSource(filename, QTextDocument::MarkdownResource);
         markdownPreview->setMarkdown(str);
+        scrollBar->setValue(scrollPosition);
         break;
+    }
     case SVG: {
         setCurrentIndex(1);
         QSvgRenderer renderer(str.toUtf8());
