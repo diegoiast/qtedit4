@@ -13,8 +13,8 @@ class ThemeManager;
 class Theme;
 } // namespace Qutepart
 
-#include "endlinestyle.h"
 #include "iplugin.h"
+#include "widgets/endlinestyle.h"
 
 class qmdiEditor;
 
@@ -34,6 +34,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(LineEndingSave, EndLineStyle)
         CONFIG_DEFINE(Font, QString)
         CONFIG_DEFINE(Theme, QString)
+        CONFIG_DEFINE(AutoPreview, bool)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {

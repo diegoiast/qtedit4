@@ -18,22 +18,30 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
+#include <QPlainTextEdit>
+#include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QSplitter>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTabWidget>
 #include <QTextBlock>
-#include <QTextDocument>
+#include <QTextBrowser>
+#include <QTextEdit>
 #include <QToolBar>
+#include <QTreeView>
 #include <pluginmanager.h>
 
 #include "../plugins/texteditor/thememanager.h"
 
 #include "qmdieditor.h"
 #include "qmdiserver.h"
-#include "textoperationswidget.h"
-#include "ui_bannermessage.h"
+
+#include "widgets/textoperationswidget.h"
+#include "widgets/textpreview.h"
+#include "widgets/ui_bannermessage.h"
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
@@ -143,15 +151,24 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     toolbar->addWidget(comboChangeHighlighter);
     toolbar->addWidget(buttonChangeIndenter);
 
-    QWidget *spacer = new QWidget();
+    QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
+    QWidget *spacer = new QWidget(this);
+    QLabel *staticLabel = new QLabel("", toolbar);
+
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     toolbar->addWidget(spacer);
-    QLabel *staticLabel = new QLabel("", toolbar);
     toolbar->addWidget(staticLabel);
+    toolbar->addWidget(previewButton);
+
+    textPreview = new TextPreview(this);
+    textPreview->setVisible(false);
+
+    splitter->addWidget(textEditor);
+    splitter->addWidget(textPreview);
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(textEditor);
+    layout->addWidget(splitter);
     layout->addWidget(toolbar);
 
     connect(textEditor, &QPlainTextEdit::cursorPositionChanged, this, [this, staticLabel]() {
@@ -306,8 +323,24 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
 }
 
 void qmdiEditor::setupActions() {
-    comboChangeHighlighter = new QComboBox(this);
     buttonChangeIndenter = new QToolButton(this);
+    comboChangeHighlighter = new QComboBox(this);
+    previewButton = new QPushButton(this);
+    previewButton->setText(tr("Preview"));
+    previewButton->setFlat(true);
+    previewButton->setCheckable(true);
+
+    connect(previewButton, &QAbstractButton::toggled, this, [=](bool toggled) {
+        this->textPreview->setVisible(toggled);
+        if (toggled) {
+            updatePreview();
+        }
+    });
+
+    // FIXME - the new syntax for connecting a singal/slot crashes the app, using the old one works
+    // connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
+    connect(textEditor, SIGNAL(textChanged()), this, SLOT(updatePreview()));
+
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
@@ -466,6 +499,26 @@ void qmdiEditor::setModificationsLookupEnabled(bool value) {
             fileSystemWatcher->removePath(fileName);
         }
     }
+}
+
+bool qmdiEditor::isMarkDownDocument() const {
+    return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isXPMDocument() const {
+    return mdiClientName.endsWith(".xpm", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isSVGDocument() const {
+    return mdiClientName.endsWith(".svg", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isXMLDocument() const {
+    return comboChangeHighlighter->currentText().contains("XML", Qt::CaseInsensitive);
+}
+
+bool qmdiEditor::isJSONDocument() const {
+    return comboChangeHighlighter->currentText().contains("JSON", Qt::CaseInsensitive);
 }
 
 void qmdiEditor::on_fileChanged(const QString &filename) {
@@ -931,6 +984,14 @@ void qmdiEditor::updateFileDetails() {
         }
     }
 
+    auto shouldOpenPreview = hasPreview();
+    previewButton->setEnabled(shouldOpenPreview);
+    if (shouldOpenPreview) {
+        previewButton->setChecked(autoPreview);
+    } else {
+        previewButton->setChecked(false);
+    }
+
     auto isCplusplusSource = fileName.endsWith(".h", Qt::CaseInsensitive) ||
                              fileName.endsWith(".hh", Qt::CaseInsensitive) ||
                              fileName.endsWith(".hpp", Qt::CaseInsensitive) ||
@@ -958,4 +1019,23 @@ void qmdiEditor::updateIndenterMenu() {
 
 void qmdiEditor::updateHighlighterMenu() {
     // todo
+}
+
+void qmdiEditor::updatePreview() {
+    if (!this->previewButton->isChecked()) {
+        return;
+    }
+
+    if (isMarkDownDocument()) {
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(),
+                                 TextPreview::Markdown);
+    } else if (isSVGDocument()) {
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::SVG);
+    } else if (isXPMDocument()) {
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XPM);
+    } else if (isJSONDocument()) {
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::JSON);
+    } else if (isXMLDocument()) {
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XML);
+    }
 }
