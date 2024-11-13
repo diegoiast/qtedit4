@@ -37,7 +37,7 @@ class XmlTreeModel : public QAbstractItemModel {
                       const QModelIndex &parent = QModelIndex()) const override;
     QModelIndex parent(const QModelIndex &index) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override { return 2; }
+    int columnCount(const QModelIndex & = QModelIndex()) const override { return 2; }
 
   private:
     void buildTree(QXmlStreamReader &reader, Node *parent);
