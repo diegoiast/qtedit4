@@ -21,6 +21,8 @@
 #include <iostream>
 #include <string>
 
+#include "CommandPaletteWidget/commandpalette.h"
+
 #ifdef _WIN32
 #include <windows.h>
 #else
@@ -185,7 +187,29 @@ HelpPlugin::HelpPlugin() {
         menus["&Help"]->addAction(installDesktopFile);
     }
 
+    auto searchAction = new QAction(tr("Search action in UI"), this);
+    searchAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_P));
+    connect(searchAction, &QAction::triggered, this, [this](){
+        auto model = new ActionListModel(this);
+        auto window = getManager();
+        model->setActions(collectWidgetActions(window));
+        auto commandPalette = new CommandPalette(window);
+        commandPalette->setDataModel(model);
+        connect(commandPalette, &CommandPalette::didChooseItem, this,
+                [commandPalette](const QModelIndex &index, const QAbstractItemModel *model) {
+            auto data = model->data(index, Qt::UserRole);
+            auto action = data.value<QAction *>();
+            if (action) {
+                action->trigger();
+            }
+            commandPalette->deleteLater();
+        });
+        commandPalette->show();
+    });
+
+
     menus["&Help"]->addAction(actionCheckForUpdates);
+    menus["&Help"]->addAction(searchAction);
     menus["&Help"]->addSeparator();
     menus["&Help"]->addAction(actionVisitHomePage);
     menus["&Help"]->addAction(actionAboutQt);
