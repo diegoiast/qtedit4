@@ -337,7 +337,7 @@ void qmdiEditor::setupActions() {
         }
     });
 
-    // FIXME - the new syntax for connecting a singal/slot crashes the app, using the old one works
+    // FIXME - the new syntax for connecting a signal/slot crashes the app, using the old one works
     // connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
     connect(textEditor, SIGNAL(textChanged()), this, SLOT(updatePreview()));
 
