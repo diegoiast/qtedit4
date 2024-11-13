@@ -323,11 +323,10 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
 }
 
 void qmdiEditor::setupActions() {
-    comboChangeHighlighter = new QComboBox(this);
     buttonChangeIndenter = new QToolButton(this);
+    comboChangeHighlighter = new QComboBox(this);
     previewButton = new QPushButton(this);
     previewButton->setText(tr("Preview"));
-    // previewButton->setEnabled(false);
     previewButton->setFlat(true);
     previewButton->setCheckable(true);
 

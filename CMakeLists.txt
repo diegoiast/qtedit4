@@ -109,8 +109,7 @@ set(qtedit4_sources
 if (WIN32)
     add_executable(qtedit4 WIN32 ${qtedit4_sources} qtedit4.rc)
 else()
-    add_executable(qtedit4 ${qtedit4_sources}
-            src/widgets/xmltreemodel.h src/widgets/xmltreemodel.cpp)
+    add_executable(qtedit4 ${qtedit4_sources})
 endif()
 
 
