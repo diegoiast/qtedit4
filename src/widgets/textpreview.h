@@ -13,7 +13,7 @@ class QTreeView;
 
 class TextPreview : public QStackedWidget {
   public:
-    TextPreview(QWidget *p);
+    explicit TextPreview(QWidget *p);
     enum PreviewType {
         Markdown,
         SVG,
@@ -24,7 +24,7 @@ class TextPreview : public QStackedWidget {
         // TOML
     };
 
-    auto previewText(const QString &str, PreviewType type) -> void;
+    auto previewText(const QString &filename, const QString &str, PreviewType type) -> void;
 
   private:
     QTextBrowser *markdownPreview = nullptr;

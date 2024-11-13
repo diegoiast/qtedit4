@@ -1028,14 +1028,14 @@ void qmdiEditor::updatePreview() {
     }
 
     if (isMarkDownDocument()) {
-        textPreview->previewText(textEditor->toPlainText(), TextPreview::Markdown);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::Markdown);
     } else if (isSVGDocument()) {
-        textPreview->previewText(textEditor->toPlainText(), TextPreview::SVG);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::SVG);
     } else if (isXPMDocument()) {
-        textPreview->previewText(textEditor->toPlainText(), TextPreview::XPM);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XPM);
     } else if (isJSONDocument()) {
-        textPreview->previewText(textEditor->toPlainText(), TextPreview::JSON);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::JSON);
     } else if (isXMLDocument()) {
-        textPreview->previewText(textEditor->toPlainText(), TextPreview::XML);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XML);
     }
 }

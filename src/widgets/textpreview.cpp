@@ -22,10 +22,11 @@ TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     addWidget(treeView);
 }
 
-auto TextPreview::previewText(const QString &str, PreviewType type) -> void {
+auto TextPreview::previewText(const QString &filename, const QString &str, PreviewType type) -> void {
     switch (type) {
     case Markdown:
         setCurrentIndex(0);
+        markdownPreview->setSource(filename, QTextDocument::MarkdownResource);
         markdownPreview->setMarkdown(str);
         break;
     case SVG: {
