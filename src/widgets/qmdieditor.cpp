@@ -1027,7 +1027,8 @@ void qmdiEditor::updatePreview() {
     }
 
     if (isMarkDownDocument()) {
-        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::Markdown);
+        textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(),
+                                 TextPreview::Markdown);
     } else if (isSVGDocument()) {
         textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::SVG);
     } else if (isXPMDocument()) {

@@ -1,16 +1,16 @@
 #include "textpreview.h"
 #include "xmltreemodel.h"
 
-#include <pal/image-viewer.h>
 #include <QAbstractItemModel>
 #include <QHeaderView>
 #include <QJsonModel.hpp>
 #include <QPainter>
+#include <QScrollBar>
 #include <QSvgRenderer>
 #include <QTextBrowser>
-#include <QScrollBar>
 #include <QTreeView>
 #include <QVector>
+#include <pal/image-viewer.h>
 
 TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     markdownPreview = new QTextBrowser(this);
@@ -23,7 +23,8 @@ TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     addWidget(treeView);
 }
 
-auto TextPreview::previewText(const QString &filename, const QString &str, PreviewType type) -> void {
+auto TextPreview::previewText(const QString &filename, const QString &str, PreviewType type)
+    -> void {
     switch (type) {
     case Markdown: {
         auto scrollBar = markdownPreview->verticalScrollBar();
