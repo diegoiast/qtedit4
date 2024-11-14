@@ -26,8 +26,6 @@
 #ifdef _WIN32
 #include <windows.h>
 #else
-#include <QHBoxLayout>
-#include <QLabel>
 #include <unistd.h>
 #endif
 
@@ -35,8 +33,12 @@
 #define TESTING_CHANNEL "linux-testing"
 #elif defined(_WIN32)
 #define TESTING_CHANNEL "windows-testing"
+#elif defined(__APPLE__)
+#define TESTING_CHANNEL "osx-testing"
 #else
 #endif
+
+// #define DEBUG_UPDATES
 
 auto static createDesktopMenuItem(const std::string &execPath, const std::string &svgIconContent)
     -> std::string {
@@ -153,6 +155,40 @@ HelpPlugin::HelpPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
+    auto updateChannelStrings = QStringList()
+        << tr("Do not check for updates")
+        << tr("Check for updates every time program starts")
+        << tr("Check for updates once per day")
+        << tr("Check for updates once per week");
+    auto stableChannelStrings = QStringList()
+        << tr("Stable channel (recommended")
+        << tr("Testing channel (pre-releases)");
+
+    config.pluginName = tr("Global config");
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Check for updates"))
+                                     .setDescription(tr("When to check for updates for this program"))
+                                     .setKey(Config::UpdatesChecksKey)
+                                     .setType(qmdiConfigItem::OneOf)
+                                     .setPossibleValue(updateChannelStrings)
+                                     .setDefaultValue(UpdateCheck::Daily)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Update channel"))
+                                     .setDescription(tr("Keep at stable, unless you want to report bugs"))
+                                     .setKey(Config::UpdatesChannelKey)
+                                     .setType(qmdiConfigItem::OneOf)
+                                     .setPossibleValue(stableChannelStrings)
+                                     .setDefaultValue(UpdateChannels::Stable)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::LastUpdateTimeKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("0")
+                                     .setUserEditable(false)
+                                     .build());
+
+
     auto actionAbout = new QAction(tr("&About"), this);
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
     auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
@@ -209,6 +245,13 @@ HelpPlugin::HelpPlugin() {
 
 
     menus["&Help"]->addAction(actionCheckForUpdates);
+#if defined(DEBUG_UPDATES)
+    auto debugChecks = new QAction("Debug check for updates", this);
+    connect(debugChecks, &QAction::triggered, this, [this](){
+        doStartupChecksForUpdate();
+    });
+    menus["&Help"]->addAction(debugChecks);
+#endif
     menus["&Help"]->addAction(searchAction);
     menus["&Help"]->addSeparator();
     menus["&Help"]->addAction(actionVisitHomePage);
@@ -218,9 +261,66 @@ HelpPlugin::HelpPlugin() {
 
 HelpPlugin::~HelpPlugin() {}
 
+void HelpPlugin::on_client_merged(qmdiHost *) {
+}
+
 void HelpPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
                              "A file system browser plugin");
+}
+
+void HelpPlugin::loadConfig(QSettings &settings) {
+    IPlugin::loadConfig(settings);
+    doStartupChecksForUpdate();
+}
+
+void HelpPlugin::doStartupChecksForUpdate() {
+    QString lastCheckStr = getConfig().getLastUpdateTime();
+    auto updatesCheck = getConfig().getUpdatesChecks();
+    auto lastCheck = lastCheckStr.toULongLong();
+    auto currentTime = QDateTime::currentSecsSinceEpoch();
+    auto timeDiff = 0UL;
+
+    switch (updatesCheck) {
+    case UpdateCheck::NoChecks:
+#if defined(DEBUG_UPDATES)
+        qDebug() << ">No check at all";
+#endif
+        timeDiff = INT32_MAX;
+        break;
+    case UpdateCheck::EveryTime:
+#if defined(DEBUG_UPDATES)
+        qDebug() << ">Checks when app starts";
+#endif
+        break;
+    case UpdateCheck::Daily:
+#if defined(DEBUG_UPDATES)
+        qDebug() << ">Checks Daily";
+#endif
+        timeDiff = 60*60*24;
+        break;
+    case UpdateCheck::Weekly:
+#if defined(DEBUG_UPDATES)
+        qDebug() << ">Checks wheekly";
+#endif
+        timeDiff = 60*60*24*7;
+        break;
+    }
+
+#if defined(DEBUG_UPDATES)
+    qDebug() << ">Current time = " << currentTime;
+    qDebug() << ">Last check = " << lastCheck;
+    qDebug() << ">Delta = " << currentTime - lastCheck << " < " << timeDiff ;
+#endif
+    if (currentTime - lastCheck > timeDiff) {
+        checkForUpdates_triggered();
+        getConfig().setLastUpdateTime(QString::number(currentTime));
+        getManager()->saveSettings();
+#if defined(DEBUG_UPDATES)
+    } else {
+        qDebug() << " - No need to check for updates";
+#endif
+    }
 }
 
 void HelpPlugin::actionAbout_triggered() {
@@ -260,9 +360,26 @@ void HelpPlugin::actionAbout_triggered() {
 
 void HelpPlugin::checkForUpdates_triggered() {
     auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
-    // QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+
+    switch (getConfig().getUpdatesChannel()) {
+    case UpdateChannels::Stable:
+#if defined(DEBUG_UPDATES)
+        qDebug() << "Checking updates from stable channel";
+#endif
+        break;
+    case UpdateChannels::Testing:
+#if defined(DEBUG_UPDATES)
+        qDebug() << "Checking updates from testing channel";
+#endif
+        QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+        break;
+    }
     QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
     QSimpleUpdater::getInstance()->setNotifyOnFinish(url, true);
     QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
     QSimpleUpdater::getInstance()->checkForUpdates(url);
+
+    auto currentTime = QDateTime::currentSecsSinceEpoch();
+    getConfig().setLastUpdateTime(QString::number(currentTime));
+    getManager()->saveSettings();
 }
