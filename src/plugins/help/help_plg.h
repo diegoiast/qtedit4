@@ -12,12 +12,15 @@
 
 class QAction;
 
+// codespell:ignore-begin
 enum UpdateCheck {
     NoChecks,
     EveryTime,
     Daily,
     Weekly,
 };
+// codespell:ignore-end
+
 
 enum UpdateChannels {
     Stable,
