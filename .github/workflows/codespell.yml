@@ -19,4 +19,5 @@ jobs:
         path: ./src/
         skip: "*.lua,*.ui,./src/stb/stb_*.h"
         ignore_words_list: "doubleclick,msdos"
-      
+        ignore_words_file: .codespellignore
+
