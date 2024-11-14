@@ -155,39 +155,38 @@ HelpPlugin::HelpPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
-    auto updateChannelStrings = QStringList()
-        << tr("Do not check for updates")
-        << tr("Check for updates every time program starts")
-        << tr("Check for updates once per day")
-        << tr("Check for updates once per week");
-    auto stableChannelStrings = QStringList()
-        << tr("Stable channel (recommended")
-        << tr("Testing channel (pre-releases)");
+    auto updateChannelStrings = QStringList() << tr("Do not check for updates")
+                                              << tr("Check for updates every time program starts")
+                                              << tr("Check for updates once per day")
+                                              << tr("Check for updates once per week");
+    auto stableChannelStrings = QStringList() << tr("Stable channel (recommended")
+                                              << tr("Testing channel (pre-releases)");
 
     config.pluginName = tr("Global config");
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Check for updates"))
-                                     .setDescription(tr("When to check for updates for this program"))
-                                     .setKey(Config::UpdatesChecksKey)
-                                     .setType(qmdiConfigItem::OneOf)
-                                     .setPossibleValue(updateChannelStrings)
-                                     .setDefaultValue(UpdateCheck::Daily)
-                                     .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Update channel"))
-                                     .setDescription(tr("Keep at stable, unless you want to report bugs"))
-                                     .setKey(Config::UpdatesChannelKey)
-                                     .setType(qmdiConfigItem::OneOf)
-                                     .setPossibleValue(stableChannelStrings)
-                                     .setDefaultValue(UpdateChannels::Stable)
-                                     .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Check for updates"))
+            .setDescription(tr("When to check for updates for this program"))
+            .setKey(Config::UpdatesChecksKey)
+            .setType(qmdiConfigItem::OneOf)
+            .setPossibleValue(updateChannelStrings)
+            .setDefaultValue(UpdateCheck::Daily)
+            .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Update channel"))
+            .setDescription(tr("Keep at stable, unless you want to report bugs"))
+            .setKey(Config::UpdatesChannelKey)
+            .setType(qmdiConfigItem::OneOf)
+            .setPossibleValue(stableChannelStrings)
+            .setDefaultValue(UpdateChannels::Stable)
+            .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setKey(Config::LastUpdateTimeKey)
                                      .setType(qmdiConfigItem::String)
                                      .setDefaultValue("0")
                                      .setUserEditable(false)
                                      .build());
-
 
     auto actionAbout = new QAction(tr("&About"), this);
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
@@ -225,7 +224,7 @@ HelpPlugin::HelpPlugin() {
 
     auto searchAction = new QAction(tr("Search action in UI"), this);
     searchAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_P));
-    connect(searchAction, &QAction::triggered, this, [this](){
+    connect(searchAction, &QAction::triggered, this, [this]() {
         auto model = new ActionListModel(this);
         auto window = getManager();
         model->setActions(collectWidgetActions(window));
@@ -233,23 +232,20 @@ HelpPlugin::HelpPlugin() {
         commandPalette->setDataModel(model);
         connect(commandPalette, &CommandPalette::didChooseItem, this,
                 [commandPalette](const QModelIndex &index, const QAbstractItemModel *model) {
-            auto data = model->data(index, Qt::UserRole);
-            auto action = data.value<QAction *>();
-            if (action) {
-                action->trigger();
-            }
-            commandPalette->deleteLater();
-        });
+                    auto data = model->data(index, Qt::UserRole);
+                    auto action = data.value<QAction *>();
+                    if (action) {
+                        action->trigger();
+                    }
+                    commandPalette->deleteLater();
+                });
         commandPalette->show();
     });
-
 
     menus["&Help"]->addAction(actionCheckForUpdates);
 #if defined(DEBUG_UPDATES)
     auto debugChecks = new QAction("Debug check for updates", this);
-    connect(debugChecks, &QAction::triggered, this, [this](){
-        doStartupChecksForUpdate();
-    });
+    connect(debugChecks, &QAction::triggered, this, [this]() { doStartupChecksForUpdate(); });
     menus["&Help"]->addAction(debugChecks);
 #endif
     menus["&Help"]->addAction(searchAction);
@@ -261,8 +257,7 @@ HelpPlugin::HelpPlugin() {
 
 HelpPlugin::~HelpPlugin() {}
 
-void HelpPlugin::on_client_merged(qmdiHost *) {
-}
+void HelpPlugin::on_client_merged(qmdiHost *) {}
 
 void HelpPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
@@ -297,20 +292,20 @@ void HelpPlugin::doStartupChecksForUpdate() {
 #if defined(DEBUG_UPDATES)
         qDebug() << ">Checks Daily";
 #endif
-        timeDiff = 60*60*24;
+        timeDiff = 60 * 60 * 24;
         break;
     case UpdateCheck::Weekly:
 #if defined(DEBUG_UPDATES)
         qDebug() << ">Checks wheekly";
 #endif
-        timeDiff = 60*60*24*7;
+        timeDiff = 60 * 60 * 24 * 7;
         break;
     }
 
 #if defined(DEBUG_UPDATES)
     qDebug() << ">Current time = " << currentTime;
     qDebug() << ">Last check = " << lastCheck;
-    qDebug() << ">Delta = " << currentTime - lastCheck << " < " << timeDiff ;
+    qDebug() << ">Delta = " << currentTime - lastCheck << " < " << timeDiff;
 #endif
     if (currentTime - lastCheck > timeDiff) {
         checkForUpdates_triggered();
