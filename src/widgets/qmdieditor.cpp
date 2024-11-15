@@ -1056,7 +1056,6 @@ void qmdiEditor::updatePreview() {
 
 void qmdiEditor::loadContent() {
     if (documentHasBeenLoaded) {
-        qDebug() << " >> content loaded, ignoring" << fileName;
         return;
     }
     // clear older watches, and add a new one
@@ -1100,5 +1099,4 @@ void qmdiEditor::loadContent() {
     // removeModifications();
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
-    qDebug() << " >> content loaded, finally" << fileName;
 }
