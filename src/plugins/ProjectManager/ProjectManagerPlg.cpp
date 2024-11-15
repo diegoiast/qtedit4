@@ -607,6 +607,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         workingDirectory = project->buildDir;
     }
     workingDirectory = expand(workingDirectory, hash);
+    getManager()->showPanel(Panels::South, 0);
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
     outputPanel->commandOuput->appendPlainText(currentTask + "\n");
@@ -642,6 +643,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
 
+    getManager()->showPanel(Panels::South, 0);
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
