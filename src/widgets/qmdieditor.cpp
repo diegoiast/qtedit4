@@ -249,6 +249,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->contextMenu.addSeparator();
     this->contextMenu.addAction(actionCopyFileName);
     this->contextMenu.addAction(actionCopyFilePath);
+
+    this->installEventFilter(this);
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -501,6 +503,14 @@ void qmdiEditor::setModificationsLookupEnabled(bool value) {
     }
 }
 
+void qmdiEditor::setEditorHighlighter(QString id) {
+    if (this->syntaxLangID == id) {
+        return;
+    }
+    this->syntaxLangID = id;
+    textEditor->setHighlighter(id);
+}
+
 bool qmdiEditor::isMarkDownDocument() const {
     return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
 }
@@ -582,8 +592,44 @@ void qmdiEditor::hideTimer_timeout() {
 }
 
 void qmdiEditor::focusInEvent(QFocusEvent *event) {
+
     QWidget::focusInEvent(event);
     textEditor->setFocus();
+}
+
+bool qmdiEditor::eventFilter(QObject *watched, QEvent *event) {
+    if (watched == this) {
+        switch (event->type()) {
+        case QEvent::Show:
+            handleTabSelected();
+            break;
+        case QEvent::Hide:
+            handleTabDeselected();
+            break;
+        default:
+            break;
+        }
+    }
+    return QWidget::eventFilter(watched, event);
+}
+
+void qmdiEditor::handleTabSelected() {
+    if (loadingTimer) {
+        return;
+    }
+    loadingTimer = new QTimer(this);
+    loadingTimer->setSingleShot(true);
+    connect(loadingTimer, &QTimer::timeout, this, &qmdiEditor::loadContent);
+    loadingTimer->start(50);
+}
+
+void qmdiEditor::handleTabDeselected() {
+    if (!loadingTimer || !loadingTimer->isActive()) {
+        return;
+    }
+    loadingTimer->stop();
+    delete loadingTimer;
+    loadingTimer = nullptr;
 }
 
 void qmdiEditor::showUpperWidget(QWidget *w) {
@@ -618,6 +664,9 @@ void qmdiEditor::hideBannerMessage() {
 void qmdiEditor::newDocument() { loadFile(""); }
 
 bool qmdiEditor::doSave() {
+    if (!documentHasBeenLoaded) {
+        return true;
+    }
     if (fileName.isEmpty()) {
         return doSaveAs();
     } else {
@@ -635,52 +684,17 @@ bool qmdiEditor::doSaveAs() {
 }
 
 bool qmdiEditor::loadFile(const QString &newFileName) {
-    // clear older watches, and add a new one
-    auto sl = fileSystemWatcher->directories();
-    if (!sl.isEmpty()) {
-        fileSystemWatcher->removePaths(sl);
-    }
+    fileName = newFileName;
+    mdiClientName = getShortFileName();
 
-    auto modificationsEnabledState = getModificationsLookupEnabled();
-    setModificationsLookupEnabled(false);
-    hideBannerMessage();
-    textEditor->setReadOnly(false);
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    if (!newFileName.isEmpty()) {
-        auto file = QFile(newFileName);
-        if (!file.open(QIODevice::ReadOnly)) {
-            QApplication::restoreOverrideCursor();
-            return false;
-        }
-
-        this->originalLineEndig = getLineEnding(file);
-        auto textStream = QTextStream(&file);
-        textStream.seek(0);
-        textEditor->setPlainText(textStream.readAll());
-
-        QFileInfo fileInfo(file);
-        file.close();
-
-        this->fileName = fileInfo.absoluteFilePath();
-        if (!fileInfo.isWritable()) {
-            textEditor->setReadOnly(true);
-            displayBannerMessage(
-                tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
-                   "change the file attributes for write access'>here to force write access.</a>"),
-                10);
-        }
-    } else {
+    if (fileName.isEmpty()) {
         this->fileName.clear();
         textEditor->clear();
+        return true;
     }
 
-    mdiClientName = getShortFileName();
-    fileName = newFileName;
-
-    updateFileDetails();
-    setModificationsLookupEnabled(modificationsEnabledState);
-    // removeModifications();
-    QApplication::restoreOverrideCursor();
+    documentHasBeenLoaded = false;
+    // loadContent();
     return true;
 }
 
@@ -1038,4 +1052,53 @@ void qmdiEditor::updatePreview() {
     } else if (isXMLDocument()) {
         textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XML);
     }
+}
+
+void qmdiEditor::loadContent() {
+    if (documentHasBeenLoaded) {
+        qDebug() << " >> content loaded, ignoring" << fileName;
+        return;
+    }
+    // clear older watches, and add a new one
+    auto sl = fileSystemWatcher->directories();
+    if (!sl.isEmpty()) {
+        fileSystemWatcher->removePaths(sl);
+    }
+
+    auto modificationsEnabledState = getModificationsLookupEnabled();
+    setModificationsLookupEnabled(false);
+    hideBannerMessage();
+    textEditor->setReadOnly(false);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
+
+    auto file = QFile(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QApplication::restoreOverrideCursor();
+        return;
+    }
+
+    this->originalLineEndig = getLineEnding(file);
+    auto textStream = QTextStream(&file);
+    textStream.seek(0);
+    textEditor->setPlainText(textStream.readAll());
+
+    QFileInfo fileInfo(file);
+    file.close();
+
+    fileName = fileInfo.absoluteFilePath();
+    if (!fileInfo.isWritable()) {
+        textEditor->setReadOnly(true);
+        displayBannerMessage(
+            tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
+               "change the file attributes for write access'>here to force write access.</a>"),
+            10);
+    }
+
+    updateFileDetails();
+    setModificationsLookupEnabled(modificationsEnabledState);
+    // removeModifications();
+    QApplication::restoreOverrideCursor();
+    documentHasBeenLoaded = true;
+    qDebug() << " >> content loaded, finally" << fileName;
 }

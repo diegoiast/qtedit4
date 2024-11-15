@@ -60,13 +60,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
     inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
-    inline void setEditorHighlighter(QString id) {
-        if (this->syntaxLangID == id) {
-            return;
-        }
-        this->syntaxLangID = id;
-        textEditor->setHighlighter(id);
-    }
+    void setEditorHighlighter(QString id);
     inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
 
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
@@ -111,6 +105,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void updateIndenterMenu();
     void updateHighlighterMenu();
     void updatePreview();
+    void loadContent();
 
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
@@ -138,6 +133,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
   protected:
     void focusInEvent(QFocusEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+    void handleTabSelected();
+    void handleTabDeselected();
 
   private:
     QString getShortFileName();
@@ -155,6 +153,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     Ui::BannerMessage *ui_banner;
     int m_timerHideout;
     bool fileModifications = true;
+    QTimer *loadingTimer = nullptr;
+    bool documentHasBeenLoaded = false;
 
     QString fileName;
     QMenu *bookmarksMenu;
