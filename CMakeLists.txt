@@ -29,8 +29,8 @@ else()
     CPMAddPackage("gh:palacaze/image-viewer#master")
     # latest commit from the 5.0 branch
     CPMAddPackage("gh:Dax89/QHexView#40f40f5d6a546646904c094ebefc8216067ab586")
-    # latest commit in master 
-    CPMAddPackage("gh:alex-spataru/QSimpleUpdater#7f4d8c65686d37b3040335b711eecd4bdc3001fe")
+    # latest commit in semantic-versioning
+    CPMAddPackage("gh:diegoiast/QSimpleUpdater#303141c0b55423311e703709356fc7094b8c1607")
 
     # Using private fork until upstream fixes the cmake file
     # CPMAddPackage("gh:/dridk/QJsonModel#ed3652666d4954c2262eb5ceee8fda3e613f8c0c")
