@@ -266,10 +266,10 @@ void HelpPlugin::showAbout() {
 
 void HelpPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
-    doStartupChecksForUpdate();
+    doStartupChecksForUpdate(false);
 }
 
-void HelpPlugin::doStartupChecksForUpdate() {
+void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
     QString lastCheckStr = getConfig().getLastUpdateTime();
     auto updatesCheck = getConfig().getUpdatesChecks();
     auto lastCheck = lastCheckStr.toULongLong();
@@ -308,7 +308,7 @@ void HelpPlugin::doStartupChecksForUpdate() {
     qDebug() << ">Delta = " << currentTime - lastCheck << " < " << timeDiff;
 #endif
     if (currentTime - lastCheck > timeDiff) {
-        checkForUpdates_triggered();
+        doChecksForUpdate(notifyUserNoUpdates);
         getConfig().setLastUpdateTime(QString::number(currentTime));
         getManager()->saveSettings();
 #if defined(DEBUG_UPDATES)
@@ -316,6 +316,32 @@ void HelpPlugin::doStartupChecksForUpdate() {
         qDebug() << " - No need to check for updates";
 #endif
     }
+}
+
+void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
+    auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
+
+    switch (getConfig().getUpdatesChannel()) {
+    case UpdateChannels::Stable:
+#if defined(DEBUG_UPDATES)
+        qDebug() << "Checking updates from stable channel";
+#endif
+        break;
+    case UpdateChannels::Testing:
+#if defined(DEBUG_UPDATES)
+        qDebug() << "Checking updates from testing channel";
+#endif
+        QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+        break;
+    }
+    QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
+    QSimpleUpdater::getInstance()->setNotifyOnFinish(url, notifyUserNoUpdates);
+    QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
+    QSimpleUpdater::getInstance()->checkForUpdates(url);
+
+    auto currentTime = QDateTime::currentSecsSinceEpoch();
+    getConfig().setLastUpdateTime(QString::number(currentTime));
+    getManager()->saveSettings();
 }
 
 void HelpPlugin::actionAbout_triggered() {
@@ -353,28 +379,4 @@ void HelpPlugin::actionAbout_triggered() {
     aboutBox.exec();
 }
 
-void HelpPlugin::checkForUpdates_triggered() {
-    auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
-
-    switch (getConfig().getUpdatesChannel()) {
-    case UpdateChannels::Stable:
-#if defined(DEBUG_UPDATES)
-        qDebug() << "Checking updates from stable channel";
-#endif
-        break;
-    case UpdateChannels::Testing:
-#if defined(DEBUG_UPDATES)
-        qDebug() << "Checking updates from testing channel";
-#endif
-        QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
-        break;
-    }
-    QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
-    QSimpleUpdater::getInstance()->setNotifyOnFinish(url, true);
-    QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
-    QSimpleUpdater::getInstance()->checkForUpdates(url);
-
-    auto currentTime = QDateTime::currentSecsSinceEpoch();
-    getConfig().setLastUpdateTime(QString::number(currentTime));
-    getManager()->saveSettings();
-}
+void HelpPlugin::checkForUpdates_triggered() { doChecksForUpdate(true); }

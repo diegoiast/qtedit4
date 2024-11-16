@@ -49,7 +49,8 @@ class HelpPlugin : public IPlugin {
     virtual void on_client_merged(qmdiHost *host) override;
     void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
-    void doStartupChecksForUpdate();
+    void doStartupChecksForUpdate(bool notifyUserNoUpdates);
+    void doChecksForUpdate(bool notifyUserNoUpdates);
 
   public slots:
     void actionAbout_triggered();
