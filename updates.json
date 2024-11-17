@@ -9,9 +9,9 @@
       },
       "windows-testing":{
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha1",
-         "latest-version":"0.0.3-alpha1",
+         "latest-version":"0.0.3-alpha2",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha1/qtedit4-qt671-v0.0.3-alpha1-x86_64.exe",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels",
+         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start",
          "mandatory":false
       },
       "linux":{
@@ -23,9 +23,9 @@
       },
       "linux-testing":{
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha1",
-         "latest-version":"0.0.3-alpha1",
+         "latest-version":"0.0.3-alpha2",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha1/qtedit4-qt671-v0.0.3-alpha1-x86_64.exe",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels",
+         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start",
          "mandatory":false
       }
    }
