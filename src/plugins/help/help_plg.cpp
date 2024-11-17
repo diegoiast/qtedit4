@@ -310,7 +310,6 @@ void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
     if (currentTime - lastCheck > timeDiff) {
         doChecksForUpdate(notifyUserNoUpdates);
         getConfig().setLastUpdateTime(QString::number(currentTime));
-        getManager()->saveSettings();
 #if defined(DEBUG_UPDATES)
     } else {
         qDebug() << " - No need to check for updates";
@@ -341,7 +340,6 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
 
     auto currentTime = QDateTime::currentSecsSinceEpoch();
     getConfig().setLastUpdateTime(QString::number(currentTime));
-    getManager()->saveSettings();
 }
 
 void HelpPlugin::actionAbout_triggered() {
