@@ -8,10 +8,10 @@
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha4",
-         "latest-version":"0.0.3-alpha4",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha4/qtedit4-qt671-v0.0.3-alpha4-x86_64.exe",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha5",
+         "latest-version":"0.0.3-alpha5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha5/qtedit4-qt671-v0.0.3-alpha5-x86_64.exe",
+         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes",
          "mandatory":false
       },
       "linux":{
@@ -22,10 +22,10 @@
          "mandatory":true
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha4",
-         "latest-version":"0.0.3-alpha4",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha4/qtedit4-qt671-v0.0.3-alpha4-x86_64.exe",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-alpha5",
+         "latest-version":"0.0.3-alpha5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha5/qtedit4-qt671-v0.0.3-alpha5-x86_64.exe",
+         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes",
          "mandatory":false
       }
    }
