@@ -251,6 +251,12 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->contextMenu.addAction(actionCopyFilePath);
 
     this->installEventFilter(this);
+
+#if defined(WIN32)
+    originalLineEnding = "\r\n";
+#else
+    originalLineEnding = "\n";
+#endif
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -694,7 +700,6 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     }
 
     documentHasBeenLoaded = false;
-    // loadContent();
     return true;
 }
 
@@ -740,7 +745,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
                 textStream << "\r\n";
                 break;
             case KeepOriginalEndline:
-                textStream << originalLineEndig;
+                textStream << originalLineEnding;
                 break;
             }
         }
@@ -1077,7 +1082,7 @@ void qmdiEditor::loadContent() {
         return;
     }
 
-    this->originalLineEndig = getLineEnding(file);
+    this->originalLineEnding = getLineEnding(file);
     auto textStream = QTextStream(&file);
     textStream.seek(0);
     textEditor->setPlainText(textStream.readAll());

@@ -111,7 +111,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void hideTimer_timeout();
 
   public:
-    QString originalLineEndig = {};
+    QString originalLineEnding = "\n";
     EndLineStyle endLineStyle = EndLineStyle::KeepOriginalEndline;
     bool trimSpacesOnSave = false;
     bool autoPreview = true;
@@ -154,7 +154,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     int m_timerHideout;
     bool fileModifications = true;
     QTimer *loadingTimer = nullptr;
-    bool documentHasBeenLoaded = false;
+    bool documentHasBeenLoaded = true;
 
     QString fileName;
     QMenu *bookmarksMenu;
