@@ -366,6 +366,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->commandOuput->setOpenExternalLinks(false);
     outputPanel->commandOuput->setOpenLinks(false);
 
+<<<<<<< HEAD
     auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel->commandOuput->setFont(font);
     outputPanel->commandOuput->setAcceptRichText(true);
@@ -406,6 +407,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 getManager()->openFile(fileName, row, col);
             });
 
+=======
+>>>>>>> 02a3365 (Rebranding - nicer UI)
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
     connect(outputPanel->copyOutput, &QAbstractButton::clicked, this, [this]() {
