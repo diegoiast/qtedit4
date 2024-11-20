@@ -63,6 +63,8 @@ set(qtedit4_sources
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
     ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
+    src/widgets/bannerwidget.cpp
+    src/widgets/bannerwidget.h
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
     src/widgets/textoperationswidget.cpp  

@@ -6,22 +6,35 @@
  * \see HelpPlugin
  */
 
-#include "help_plg.h"
-#include "iplugin.h"
-#include <QAction>
-#include <QApplication>
-#include <QDesktopServices>
-#include <QFile>
-#include <QMessageBox>
-#include <QSimpleUpdater.h>
-#include <QUrl>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
 
-#include "CommandPaletteWidget/commandpalette.h"
+#include <CommandPaletteWidget/commandpalette.h>
+#include <QAction>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QFile>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLinearGradient>
+#include <QMessageBox>
+#include <QPainter>
+#include <QPainterPath>
+#include <QParallelAnimationGroup>
+#include <QPropertyAnimation>
+#include <QPushButton>
+#include <QScrollArea>
+#include <QSimpleUpdater.h>
+#include <QTimer>
+#include <QUrl>
+#include <QWidget>
+
+#include "help_plg.h"
+#include "iplugin.h"
+#include "widgets/bannerwidget.h"
 
 #ifdef _WIN32
 #include <windows.h>
@@ -146,6 +159,29 @@ auto static refreshSystemMenus() -> void {
     }
 #endif
 }
+
+auto updatesUrl =
+    "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
+
+auto aboutText =
+    QObject::tr("<h2>%1 %2</h2>"
+                "<p>A versatile text editor</p>"
+                "<p>Home page: <a href='%3'>%3</a></p>"
+                "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
+                "<p>This project uses <a href='https://www.qt.io/'>Qt6</a>, and the following "
+                "libraries:</p>"
+                "<ul>"
+                "<li><a href='https://github.com/diegoiast/qmdilib'>qmdilib</a></li>"
+                "<li><a href='https://github.com/diegoiast/qutepart-cpp'>qutepart-cpp</a></li>"
+                "<li><a "
+                "href='https://github.com/diegoiast/"
+                "command-palette-widget'>command-palette-widget</a></li>"
+                "<li><a href='https://github.com/palacaze/image-viewer'>image-viewer</a></li>"
+                "<li><a href='https://github.com/Dax89/QHexView'>QHexView</a></li>"
+                "<li><a "
+                "href='https://github.com/alex-spataru/QSimpleUpdater'>QSimpleUpdater</a></li>"
+                "</ul>"
+                "<p>Copyright © 2024 <a href='mailto:diegoiast@gmail.com'>Diego Iastrubni</a> </p>");
 
 HelpPlugin::HelpPlugin() {
     name = tr("Help system browser");
@@ -318,7 +354,6 @@ void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
 }
 
 void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
-    auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
 
     switch (getConfig().getUpdatesChannel()) {
     case UpdateChannels::Stable:
@@ -330,13 +365,13 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
 #if defined(DEBUG_UPDATES)
         qDebug() << "Checking updates from testing channel";
 #endif
-        QSimpleUpdater::getInstance()->setPlatformKey(url, TESTING_CHANNEL);
+        QSimpleUpdater::getInstance()->setPlatformKey(updatesUrl, TESTING_CHANNEL);
         break;
     }
-    QSimpleUpdater::getInstance()->setNotifyOnUpdate(url, true);
-    QSimpleUpdater::getInstance()->setNotifyOnFinish(url, notifyUserNoUpdates);
-    QSimpleUpdater::getInstance()->setDownloaderEnabled(url, true);
-    QSimpleUpdater::getInstance()->checkForUpdates(url);
+    QSimpleUpdater::getInstance()->setNotifyOnUpdate(updatesUrl, true);
+    QSimpleUpdater::getInstance()->setNotifyOnFinish(updatesUrl, notifyUserNoUpdates);
+    QSimpleUpdater::getInstance()->setDownloaderEnabled(updatesUrl, true);
+    QSimpleUpdater::getInstance()->checkForUpdates(updatesUrl);
 
     auto currentTime = QDateTime::currentSecsSinceEpoch();
     getConfig().setLastUpdateTime(QString::number(currentTime));
@@ -345,36 +380,39 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
 void HelpPlugin::actionAbout_triggered() {
     auto appName = QCoreApplication::applicationName();
     auto version = QCoreApplication::applicationVersion();
-    auto aboutText =
-        QString(
-            tr("<h2>%1 %2</h2>"
-               "<p>A versatile text editor</p>"
-               "<p>Home page: <a href='%3'>%3</a></p>"
-               "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
-               "<p>This project uses <a href='https://www.qt.io/'>Qt6</a>, and the following "
-               "libraries:</p>"
-               "<ul>"
-               "<li><a href='https://github.com/diegoiast/qmdilib'>qmdilib</a></li>"
-               "<li><a href='https://github.com/diegoiast/qutepart-cpp'>qutepart-cpp</a></li>"
-               "<li><a "
-               "href='https://github.com/diegoiast/"
-               "command-palette-widget'>command-palette-widget</a></li>"
-               "<li><a href='https://github.com/palacaze/image-viewer'>image-viewer</a></li>"
-               "<li><a href='https://github.com/Dax89/QHexView'>QHexView</a></li>"
-               "<li><a "
-               "href='https://github.com/alex-spataru/QSimpleUpdater'>QSimpleUpdater</a></li>"
-               "</ul>"
-               "<p>Copyright © 2024 <a href='mailto:diegoiast@gmail.com'>Diego Iastrubni</a> </p>"))
-            .arg(appName, version, "https://github.com/diegoiast/qtedit4");
 
-    auto aboutBox = QMessageBox(getManager());
-    aboutBox.setWindowTitle(tr("About %1").arg(appName));
-    aboutBox.setText(aboutText);
-    aboutBox.setTextFormat(Qt::RichText);
-    aboutBox.setIconPixmap(QPixmap(":/icons/qtedit4.png")
-                               .scaled(64, 64, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    QDialog aboutDialog(getManager());
+    aboutDialog.setWindowTitle(tr("About %1").arg(appName));
+    aboutDialog.setMinimumSize(400, 300);
 
-    aboutBox.exec();
+    QVBoxLayout *mainLayout = new QVBoxLayout(&aboutDialog);
+    mainLayout->setContentsMargins(0, 0, 0, 0);
+
+    BannerWidget *banner = new BannerWidget(QString("%1 %2").arg(appName, version));
+    banner->setFixedHeight(100);
+    mainLayout->addWidget(banner);
+
+    // Create a widget to contain the rest of the content with default margins
+    QWidget *contentWidget = new QWidget;
+    QVBoxLayout *contentLayout = new QVBoxLayout(contentWidget);
+
+    QLabel *textLabel = new QLabel(aboutText.arg(appName, version, "https://github.com/diegoiast/qtedit4"));
+    textLabel->setWordWrap(true);
+    textLabel->setOpenExternalLinks(true);
+    textLabel->setTextFormat(Qt::RichText);
+    contentLayout->addWidget(textLabel);
+    mainLayout->addWidget(contentWidget);
+
+    QPushButton *closeButton = new QPushButton(tr("Close"));
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addStretch();
+    buttonLayout->addWidget(closeButton);
+    buttonLayout->addStretch();
+
+    connect(closeButton, &QPushButton::clicked, &aboutDialog, &QDialog::accept);
+    contentLayout->addLayout(buttonLayout); // Add button layout to content layout
+    aboutDialog.setLayout(mainLayout);
+    aboutDialog.exec();
 }
 
 void HelpPlugin::checkForUpdates_triggered() { doChecksForUpdate(true); }
