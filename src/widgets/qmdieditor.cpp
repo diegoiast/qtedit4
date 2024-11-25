@@ -227,7 +227,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->menus["&Edit"]->addSeparator();
     this->menus["&Edit"]->addMenu(textOperationsMenu);
     this->menus["&Edit"]->addMenu(bookmarksMenu);
-    menus["&Edit"]->addAction(actionFindMatchingBracket);
+    menus["&Edit"]->addAction(textEditor->findMatchingBracketAction());
 
     this->menus["&Search"]->addAction(actionFind);
     this->menus["&Search"]->addAction(actionFindNext);
@@ -367,22 +367,18 @@ void qmdiEditor::setupActions() {
     actionCapitalize = new QAction(tr("Change to &capital letters"), this);
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
     actionChangeCase = new QAction(tr("Change ca&se"), this);
-    actionFindMatchingBracket = new QAction(tr("Find matching bracket"), this);
     actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
 
     actionSave->setShortcut(QKeySequence::Save);
     actionFind->setShortcut(QKeySequence::Find);
     actionFindNext->setShortcut(QKeySequence::FindNext);
     actionFindPrev->setShortcut(QKeySequence::FindPrevious);
+    // this is usually "control+r, which we use for running a target
     // actionReplace->setShortcut(QKeySequence::Replace);
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
     actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
-    actionFindMatchingBracket->setShortcuts(QList<QKeySequence>()
-                                            << QKeySequence(Qt::CTRL | Qt::Key_6)
-                                            << QKeySequence(Qt::CTRL | Qt::Key_BracketLeft)
-                                            << QKeySequence(Qt::CTRL | Qt::Key_BracketRight));
     actionToggleHeader->setShortcut(Qt::Key_F4);
 
     auto highlighters = Qutepart::getAvailableHighlihters();
@@ -411,7 +407,6 @@ void qmdiEditor::setupActions() {
     actionCapitalize->setObjectName("qmdiEditor::actionCapitalize");
     actionLowerCase->setObjectName("qmdiEditor::actionLowerCase");
     actionChangeCase->setObjectName("qmdiEditor::actionChangeCase");
-    actionFindMatchingBracket->setObjectName("qmdiEditor::ctionFindMatchingBracket");
     actionToggleHeader->setObjectName("qmdiEditor::actiohToggleHeader");
 
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
@@ -469,7 +464,6 @@ void qmdiEditor::setupActions() {
     connect(actionCapitalize, &QAction::triggered, this, &qmdiEditor::transformBlockToUpper);
     connect(actionLowerCase, &QAction::triggered, this, &qmdiEditor::transformBlockToLower);
     connect(actionChangeCase, &QAction::triggered, this, &qmdiEditor::transformBlockCase);
-    connect(actionFindMatchingBracket, &QAction::triggered, this, &qmdiEditor::gotoMatchingBracket);
     connect(actionToggleHeader, &QAction::triggered, this, &qmdiEditor::toggleHeaderImpl);
 
     addAction(actionSave);
@@ -488,11 +482,7 @@ void qmdiEditor::setupActions() {
     addAction(actionCapitalize);
     addAction(actionLowerCase);
     addAction(actionChangeCase);
-    addAction(actionFindMatchingBracket);
     addAction(actionToggleHeader);
-
-    // not implemented yet in QutePart
-    actionFindMatchingBracket->setEnabled(false);
 
     // default is control+b - which we want to use for build
     textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
