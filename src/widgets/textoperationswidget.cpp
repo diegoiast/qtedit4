@@ -580,7 +580,5 @@ bool TextOperationsWidget::issue_search(const QString &text, QTextCursor newCurs
         setTextCursor(c);
     }
 
-    // sometimes, the line editor looses focus. I am unsure why.
-    lineEdit->setFocus();
     return found;
 }
