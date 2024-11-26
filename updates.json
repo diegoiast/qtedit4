@@ -9,7 +9,7 @@
       },
       "windows-testing":{
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-rc1",
-         "latest-version":"0.0.3-alpha5",
+         "latest-version":"0.0.3-rc1",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-rc1/qtedit4-qt671-v0.0.3-rc1-x86_64.exe",
          "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes\nGoto matching bracket",
          "mandatory":false
@@ -23,7 +23,7 @@
       },
       "linux-testing":{
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3-rc1",
-         "latest-version":"0.0.3-alpha5",
+         "latest-version":"0.0.3-rc1",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3-alpha5/qtedit4-rc1-v0.0.3-rc1-x86_64.exe",
          "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes\nGoto matching bracket",
          "mandatory":false
