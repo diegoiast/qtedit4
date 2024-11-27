@@ -84,7 +84,7 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
 auto static getExecutablePath() -> std::string {
     std::string path;
 
-#if defined(__unix__)
+#if defined(__linux__)
     const char *appImagePath = std::getenv("APPIMAGE");
     if (appImagePath) {
         return std::string(appImagePath);
@@ -98,7 +98,7 @@ auto static getExecutablePath() -> std::string {
     if (path.empty()) {
         path = std::filesystem::absolute(std::filesystem::path(program_invocation_name)).string();
     }
-#elif _WIN32
+#elif defined(_WIN32)
     char result[MAX_PATH];
     GetModuleFileNameA(NULL, result, MAX_PATH);
     path = std::string(result);
@@ -108,10 +108,8 @@ auto static getExecutablePath() -> std::string {
 }
 
 auto static canInstallDesktopFile() -> bool {
-#ifdef _WIN32
-    // On Windows, always return false
-    return false;
-#else
+#if defined(__linux__)
+    // supported only on linux
     if (std::getenv("FLATPAK_ID") != nullptr) {
         return false;
     }
@@ -125,11 +123,13 @@ auto static canInstallDesktopFile() -> bool {
         }
     }
     return true;
+#else
+    return false;
 #endif
 }
 
 auto static refreshSystemMenus() -> void {
-#if defined(__unix__)
+#if defined(__linux__)
     std::string desktopEnv =
         std::getenv("XDG_CURRENT_DESKTOP") ? std::getenv("XDG_CURRENT_DESKTOP") : "";
 

@@ -11,7 +11,7 @@
 #include <iostream>
 #include <sstream>
 
-#if defined(__unix__)
+#if defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__linux__)
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -30,13 +30,6 @@ constexpr auto ENV_SEPARATOR = ':';
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
 constexpr auto BINARY_EXT = ".exe";
 constexpr auto ENV_SEPARATOR = ';';
-#elif defined(__APPLE__)
-
-#include <sys/stat.h>
-#include <unistd.h>
-constexpr auto HOME_DIR_ENV = "HOME";
-constexpr auto BINARY_EXT = "";
-constexpr auto ENV_SEPARATOR = ':';
 #endif
 
 constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
@@ -276,12 +269,12 @@ static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> 
     auto dir = std::string();
     while (std::getline(ss, dir, ENV_SEPARATOR)) {
         auto full_path = std::filesystem::path(dir) / std::filesystem::path(cmd);
-#if defined(__unix__)
-        if (access(full_path.c_str(), X_OK) != 0) {
+#if defined(_WIN32)
+        if (_waccess(full_path.c_str(), 04) != 0) {
             continue;
         }
 #else
-        if (_waccess(full_path.c_str(), 04) != 0) {
+        if (access(full_path.c_str(), X_OK) != 0) {
             continue;
         }
 #endif
@@ -540,7 +533,7 @@ void generateKitFiles(const std::filesystem::path &directoryPath,
                 scriptFile << "\n";
             }
             scriptFile << SCRIPT_SUFFIX;
-#if defined(__unix__)
+#if defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__linux__)
             auto c_path = scriptPath.c_str();
             if (chmod(c_path, S_IRUSR | S_IWUSR | S_IXUSR) != 0) {
                 std::perror("chmod failed");
