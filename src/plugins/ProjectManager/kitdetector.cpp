@@ -18,9 +18,7 @@
 constexpr auto HOME_DIR_ENV = "HOME";
 constexpr auto BINARY_EXT = "";
 constexpr auto ENV_SEPARATOR = ':';
-#endif
-
-#if defined(_WIN32)
+#elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 
@@ -32,6 +30,13 @@ constexpr auto ENV_SEPARATOR = ':';
 constexpr auto HOME_DIR_ENV = "USERPROFILE";
 constexpr auto BINARY_EXT = ".exe";
 constexpr auto ENV_SEPARATOR = ';';
+#elif defined(__APPLE__)
+
+#include <sys/stat.h>
+#include <unistd.h>
+constexpr auto HOME_DIR_ENV = "HOME";
+constexpr auto BINARY_EXT = "";
+constexpr auto ENV_SEPARATOR = ':';
 #endif
 
 constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
