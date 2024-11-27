@@ -66,9 +66,9 @@ jobs:
               generators: "Ninja",
             }
           - {
-              name: "OSX",
-              build_dir: "ubuntu-osx",
-              os: ubuntu-22.04,
+              name: "macOS",
+              build_dir: "macos",
+              os: macos-latest,
               build_type: "Release",
               cc: "clang",
               cxx: "clang++",
