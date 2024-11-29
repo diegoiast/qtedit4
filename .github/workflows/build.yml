@@ -89,6 +89,10 @@ jobs:
           python-version: "3.11"
       - name: Install cmake-format
         run: pip3 install cmake-format
+      - name: Install missing packages (linux)
+        if: matrix.config.os == 'ubuntu-22.04'
+        run: |
+          sudo apt install libcups2-dev
       - name: Setup MSVC (Windows)
         if: ${{ matrix.config.cxx == 'cl' }}
         uses: ilammy/msvc-dev-cmd@v1
