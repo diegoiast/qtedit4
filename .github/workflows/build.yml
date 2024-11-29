@@ -90,7 +90,7 @@ jobs:
       - name: Linux setup
         if: matrix.config.os == 'ubuntu-22.04'
         run: |
-          apt install libcups2-dev
+          sudo apt install libcups2-dev
       - name: Install cmake-format
         run: pip3 install cmake-format
       - name: Setup MSVC (Windows)
