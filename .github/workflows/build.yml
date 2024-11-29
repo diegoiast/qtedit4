@@ -79,7 +79,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
       - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+        uses: jurplel/install-qt-action@v4.1.1
         with:
           version: 6.8.0
           modules: "qt5compat"
@@ -87,10 +87,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Linux setup
-        if: matrix.config.os == 'ubuntu-22.04'
-        run: |
-          sudo apt install libcups2-dev
       - name: Install cmake-format
         run: pip3 install cmake-format
       - name: Setup MSVC (Windows)
