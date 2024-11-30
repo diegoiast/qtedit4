@@ -27,7 +27,7 @@ jobs:
             os: windows-2022
             cc: "cl"
             cxx: "cl"
-          - name: "Windows Clang 16"
+          - name: "Windows Clang"
             build_dir: "windows-clang"
             os: windows-2022
             cc: "clang"
@@ -107,7 +107,7 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
           mkdir -p dist/qtedit4/
-          ln -s ../ubuntu-gcc/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
+          ln -s ../-${{ matrix.config.build_dir }}/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
           tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
         shell: bash
 
