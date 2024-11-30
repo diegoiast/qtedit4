@@ -108,7 +108,7 @@ jobs:
         run: |
           mkdir -p dist/qtedit4/
           ln -s ../${{ matrix.config.build_dir }}/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
-          tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
+          tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
         shell: bash
 
       - name: Create AppImage (Linux)
