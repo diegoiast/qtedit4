@@ -19,55 +19,44 @@ jobs:
       matrix:
         config:
           - { 
-              name: "Windows MSVC", 
-              build_dir: "windows-msvc", 
-              os: windows-2022, 
-              build_type: "Release", 
-              cc: "cl", 
-              cxx: "cl", 
-              generators: "Ninja",
-              qt_version: "6.8.0"
+                name: "Windows MSVC", 
+                build_dir: "windows-msvc", 
+                os: windows-2022, 
+                cc: "cl", 
+                cxx: "cl" 
+            }  
+          - { 
+                name: "Windows Clang 16", 
+                build_dir: "windows-clang", 
+                os: windows-2022, 
+                cc: "clang", 
+                cxx: "clang++" 
             }
           - { 
-              name: "Windows Clang 16", 
-              build_dir: "windows-clang", 
-              os: windows-2022, 
-              build_type: "Release", 
-              cc: "clang", 
-              cxx: "clang++", 
-              generators: "Ninja",
-              qt_version: "6.8.0"
+                name: "Ubuntu GCC", 
+                build_dir: "ubuntu-gcc", 
+                os: ubuntu-22.04, 
+                cc: "gcc", 
+                cxx: "g++" 
             }
           - { 
-              name: "Ubuntu GCC", 
-              build_dir: "ubuntu-gcc", 
-              os: ubuntu-22.04, 
-              build_type: "Release", 
-              cc: "gcc", 
-              cxx: "g++", 
-              generators: "Ninja",
-              qt_version: "6.8.0"
+                name: "Ubuntu Clang", 
+                build_dir: "ubuntu-clang", 
+                os: ubuntu-22.04, 
+                cc: "clang", 
+                cxx: "clang++" 
             }
           - { 
-              name: "Ubuntu Clang", 
-              build_dir: "ubuntu-clang", 
-              os: ubuntu-22.04, 
-              build_type: "Release", 
-              cc: "clang", 
-              cxx: "clang++", 
-              generators: "Ninja",
-              qt_version: "6.8.0"
+                name: "macOS", 
+                build_dir: "macos", 
+                os: macos-latest, 
+                cc: "clang", 
+                cxx: "clang++" 
             }
-          - { 
-              name: "macOS", 
-              build_dir: "macos", 
-              os: macos-latest, 
-              build_type: "Release", 
-              cc: "clang", 
-              cxx: "clang++", 
-              generators: "Ninja",
-              qt_version: "6.8.0"
-            }
+        qt_version: ["6.7.1", "6.8.0"]
+        include:
+          - generators: "Ninja"
+          - build_type: "Release"
 
     steps:
       - uses: actions/checkout@v4
@@ -75,7 +64,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v4.1.1
         with:
-          version: ${{ matrix.config.qt_version }}
+          version: ${{ matrix.qt_version }}
           modules: "qt5compat"
           cache: true
       - uses: actions/setup-python@v5
@@ -94,9 +83,11 @@ jobs:
         working-directory: ${{ github.workspace }}
         id: runcmake
         run: |
-          pwd
-          cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.config.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.config.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
-          pwd
+          cmake -B "build/${{ matrix.config.build_dir }}" \
+                -G "${{ matrix.generators }}" \
+                -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
+                -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
       - name: Build
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
@@ -131,7 +122,7 @@ jobs:
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=build/qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.AppImage
+          export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
@@ -141,8 +132,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.AppImage
-          path: build/qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.AppImage
+          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          path: build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
@@ -162,14 +153,14 @@ jobs:
       - name: Rename and upload setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.exe
+          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
         shell: cmd
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.exe
-          path: dist/qtedit4-qt${{ matrix.config.qt_version }}-${{ env.version }}-x86_64.exe
+          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
 
   create-release:
     name: Draft GitHub Release
