@@ -142,7 +142,7 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz
+          name: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz
           path: "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz"
 
       - name: windeployqt (Windows)
