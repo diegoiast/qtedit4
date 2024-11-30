@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz
-          path: "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz"
+          path: "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz"
 
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
