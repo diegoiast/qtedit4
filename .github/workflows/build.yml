@@ -19,35 +19,35 @@ jobs:
       matrix:
         config:
           - { 
-                name: "Windows MSVC", 
-                build_dir: "windows-msvc", 
+                name: "Windows MSVC/Qt ${{ env.QT_RELEASE_VER }}", 
+                build_dir: "windows-msvc",  
                 os: windows-2022, 
                 cc: "cl", 
                 cxx: "cl" 
             }  
           - { 
-                name: "Windows Clang 16", 
+                name: "Windows Clang 16/Qt ${{ env.QT_RELEASE_VER }}", 
                 build_dir: "windows-clang", 
                 os: windows-2022, 
                 cc: "clang", 
                 cxx: "clang++" 
             }
           - { 
-                name: "Ubuntu GCC", 
+                name: "Ubuntu GCC/Qt ${{ env.QT_RELEASE_VER }}", 
                 build_dir: "ubuntu-gcc", 
                 os: ubuntu-22.04, 
                 cc: "gcc", 
                 cxx: "g++" 
             }
           - { 
-                name: "Ubuntu Clang", 
+                name: "Ubuntu Clang/Qt ${{ env.QT_RELEASE_VER }}", 
                 build_dir: "ubuntu-clang", 
                 os: ubuntu-22.04, 
                 cc: "clang", 
                 cxx: "clang++" 
             }
           - { 
-                name: "macOS", 
+                name: "macOS/Qt ${{ env.QT_RELEASE_VER }}", 
                 build_dir: "macos", 
                 os: macos-latest, 
                 cc: "clang", 
