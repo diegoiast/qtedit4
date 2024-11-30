@@ -1,4 +1,5 @@
 name: Build and create packages
+
 on:
   push:
     branches:
@@ -10,50 +11,47 @@ on:
     branches:
       - main
 
+env:
+  QT_RELEASE_VER: 6.8.0
+
 jobs:
   build-cmake:
-    name: Build ${{ matrix.config.name }}
+    name: Build ${{ matrix.config.name }} Qt ${{ matrix.qt_version }}
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
         config:
-          - { 
-                name: "Windows MSVC/Qt ${{ env.QT_RELEASE_VER }}", 
-                build_dir: "windows-msvc",  
-                os: windows-2022, 
-                cc: "cl", 
-                cxx: "cl" 
-            }  
-          - { 
-                name: "Windows Clang 16/Qt ${{ env.QT_RELEASE_VER }}", 
-                build_dir: "windows-clang", 
-                os: windows-2022, 
-                cc: "clang", 
-                cxx: "clang++" 
-            }
-          - { 
-                name: "Ubuntu GCC/Qt ${{ env.QT_RELEASE_VER }}", 
-                build_dir: "ubuntu-gcc", 
-                os: ubuntu-22.04, 
-                cc: "gcc", 
-                cxx: "g++" 
-            }
-          - { 
-                name: "Ubuntu Clang/Qt ${{ env.QT_RELEASE_VER }}", 
-                build_dir: "ubuntu-clang", 
-                os: ubuntu-22.04, 
-                cc: "clang", 
-                cxx: "clang++" 
-            }
-          - { 
-                name: "macOS/Qt ${{ env.QT_RELEASE_VER }}", 
-                build_dir: "macos", 
-                os: macos-latest, 
-                cc: "clang", 
-                cxx: "clang++" 
-            }
-        qt_version: ["6.7.1", "6.8.0"]
+          - name: "Windows MSVC"
+            build_dir: "windows-msvc"
+            os: windows-2022
+            cc: "cl"
+            cxx: "cl"
+          - name: "Windows Clang 16"
+            build_dir: "windows-clang"
+            os: windows-2022
+            cc: "clang"
+            cxx: "clang++"
+          - name: "Ubuntu GCC"
+            build_dir: "linux-gcc"
+            os: ubuntu-22.04
+            cc: "gcc"
+            cxx: "g++"
+          - name: "Ubuntu Clang"
+            build_dir: "linux-clang"
+            os: ubuntu-22.04
+            cc: "clang"
+            cxx: "clang++"
+          - name: "macOS"
+            build_dir: "macos"
+            os: macos-latest
+            cc: "clang"
+            cxx: "clang++"
+
+        qt_version:
+          - "6.7.1"
+          - "6.8.0"
+
         include:
           - generators: "Ninja"
           - build_type: "Release"
@@ -83,7 +81,13 @@ jobs:
         working-directory: ${{ github.workspace }}
         id: runcmake
         run: |
-          cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+          pwd
+          cmake -B "build/${{ matrix.config.build_dir }}" \
+                -G "${{ matrix.generators }}" \
+                -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" \
+                -DCMAKE_C_COMPILER=${{ matrix.config.cc }} \
+                -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+          pwd
       - name: Build
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
@@ -94,6 +98,7 @@ jobs:
         id: runcmakeinstall
         run: |
           cmake --install "build/${{ matrix.config.build_dir }}" --prefix="dist/${{ matrix.config.build_dir }}/usr"
+
       - name: Set version tag or commit SHA
         id: version
         run: |
@@ -103,6 +108,7 @@ jobs:
             echo "version=${GITHUB_SHA::7}" >> $GITHUB_ENV
           fi
         shell: bash
+
       - name: Create TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
@@ -110,6 +116,7 @@ jobs:
           ln -s ../ubuntu-gcc/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
           tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
         shell: bash
+
       - name: Create AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
@@ -117,64 +124,75 @@ jobs:
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
+          
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          export OUTPUT=build/qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.AppImage
+
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
+
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
+
           chmod +x linuxdeploy*.AppImage
+
           ./linuxdeploy-x86_64.AppImage --appdir "dist/${{ matrix.config.build_dir }}" --plugin qt --output appimage
+
       - name: Upload AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
-          path: build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          name: qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.AppImage
+          path: build/qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.AppImage
+
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz
           path: "dist/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}.tar.gz"
+
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
           windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
+
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
         with:
           path: "setup_script.iss"
           options: /O+
+
       - name: Rename and upload setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.exe
         shell: cmd
+
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
-          path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          name: qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.exe
+          path: dist/qtedit4-qt${{ env.QT_RELEASE_VER }}-${{ env.version }}-x86_64.exe
 
   create-release:
-    name: Draft GitHub Release
-    needs: build-cmake
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          path: ./artifacts
-      - name: Create Draft Release
-        run: |
-          gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --generate-notes --draft
-      - name: Upload assets to release
-        run: |
-          gh release upload ${{ github.ref_name }} ./artifacts/*
+    name : Draft GitHub Release 
+    needs : build-cmake 
+    runs-on : ubuntu-latest 
+    env : 
+      GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
+    if : github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    steps :
+      - uses : actions/checkout@v4 
+      - name : Download all artifacts 
+        uses : actions/download-artifact@v4 
+        with :
+            merge-multiple : true 
+            path : ./artifacts 
+      - name : Create Draft Release 
+        run : | 
+            gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --generate-notes --draft 
+      - name : Upload assets to release 
+        run : | 
+            gh release upload ${{ github.ref_name }} ./artifacts/*
