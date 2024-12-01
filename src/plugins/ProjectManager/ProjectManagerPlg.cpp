@@ -558,7 +558,7 @@ void ProjectManagerPlugin::removeProject_clicked() {
 }
 
 void ProjectManagerPlugin::newProjectSelected(int index) {
-    // TODO - on startu this is called 2 times. I am unsure why yet.
+    // TODO - on startup this is called 2 times. I am unsure why yet.
     //        so this works around it. Its not the best solution.
     static auto lastProjectSelected = std::shared_ptr<ProjectBuildConfig>();
     auto buildConfig = std::shared_ptr<ProjectBuildConfig>();
@@ -566,13 +566,8 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         buildConfig = projectModel->getConfig(index);
     }
 
-    if (lastProjectSelected == buildConfig) {
-        return;
-    }
-
-    lastProjectSelected = buildConfig;
-    this->directoryModel->removeAllDirs();
     if (!buildConfig) {
+        this->directoryModel->removeAllDirs();
         this->gui->filterFiles->clear();
         this->gui->filterFiles->setEnabled(false);
         this->gui->filterOutFiles->clear();
@@ -585,8 +580,12 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterFiles->setText(s1);
         this->gui->filterOutFiles->setEnabled(true);
         this->gui->filterOutFiles->setText(s2);
-        this->directoryModel->addDirectory(buildConfig->sourceDir);
+        if (lastProjectSelected != buildConfig) {
+            this->directoryModel->removeAllDirs();
+            this->directoryModel->addDirectory(buildConfig->sourceDir);
+        }
     }
+    lastProjectSelected = buildConfig;
 
     updateTasksUI(buildConfig);
     updateExecutablesUI(buildConfig);
@@ -699,8 +698,10 @@ void ProjectManagerPlugin::runButton_clicked() {
 }
 
 void ProjectManagerPlugin::runTask_clicked() {
-    assert(this->selectedTask);
-    do_runTask(this->selectedTask);
+    auto buildConfig = getCurrentConfig();
+    auto selectedTaskIndex = this->gui->projectComboBox->currentIndex();
+    auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
+    do_runTask(&selectedTask);
 }
 
 void ProjectManagerPlugin::clearProject_clicked() {
@@ -750,7 +751,6 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
     if (!buildConfig || buildConfig->tasksInfo.size() == 0) {
-        this->selectedTask = nullptr;
         this->gui->taskButton->setText("...");
         this->gui->taskButton->setToolTip("...");
         this->gui->taskButton->setEnabled(false);
@@ -773,7 +773,6 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
         this->gui->taskButton->setEnabled(true);
         this->gui->taskButton->setText(taskName);
         this->gui->taskButton->setToolTip(taskCommand);
-        this->selectedTask = &buildConfig->tasksInfo[taskIndex];
 
         this->buildAction->setEnabled(true);
         this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
@@ -809,8 +808,9 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
                 this->gui->taskButton->setEnabled(true);
                 this->gui->taskButton->setText(taskName);
                 this->gui->taskButton->setToolTip(taskCommand);
-                this->selectedTask = &buildConfig->tasksInfo[index];
-                buildConfig->activeTaskName = this->selectedTask->name;
+
+                // todo - diego
+                buildConfig->activeTaskName = taskName;
 
                 this->buildAction->setEnabled(true);
                 this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));

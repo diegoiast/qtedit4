@@ -77,7 +77,6 @@ class ProjectManagerPlugin : public IPlugin {
 
     QFileSystemWatcher configWatcher;
     ExecutableInfo *selectedTarget = nullptr;
-    TaskInfo *selectedTask = nullptr;
 
     QProcess runProcess;
 
