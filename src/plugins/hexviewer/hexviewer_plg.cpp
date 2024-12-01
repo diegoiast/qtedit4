@@ -161,7 +161,7 @@ int HexViewrPlugin::canOpenFile(const QString fileName) {
     return 2;
 }
 
-bool HexViewrPlugin::openFile(const QString fileName, int x, int y, int z) {
+bool HexViewrPlugin::openFile(const QString fileName, int, int, int) {
     auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
     auto fi = QFileInfo(fileName);
     auto viewer = new qmdiHexViewer(tabWidget, fileName);

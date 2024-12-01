@@ -102,9 +102,8 @@ int ImageViewrPlugin::canOpenFile(const QString fileName) {
     }
 }
 
-bool ImageViewrPlugin::openFile(const QString fileName, int x, int y, int z) {
+bool ImageViewrPlugin::openFile(const QString fileName, int, int, int) {
     auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
-    auto fi = QFileInfo(fileName);
     auto viewer = new qmdiImageViewer(tabWidget, fileName);
     mdiServer->addClient(viewer);
     return true;

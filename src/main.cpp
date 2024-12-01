@@ -20,24 +20,13 @@
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 
-std::string getAppImagePath() {
-#if defined(WIN32)
-    return "";
-#else
-    if (const char *env_p = std::getenv("APPIMAGE")) {
-        return std::string(env_p);
-    }
-    return "";
-#endif
-}
-
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);
     Q_INIT_RESOURCE(qutepart_theme_data);
 
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("qtedit4");
-    QCoreApplication::setApplicationVersion("0.0.3");
+    QCoreApplication::setApplicationVersion("0.0.4-dev");
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.
