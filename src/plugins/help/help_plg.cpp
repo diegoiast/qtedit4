@@ -189,6 +189,7 @@ HelpPlugin::HelpPlugin() {
                                      .build());
 
     auto actionAbout = new QAction(tr("&About"), this);
+    actionAbout->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
     auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
     connect(actionCheckForUpdates, &QAction::triggered, this,
