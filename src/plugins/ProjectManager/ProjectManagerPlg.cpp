@@ -466,7 +466,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
     auto dirsToLoad = getConfig().getOpenDirs();
-    QTimer::singleShot(0, [this, dirsToLoad]() {
+    QTimer::singleShot(0, this, [this, dirsToLoad]() {
         for (auto &dirName : dirsToLoad) {
             auto config = projectModel->findConfigDir(dirName);
             if (config) {
@@ -699,7 +699,6 @@ void ProjectManagerPlugin::runButton_clicked() {
 
 void ProjectManagerPlugin::runTask_clicked() {
     auto buildConfig = getCurrentConfig();
-    auto selectedTaskIndex = this->gui->projectComboBox->currentIndex();
     auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     do_runTask(&selectedTask);
 }
@@ -809,9 +808,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
                 this->gui->taskButton->setText(taskName);
                 this->gui->taskButton->setToolTip(taskCommand);
 
-                // todo - diego
-                buildConfig->activeTaskName = taskName;
-
+                this->selectedTaskIndex = index;
                 this->buildAction->setEnabled(true);
                 this->buildAction->setText(QString(tr("Action: %1")).arg(taskName));
                 this->buildAction->setToolTip(taskCommand);
