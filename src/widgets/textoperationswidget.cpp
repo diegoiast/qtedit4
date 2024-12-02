@@ -330,7 +330,7 @@ QTextDocument *TextOperationsWidget::getTextDocument() {
             return pt->document();
         }
     }
-    return nullptr;
+    return {};
 }
 
 void TextOperationsWidget::showSearch() {
@@ -353,6 +353,10 @@ void TextOperationsWidget::showSearch() {
         return;
     }
     searchCursor = getTextCursor();
+    auto s = searchCursor.selectedText();
+    if (!s.isEmpty()) {
+        searchFormUi->searchText->setText(s);
+    }
     searchFormUi->searchText->setFocus();
     searchFormUi->searchText->selectAll();
     showBottomWidget(searchWidget);
@@ -455,8 +459,10 @@ void TextOperationsWidget::showReplace() {
         return;
     }
 
-    if (searchCursor.isNull()) {
-        searchCursor = getTextCursor();
+    searchCursor = getTextCursor();
+    auto s = searchCursor.selectedText();
+    if (!s.isEmpty()) {
+        replaceFormUi->findText->setText(s);
     }
     replaceFormUi->findText->setFocus();
     replaceFormUi->findText->selectAll();

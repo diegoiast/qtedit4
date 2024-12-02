@@ -38,9 +38,9 @@ class TextOperationsWidget : public QObject {
     QFlags<QTextDocument::FindFlag> getSearchFlags();
     QFlags<QTextDocument::FindFlag> getReplaceFlags();
 
-    virtual QTextCursor getTextCursor();
-    virtual void setTextCursor(QTextCursor c);
-    virtual QTextDocument *getTextDocument();
+    QTextCursor getTextCursor();
+    void setTextCursor(QTextCursor c);
+    QTextDocument *getTextDocument();
 
   public slots:
     void showSearch();
