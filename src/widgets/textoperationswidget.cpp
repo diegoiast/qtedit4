@@ -69,6 +69,7 @@ void TextOperationsWidget::initSearchWidget() {
     searchFormUi->searchText->setFont(searchWidget->parentWidget()->font());
     if (searchFormUi->frame->style()->inherits("QWindowsStyle")) {
         searchFormUi->frame->setFrameStyle(QFrame::StyledPanel);
+        searchWidget->setPalette(parentWidget->palette());
     }
     // otherwise it inherits the default font from the editor - fixed
     searchWidget->setFont(QApplication::font());
@@ -99,6 +100,7 @@ void TextOperationsWidget::initReplaceWidget() {
     replaceFormUi->replaceText->setFont(replaceWidget->parentWidget()->font());
     if (replaceFormUi->frame->style()->inherits("QWindowsStyle")) {
         replaceFormUi->frame->setFrameStyle(QFrame::StyledPanel);
+        replaceWidget->setPalette(parentWidget->palette());
     }
     // otherwise it inherits the default font from the editor - fixed
     replaceWidget->setFont(QApplication::font());
@@ -133,6 +135,7 @@ void TextOperationsWidget::initGotoLineWidget() {
     gotoLineFormUi->setupUi(gotoLineWidget);
     if (gotoLineFormUi->frame->style()->inherits("QWindowsStyle")) {
         gotoLineFormUi->frame->setFrameStyle(QFrame::StyledPanel);
+        gotoLineWidget->setPalette(parentWidget->palette());
     }
     gotoLineWidget->setFont(QApplication::font());
     gotoLineWidget->adjustSize();
