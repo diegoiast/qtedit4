@@ -89,12 +89,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
     bool doSaveAs();
     bool loadFile(const QString &fileName);
     bool saveFile(const QString &fileName);
-    void smartHome();
-    void smartEnd();
     void transformBlockToUpper();
     void transformBlockToLower();
     void transformBlockCase();
-    void gotoMatchingBracket();
     void toggleHeaderImpl();
 
     void chooseHighliter(const QString &newText);

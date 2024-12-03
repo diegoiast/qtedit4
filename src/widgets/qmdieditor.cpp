@@ -759,62 +759,6 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     return true;
 }
 
-void qmdiEditor::smartHome() {
-    auto c = textEditor->textCursor();
-    int blockLen = c.block().text().length();
-    if (blockLen == 0) {
-        return;
-    }
-
-    int originalPosition = c.position();
-    QTextCursor::MoveMode moveAnchor = QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)
-                                           ? QTextCursor::KeepAnchor
-                                           : QTextCursor::MoveAnchor;
-    c.movePosition(QTextCursor::StartOfLine, moveAnchor);
-    int startOfLine = c.position();
-    int i = 0;
-    while (c.block().text()[i].isSpace()) {
-        i++;
-        if (i == blockLen) {
-            i = 0;
-            break;
-        }
-    }
-    if ((originalPosition == startOfLine) || (startOfLine + i != originalPosition)) {
-        c.setPosition(startOfLine + i, moveAnchor);
-    }
-    textEditor->setTextCursor(c);
-}
-
-void qmdiEditor::smartEnd() {
-    QTextCursor c = textEditor->textCursor();
-    int blockLen = c.block().text().length();
-    if (blockLen == 0) {
-        return;
-    }
-
-    int originalPosition = c.position();
-    QTextCursor::MoveMode moveAnchor = QApplication::keyboardModifiers().testFlag(Qt::ShiftModifier)
-                                           ? QTextCursor::KeepAnchor
-                                           : QTextCursor::MoveAnchor;
-    c.movePosition(QTextCursor::StartOfLine, moveAnchor);
-    int startOfLine = c.position();
-    c.movePosition(QTextCursor::EndOfLine, moveAnchor);
-    int i = blockLen;
-    while (c.block().text()[i - 1].isSpace()) {
-        i--;
-        if (i == 1) {
-            i = blockLen;
-            break;
-        }
-    }
-    if ((originalPosition == startOfLine) || (startOfLine + i != originalPosition)) {
-        c.setPosition(startOfLine + i, moveAnchor);
-    }
-
-    textEditor->setTextCursor(c);
-}
-
 void qmdiEditor::transformBlockToUpper() {
     QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
@@ -878,51 +822,6 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
     }
 }
 
-void qmdiEditor::gotoMatchingBracket() {
-#if 0
-    /*
-      WARNING: code duplication between this method and on_cursor_positionChanged();
-      this needs to be refactored
-     */
-
-    QTextCursor cursor = textCursor();
-    QTextBlock block = cursor.block();
-    int blockPosition = block.position();
-    int cursorPosition = cursor.position();
-    int relativePosition = cursorPosition - blockPosition;
-    auto textBlock = block.text();
-
-    if (relativePosition == textBlock.size()) {
-        relativePosition--;
-    }
-
-    QChar currentChar = textBlock[relativePosition];
-
-    // lets find it's partner
-    // in theory, no errors should not happen, but one can never be too sure
-    int j = m_config.matchBracketsList.indexOf(currentChar);
-    if (j == -1) {
-        return;
-    }
-
-    if (m_config.matchBracketsList[j] != m_config.matchBracketsList[j + 1]) {
-        if (j % 2 == 0) {
-            j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j + 1],
-                                 true, block, cursorPosition);
-        } else {
-            j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j - 1],
-                                 false, block, cursorPosition);
-        }
-    } else {
-        j = findMatchingChar(m_config.matchBracketsList[j], m_config.matchBracketsList[j + 1], true,
-                             block, cursorPosition);
-    }
-
-    cursor.setPosition(j);
-    setTextCursor(cursor);
-#endif
-}
-
 void qmdiEditor::toggleHeaderImpl() {
     auto otherFile = getCorrespondingFile(getFileName());
     if (!otherFile.isEmpty()) {
@@ -946,7 +845,9 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
     buttonChangeIndenter->setText(action->text());
     auto act = buttonChangeIndenter->menu()->actions();
     auto j = act.indexOf(action);
-    textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
+    if (j > 0 ) {
+        textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
+    }
 }
 
 /**
