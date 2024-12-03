@@ -200,7 +200,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
-    
+
     textOperationsMenu->addAction(textEditor->deleteLineAction());
     textOperationsMenu->addAction(textEditor->cutLineAction());
     textOperationsMenu->addAction(textEditor->copyLineAction());
@@ -852,7 +852,7 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
     buttonChangeIndenter->setText(action->text());
     auto act = buttonChangeIndenter->menu()->actions();
     auto j = act.indexOf(action);
-    if (j > 0 ) {
+    if (j > 0) {
         textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
     }
 }
