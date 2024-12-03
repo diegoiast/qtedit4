@@ -198,10 +198,17 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
+    textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
+    textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
+    
+    textOperationsMenu->addAction(textEditor->deleteLineAction());
+    textOperationsMenu->addAction(textEditor->cutLineAction());
+    textOperationsMenu->addAction(textEditor->copyLineAction());
+    textOperationsMenu->addAction(textEditor->pasteLineAction());
+    textOperationsMenu->addSeparator();
     textOperationsMenu->addAction(actionCapitalize);
     textOperationsMenu->addAction(actionLowerCase);
     textOperationsMenu->addAction(actionChangeCase);
-    textOperationsMenu->addAction(textEditor->deleteLineAction());
     textOperationsMenu->addAction(textEditor->joinLinesAction());
     textOperationsMenu->addAction(textEditor->moveLineUpAction());
     textOperationsMenu->addAction(textEditor->moveLineDownAction());
