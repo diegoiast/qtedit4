@@ -495,6 +495,7 @@ void TextOperationsWidget::showGotoLine() {
     }
 
     showBottomWidget(gotoLineWidget);
+    gotoLineFormUi->numberSpinBox->selectAll();
     gotoLineWidget->setFocus();
     gotoLineFormUi->numberSpinBox->setFocus();
 }
