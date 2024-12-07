@@ -699,6 +699,12 @@ void ProjectManagerPlugin::runButton_clicked() {
 
 void ProjectManagerPlugin::runTask_clicked() {
     auto buildConfig = getCurrentConfig();
+    if (selectedTaskIndex < 0) {
+        selectedTaskIndex = 0;
+    }
+    if (!buildConfig || selectedTaskIndex >= buildConfig->tasksInfo.size()) {
+        return;
+    } 
     auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     do_runTask(&selectedTask);
 }
