@@ -282,10 +282,12 @@ void TextEditorPlugin::loadConfig(QSettings &settings) {
 
 QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
-    s << tr("Sources", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc)";
+    s << tr("Sources C++", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc CMakeLists.txt *.toml *.moc conanfile.txt)";
     s << tr("Headers", "EditorPlugin::myExtensions") + " (*.h *.hpp *.hxx *.inc)";
+    s << tr("Sources (other)", "EditorPlugin::myExtensions") + " (*.py *.java *.js *.rb *.inc *.rus *.swift *.kot *.sh)";
     s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
-    s << tr("Qt project", "EditorPlugin::myExtensions") + " (*.pro *.pri)";
+    s << tr("Code related", "EditorPlugin::myExtensions") + " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json)";
+    s << tr("Text images", "EditorPlugin::myExtensions") + " (*.svg *.xpm)";
     s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
     return s;
 }
@@ -304,11 +306,13 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     }
 
     static const QStringList extensions = {
-        ".c",    ".cpp", ".cxx",  ".cc",     ".h",       ".hpp",    ".hxx",     ".inc",
+        ".c",    ".cpp", ".cxx",  ".cc",     ".h",       ".hpp",    ".hxx",     ".inc", "*.moc",
         ".pro",  ".pri", ".txt",  ".inc",    ".java",    ".js",     ".py",      ".rb",
         ".go",   ".pas", ".bas",  ".swift",  ".mk",      ".bat",    ".sh",      ".md",
         ".user", ".txt", ".text", ".dox",    ".desktop", ".old",    ".bak",     ".mk",
-        ".lic",  ".xml", ".json", "license", "readme",   "copying", "Makefile", "Doxyfile"};
+        ".svg", ".xpm" ".sh", ".desktop", ".qrc", ".rc", ".json", ".iss", "conanfile.txt"
+        ".lic",  ".xml", ".json", "license", "readme",   "copying", "Makefile", "Doxyfile"
+        "CMakeLists.txt",};
     for (const auto &ext : extensions) {
         if (fileName.endsWith(ext, Qt::CaseInsensitive)) {
             return 5;
