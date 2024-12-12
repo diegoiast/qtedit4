@@ -7,7 +7,7 @@
  */
 
 #include <QActionGroup>
-#include <QApplication>
+#include <QCoreApplication>
 #include <QClipboard>
 #include <QComboBox>
 #include <QCompleter>
@@ -32,22 +32,21 @@
 #include <QTextEdit>
 #include <QToolBar>
 #include <QTreeView>
+
 #include <pluginmanager.h>
-
-#include "../plugins/texteditor/thememanager.h"
-
-#include "qmdieditor.h"
-#include "qmdiserver.h"
+#include <qmdiserver.h>
 
 #include "widgets/textoperationswidget.h"
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
+#include "../plugins/texteditor/thememanager.h"
+#include "qmdieditor.h"
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
 auto static getCorrespondingFile(const QString &fileName) -> QString {
-    static const QStringList cExtensions = {"c", "cpp", "cxx", "cc", "c++"};
-    static const QStringList headerExtensions = {"h", "hpp", "hh"};
+    auto static const cExtensions = QStringList{"c", "cpp", "cxx", "cc", "c++"};
+    auto static const headerExtensions = QStringList {"h", "hpp", "hh"};
 
     auto fileInfo = QFileInfo(fileName);
     auto baseName = fileInfo.baseName();    // Get the base name without extension
@@ -100,7 +99,7 @@ auto static getLineEnding(QIODevice &stream) -> QString {
 class BoldItemDelegate : public QStyledItemDelegate {
   public:
     QString boldItemStr = "";
-    BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+    explicit BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override {

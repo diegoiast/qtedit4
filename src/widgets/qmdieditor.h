@@ -54,7 +54,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
 
     void setupActions();
-    QString getFileName() const { return fileName; }
+    inline const QString& getFileName() const { return fileName; }
     inline bool getModificationsLookupEnabled() const { return fileModifications; }
     void setModificationsLookupEnabled(bool);
     inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
