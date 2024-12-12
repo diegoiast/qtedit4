@@ -284,9 +284,9 @@ QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
     s << tr("Sources C++", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc CMakeLists.txt *.toml *.moc conanfile.txt)";
     s << tr("Headers", "EditorPlugin::myExtensions") + " (*.h *.hpp *.hxx *.inc)";
-    s << tr("Sources (other)", "EditorPlugin::myExtensions") + " (*.py *.java *.js *.rb *.inc *.rus *.swift *.kot *.sh)";
+    s << tr("Sources (other)", "EditorPlugin::myExtensions") + " (*.py *.java *.js *.rb *.inc *.rust *.rb *.swift *.kot *.sh *.pas *.bas)";
     s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
-    s << tr("Code related", "EditorPlugin::myExtensions") + " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json)";
+    s << tr("Code related", "EditorPlugin::myExtensions") + " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json Makefile* *.dox )";
     s << tr("Text images", "EditorPlugin::myExtensions") + " (*.svg *.xpm)";
     s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
     return s;
@@ -305,6 +305,7 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
         }
     }
 
+    // TODO - list shuold be synced with myExtensions() somehow
     static const QStringList extensions = {
         ".c",    ".cpp", ".cxx",  ".cc",     ".h",       ".hpp",    ".hxx",     ".inc", "*.moc",
         ".pro",  ".pri", ".txt",  ".inc",    ".java",    ".js",     ".py",      ".rb",
