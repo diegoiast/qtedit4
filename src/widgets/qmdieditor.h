@@ -54,7 +54,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
 
     void setupActions();
-    inline const QString& getFileName() const { return fileName; }
+    inline const QString &getFileName() const { return fileName; }
     inline bool getModificationsLookupEnabled() const { return fileModifications; }
     void setModificationsLookupEnabled(bool);
     inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
@@ -62,7 +62,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
     void setEditorHighlighter(QString id);
     inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
-    
+
     void setPreviewEnabled(bool enabled);
     void setPreview(bool enabled);
     bool isPreviewRequested();

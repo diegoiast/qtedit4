@@ -282,11 +282,14 @@ void TextEditorPlugin::loadConfig(QSettings &settings) {
 
 QStringList TextEditorPlugin::myExtensions() {
     auto s = QStringList();
-    s << tr("Sources C++", "EditorPlugin::myExtensions") + " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc CMakeLists.txt *.toml *.moc conanfile.txt)";
+    s << tr("Sources C++", "EditorPlugin::myExtensions") +
+             " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc CMakeLists.txt *.toml *.moc conanfile.txt)";
     s << tr("Headers", "EditorPlugin::myExtensions") + " (*.h *.hpp *.hxx *.inc)";
-    s << tr("Sources (other)", "EditorPlugin::myExtensions") + " (*.py *.java *.js *.rb *.inc *.rust *.rb *.swift *.kot *.sh *.pas *.bas)";
+    s << tr("Sources (other)", "EditorPlugin::myExtensions") +
+             " (*.py *.java *.js *.rb *.inc *.rust *.rb *.swift *.kot *.sh *.pas *.bas)";
     s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
-    s << tr("Code related", "EditorPlugin::myExtensions") + " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json Makefile* *.dox )";
+    s << tr("Code related", "EditorPlugin::myExtensions") +
+             " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json Makefile* *.dox )";
     s << tr("Text images", "EditorPlugin::myExtensions") + " (*.svg *.xpm)";
     s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
     return s;
@@ -307,13 +310,58 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
 
     // TODO - list shuold be synced with myExtensions() somehow
     static const QStringList extensions = {
-        ".c",    ".cpp", ".cxx",  ".cc",     ".h",       ".hpp",    ".hxx",     ".inc", "*.moc",
-        ".pro",  ".pri", ".txt",  ".inc",    ".java",    ".js",     ".py",      ".rb",
-        ".go",   ".pas", ".bas",  ".swift",  ".mk",      ".bat",    ".sh",      ".md",
-        ".user", ".txt", ".text", ".dox",    ".desktop", ".old",    ".bak",     ".mk",
-        ".svg", ".xpm" ".sh", ".desktop", ".qrc", ".rc", ".json", ".iss", "conanfile.txt"
-        ".lic",  ".xml", ".json", "license", "readme",   "copying", "Makefile", "Doxyfile"
-        "CMakeLists.txt",};
+        ".c",
+        ".cpp",
+        ".cxx",
+        ".cc",
+        ".h",
+        ".hpp",
+        ".hxx",
+        ".inc",
+        ".pro",
+        ".pri",
+        ".txt",
+        ".inc",
+        ".java",
+        ".js",
+        ".py",
+        ".rb",
+        ".go",
+        ".pas",
+        ".bas",
+        ".swift",
+        ".mk",
+        ".bat",
+        ".sh",
+        ".md",
+        ".user",
+        ".txt",
+        ".text",
+        ".dox",
+        ".desktop",
+        ".old",
+        ".bak",
+        ".mk",
+        ".svg",
+        ".xpm"
+        ".sh",
+        ".desktop",
+        ".qrc",
+        ".rc",
+        ".json",
+        ".iss",
+        ".lic",
+        ".xml",
+        ".json",
+        "license",
+        "readme",
+        "copying",
+        "Makefile",
+        "Doxyfile"
+        "CMakeLists.txt",
+        "*.moc",
+        "conanfile.txt",
+    };
     for (const auto &ext : extensions) {
         if (fileName.endsWith(ext, Qt::CaseInsensitive)) {
             return 5;
@@ -356,7 +404,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
     if (langInfo.isValid()) {
         editor->setEditorHighlighter(langInfo.id);
     }
-    
+
     applySettings(editor);
     auto loaded = editor->loadFile(fileName);
     auto shouldAutoPreview = getConfig().getAutoPreview();

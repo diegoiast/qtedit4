@@ -7,10 +7,10 @@
  */
 
 #include <QActionGroup>
-#include <QCoreApplication>
 #include <QClipboard>
 #include <QComboBox>
 #include <QCompleter>
+#include <QCoreApplication>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -36,17 +36,17 @@
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
+#include "../plugins/texteditor/thememanager.h"
+#include "qmdieditor.h"
 #include "widgets/textoperationswidget.h"
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
-#include "../plugins/texteditor/thememanager.h"
-#include "qmdieditor.h"
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
 auto static getCorrespondingFile(const QString &fileName) -> QString {
     auto static const cExtensions = QStringList{"c", "cpp", "cxx", "cc", "c++"};
-    auto static const headerExtensions = QStringList {"h", "hpp", "hh"};
+    auto static const headerExtensions = QStringList{"h", "hpp", "hh"};
 
     auto fileInfo = QFileInfo(fileName);
     auto baseName = fileInfo.baseName();    // Get the base name without extension
@@ -513,18 +513,11 @@ void qmdiEditor::setEditorHighlighter(QString id) {
     textEditor->setHighlighter(id);
 }
 
-void qmdiEditor::setPreviewEnabled(bool enabled)
-{
-    this->previewButton->setEnabled(enabled);
-}
+void qmdiEditor::setPreviewEnabled(bool enabled) { this->previewButton->setEnabled(enabled); }
 
-void qmdiEditor::setPreview(bool enabled)
-{
-    this->previewButton->setChecked(enabled);    
-}
+void qmdiEditor::setPreview(bool enabled) { this->previewButton->setChecked(enabled); }
 
-bool qmdiEditor::isPreviewRequested()
-{
+bool qmdiEditor::isPreviewRequested() {
     return this->previewButton->isEnabled() && this->previewButton->isChecked();
 }
 

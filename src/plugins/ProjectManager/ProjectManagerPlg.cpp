@@ -704,7 +704,7 @@ void ProjectManagerPlugin::runTask_clicked() {
     }
     if (!buildConfig || selectedTaskIndex >= buildConfig->tasksInfo.size()) {
         return;
-    } 
+    }
     auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     do_runTask(&selectedTask);
 }
