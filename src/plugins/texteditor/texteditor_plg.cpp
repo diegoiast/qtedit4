@@ -308,7 +308,7 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
         }
     }
 
-    // TODO - list shuold be synced with myExtensions() somehow
+    // TODO - list should be synced with myExtensions() somehow
     static const QStringList extensions = {
         ".c",
         ".cpp",
