@@ -15,7 +15,7 @@ int KitDefinitionModel::rowCount(const QModelIndex &parent) const {
 
 QVariant KitDefinitionModel::data(const QModelIndex &index, int role) const {
     if (!index.isValid() || index.row() >= kitDefinitions.size()) {
-        return QVariant();
+        return {};
     }
 
     const auto &kit = kitDefinitions[index.row()];
@@ -25,5 +25,5 @@ QVariant KitDefinitionModel::data(const QModelIndex &index, int role) const {
     case Qt::ToolTipRole:
         return QString::fromStdString(kit.filePath);
     }
-    return QVariant();
+    return {};
 }
