@@ -513,6 +513,21 @@ void qmdiEditor::setEditorHighlighter(QString id) {
     textEditor->setHighlighter(id);
 }
 
+void qmdiEditor::setPreviewEnabled(bool enabled)
+{
+    this->previewButton->setEnabled(enabled);
+}
+
+void qmdiEditor::setPreview(bool enabled)
+{
+    this->previewButton->setChecked(enabled);    
+}
+
+bool qmdiEditor::isPreviewRequested()
+{
+    return this->previewButton->isEnabled() && this->previewButton->isChecked();
+}
+
 bool qmdiEditor::isMarkDownDocument() const {
     return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
 }
@@ -898,14 +913,6 @@ void qmdiEditor::updateFileDetails() {
         if (i > 0) {
             comboChangeHighlighter->setCurrentIndex(i);
         }
-    }
-
-    auto shouldOpenPreview = hasPreview();
-    previewButton->setEnabled(shouldOpenPreview);
-    if (shouldOpenPreview) {
-        previewButton->setChecked(autoPreview);
-    } else {
-        previewButton->setChecked(false);
     }
 
     auto isCplusplusSource = fileName.endsWith(".h", Qt::CaseInsensitive) ||

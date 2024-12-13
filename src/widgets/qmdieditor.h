@@ -62,6 +62,10 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
     void setEditorHighlighter(QString id);
     inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
+    
+    void setPreviewEnabled(bool enabled);
+    void setPreview(bool enabled);
+    bool isPreviewRequested();
 
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
     inline const QString &getIndentatorID() const { return this->indentationID; }

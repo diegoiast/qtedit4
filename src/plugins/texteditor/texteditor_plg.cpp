@@ -356,8 +356,13 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
     if (langInfo.isValid()) {
         editor->setEditorHighlighter(langInfo.id);
     }
+    
     applySettings(editor);
     auto loaded = editor->loadFile(fileName);
+    auto shouldAutoPreview = getConfig().getAutoPreview();
+    auto canOpenPreview = editor->hasPreview();
+    editor->setPreviewEnabled(canOpenPreview);
+    editor->setPreview(canOpenPreview && shouldAutoPreview);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
     return loaded;
