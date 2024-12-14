@@ -44,6 +44,19 @@
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
+
+auto static is_running_under_gnome() -> bool{
+    const auto desktop_session = std::getenv("DESKTOP_SESSION");
+    const auto xdg_current_desktop = std::getenv("XDG_CURRENT_DESKTOP");
+    if (desktop_session && std::string(desktop_session).find("gnome") != std::string::npos) {
+        return true;
+    }
+    if (xdg_current_desktop && std::string(xdg_current_desktop).find("GNOME") != std::string::npos) {
+        return true;
+    }
+    return false;
+}
+
 auto static getCorrespondingFile(const QString &fileName) -> QString {
     auto static const cExtensions = QStringList{"c", "cpp", "cxx", "cc", "c++"};
     auto static const headerExtensions = QStringList{"h", "hpp", "hh"};
@@ -382,7 +395,13 @@ void qmdiEditor::setupActions() {
     // this is usually "control+r, which we use for running a target
     // actionReplace->setShortcut(QKeySequence::Replace);
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-    actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
+
+    if (!is_running_under_gnome()) {
+        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
+    } else {
+        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
+    }
+
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionToggleHeader->setShortcut(Qt::Key_F4);
