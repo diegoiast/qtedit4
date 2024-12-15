@@ -44,14 +44,14 @@
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
-
-auto static is_running_under_gnome() -> bool{
+auto static is_running_under_gnome() -> bool {
     const auto desktop_session = std::getenv("DESKTOP_SESSION");
     const auto xdg_current_desktop = std::getenv("XDG_CURRENT_DESKTOP");
     if (desktop_session && std::string(desktop_session).find("gnome") != std::string::npos) {
         return true;
     }
-    if (xdg_current_desktop && std::string(xdg_current_desktop).find("GNOME") != std::string::npos) {
+    if (xdg_current_desktop &&
+        std::string(xdg_current_desktop).find("GNOME") != std::string::npos) {
         return true;
     }
     return false;
