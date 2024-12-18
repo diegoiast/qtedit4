@@ -3,8 +3,8 @@
 set -x
 set -e
 
-NAME="qtedit4-qt671-v0.0.3-x86_64"
-QTDIR="$HOME/qt/6.7.1/gcc_64/"
+NAME="qtedit4-qt6.8.0-v0.0.4-dev-x86_64"
+QTDIR="$HOME/qt/6.8.0/gcc_64/"
 export matrix_config_build_dir=ubuntu-gcc
 export PATH=$QTDIR/bin:$PATH
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
