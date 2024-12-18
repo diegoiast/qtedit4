@@ -83,13 +83,16 @@ set(qtedit4_sources
     src/plugins/hexviewer/hexviewer_plg.h
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.h
+    src/plugins/ProjectManager/ProjectIssuesWidget.h 
+    src/plugins/ProjectManager/ProjectIssuesWidget.cpp 
+    src/plugins/ProjectManager/ProjectIssuesWidget.ui
     src/plugins/ProjectManager/ProjectManagerPlg.cpp
     src/plugins/ProjectManager/ProjectManagerPlg.h
     src/plugins/ProjectManager/ProjectManagerGUI.ui
     src/plugins/ProjectManager/ProjectSearch.cpp
     src/plugins/ProjectManager/ProjectSearch.h
     src/plugins/ProjectManager/ProjectSearchGUI.ui
-    src/plugins/ProjectManager/output.ui
+    src/plugins/ProjectManager/BuildRunOutput.ui
     src/plugins/ProjectManager/GenericItems.cpp
     src/plugins/ProjectManager/GenericItems.h
     src/plugins/ProjectManager/kitdefinitions.h

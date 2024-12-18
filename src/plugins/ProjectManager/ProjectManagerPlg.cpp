@@ -17,13 +17,14 @@
 #include "ProjectBuildConfig.h"
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
+#include "ProjectIssuesWidget.h"
 #include "kitdefinitionmodel.h"
 #include "kitdetector.h"
 #include "pluginmanager.h"
 #include "qmdihost.h"
 #include "qmdiserver.h"
 #include "ui_ProjectManagerGUI.h"
-#include "ui_output.h"
+#include "ui_BuildRunOutput.h"
 
 static auto str(QProcess::ExitStatus e) -> QString {
     switch (e) {
@@ -253,11 +254,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
             &ProjectManagerPlugin::newProjectSelected);
     manager->createNewPanel(Panels::West, tr("Project"), w);
+    
+    projectIssues = new ProjectIssuesWidget();   
+    manager->createNewPanel(Panels::South, tr("Issues"), projectIssues);
 
     auto *w2 = new QWidget;
     outputPanel = new Ui::BuildRunOutput;
     outputPanel->setupUi(w2);
     manager->createNewPanel(Panels::South, tr("Output"), w2);
+    
 
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
@@ -281,6 +286,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
+        this->projectIssues->processLine(output);
     });
     connect(&runProcess, &QProcess::readyReadStandardError, this, [this]() {
         auto output = this->runProcess.readAllStandardError();
