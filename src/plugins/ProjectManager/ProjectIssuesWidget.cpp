@@ -210,6 +210,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(QWidget *parent)
             [this]() { this->model->setWarningsVisible(this->ui->warningsButton->isChecked()); });
     connect(ui->othersButton, &QPushButton::clicked, this,
             [this]() { this->model->setOthersVisible(this->ui->othersButton->isChecked()); });
+    connect(ui->clearButton, &QPushButton::clicked, this, [this]() { this->model->clearAll(); });
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
