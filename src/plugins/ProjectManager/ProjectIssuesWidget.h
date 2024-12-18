@@ -1,9 +1,9 @@
 #pragma once
 
 #include <QAbstractItemModel>
-#include <QWidget>
-#include <QVector>
 #include <QSet>
+#include <QVector>
+#include <QWidget>
 
 namespace Ui {
 class ProjectIssuesWidget;
@@ -17,19 +17,19 @@ struct CompileStatus {
     QString message;
 };
 
-class CompileStatusModel : public QAbstractTableModel
-{
+class CompileStatusModel : public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit CompileStatusModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                        int role = Qt::DisplayRole) const override;
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
-    
+
     void clearAll();
     void addItem(const CompileStatus &status);
 
@@ -41,7 +41,7 @@ public:
     bool areErrorsVisible() const;
     bool areOthersVisible() const;
 
-private:
+  private:
     QVector<CompileStatus> m_statuses;
     QVector<CompileStatus> m_filteredStatuses;
     QStringList m_headers;
@@ -59,7 +59,7 @@ class ProjectIssuesWidget : public QWidget {
   public:
     explicit ProjectIssuesWidget(QWidget *parent = nullptr);
     ~ProjectIssuesWidget();
-    
+
     void processLine(const QString &line);
 
   protected:
