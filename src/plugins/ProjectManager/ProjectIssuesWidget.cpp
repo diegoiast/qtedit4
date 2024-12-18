@@ -1,8 +1,36 @@
 #include <QHeaderView>
 #include <QFileInfo>
+#include <QStyledItemDelegate>
 
 #include "ProjectIssuesWidget.h"
 #include "ui_ProjectIssuesWidget.h"
+
+
+class CenteredIconDelegate : public QStyledItemDelegate
+{
+public:
+    explicit CenteredIconDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    {
+        if (index.column() == 0) {  // Only for the first column
+            QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+            if (!icon.isNull()) {
+                QRect iconRect = option.rect;
+                QSize iconSize = option.decorationSize;
+                
+                // Center the icon in the cell
+                int x = iconRect.x() + (iconRect.width() - iconSize.width()) / 2;
+                int y = iconRect.y() + (iconRect.height() - iconSize.height()) / 2;
+                
+                icon.paint(painter, x, y, iconSize.width(), iconSize.height());
+                return;
+            }
+        }
+        
+        QStyledItemDelegate::paint(painter, option, index);
+    }
+};
 
 
 CompileStatusModel::CompileStatusModel(QObject *parent)
@@ -191,8 +219,9 @@ ProjectIssuesWidget::ProjectIssuesWidget(QWidget *parent)
     ui->issuesList->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->issuesList->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->issuesList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
-    // ui->issuesList->setColumnWidth(0, 30);  // Adjust as needed
-    // ui->issuesList->setIconSize(QSize(16, 16));
+
+    auto delegate = new CenteredIconDelegate(ui->issuesList);
+    ui->issuesList->setItemDelegateForColumn(0, delegate);
     
     connect(ui->errorsButton, &QPushButton::clicked, this, [this](){
         this->model->setErrorsVisible(this->ui->errorsButton->isChecked());
