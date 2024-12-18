@@ -6,6 +6,7 @@
 #include <QProcess>
 
 class ProjectBuildModel;
+class ProjectIssuesWidget;
 class FoldersModel;
 class DirectoryModel;
 class FilterOutProxyModel;
@@ -74,6 +75,7 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
+    ProjectIssuesWidget *projectIssues = nullptr;
 
     QFileSystemWatcher configWatcher;
     ExecutableInfo *selectedTarget = nullptr;
