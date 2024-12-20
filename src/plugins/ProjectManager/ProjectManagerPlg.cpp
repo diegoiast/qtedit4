@@ -255,7 +255,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             &ProjectManagerPlugin::newProjectSelected);
     manager->createNewPanel(Panels::West, tr("Project"), w);
 
-    projectIssues = new ProjectIssuesWidget();
+    projectIssues = new ProjectIssuesWidget(manager);
     manager->createNewPanel(Panels::South, tr("Issues"), projectIssues);
 
     auto *w2 = new QWidget;
@@ -293,11 +293,13 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         cursor.movePosition(QTextCursor::End);
         cursor.insertText(output);
         this->outputPanel->commandOuput->setTextCursor(cursor);
+        this->projectIssues->processLine(output);
     });
     connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
                 this->outputPanel->commandOuput->appendPlainText(output);
+                getManager()->showPanel(Panels::South, 0);
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
@@ -504,14 +506,14 @@ std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() con
     return projectModel->getConfig(currentIndex);
 }
 
-const QHash<QString, QString> ProjectManagerPlugin::getConfigHash() const {
-    auto hash = QHash<QString, QString>();
+const QHash<QString, QString> ProjectManagerPlugin::getConfigDictionary() const {
+    auto dictionary = QHash<QString, QString>();
     auto project = getCurrentConfig();
     if (project) {
-        hash["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
-        hash["build_directory"] = QDir::toNativeSeparators(project->buildDir);
+        dictionary["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
+        dictionary["build_directory"] = QDir::toNativeSeparators(project->buildDir);
     }
-    return hash;
+    return dictionary;
 }
 
 const KitDefinition *ProjectManagerPlugin::getCurrentKit() const {
@@ -578,9 +580,9 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterOutFiles->clear();
         this->gui->filterOutFiles->setEnabled(false);
     } else {
-        auto hash = getConfigHash();
-        auto s1 = expand(buildConfig->displayFilter, hash);
-        auto s2 = expand(buildConfig->hideFilter, hash);
+        auto dictionary = getConfigDictionary();
+        auto s1 = expand(buildConfig->displayFilter, dictionary);
+        auto s2 = expand(buildConfig->hideFilter, dictionary);
         this->gui->filterFiles->setEnabled(true);
         this->gui->filterFiles->setText(s1);
         this->gui->filterOutFiles->setEnabled(true);
@@ -602,7 +604,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         return;
     }
 
-    auto hash = getConfigHash();
+    auto hash = getConfigDictionary();
     auto project = getCurrentConfig();
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto currentTask = expand(executablePath, hash);
@@ -643,11 +645,11 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto hash = getConfigHash();
+    auto hash = getConfigDictionary();
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
 
-    getManager()->showPanel(Panels::South, 0);
+    getManager()->showPanel(Panels::South, 1);
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
@@ -711,6 +713,7 @@ void ProjectManagerPlugin::runTask_clicked() {
         return;
     }
     auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
+    this->projectIssues->clearAllIssues();
     do_runTask(&selectedTask);
 }
 
@@ -720,7 +723,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
         return;
     }
 
-    auto hash = getConfigHash();
+    auto hash = getConfigDictionary();
     auto projectBuildDir = expand(project->buildDir, hash);
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);

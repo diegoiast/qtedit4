@@ -2,6 +2,7 @@
 #include <QHeaderView>
 #include <QStyledItemDelegate>
 
+#include "pluginmanager.h"
 #include "ProjectIssuesWidget.h"
 #include "ui_ProjectIssuesWidget.h"
 
@@ -31,28 +32,28 @@ class CenteredIconDelegate : public QStyledItemDelegate {
 };
 
 CompileStatusModel::CompileStatusModel(QObject *parent)
-    : QAbstractTableModel(parent), m_showWarnings(true), m_showErrors(true), m_showOthers(true) {
-    m_headers << "Type" << "Message" << "Location";
+    : QAbstractTableModel(parent), showWarnings(true), showErrors(true), showOthers(true) {
+    headers << "Type" << "Message" << "Location";
 }
 
 int CompileStatusModel::rowCount(const QModelIndex &parent) const {
-    return parent.isValid() ? 0 : m_filteredStatuses.size();
+    return parent.isValid() ? 0 : filteredStatuses.size();
 }
 
 int CompileStatusModel::columnCount(const QModelIndex &parent) const {
-    return parent.isValid() ? 0 : m_headers.size();
+    return parent.isValid() ? 0 : headers.size();
 }
 
 QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
-    if (!index.isValid() || index.row() >= m_filteredStatuses.size()) {
+    if (!index.isValid() || index.row() >= filteredStatuses.size()) {
         return {};
     }
 
-    const CompileStatus &status = m_filteredStatuses.at(index.row());
+    auto const &status = filteredStatuses.at(index.row());
 
     if (index.column() == 0 && role == Qt::DecorationRole) {
         QString iconName;
-        if (status.type.toLower() == "error") {
+        if (status.type.toLower().contains("error")) {
             iconName = "data-error";
         } else if (status.type.toLower() == "warning") {
             iconName = "data-warning";
@@ -61,7 +62,7 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
         }
 
         if (!QIcon::hasThemeIcon(iconName)) {
-            qDebug() << "Error : icon not found" << iconName;
+            qDebug() << "Error : icon not foundm using build it icons" << iconName;
 
             if (status.type.toLower() == "error") {
                 return qApp->style()->standardIcon(QStyle::SP_MessageBoxCritical);
@@ -81,8 +82,8 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
         case 1:
             return status.message;
         case 2: {
-            QFileInfo fileInfo(status.fileName);
-            QString fileName = fileInfo.fileName();
+            auto fileInfo = QFileInfo(status.fileName);
+            auto fileName = fileInfo.fileName();
             return QString("%1 (%2:%3)").arg(fileName).arg(status.row).arg(status.col);
         }
         default:
@@ -94,16 +95,16 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
 }
 
 QVariant CompileStatusModel::headerData(int section, Qt::Orientation orientation, int role) const {
-    if (role != Qt::DisplayRole || orientation != Qt::Horizontal || section >= m_headers.size()) {
+    if (role != Qt::DisplayRole || orientation != Qt::Horizontal || section >= headers.size()) {
         return {};
     }
 
-    return m_headers.at(section);
+    return headers.at(section);
 }
 
 void CompileStatusModel::sort(int column, Qt::SortOrder order) {
     beginResetModel();
-    std::sort(m_filteredStatuses.begin(), m_filteredStatuses.end(),
+    std::sort(filteredStatuses.begin(), filteredStatuses.end(),
               [column, order](const CompileStatus &s1, const CompileStatus &s2) {
                   bool lessThan;
                   switch (column) {
@@ -126,21 +127,34 @@ void CompileStatusModel::sort(int column, Qt::SortOrder order) {
 
 void CompileStatusModel::clearAll() {
     beginResetModel();
-    m_statuses.clear();
-    m_filteredStatuses.clear();
+    statuses.clear();
+    filteredStatuses.clear();
     endResetModel();
 }
 
 void CompileStatusModel::addItem(const CompileStatus &status) {
     beginResetModel();
-    m_statuses.append(status);
+    statuses.append(status);
     applyFilter();
     endResetModel();
 }
 
+CompileStatus CompileStatusModel::getItem(const QModelIndex &index) const {
+    if (!index.isValid()) {
+        return {};
+    }
+    if (index.row() < 0) {
+        return {};
+    }
+    if (index.row() >= filteredStatuses.size()) {
+        return {};
+    }
+    return filteredStatuses.at(index.row());
+}
+
 void CompileStatusModel::setWarningsVisible(bool visible) {
-    if (m_showWarnings != visible) {
-        m_showWarnings = visible;
+    if (showWarnings != visible) {
+        showWarnings = visible;
         beginResetModel();
         applyFilter();
         endResetModel();
@@ -148,8 +162,8 @@ void CompileStatusModel::setWarningsVisible(bool visible) {
 }
 
 void CompileStatusModel::setErrorsVisible(bool visible) {
-    if (m_showErrors != visible) {
-        m_showErrors = visible;
+    if (showErrors != visible) {
+        showErrors = visible;
         beginResetModel();
         applyFilter();
         endResetModel();
@@ -157,25 +171,25 @@ void CompileStatusModel::setErrorsVisible(bool visible) {
 }
 
 void CompileStatusModel::setOthersVisible(bool visible) {
-    if (m_showOthers != visible) {
-        m_showOthers = visible;
+    if (showOthers != visible) {
+        showOthers = visible;
         beginResetModel();
         applyFilter();
         endResetModel();
     }
 }
 
-bool CompileStatusModel::areWarningsVisible() const { return m_showWarnings; }
+bool CompileStatusModel::areWarningsVisible() const { return showWarnings; }
 
-bool CompileStatusModel::areErrorsVisible() const { return m_showErrors; }
+bool CompileStatusModel::areErrorsVisible() const { return showErrors; }
 
-bool CompileStatusModel::areOthersVisible() const { return m_showOthers; }
+bool CompileStatusModel::areOthersVisible() const { return showOthers; }
 
 void CompileStatusModel::applyFilter() {
-    m_filteredStatuses.clear();
-    for (const auto &status : m_statuses) {
+    filteredStatuses.clear();
+    for (const auto &status : statuses) {
         if (shouldShowStatus(status)) {
-            m_filteredStatuses.append(status);
+            filteredStatuses.append(status);
         }
     }
 }
@@ -183,19 +197,18 @@ void CompileStatusModel::applyFilter() {
 bool CompileStatusModel::shouldShowStatus(const CompileStatus &status) const {
     QString lowerType = status.type.toLower();
     if (lowerType == "warning") {
-        return m_showWarnings;
+        return showWarnings;
     } else if (lowerType == "error") {
-        return m_showErrors;
+        return showErrors;
     } else {
-        return m_showOthers;
+        return showOthers;
     }
 }
 
-ProjectIssuesWidget::ProjectIssuesWidget(QWidget *parent)
+ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
     : QWidget(parent), ui(new Ui::ProjectIssuesWidget) {
     model = new CompileStatusModel(this);
     ui->setupUi(this);
-
     ui->issuesList->setModel(model);
     ui->issuesList->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
     ui->issuesList->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
@@ -204,6 +217,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(QWidget *parent)
     auto delegate = new CenteredIconDelegate(ui->issuesList);
     ui->issuesList->setItemDelegateForColumn(0, delegate);
 
+    this->manager = parent;
     connect(ui->errorsButton, &QPushButton::clicked, this,
             [this]() { this->model->setErrorsVisible(this->ui->errorsButton->isChecked()); });
     connect(ui->warningsButton, &QPushButton::clicked, this,
@@ -211,6 +225,11 @@ ProjectIssuesWidget::ProjectIssuesWidget(QWidget *parent)
     connect(ui->othersButton, &QPushButton::clicked, this,
             [this]() { this->model->setOthersVisible(this->ui->othersButton->isChecked()); });
     connect(ui->clearButton, &QPushButton::clicked, this, [this]() { this->model->clearAll(); });
+    connect(ui->issuesList, &QTableView::clicked, this, [this](const QModelIndex &index) {
+        auto item = this->model->getItem(index);
+        this->manager->openFile(item.fileName, item.row, item.col);
+        // qDebug() << "Will open file: " << item.fileName << "at" << item.col << item.row;
+    });
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
