@@ -9,6 +9,8 @@ namespace Ui {
 class ProjectIssuesWidget;
 }
 
+class PluginManager;
+
 struct CompileStatus {
     QString fileName;
     int row;
@@ -32,6 +34,7 @@ class CompileStatusModel : public QAbstractTableModel {
 
     void clearAll();
     void addItem(const CompileStatus &status);
+    CompileStatus getItem(const QModelIndex &index) const;
 
     void setWarningsVisible(bool visible);
     void setErrorsVisible(bool visible);
@@ -42,12 +45,12 @@ class CompileStatusModel : public QAbstractTableModel {
     bool areOthersVisible() const;
 
   private:
-    QVector<CompileStatus> m_statuses;
-    QVector<CompileStatus> m_filteredStatuses;
-    QStringList m_headers;
-    bool m_showWarnings;
-    bool m_showErrors;
-    bool m_showOthers;
+    QVector<CompileStatus> statuses;
+    QVector<CompileStatus> filteredStatuses;
+    QStringList headers;
+    bool showWarnings;
+    bool showErrors;
+    bool showOthers;
 
     void applyFilter();
     bool shouldShowStatus(const CompileStatus &status) const;
@@ -57,15 +60,17 @@ class ProjectIssuesWidget : public QWidget {
     Q_OBJECT
 
   public:
-    explicit ProjectIssuesWidget(QWidget *parent = nullptr);
+    explicit ProjectIssuesWidget(PluginManager *parent = nullptr);
     ~ProjectIssuesWidget();
 
     void processLine(const QString &line);
+    inline void clearAllIssues() { model->clearAll(); }
 
   protected:
     void changeEvent(QEvent *e);
 
   private:
+    PluginManager *manager;
     CompileStatusModel *model;
     Ui::ProjectIssuesWidget *ui;
 };

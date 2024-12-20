@@ -52,7 +52,7 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void saveConfig(QSettings &settings) override;
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
-    const QHash<QString, QString> getConfigHash() const;
+    const QHash<QString, QString> getConfigDictionary() const;
     const KitDefinition *getCurrentKit() const;
 
   public slots:
