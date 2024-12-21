@@ -36,8 +36,8 @@
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
-#include "qmdieditor.h"
 #include "plugins/texteditor/thememanager.h"
+#include "qmdieditor.h"
 #include "widgets/textoperationswidget.h"
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
@@ -153,12 +153,13 @@ QStringList getAvailableHighlihters() {
 qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     : QWidget(p), themeManager(themes) {
     textEditor = new Qutepart::Qutepart(this);
-    operationsWidget = new TextOperationsWidget(textEditor);
+    operationsWidget = new TextOperationsWidget(this, textEditor);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
     QToolBar *toolbar = new QToolBar(this);
     QVBoxLayout *layout = new QVBoxLayout(this);
 
+    operationsWidget->hide();
     setupActions();
     toolbar->addWidget(comboChangeHighlighter);
     toolbar->addWidget(buttonChangeIndenter);
@@ -206,7 +207,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     layout->addWidget(banner);
     layout->addWidget(splitter);
     layout->addWidget(toolbar);
-
+    layout->addWidget(operationsWidget);
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
@@ -480,7 +481,7 @@ void qmdiEditor::setupActions() {
     connect(actionFindNext, &QAction::triggered, operationsWidget,
             &TextOperationsWidget::searchNext);
     connect(actionFindPrev, &QAction::triggered, operationsWidget,
-            &TextOperationsWidget::searchPrev);
+            &TextOperationsWidget::searchPrevious);
     connect(actionReplace, &QAction::triggered, operationsWidget,
             &TextOperationsWidget::showReplace);
     connect(actionGotoLine, &QAction::triggered, operationsWidget,
@@ -582,31 +583,6 @@ void qmdiEditor::on_fileChanged(const QString &filename) {
     displayBannerMessage(message, 10);
 }
 
-void qmdiEditor::adjustBottomAndTopWidget() {
-    if (topWidget) {
-        QWidget *parent = textEditor->viewport();
-        QRect r = parent->rect();
-        topWidget->adjustSize();
-        r.adjust(10, 0, -10, 0);
-        r.setHeight(topWidget->height());
-        r.moveTop(10);
-        r.moveLeft(parent->pos().x() + 10);
-        topWidget->setGeometry(r);
-        topWidget->show();
-    }
-    if (bottomWidget) {
-        QWidget *parent = textEditor->viewport();
-        QRect r = parent->rect();
-        bottomWidget->adjustSize();
-        r.adjust(10, 0, -10, 0);
-        r.setHeight(bottomWidget->height());
-        r.moveBottom(parent->rect().height() - 10);
-        r.moveLeft(parent->pos().x() + 10);
-        bottomWidget->setGeometry(r);
-        bottomWidget->show();
-    }
-}
-
 void qmdiEditor::hideTimer_timeout() {
     if (m_timerHideout != 0) {
         QString s;
@@ -661,11 +637,6 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
-void qmdiEditor::showBottomWidget(QWidget *w) {
-    bottomWidget = w;
-    adjustBottomAndTopWidget();
-}
-
 void qmdiEditor::displayBannerMessage(QString message, int time) {
     banner->show();
     ui_banner->label->setText(message);
@@ -677,12 +648,6 @@ void qmdiEditor::hideBannerMessage() {
     m_timerHideout = 0;
     ui_banner->label->clear();
     banner->hide();
-
-    // sometimes the top widget is displayed, lets workaround this
-    // TODO: find WTF this is happening
-    if (topWidget == banner) {
-        topWidget = nullptr;
-    }
 }
 
 void qmdiEditor::newDocument() { loadFile(""); }

@@ -82,9 +82,6 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
   public slots:
     void on_fileChanged(const QString &filename);
-    void adjustBottomAndTopWidget();
-    void showUpperWidget(QWidget *w);
-    void showBottomWidget(QWidget *w);
     void displayBannerMessage(QString message, int time);
     void hideBannerMessage();
 
@@ -148,8 +145,6 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QString indentationID;
 
     QFileSystemWatcher *fileSystemWatcher;
-    QWidget *topWidget = nullptr;
-    QWidget *bottomWidget = nullptr;
     QWidget *banner;
     Ui::BannerMessage *ui_banner;
     int m_timerHideout;
