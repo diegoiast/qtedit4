@@ -36,8 +36,8 @@
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
-#include "../plugins/texteditor/thememanager.h"
 #include "qmdieditor.h"
+#include "plugins/texteditor/thememanager.h"
 #include "widgets/textoperationswidget.h"
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
@@ -62,8 +62,8 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
     auto static const headerExtensions = QStringList{"h", "hpp", "hh"};
 
     auto fileInfo = QFileInfo(fileName);
-    auto baseName = fileInfo.baseName();    // Get the base name without extension
-    auto dirPath = fileInfo.absolutePath(); // Get the directory path
+    auto baseName = fileInfo.baseName();
+    auto dirPath = fileInfo.absolutePath();
 
     if (cExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
         for (const auto &headerExt : headerExtensions) {
@@ -178,11 +178,6 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     splitter->addWidget(textEditor);
     splitter->addWidget(textPreview);
 
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->setSpacing(0);
-    layout->addWidget(splitter);
-    layout->addWidget(toolbar);
-
     connect(textEditor, &QPlainTextEdit::cursorPositionChanged, this, [this, staticLabel]() {
         QTextCursor cursor = textEditor->textCursor();
         int line = cursor.blockNumber() + 1;
@@ -200,13 +195,18 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     banner = new QWidget(this);
-    banner->setFont(QApplication::font());
     banner->hide();
     banner->setObjectName("banner");
     ui_banner = new Ui::BannerMessage;
     ui_banner->setupUi(banner);
-    connect(ui_banner->label, SIGNAL(linkActivated(QString)), this,
-            SLOT(fileMessage_clicked(QString)));
+    connect(ui_banner->label, &QLabel::linkActivated, this, &qmdiEditor::fileMessage_clicked);
+
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
+    layout->addWidget(banner);
+    layout->addWidget(splitter);
+    layout->addWidget(toolbar);
+
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
@@ -661,18 +661,13 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
-void qmdiEditor::showUpperWidget(QWidget *w) {
-    topWidget = w;
-    adjustBottomAndTopWidget();
-}
-
 void qmdiEditor::showBottomWidget(QWidget *w) {
     bottomWidget = w;
     adjustBottomAndTopWidget();
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {
-    showUpperWidget(banner);
+    banner->show();
     ui_banner->label->setText(message);
     m_timerHideout = time;
     QTimer::singleShot(1000, this, SLOT(hideTimer_timeout()));
