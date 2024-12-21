@@ -20,6 +20,9 @@
    <bool>false</bool>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
    <property name="margin" stdset="0">
     <number>0</number>
    </property>
