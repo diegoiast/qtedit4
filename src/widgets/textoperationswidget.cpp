@@ -55,12 +55,9 @@ TextOperationsWidget::TextOperationsWidget(QWidget *parent, QWidget *e) : QStack
 
 void TextOperationsWidget::initSearchWidget() {
     searchWidget = new QWidget(this);
-    searchWidget->setObjectName("m_search");
+    searchWidget->setObjectName("searchWidget");
     searchFormUi = new Ui::searchForm();
     searchFormUi->setupUi(searchWidget);
-    if (searchFormUi->frame->style()->inherits("QWindowsStyle")) {
-        searchFormUi->frame->setFrameStyle(QFrame::StyledPanel);
-    }
 
     connect(searchFormUi->searchText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::searchText_modified);
@@ -75,16 +72,11 @@ void TextOperationsWidget::initSearchWidget() {
 }
 
 void TextOperationsWidget::initReplaceWidget() {
-    auto parentWidget = (QWidget *)parent();
     replaceWidget = new QWidget(this);
-    replaceWidget->setObjectName("m_replace");
+    replaceWidget->setObjectName("replaceWidget");
     replaceFormUi = new Ui::replaceForm();
     replaceFormUi->setupUi(replaceWidget);
     replaceFormUi->optionsGroupBox->hide();
-    if (replaceFormUi->frame->style()->inherits("QWindowsStyle")) {
-        replaceFormUi->frame->setFrameStyle(QFrame::StyledPanel);
-        replaceWidget->setPalette(parentWidget->palette());
-    }
 
     connect(replaceFormUi->findText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::replaceText_modified);
@@ -103,16 +95,10 @@ void TextOperationsWidget::initReplaceWidget() {
 }
 
 void TextOperationsWidget::initGotoLineWidget() {
-    auto parentWidget = (QWidget *)parent();
-
     gotoLineWidget = new QWidget(this);
-    gotoLineWidget->setObjectName("gotoLine");
+    gotoLineWidget->setObjectName("gotoLineWidget");
     gotoLineFormUi = new Ui::gotoLineForm();
     gotoLineFormUi->setupUi(gotoLineWidget);
-    if (gotoLineFormUi->frame->style()->inherits("QWindowsStyle")) {
-        gotoLineFormUi->frame->setFrameStyle(QFrame::StyledPanel);
-        gotoLineWidget->setPalette(parentWidget->palette());
-    }
     gotoLineWidget->adjustSize();
     gotoLineWidget->hide();
 
