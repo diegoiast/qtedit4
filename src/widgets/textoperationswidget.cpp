@@ -376,7 +376,7 @@ void TextOperationsWidget::replaceAll_clicked() {
             cursor.endEditBlock();
             setTextCursor(cursor);
             replaceCount++;
-        }        
+        }
         cursor = getTextDocument()->find(text, cursor, getReplaceFlags());
     }
     QMessageBox::information(nullptr, tr("Replace all"),

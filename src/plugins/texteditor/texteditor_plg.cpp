@@ -228,7 +228,8 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                 }
 
                 if (newTheme) {
-                    auto themeFileName = themeManager->getNameFromDesc(newTheme->getMetaData().name);
+                    auto themeFileName =
+                        themeManager->getNameFromDesc(newTheme->getMetaData().name);
                     getConfig().setTheme(themeFileName);
                 } else {
                     getConfig().setTheme("");
