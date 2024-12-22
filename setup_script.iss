@@ -1,6 +1,6 @@
 [Setup]
 AppName=qtedit4
-AppVersion=0.0.4-beta1
+AppVersion=0.0.4-beta2
 DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
 UninstallDisplayIcon={app}\qtedit4.ico

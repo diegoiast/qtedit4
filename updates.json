@@ -8,10 +8,10 @@
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-beta1",
-         "latest-version":"0.0.4-beta1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-beta1/qtedit4-qt6.8.0-v0.0.v0.0.4-beta1-x86_64.exe",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component.<br />Added a minimap to the editors",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-beta2",
+         "latest-version":"0.0.4-beta2",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-beta2/qtedit4-qt6.8.0-v0.0.v0.0.4-beta2-x86_64.exe",
+         "changelog":"Fixes running under gnome<ul><<br />>Updates to the editor component.<br />Added a minimap to the editors< /br>Baby stops for a building projects",
          "mandatory":true
       },
       "linux":{
@@ -23,10 +23,10 @@
 
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-beta1",
-         "latest-version":"0.0.4-beta1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-beta1/qtedit4-qt6.8.0-v0.0.4-beta1-x86_64.AppImage",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component.<br />Added a minimap to the editors",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-beta2",
+         "latest-version":"0.0.4-beta2",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-beta2/qtedit4-qt6.8.0-v0.0.4-beta2-x86_64.AppImage",
+         "changelog":"Fixes running under gnome<ul><<br />>Updates to the editor component.<br />Added a minimap to the editors< /br>Baby stops for a building projects",
          "mandatory":true
       }
    }
