@@ -15,6 +15,7 @@
 #include <qmdiactiongroup.h>
 #include <qmdihost.h>
 #include <qmdiserver.h>
+#include <widgets/HistoryLineEdit.h>
 
 #include "texteditor_plg.h"
 #include "widgets/qmdieditor.h"
@@ -50,7 +51,8 @@ TextEditorPlugin::TextEditorPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
     themeManager = new Qutepart::ThemeManager();
-
+    historyModel = new SharedHistoryModel(this);
+    
     /*
     #if defined(WIN32)
         auto installPrefix = QCoreApplication::applicationDirPath();
@@ -58,7 +60,7 @@ TextEditorPlugin::TextEditorPlugin() {
         auto installPrefix = QCoreApplication::applicationDirPath() + "/..";
     #endif
     */
-
+    
     config.pluginName = tr("Text editor");
     config.description = tr("Default text editor, based on QutePart");
     config.configItems.push_back(qmdiConfigItem::Builder()
@@ -178,6 +180,12 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue("")
                                      .setUserEditable(false)
                                      .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SeachHistoryKey)
+                                     .setType(qmdiConfigItem::StringList)
+                                     .setDefaultValue(QStringList())
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
@@ -228,7 +236,8 @@ void TextEditorPlugin::on_client_merged(qmdiHost *) {
                 }
 
                 if (newTheme) {
-                    auto themeFileName = themeManager->getNameFromDesc(newTheme->getMetaData().name);
+                    auto themeFileName =
+                        themeManager->getNameFromDesc(newTheme->getMetaData().name);
                     getConfig().setTheme(themeFileName);
                 } else {
                     getConfig().setTheme("");
@@ -278,6 +287,15 @@ void TextEditorPlugin::loadConfig(QSettings &settings) {
         delete this->theme;
         this->theme = nullptr;
     }
+
+    auto history = getConfig().getSeachHistory();
+    historyModel->setHistory(history);
+}
+
+void TextEditorPlugin::saveConfig(QSettings &settings) {
+    auto history = historyModel->getHistory();
+    getConfig().setSeachHistory(history);
+    IPlugin::saveConfig(settings);
 }
 
 QStringList TextEditorPlugin::myExtensions() {
@@ -411,6 +429,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
     auto canOpenPreview = editor->hasPreview();
     editor->setPreviewEnabled(canOpenPreview);
     editor->setPreview(canOpenPreview && shouldAutoPreview);
+    editor->setHistoryModel(historyModel);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
     return loaded;
@@ -467,6 +486,7 @@ void TextEditorPlugin::configurationHasBeenModified() {
 
 void TextEditorPlugin::fileNew() {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
+    editor->setHistoryModel(historyModel);
     mdiServer->addClient(editor);
     applySettings(editor);
 }

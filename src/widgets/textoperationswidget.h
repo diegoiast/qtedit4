@@ -9,6 +9,7 @@
 
 #include <QColor>
 #include <QObject>
+#include <QStackedWidget>
 #include <QString>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -23,17 +24,18 @@ class replaceForm;
 class gotoLineForm;
 } // namespace Ui
 
-class QsvTextEdit;
+class SharedHistoryModel;
 
-class TextOperationsWidget : public QObject {
+class TextOperationsWidget : public QStackedWidget {
     Q_OBJECT
     friend class QsvTextEdit;
 
   public:
-    TextOperationsWidget(QWidget *parent);
+    TextOperationsWidget(QWidget *parent, QWidget *editor);
     void initSearchWidget();
     void initReplaceWidget();
     void initGotoLineWidget();
+    void setSearchHistory(SharedHistoryModel *model);
 
     QFlags<QTextDocument::FindFlag> getSearchFlags();
     QFlags<QTextDocument::FindFlag> getReplaceFlags();
@@ -42,35 +44,37 @@ class TextOperationsWidget : public QObject {
     void setTextCursor(QTextCursor c);
     QTextDocument *getTextDocument();
 
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
   public slots:
     void showSearch();
     void showReplace();
     void showGotoLine();
-    void showBottomWidget(QWidget *w = nullptr);
+
     void searchText_modified(QString s);
     void replaceText_modified(QString s);
     void replaceOldText_returnPressed();
     void replaceAll_clicked();
     void searchNext();
     void searchPrevious();
-    void searchPrev() { searchPrevious(); }
-    void adjustBottomWidget();
 
     void updateSearchInput();
     void updateReplaceInput();
 
   protected:
     bool eventFilter(QObject *obj, QEvent *event);
-    bool issue_search(const QString &text, QTextCursor newCursor,
-                      QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *lineEdit,
-                      bool moveCursor);
+    bool issueSearch(const QString &text, QTextCursor newCursor,
+                     QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *lineEdit,
+                     bool moveCursor);
 
+    QWidget *editor;
     QTextCursor searchCursor;
-    QTextDocument *document;
     QTimer replaceTimer;
     QTimer searchTimer;
 
   public:
+    SharedHistoryModel *searchHistory;
     QWidget *searchWidget;
     QWidget *replaceWidget;
     QWidget *gotoLineWidget;

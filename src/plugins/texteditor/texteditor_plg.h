@@ -17,6 +17,7 @@ class Theme;
 #include "widgets/endlinestyle.h"
 
 class qmdiEditor;
+class SharedHistoryModel;
 
 class TextEditorPlugin : public IPlugin {
     struct Config {
@@ -35,6 +36,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(Font, QString)
         CONFIG_DEFINE(Theme, QString)
         CONFIG_DEFINE(AutoPreview, bool)
+        CONFIG_DEFINE(SeachHistory, QStringList)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -52,6 +54,7 @@ class TextEditorPlugin : public IPlugin {
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
+    virtual void saveConfig(QSettings &settings) override;
 
     QStringList myExtensions() override;
     int canOpenFile(const QString fileName) override;
@@ -65,6 +68,7 @@ class TextEditorPlugin : public IPlugin {
 
   private:
     QAction *chooseTheme;
+    SharedHistoryModel *historyModel;
 
     // TODO - this needs to be a local variable, or at lest the nested
     //        hack of functions needs to be removed , see chooseTheme, &QAction::triggered
