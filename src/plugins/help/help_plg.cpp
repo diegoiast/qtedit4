@@ -71,7 +71,7 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
     file << "[Desktop Entry]\n"
          << "Type=Application\n"
          << "Name=qtedit4\n"
-         << "Comment=qtedit4 Text Editor\n"
+         << QString("Comment=qtedit4 Text Editor version v%1\n").arg(qApp->applicationVersion()).toStdString()
          << "Exec=" << execPath << "\n"
          << "Icon=" << iconFile.string() << "\n"
          << "Categories=Utility;TextEditor;\n"
@@ -138,6 +138,7 @@ auto static refreshSystemMenus() -> void {
         std::system("xdotool key F5");
     } else if (desktopEnv.find("KDE") != std::string::npos) {
         std::system("kbuildsycoca5");
+        std::system("kbuildsycoca6");
     } else if (desktopEnv.find("XFCE") != std::string::npos) {
         std::system("xfce4-panel -r");
     } else {
