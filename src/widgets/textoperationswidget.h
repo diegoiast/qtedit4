@@ -43,7 +43,7 @@ class TextOperationsWidget : public QStackedWidget {
     QTextCursor getTextCursor();
     void setTextCursor(QTextCursor c);
     QTextDocument *getTextDocument();
-    
+
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 

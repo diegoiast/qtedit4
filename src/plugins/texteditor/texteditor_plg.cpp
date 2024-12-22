@@ -59,7 +59,7 @@ TextEditorPlugin::TextEditorPlugin() {
         auto installPrefix = QCoreApplication::applicationDirPath() + "/..";
     #endif
     */
-    
+
     historyModel = new SharedHistoryModel(this);
 
     config.pluginName = tr("Text editor");

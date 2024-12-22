@@ -67,7 +67,6 @@ class TextEditorPlugin : public IPlugin {
   private:
     QAction *chooseTheme;
     SharedHistoryModel *historyModel;
-    
 
     // TODO - this needs to be a local variable, or at lest the nested
     //        hack of functions needs to be removed , see chooseTheme, &QAction::triggered

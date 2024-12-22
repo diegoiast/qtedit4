@@ -68,7 +68,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setPreviewEnabled(bool enabled);
     void setPreview(bool enabled);
     bool isPreviewRequested();
-    
+
     void setHistoryModel(SharedHistoryModel *model);
 
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
