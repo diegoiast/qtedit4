@@ -541,6 +541,10 @@ bool qmdiEditor::isPreviewRequested() {
     return this->previewButton->isEnabled() && this->previewButton->isChecked();
 }
 
+void qmdiEditor::setHistoryModel(SharedHistoryModel *model) {
+    operationsWidget->setSearchHistory(model);
+}
+
 bool qmdiEditor::isMarkDownDocument() const {
     return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
 }

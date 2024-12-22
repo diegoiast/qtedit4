@@ -24,7 +24,7 @@ class replaceForm;
 class gotoLineForm;
 } // namespace Ui
 
-class QsvTextEdit;
+class SharedHistoryModel;
 
 class TextOperationsWidget : public QStackedWidget {
     Q_OBJECT
@@ -35,6 +35,7 @@ class TextOperationsWidget : public QStackedWidget {
     void initSearchWidget();
     void initReplaceWidget();
     void initGotoLineWidget();
+    void setSearchHistory(SharedHistoryModel *model);
 
     QFlags<QTextDocument::FindFlag> getSearchFlags();
     QFlags<QTextDocument::FindFlag> getReplaceFlags();
@@ -42,9 +43,8 @@ class TextOperationsWidget : public QStackedWidget {
     QTextCursor getTextCursor();
     void setTextCursor(QTextCursor c);
     QTextDocument *getTextDocument();
-
+    
     QSize sizeHint() const override;
-
     QSize minimumSizeHint() const override;
 
   public slots:
@@ -69,12 +69,12 @@ class TextOperationsWidget : public QStackedWidget {
                      bool moveCursor);
 
     QWidget *editor;
-
     QTextCursor searchCursor;
     QTimer replaceTimer;
     QTimer searchTimer;
 
   public:
+    SharedHistoryModel *searchHistory;
     QWidget *searchWidget;
     QWidget *replaceWidget;
     QWidget *gotoLineWidget;

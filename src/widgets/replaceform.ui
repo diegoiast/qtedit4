@@ -69,7 +69,7 @@
              <string>&amp;Find</string>
             </property>
             <property name="buddy">
-             <cstring>findText</cstring>
+             <cstring>searchText</cstring>
             </property>
            </widget>
           </item>
@@ -88,10 +88,10 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <widget class="QLineEdit" name="findText"/>
+           <widget class="HistoryLineEdit" name="searchText"/>
           </item>
           <item>
-           <widget class="QLineEdit" name="replaceText"/>
+           <widget class="HistoryLineEdit" name="replaceText"/>
           </item>
          </layout>
         </item>
@@ -218,8 +218,15 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HistoryLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>widgets/HistoryLineEdit.h </header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
-  <tabstop>findText</tabstop>
+  <tabstop>searchText</tabstop>
   <tabstop>replaceText</tabstop>
   <tabstop>replaceButton</tabstop>
   <tabstop>moreButton</tabstop>

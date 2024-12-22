@@ -21,12 +21,14 @@
 #define DEFAULT_EDITOR_FONT_SIZE 10
 #endif
 
-class TextOperationsWidget;
 class QFileSystemWatcher;
 class QPushButton;
-class TextPreview;
-
 class QComboBox;
+
+class TextPreview;
+class TextOperationsWidget;
+class SharedHistoryModel;
+
 namespace Ui {
 class BannerMessage;
 }
@@ -66,6 +68,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setPreviewEnabled(bool enabled);
     void setPreview(bool enabled);
     bool isPreviewRequested();
+    
+    void setHistoryModel(SharedHistoryModel *model);
 
     inline const QString &getSyntaxID() const { return this->syntaxLangID; }
     inline const QString &getIndentatorID() const { return this->indentationID; }

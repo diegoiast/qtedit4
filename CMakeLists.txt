@@ -59,14 +59,16 @@ set(qtedit4_sources
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
     ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
+    src/widgets/bannermessage.ui
+    src/widgets/HistoryLineEdit.cpp
+    src/widgets/HistoryLineEdit.h
+    src/widgets/gotolineform.ui
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
-    src/widgets/textoperationswidget.cpp  
-    src/widgets/textoperationswidget.h  
     src/widgets/replaceform.ui
     src/widgets/searchform.ui  
-    src/widgets/bannermessage.ui
-    src/widgets/gotolineform.ui
+    src/widgets/textoperationswidget.cpp  
+    src/widgets/textoperationswidget.h  
     src/widgets/textpreview.cpp
     src/widgets/textpreview.h
     src/widgets/xmltreemodel.cpp

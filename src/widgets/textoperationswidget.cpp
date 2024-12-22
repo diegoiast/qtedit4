@@ -43,6 +43,7 @@ TextOperationsWidget::TextOperationsWidget(QWidget *parent, QWidget *e) : QStack
 
     editor->installEventFilter(this);
     this->installEventFilter(this);
+    this->searchHistory = new SharedHistoryModel(this);
 
     initSearchWidget();
     initReplaceWidget();
@@ -58,6 +59,7 @@ void TextOperationsWidget::initSearchWidget() {
     searchWidget->setObjectName("searchWidget");
     searchFormUi = new Ui::searchForm();
     searchFormUi->setupUi(searchWidget);
+    searchFormUi->searchText->setHistoryModel(searchHistory);
 
     connect(searchFormUi->searchText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::searchText_modified);
@@ -77,8 +79,10 @@ void TextOperationsWidget::initReplaceWidget() {
     replaceFormUi = new Ui::replaceForm();
     replaceFormUi->setupUi(replaceWidget);
     replaceFormUi->optionsGroupBox->hide();
+    replaceFormUi->searchText->setHistoryModel(searchHistory);
+    replaceFormUi->replaceText->setHistoryModel(searchHistory);
 
-    connect(replaceFormUi->findText, &QLineEdit::textChanged, this,
+    connect(replaceFormUi->searchText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::replaceText_modified);
     connect(replaceFormUi->replaceButton, &QAbstractButton::clicked, this,
             &TextOperationsWidget ::replaceOldText_returnPressed);
@@ -86,11 +90,11 @@ void TextOperationsWidget::initReplaceWidget() {
             &TextOperationsWidget::showReplace);
     connect(replaceFormUi->replaceText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::replaceText_modified);
-    connect(replaceFormUi->findText, &QLineEdit::textChanged, this,
+    connect(replaceFormUi->searchText, &QLineEdit::textChanged, this,
             &TextOperationsWidget::replaceText_modified);
     connect(replaceFormUi->replaceText, &QLineEdit::returnPressed, this,
             &TextOperationsWidget::replaceOldText_returnPressed);
-    connect(replaceFormUi->findText, &QLineEdit::returnPressed, this,
+    connect(replaceFormUi->searchText, &QLineEdit::returnPressed, this,
             &TextOperationsWidget::replaceOldText_returnPressed);
 }
 
@@ -114,6 +118,13 @@ void TextOperationsWidget::initGotoLineWidget() {
             &TextOperationsWidget::showGotoLine);
 }
 
+void TextOperationsWidget::setSearchHistory(SharedHistoryModel *model) {
+    searchHistory = model;
+    searchFormUi->searchText->setHistoryModel(searchHistory);
+    replaceFormUi->searchText->setHistoryModel(searchHistory);
+    replaceFormUi->replaceText->setHistoryModel(searchHistory);
+}
+
 void TextOperationsWidget::searchNext() {
     issueSearch(searchFormUi->searchText->text(), getTextCursor(),
                 getSearchFlags() & ~QTextDocument::FindBackward, searchFormUi->searchText, true);
@@ -130,8 +141,8 @@ void TextOperationsWidget::updateSearchInput() {
 }
 
 void TextOperationsWidget::updateReplaceInput() {
-    issueSearch(replaceFormUi->findText->text(), searchCursor, getReplaceFlags(),
-                replaceFormUi->findText, true);
+    issueSearch(replaceFormUi->searchText->text(), searchCursor, getReplaceFlags(),
+                replaceFormUi->searchText, true);
 }
 
 bool TextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
@@ -191,8 +202,8 @@ bool TextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
             */
             // Instead - cycle between those two input lines. IMHO good enough
             if (replaceFormUi->replaceText->hasFocus()) {
-                replaceFormUi->findText->setFocus();
-                replaceFormUi->findText->selectAll();
+                replaceFormUi->searchText->setFocus();
+                replaceFormUi->searchText->selectAll();
             } else {
                 replaceFormUi->replaceText->setFocus();
                 replaceFormUi->replaceText->selectAll();
@@ -321,7 +332,7 @@ void TextOperationsWidget::replaceOldText_returnPressed() {
         qDebug("%s:%d - no document found, using a wrong class? wrong parent?", __FILE__, __LINE__);
         return;
     }
-    cursor = doc->find(replaceFormUi->findText->text(), cursor, getReplaceFlags());
+    cursor = doc->find(replaceFormUi->searchText->text(), cursor, getReplaceFlags());
     if (cursor.isNull()) {
         return;
     }
@@ -344,7 +355,7 @@ void TextOperationsWidget::replaceOldText_returnPressed() {
 void TextOperationsWidget::replaceAll_clicked() {
     auto replaceCount = 0;
     auto cursor = getTextCursor();
-    auto text = replaceFormUi->findText->text();
+    auto text = replaceFormUi->searchText->text();
     cursor = getTextDocument()->find(text, cursor, getReplaceFlags());
 
     while (!cursor.isNull()) {
@@ -385,10 +396,10 @@ void TextOperationsWidget::showReplace() {
     searchCursor = getTextCursor();
     auto s = searchCursor.selectedText();
     if (!s.isEmpty()) {
-        replaceFormUi->findText->setText(s);
+        replaceFormUi->searchText->setText(s);
     }
-    replaceFormUi->findText->setFocus();
-    replaceFormUi->findText->selectAll();
+    replaceFormUi->searchText->setFocus();
+    replaceFormUi->searchText->selectAll();
 }
 
 void TextOperationsWidget::showGotoLine() {
