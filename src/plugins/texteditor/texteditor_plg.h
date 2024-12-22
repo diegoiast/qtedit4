@@ -36,6 +36,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(Font, QString)
         CONFIG_DEFINE(Theme, QString)
         CONFIG_DEFINE(AutoPreview, bool)
+        CONFIG_DEFINE(SeachHistory, QStringList)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -53,6 +54,7 @@ class TextEditorPlugin : public IPlugin {
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
+    virtual void saveConfig(QSettings &settings) override;
 
     QStringList myExtensions() override;
     int canOpenFile(const QString fileName) override;

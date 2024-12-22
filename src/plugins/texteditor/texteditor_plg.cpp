@@ -181,6 +181,12 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue("")
                                      .setUserEditable(false)
                                      .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SeachHistoryKey)
+                                     .setType(qmdiConfigItem::StringList)
+                                     .setDefaultValue(QStringList())
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 TextEditorPlugin::~TextEditorPlugin() {}
@@ -282,6 +288,15 @@ void TextEditorPlugin::loadConfig(QSettings &settings) {
         delete this->theme;
         this->theme = nullptr;
     }
+
+    auto history = getConfig().getSeachHistory();
+    historyModel->setHistory(history);
+}
+
+void TextEditorPlugin::saveConfig(QSettings &settings) {
+    auto history = historyModel->getHistory();
+    getConfig().setSeachHistory(history);
+    IPlugin::saveConfig(settings);
 }
 
 QStringList TextEditorPlugin::myExtensions() {
