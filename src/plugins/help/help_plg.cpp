@@ -71,7 +71,9 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
     file << "[Desktop Entry]\n"
          << "Type=Application\n"
          << "Name=qtedit4\n"
-         << QString("Comment=qtedit4 Text Editor version v%1\n").arg(qApp->applicationVersion()).toStdString()
+         << QString("Comment=qtedit4 Text Editor version v%1\n")
+                .arg(qApp->applicationVersion())
+                .toStdString()
          << "Exec=" << execPath << "\n"
          << "Icon=" << iconFile.string() << "\n"
          << "Categories=Utility;TextEditor;\n"

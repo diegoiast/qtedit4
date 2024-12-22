@@ -2,8 +2,8 @@
 #include <QHeaderView>
 #include <QStyledItemDelegate>
 
-#include "pluginmanager.h"
 #include "ProjectIssuesWidget.h"
+#include "pluginmanager.h"
 #include "ui_ProjectIssuesWidget.h"
 
 class CenteredIconDelegate : public QStyledItemDelegate {

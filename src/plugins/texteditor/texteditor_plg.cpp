@@ -52,7 +52,7 @@ TextEditorPlugin::TextEditorPlugin() {
     alwaysEnabled = false;
     themeManager = new Qutepart::ThemeManager();
     historyModel = new SharedHistoryModel(this);
-    
+
     /*
     #if defined(WIN32)
         auto installPrefix = QCoreApplication::applicationDirPath();
@@ -60,7 +60,7 @@ TextEditorPlugin::TextEditorPlugin() {
         auto installPrefix = QCoreApplication::applicationDirPath() + "/..";
     #endif
     */
-    
+
     config.pluginName = tr("Text editor");
     config.description = tr("Default text editor, based on QutePart");
     config.configItems.push_back(qmdiConfigItem::Builder()
