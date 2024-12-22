@@ -1,11 +1,13 @@
+#define VersionString "0.0.4-beta2"
+
 [Setup]
 AppName=qtedit4
-AppVersion=0.0.4-beta2
+AppVersion={#VersionString}
 DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
 UninstallDisplayIcon={app}\qtedit4.ico
 OutputDir=dist
-OutputBaseFilename=qtedit4-win64
+OutputBaseFilename=qtedit4-qt6.8.0-v{#VersionString}-x86_64
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
@@ -54,8 +56,7 @@ Root: HKCR; Subkey: "qtedit4.File\shell\open\command"; ValueType: string; ValueN
 Type: filesandordirs; Name: "{app}\*";
 
 [Icons]
-Name: "{group}\qtedit4"; Filename: "{app}\qtedit4.exe"
-Name: "{userdesktop}\qtedit4"; Filename: "{app}\qtedit4.exe"; IconFilename: "{app}\qtedit4.ico"
+Name: "{group}\qtedit4 v{#VersionString}"; Filename: "{app}\qtedit4.exe"
 
 ;[Tasks]
 ;Name: desktopicon; Description: "Create a desktop icon"; GroupDescription: "Additional icons:"
