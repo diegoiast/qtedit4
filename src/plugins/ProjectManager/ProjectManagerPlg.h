@@ -6,6 +6,7 @@
 #include <QProcess>
 
 class ProjectBuildModel;
+class ProjectIssuesWidget;
 class FoldersModel;
 class DirectoryModel;
 class FilterOutProxyModel;
@@ -51,7 +52,7 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void saveConfig(QSettings &settings) override;
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
-    const QHash<QString, QString> getConfigHash() const;
+    const QHash<QString, QString> getConfigDictionary() const;
     const KitDefinition *getCurrentKit() const;
 
   public slots:
@@ -74,6 +75,7 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
+    ProjectIssuesWidget *projectIssues = nullptr;
 
     QFileSystemWatcher configWatcher;
     ExecutableInfo *selectedTarget = nullptr;
