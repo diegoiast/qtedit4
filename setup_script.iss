@@ -1,4 +1,4 @@
-#define VersionString "0.0.4-beta2"
+#define VersionString "0.0.4-rc1"
 
 [Setup]
 AppName=qtedit4
@@ -7,7 +7,7 @@ DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
 UninstallDisplayIcon={app}\qtedit4.ico
 OutputDir=dist
-;OutputBaseFilename=qtedit4-qt6.8.0-v{#VersionString}-x86_64
+;OutputBaseFilename=qtedit4-qt6.8.1-v{#VersionString}-x86_64
 OutputBaseFilename=qtedit4-win64
 Compression=lzma
 SolidCompression=yes
