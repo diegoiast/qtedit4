@@ -6,7 +6,7 @@ project:
 
 
 1. C++ is a bad language. 
-   1. Initializing variables in a pain http://mikelui.io/2019/01/03/seriously-bonkers.htm
+   1. Initializing variables in a pain, see http://mikelui.io/2019/01/03/seriously-bonkers.html
    1. No package manager. We use CPM, which has no transient dependencies: https://github.com/cpm-cmake/CPM.cmake
    1. The ABI issue is a huge pain, which currently we avoid by not having
       external plugins. Yet.
@@ -17,7 +17,7 @@ project:
       and enforcing this at the merge level.
    1. There is no proper way to distribute applications in Linux.
       While flatpack exists - it is not ideal. Instead, this project
-      uses AppImage, which is a complete mess and contains no good
+      uses [AppImage](https://appimage.org/), which is a complete mess and contains no good
       documentation.
 1. We are using Qt6 for the UI. Which is not ideal
    1. Lots of work is done in the main thread. You want to 
@@ -44,6 +44,7 @@ project:
     1. There is no native editor control. So once needs to be created. This project
          uses [QutePart](https://github.com/diegoiast/qutepart-cpp) which is 
          slow and lacks features.
+3. Building an IDE is one of the most challenging projects 
 
 Not to mention that writing good text editor, or an IDE is extreamly
 hard. This is a fight we are doing up-hill. 
@@ -52,13 +53,52 @@ But you already know this, this is the reason you are here.
 
 ## Building on Windows
 
-You need to download the Qt installer. You can use the community version.
-You can event use mingw bundeled inside Qt to build. So theoritically - you 
-should be done when you finish with QtCreator. 
+To build on Windows, you will need to install:
 
-The CICD uses MSVC to build. I Also build using MSVC 2022 by default on Windows.
-You can also use LLVM's clang-cl.exe to build. This is also tested on the CICD,
-and will compile the IDE using clang (with VisualStudio ABI). 
+1. [Qt 6.8.1](https://www.qt.io/download-open-source). You can use the Open Source
+   edition.
+2. [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/). 
+   You can use the Community edition. *Optional step*.
+3. [CMake](https://cmake.org/download/). Any version above 3.24 is good for us.
+   *Optional step*.
+4. [GitHubDesktop](https://desktop.github.com/download/). I find Github desktop 
+   the best/simplest git experience on Windows. You can use also 
+   [Git for window](https://git-scm.com/downloads/win) but it 
+   requires more manual handling.
+5. [InnoSetup](https://jrsoftware.org/isinfo.php). Required only if you want
+   to create installers.
+
+**NOTE**
+> The Qt installation comes with a CMake build, and a MinwGW compiler. Thoses
+> components can used for building.
+>
+> You can optionally use the standalone/original CMake setup, or use MSVC 
+> to build. That is what the CD/CI does.
+>
+> The command line git utilites also work perfectly.
+
+Steps:
+
+1. Using Github desktop - clone the repo.
+1. Open QtCreator, and choose the `CMakeLists.txt` of this project.
+    1. Press `Control+R`, and wait 5-10 minutes (initial configuration will download lots
+   of source, and it will build it locally).
+    1. If things do not compile, it generally means Kits problem. See https://doc.qt.io/qtcreator/creator-preferences-kits.html
+1. If you use Visual Studio, choose from the main window "Open a local folder".
+    1. Visual studio should detect that this is a CMake folder, and start configuring.
+    1. Build as usual (press F5).
+
+### Creating/debugging the installer
+If you want to debug the installer:
+1. Execute once, the `build.bat` once. 
+    1. If it fails to run:
+    1. From Windows terminal, `cd c:\user\epiccoder\Documents\QtEdit4`
+    1. Run nanually `call build.bat` . Try to understand what went wrong,
+       usually, this means some path inside the batch file is wrong. 
+2. From the start menu find *Inno Setup Compiler*. When it starts, 
+   point it to `setup_script.iss` inside the qtedit4 clone.
+3. Press F9, to compile the installer and execute it.
+
 
 ## Building on GNU/Linux
 

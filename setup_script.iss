@@ -1,8 +1,10 @@
-#define VersionString "0.0.4-rc1"
+#define VersionString "0.0.4-rc2"
+#define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
 
 [Setup]
 AppName=qtedit4
 AppVersion={#VersionString}
+AppId={#AppId}
 DefaultDirName={pf}\qtedit4
 DefaultGroupName=qtedit4
 UninstallDisplayIcon={app}\qtedit4.ico
@@ -57,7 +59,41 @@ Root: HKCR; Subkey: "qtedit4.File\shell\open\command"; ValueType: string; ValueN
 Type: filesandordirs; Name: "{app}\*";
 
 [Icons]
-Name: "{group}\qtedit4 v{#VersionString}"; Filename: "{app}\qtedit4.exe"
+Name: "{group}\qtedit4 v{#VersionString}"; Filename: "{app}\qtedit4.exe"; Comment: "qtedit4 editor - version {#VersionString}"; Flags: uninsneveruninstall
 
-;[Tasks]
-;Name: desktopicon; Description: "Create a desktop icon"; GroupDescription: "Additional icons:"
+
+[Code]
+procedure RemoveOldShortcuts;
+var
+  OldShortcutPath: string;
+  FindRec: TFindRec;
+  CurrentShortcutName: string;
+begin
+  OldShortcutPath := ExpandConstant('{group}\*');
+  CurrentShortcutName := 'qtedit4 ' + '{#VersionString}' + '.lnk';
+  if FindFirst(OldShortcutPath, FindRec) then
+  begin
+    try
+      repeat
+        if (FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0) and 
+           (ExtractFileExt(FindRec.Name) = '.lnk') and
+           (CompareText(FindRec.Name, CurrentShortcutName) <> 0) then
+        begin
+          DeleteFile(ExpandConstant('{group}\' + FindRec.Name));
+          Log('Deleted old shortcut: ' + FindRec.Name);
+        end;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
+    end;
+  end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    RemoveOldShortcuts;
+  end;
+end;
+
