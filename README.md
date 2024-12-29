@@ -24,6 +24,9 @@ started a new project, called qtedit4.
 This means that some of the code originated in Qt3, and got migrated to Qt6 over the last
 (too much) years.
 
+Want to contribue? Look at [hack.md](hack.md) for guideance (TLDR: 
+clone this repo, and `cmake -S build -B build; cmake --build build`).
+
 ## License
 Code is GPLv2 or higher. 
 

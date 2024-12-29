@@ -11,7 +11,7 @@
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-rc1",
          "latest-version":"0.0.4-rc1",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-rc1/qtedit4-qt6.8.0-v0.0.v0.0.4-rc1-x86_64.exe",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component.<br />Added a minimap to the editors<br />Baby steps for a building projects",
+         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
       },
       "linux":{
@@ -26,7 +26,7 @@
          "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-rc1",
          "latest-version":"0.0.4-rc1",
          "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-rc1/qtedit4-qt6.8.0-v0.0.4-rc1-x86_64.AppImage",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component.<br />Added a minimap to the editors<br />Baby steps for a building projects",
+         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
       }
    }
