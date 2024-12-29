@@ -16,6 +16,7 @@ TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     markdownPreview = new QTextBrowser(this);
     imagePreview = new pal::ImageViewer(this);
     treeView = new QTreeView(this);
+    markdownPreview->setOpenExternalLinks(true);
     imagePreview->zoomOriginal();
 
     addWidget(markdownPreview);
