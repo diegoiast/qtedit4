@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_theme_data);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName("qtedit4");
+    QCoreApplication::setApplicationName(QTEDIT4_APP_NAME);
     QCoreApplication::setApplicationVersion("0.0.16");
 
 #if defined(WIN32)
@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
     auto textEditorPlugin = new TextEditorPlugin;
-    auto windowIcon = QIcon(":qtedit4.ico");
+    auto windowIcon = QIcon(QTEDIT4_ICON);
 
     pluginManager.setWindowTitle(QCoreApplication::applicationName());
     pluginManager.setWindowIcon(windowIcon);

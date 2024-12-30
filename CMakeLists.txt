@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
+set(QTEDIT4_APP_NAME "qtedit4" CACHE STRING "Application name")
+set(QTEDIT4_BINARY "qtedit4" CACHE STRING "Executable name")
+set(QTEDIT4_ICON "qtedit4" CACHE STRING "Icon name")
+
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
@@ -65,6 +69,9 @@ set(qtedit4_sources
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
     ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
+    src/widgets/bannermessage.ui
+    src/widgets/bannerwidget.cpp
+    src/widgets/bannerwidget.h
     src/widgets/HistoryLineEdit.cpp
     src/widgets/HistoryLineEdit.h
     src/widgets/gotolineform.ui
@@ -139,8 +146,11 @@ else()
 endif()
 
 if (!MINGW)
-    set_property(TARGET qtedit4 PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    set_property(TARGET qtedit4PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
+
+target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_APP_NAME="${QTEDIT4_APP_NAME}")
+target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_ICON=":${QTEDIT4_ICON}.ico")
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
@@ -156,6 +166,7 @@ target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6:
     QSimpleUpdater
     QJsonModelStatic
 )
+set_target_properties(qtedit4 PROPERTIES OUTPUT_NAME ${QTEDIT4_BINARY})
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
@@ -178,16 +189,16 @@ install(DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/
     PATTERN "*")
 
 if (WIN32)
-    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
+    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION /)
-    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.ico
+    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.ico
             DESTINATION /)
 else()
-    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.svg
+    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
     install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.desktop
             DESTINATION share/applications
-            RENAME qtedit4.desktop)
+            RENAME ${QTEDIT4_APP_NAME}.desktop)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
             DESTINATION share/
             DIRECTORY_PERMISSIONS
