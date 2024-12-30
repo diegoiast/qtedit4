@@ -13,9 +13,9 @@ class SharedHistoryModel : public QObject {
 
     void addToHistory(const QString &entry);
     void setHistory(QStringList &strings);
-    const inline QStringList &getHistory() const { return history; }
+    inline const QStringList &getHistory() const { return history; }
 
-    const inline int getMaxHistorySize() const { return maxHistorySize; }
+    inline int getMaxHistorySize() const { return maxHistorySize; }
     void setMaxHistorySize(int newSize);
 
   signals:

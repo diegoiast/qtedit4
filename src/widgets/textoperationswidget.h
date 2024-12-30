@@ -63,7 +63,7 @@ class TextOperationsWidget : public QStackedWidget {
     void updateReplaceInput();
 
   protected:
-    bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool eventFilter(QObject *obj, QEvent *event) override;
     bool issueSearch(const QString &text, QTextCursor newCursor,
                      QFlags<QTextDocument::FindFlag> findOptions, QLineEdit *lineEdit,
                      bool moveCursor);
