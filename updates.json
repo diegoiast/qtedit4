@@ -1,31 +1,30 @@
 {
    "updates":{
       "windows":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3",
-         "latest-version":"0.0.3",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3/qtedit4-qt6.8.0-v0.0.3-x86_64.exe",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes\nGoto matching bracket",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
+         "latest-version":"0.0.4",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.exe",
+         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-rc2",
-         "latest-version":"0.0.4-rc2",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-rc2/qtedit4-qt6.8.0-v0.0.v0.0.4-rc2-x86_64.exe",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
+         "latest-version":"0.0.4",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.exe",
          "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
       },
       "linux":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.3",
-         "latest-version":"0.0.3",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.3/qtedit4-qt6.8.0-v0.0.3-x86_64.AppImage",
-         "changelog":"Keep original endlines\nText preview\nMark current word in document\nAutomatic updates, update channels, faster start, margin position fixes\nGoto matching bracket",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
+         "latest-version":"0.0.4",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.AppImage",
+         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
-
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4-rc2",
-         "latest-version":"0.0.4-rc2",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4-rc2/qtedit4-qt6.8.0-v0.0.4-rc2-x86_64.AppImage",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
+         "latest-version":"0.0.4",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.AppImage",
          "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
          "mandatory":true
       }
