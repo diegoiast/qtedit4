@@ -63,6 +63,9 @@ set(qtedit4_sources
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
     ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
+    src/widgets/bannermessage.ui
+    src/widgets/bannerwidget.cpp
+    src/widgets/bannerwidget.h
     src/widgets/HistoryLineEdit.cpp
     src/widgets/HistoryLineEdit.h
     src/widgets/gotolineform.ui
