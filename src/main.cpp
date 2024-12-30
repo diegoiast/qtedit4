@@ -95,7 +95,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addBuiltinActions();
     pluginManager.updateGUI();
 #endif
-    pluginManager.setWindowTitle("qtedit4");
+    pluginManager.setWindowTitle(QCoreApplication::applicationName());
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
     pluginManager.addPlugin(textEditorPlugin);
