@@ -76,7 +76,8 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
     pluginManager.updateGUI();
-    pluginManager.hideUnusedPanels();
+    pluginManager.hidePanels(Qt::BottomDockWidgetArea);
+    
     pluginManager.restoreSettings();
     pluginManager.show();
 

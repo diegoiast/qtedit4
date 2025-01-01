@@ -253,15 +253,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
             &ProjectManagerPlugin::newProjectSelected);
-    manager->createNewPanel(Panels::West, tr("Project"), w);
+    manager->createNewPanel(Panels::West, "projectmamager", tr("Project"), w);
 
     projectIssues = new ProjectIssuesWidget(manager);
-    manager->createNewPanel(Panels::South, tr("Issues"), projectIssues);
+    issuesDock = manager->createNewPanel(Panels::South, "projectissues", tr("Issues"), projectIssues);
 
     auto *w2 = new QWidget;
     outputPanel = new Ui::BuildRunOutput;
     outputPanel->setupUi(w2);
-    manager->createNewPanel(Panels::South, tr("Output"), w2);
+    outputDock = manager->createNewPanel(Panels::South, "buildoutput", tr("Output"), w2);
 
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
@@ -299,7 +299,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
                 this->outputPanel->commandOuput->appendPlainText(output);
-                getManager()->showPanel(Panels::South, 0);
+                getManager()->showPanels(Qt::BottomDockWidgetArea);
+                outputDock->raise();
+                outputDock->show();
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
@@ -389,11 +391,13 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
 
     searchPanelUI = new ProjectSearch(manager, directoryModel);
-    auto seachID = manager->createNewPanel(Panels::West, tr("Search"), searchPanelUI);
+    auto searchPanel = manager->createNewPanel(Panels::West, "search", tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
-    connect(projectSearch, &QAction::triggered, this, [seachID, manager, this]() {
-        manager->showPanel(Panels::West, seachID);
+    connect(projectSearch, &QAction::triggered, this, [searchPanel, this]() {
+        searchPanel->raise();
+        searchPanel->show();
+        searchPanel->setFocus();
         searchPanelUI->setFocusOnSearch();
     });
     manager->addAction(projectSearch);
@@ -613,10 +617,11 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         workingDirectory = project->buildDir;
     }
     workingDirectory = expand(workingDirectory, hash);
-    getManager()->showPanel(Panels::South, 0);
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
     outputPanel->commandOuput->appendPlainText(currentTask + "\n");
+    outputDock->raise();
+    outputDock->show();
 
     auto command = QStringList();
     auto interpreter = QString();
@@ -649,7 +654,8 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
 
-    getManager()->showPanel(Panels::South, 1);
+    outputDock->raise();
+    outputDock->show();    
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
