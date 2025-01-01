@@ -388,21 +388,25 @@ void qmdiEditor::setupActions() {
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
     actionChangeCase = new QAction(tr("Change ca&se"), this);
     actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
-
+    
     actionSave->setShortcut(QKeySequence::Save);
+    actionSaveAs->setShortcut(QKeySequence::SaveAs);
+    actionUndo->setShortcut(QKeySequence::Undo);
+    actionRedo->setShortcut(QKeySequence::Redo);
+    actionCopy->setShortcut(QKeySequence::Copy);
+    actionCut->setShortcut(QKeySequence::Cut);
+    actionPaste->setShortcut(QKeySequence::Paste);
     actionFind->setShortcut(QKeySequence::Find);
     actionFindNext->setShortcut(QKeySequence::FindNext);
     actionFindPrev->setShortcut(QKeySequence::FindPrevious);
     // this is usually "control+r, which we use for running a target
     // actionReplace->setShortcut(QKeySequence::Replace);
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-
     if (!is_running_under_gnome()) {
         actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
     } else {
         actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
     }
-
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionToggleHeader->setShortcut(Qt::Key_F4);
