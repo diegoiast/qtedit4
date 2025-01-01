@@ -370,7 +370,7 @@ void qmdiEditor::setupActions() {
     connect(textEditor, SIGNAL(textChanged()), this, SLOT(updatePreview()));
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
-    actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("&Save as..."), this);
+    actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("Save &as..."), this);
     actionUndo = new QAction(QIcon::fromTheme("edit-undo"), tr("&Undo"), this);
     actionRedo = new QAction(QIcon::fromTheme("edit-redo"), tr("&Redo"), this);
     actionCopy = new QAction(QIcon::fromTheme("edit-copy"), tr("&Copy"), this);
@@ -856,6 +856,7 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
  * Called on save and load.
  */
 void qmdiEditor::updateFileDetails() {
+    actionSave->setText(tr("&Save (%1)").arg(getShortFileName()));
     auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), fileName);
 
     if (langInfo.isValid()) {
