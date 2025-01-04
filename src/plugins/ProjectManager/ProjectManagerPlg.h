@@ -74,8 +74,8 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
-    QDockWidget* outputDock;
-    QDockWidget* issuesDock;
+    QDockWidget *outputDock;
+    QDockWidget *issuesDock;
     ProjectIssuesWidget *projectIssues = nullptr;
 
     QFileSystemWatcher configWatcher;

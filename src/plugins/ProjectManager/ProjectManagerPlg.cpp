@@ -257,7 +257,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     manager->createNewPanel(Panels::West, "projectmamager", tr("Project"), w);
 
     projectIssues = new ProjectIssuesWidget(manager);
-    issuesDock = manager->createNewPanel(Panels::South, "projectissues", tr("Issues"), projectIssues);
+    issuesDock =
+        manager->createNewPanel(Panels::South, "projectissues", tr("Issues"), projectIssues);
 
     auto *w2 = new QWidget;
     outputPanel = new Ui::BuildRunOutput;
@@ -654,7 +655,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto workingDirectory = expand(task->runDirectory, hash);
 
     outputDock->raise();
-    outputDock->show();    
+    outputDock->show();
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }

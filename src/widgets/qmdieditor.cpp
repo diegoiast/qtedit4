@@ -389,7 +389,7 @@ void qmdiEditor::setupActions() {
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
     actionChangeCase = new QAction(tr("Change ca&se"), this);
     actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
-    
+
     actionSave->setShortcut(QKeySequence::Save);
     actionSaveAs->setShortcut(QKeySequence::SaveAs);
     actionUndo->setShortcut(QKeySequence::Undo);
