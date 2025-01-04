@@ -13,14 +13,6 @@
 #include <qtoolbutton.h>
 #include <qutepart/qutepart.h>
 
-#if defined(WIN32)
-#define DEFAULT_EDITOR_FONT "Courier new"
-#define DEFAULT_EDITOR_FONT_SIZE 10
-#else
-#define DEFAULT_EDITOR_FONT "Monospace"
-#define DEFAULT_EDITOR_FONT_SIZE 10
-#endif
-
 class QFileSystemWatcher;
 class QPushButton;
 class QComboBox;

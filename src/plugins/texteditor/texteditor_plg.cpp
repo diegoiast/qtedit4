@@ -163,9 +163,9 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setDefaultValue(80)
                                      .build());
 
-    QFont monospacedFont = qApp->font();
-    monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
-    monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
+    auto monospacedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    monospacedFont.setFixedPitch(true);
+
 
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Display font"))

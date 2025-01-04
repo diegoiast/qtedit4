@@ -194,11 +194,12 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     connect(fileSystemWatcher, &QFileSystemWatcher::fileChanged, this, &qmdiEditor::on_fileChanged);
     fileModifications = true;
+    
+    auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+    fnt.setFixedPitch(true);
+    fnt.setPointSize(18);
+    setEditorFont(fnt);
 
-    QFont monospacedFont = this->font();
-    monospacedFont.setPointSize(DEFAULT_EDITOR_FONT_SIZE);
-    monospacedFont.setFamily(DEFAULT_EDITOR_FONT);
-    setEditorFont(monospacedFont);
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
 
     banner = new QWidget(this);
