@@ -156,22 +156,27 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     operationsWidget = new TextOperationsWidget(this, textEditor);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
-    QToolBar *toolbar = new QToolBar(this);
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    auto toolbar = new QWidget(this);
+    auto layout2 = new QHBoxLayout(toolbar);
+    auto layout = new QVBoxLayout(this);
 
     operationsWidget->hide();
     setupActions();
-    toolbar->addWidget(comboChangeHighlighter);
-    toolbar->addWidget(buttonChangeIndenter);
+    layout2->setSpacing(0);
+    layout2->setContentsMargins(0,2,0,2);
+    toolbar->setLayout(layout2);
+    toolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);    
+    toolbar->layout()->addWidget(comboChangeHighlighter);
+    toolbar->layout()->addWidget(buttonChangeIndenter);
 
     QSplitter *splitter = new QSplitter(Qt::Horizontal, this);
     QWidget *spacer = new QWidget(this);
-    QLabel *staticLabel = new QLabel("", toolbar);
+    QLabel *staticLabel = new QLabel("", this);
 
     spacer->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    toolbar->addWidget(spacer);
-    toolbar->addWidget(staticLabel);
-    toolbar->addWidget(previewButton);
+    toolbar->layout()->addWidget(spacer);
+    toolbar->layout()->addWidget(staticLabel);
+    toolbar->layout()->addWidget(previewButton);
 
     textPreview = new TextPreview(this);
     textPreview->setVisible(false);
@@ -205,9 +210,9 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
+    layout->addWidget(toolbar);
     layout->addWidget(banner);
     layout->addWidget(splitter);
-    layout->addWidget(toolbar);
     layout->addWidget(operationsWidget);
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
