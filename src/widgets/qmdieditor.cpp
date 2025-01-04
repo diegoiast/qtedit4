@@ -163,9 +163,9 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     operationsWidget->hide();
     setupActions();
     layout2->setSpacing(0);
-    layout2->setContentsMargins(0,2,0,2);
+    layout2->setContentsMargins(0, 2, 0, 2);
     toolbar->setLayout(layout2);
-    toolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);    
+    toolbar->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
     toolbar->layout()->addWidget(comboChangeHighlighter);
     toolbar->layout()->addWidget(buttonChangeIndenter);
 
