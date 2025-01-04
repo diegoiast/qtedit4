@@ -261,8 +261,6 @@ HelpPlugin::HelpPlugin() {
 
 HelpPlugin::~HelpPlugin() {}
 
-void HelpPlugin::on_client_merged(qmdiHost *) {}
-
 void HelpPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
                              "A file system browser plugin");

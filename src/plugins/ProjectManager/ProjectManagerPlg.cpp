@@ -226,6 +226,7 @@ void ProjectManagerPlugin::showAbout() {
 }
 
 void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
+    IPlugin::on_client_merged(host);
     auto manager = dynamic_cast<PluginManager *>(host);
     auto *w = new QWidget;
 
@@ -467,8 +468,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 this->getManager()->openFile(fname);
             });
 }
-
-void ProjectManagerPlugin::on_client_unmerged(qmdiHost *host) { Q_UNUSED(host); }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
