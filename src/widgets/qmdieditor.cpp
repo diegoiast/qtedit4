@@ -176,6 +176,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     textPreview = new TextPreview(this);
     textPreview->setVisible(false);
 
+    textEditor->setFrameStyle(QFrame::NoFrame);
     splitter->addWidget(textEditor);
     splitter->addWidget(textPreview);
 
