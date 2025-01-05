@@ -569,11 +569,12 @@ bool qmdiEditor::isSVGDocument() const {
 }
 
 bool qmdiEditor::isXMLDocument() const {
-    return comboChangeHighlighter->currentText().contains("XML", Qt::CaseInsensitive);
+    QRegularExpression regex(R"(.*xml.*\.xml$)", QRegularExpression::CaseInsensitiveOption);
+    return regex.match(syntaxLangID).hasMatch();
 }
 
 bool qmdiEditor::isJSONDocument() const {
-    return comboChangeHighlighter->currentText().contains("JSON", Qt::CaseInsensitive);
+    return syntaxLangID.contains("json", Qt::CaseInsensitive);
 }
 
 void qmdiEditor::on_fileChanged(const QString &filename) {
