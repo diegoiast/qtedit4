@@ -116,7 +116,10 @@ class qmdiEditor : public QWidget, public qmdiClient {
         textEditor->setLineWrapMode(mode);
     }
     inline void setDrawAnyWhitespace(bool b) { textEditor->setDrawAnyWhitespace(b); }
-    inline void setDrawIndentations(bool b) { textEditor->setDrawIndentations(b); }
+    inline void setDrawIndentations(bool b) {
+        textEditor->setDrawIndentations(b);
+        textEditor->setDrawIncorrectIndentation(b);
+    }
     inline void setBracketHighlightingEnabled(bool b) {
         textEditor->setBracketHighlightingEnabled(b);
     }

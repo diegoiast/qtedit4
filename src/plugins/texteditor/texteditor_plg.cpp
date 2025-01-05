@@ -166,7 +166,6 @@ TextEditorPlugin::TextEditorPlugin() {
     auto monospacedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospacedFont.setFixedPitch(true);
 
-
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Display font"))
                                      .setKey(Config::FontKey)
