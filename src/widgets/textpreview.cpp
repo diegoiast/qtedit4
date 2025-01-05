@@ -18,6 +18,7 @@ TextPreview::TextPreview(QWidget *p) : QStackedWidget(p) {
     treeView = new QTreeView(this);
     markdownPreview->setOpenExternalLinks(true);
     imagePreview->zoomOriginal();
+    treeView->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 
     addWidget(markdownPreview);
     addWidget(imagePreview);
