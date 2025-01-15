@@ -48,7 +48,6 @@ class qmdiEditor : public QWidget, public qmdiClient {
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
 
     void setupActions();
-    inline const QString &getFileName() const { return fileName; }
     inline bool getModificationsLookupEnabled() const { return fileModifications; }
     void setModificationsLookupEnabled(bool);
     inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
@@ -127,6 +126,28 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setSmartHomeEnd(bool b) { textEditor->setSmartHomeEnd(b); }
     inline void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }
     inline void setLineLengthEdge(int l) { textEditor->setLineLengthEdge(l); }
+    inline void removeMetaData() { textEditor->removeMetaData(); }
+    inline void setMetaDataMessage(int lineNumber, const QString &message) {
+        textEditor->setLineMessage(lineNumber, message);
+    }
+    inline void setLineBookmark(int lineNumber, bool value) {
+        textEditor->setLineBookmark(lineNumber, value);
+    }
+    inline void setLineWarning(int lineNumber, bool value) {
+        textEditor->setLineWarning(lineNumber, value);
+    }
+    inline void setLineError(int lineNumber, bool value) {
+        textEditor->setLineError(lineNumber, value);
+    }
+    inline void setLineInfo(int lineNumber, bool value) {
+        textEditor->setLineInfo(lineNumber, value);
+    }
+    inline void setLineBreakpoint(int lineNumber, bool value) {
+        textEditor->setLineBreakpoint(lineNumber, value);
+    }
+    inline void setLineExecuting(int lineNumber, bool value) {
+        textEditor->setLineExecuting(lineNumber, value);
+    }
 
   protected:
     void focusInEvent(QFocusEvent *event) override;

@@ -1,10 +1,24 @@
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QStyledItemDelegate>
+#include <qutepart/qutepart.h>
+#include <qutepart/theme.h>
 
 #include "ProjectIssuesWidget.h"
 #include "pluginmanager.h"
 #include "ui_ProjectIssuesWidget.h"
+#include "widgets/qmdieditor.h"
+
+auto typeToStatus(const QString &name) {
+    if (name.contains("error", Qt::CaseInsensitive)) {
+        return Qutepart::ERROR_BIT;
+    } else if (name.compare("warning", Qt::CaseInsensitive) == 0) {
+        return Qutepart::WARNING_BIT;
+    } else if (name.contains("info", Qt::CaseInsensitive) == 0) {
+        return Qutepart::INFO_BIT;
+    }
+    return 0;
+}
 
 class CenteredIconDelegate : public QStyledItemDelegate {
   public:
@@ -13,20 +27,16 @@ class CenteredIconDelegate : public QStyledItemDelegate {
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override {
         if (index.column() == 0) { // Only for the first column
-            QIcon icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
+            auto icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
             if (!icon.isNull()) {
-                QRect iconRect = option.rect;
-                QSize iconSize = option.decorationSize;
-
-                // Center the icon in the cell
-                int x = iconRect.x() + (iconRect.width() - iconSize.width()) / 2;
-                int y = iconRect.y() + (iconRect.height() - iconSize.height()) / 2;
-
+                auto iconRect = option.rect;
+                auto iconSize = option.decorationSize;
+                auto x = iconRect.x() + (iconRect.width() - iconSize.width()) / 2;
+                auto y = iconRect.y() + (iconRect.height() - iconSize.height()) / 2;
                 icon.paint(painter, x, y, iconSize.width(), iconSize.height());
                 return;
             }
         }
-
         QStyledItemDelegate::paint(painter, option, index);
     }
 };
@@ -52,27 +62,8 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
     auto const &status = filteredStatuses.at(index.row());
 
     if (index.column() == 0 && role == Qt::DecorationRole) {
-        QString iconName;
-        if (status.type.toLower().contains("error")) {
-            iconName = "data-error";
-        } else if (status.type.toLower() == "warning") {
-            iconName = "data-warning";
-        } else {
-            iconName = "data-information";
-        }
-
-        if (!QIcon::hasThemeIcon(iconName)) {
-            qDebug() << "Error : icon not foundm using build it icons" << iconName;
-
-            if (status.type.toLower() == "error") {
-                return qApp->style()->standardIcon(QStyle::SP_MessageBoxCritical);
-            } else if (status.type.toLower() == "warning") {
-                return qApp->style()->standardIcon(QStyle::SP_MessageBoxWarning);
-            } else {
-                return qApp->style()->standardIcon(QStyle::SP_MessageBoxInformation);
-            }
-        }
-        return QIcon::fromTheme(iconName);
+        auto iconType = typeToStatus(status.type);
+        return Qutepart::iconForStatus(iconType);
     }
 
     if (role == Qt::DisplayRole) {
@@ -235,21 +226,41 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
 
 void ProjectIssuesWidget::processLine(const QString &rawLines) {
-    auto static re = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
+    auto static gcc_output_re = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
+
     auto lines = rawLines.split("\n");
     for (auto const &r : lines) {
-        auto match = QRegularExpressionMatch(re.match(r));
+        auto match = QRegularExpressionMatch(gcc_output_re.match(r));
         if (!match.hasMatch()) {
             continue;
         }
         auto file = match.captured(1);
-        auto line = match.captured(2).toInt();
-        auto column = match.captured(3).toInt();
+        // gcc works starts at line 1, we at line
+        auto line = match.captured(2).toInt() - 1;
+        auto column = match.captured(3).toInt() - 1;
         auto type = match.captured(4);
         auto message = match.captured(5);
 
         auto item = CompileStatus{file, line, column, type, message};
         model->addItem(item);
+
+        auto client = manager->clientForFileName(file);
+        if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+            editor->setMetaDataMessage(line, message);
+            switch (typeToStatus(type)) {
+            case Qutepart::ERROR_BIT:
+                editor->setLineError(line, true);
+                break;
+            case Qutepart::WARNING_BIT:
+                editor->setLineWarning(line, true);
+                break;
+            case Qutepart::INFO_BIT:
+                editor->setLineInfo(line, true);
+                break;
+            default:
+                break;
+            }
+        }
     }
 }
 

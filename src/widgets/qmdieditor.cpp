@@ -336,10 +336,7 @@ bool qmdiEditor::canCloseClient() {
     return true;
 }
 
-QString qmdiEditor::mdiClientFileName()
-{
-    return fileName;
-}
+QString qmdiEditor::mdiClientFileName() { return fileName; }
 
 /**
  * @brief Return status of editor
@@ -755,7 +752,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     textEditor->removeModifications();
     fileSystemWatcher->addPath(newFileName);
     setModificationsLookupEnabled(modificationsEnabledState);
-    
+
     auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
     auto i = w->indexOf(this);
     w->setTabText(i, mdiClientName);

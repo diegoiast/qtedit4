@@ -68,6 +68,7 @@ class ProjectManagerPlugin : public IPlugin {
     void projectFile_modified(const QString &path);
 
   private:
+    auto processBuildOutput(const QString &line) -> void;
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
     auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
 

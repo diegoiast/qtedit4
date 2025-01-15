@@ -12,6 +12,10 @@
 #include <QTimer>
 
 #include <CommandPaletteWidget/CommandPalette>
+#include <qmdihost.h>
+#include <qmdiserver.h>
+#include <qmditabwidget.h>
+#include <widgets/qmdieditor.h>
 
 #include "GenericItems.h"
 #include "ProjectBuildConfig.h"
@@ -21,8 +25,6 @@
 #include "kitdefinitionmodel.h"
 #include "kitdetector.h"
 #include "pluginmanager.h"
-#include "qmdihost.h"
-#include "qmdiserver.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
 
@@ -283,19 +285,11 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     connect(&runProcess, &QProcess::readyReadStandardOutput, this, [this]() {
         auto output = this->runProcess.readAllStandardOutput();
-        auto cursor = this->outputPanel->commandOuput->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        cursor.insertText(output);
-        this->outputPanel->commandOuput->setTextCursor(cursor);
-        this->projectIssues->processLine(output);
+        processBuildOutput(output);
     });
     connect(&runProcess, &QProcess::readyReadStandardError, this, [this]() {
         auto output = this->runProcess.readAllStandardError();
-        auto cursor = this->outputPanel->commandOuput->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        cursor.insertText(output);
-        this->outputPanel->commandOuput->setTextCursor(cursor);
-        this->projectIssues->processLine(output);
+        processBuildOutput(output);
     });
     connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
@@ -691,6 +685,15 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
 
+    auto manager = getManager();
+    auto count = manager->visibleTabs();
+    for (auto i = 0; i < count; i++) {
+        auto client = manager->getMdiClient(i);
+        if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+            editor->removeMetaData();
+        }
+    }
+
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         if (kit) {
@@ -766,6 +769,14 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
+}
+
+auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
+    auto cursor = this->outputPanel->commandOuput->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(line);
+    this->outputPanel->commandOuput->setTextCursor(cursor);
+    this->projectIssues->processLine(line);
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
