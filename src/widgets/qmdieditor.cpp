@@ -293,22 +293,22 @@ qmdiEditor::~qmdiEditor() {
 }
 
 QString qmdiEditor::getShortFileName() {
-    if (getFileName().isEmpty()) {
+    if (fileName.isEmpty()) {
         return tr("NO NAME");
     }
 
     // the name of the object for it's mdi server
     // is the file name alone, without the directory
-    int i = getFileName().lastIndexOf('/');
+    int i = fileName.lastIndexOf('/');
     QString s;
     if (i != -1) {
-        s = getFileName().mid(i + 1);
+        s = fileName.mid(i + 1);
     } else {
-        i = getFileName().lastIndexOf('\\');
+        i = fileName.lastIndexOf('\\');
         if (i != -1) {
-            s = getFileName().mid(i + 1);
+            s = fileName.mid(i + 1);
         } else {
-            s = getFileName();
+            s = fileName;
         }
     }
     return s;
@@ -336,14 +336,10 @@ bool qmdiEditor::canCloseClient() {
     return true;
 }
 
-/**
- * \brief return the mdi file opened
- * \return the value of LinesEditor::getFileName()
- *
- * This function is override from qmdiClient::mdiClientFileName(),
- * and will tell the qmdiServer which file is opened by this mdi client.
- */
-QString qmdiEditor::mdiClientFileName() { return fileName; }
+QString qmdiEditor::mdiClientFileName()
+{
+    return fileName;
+}
 
 /**
  * @brief Return status of editor
@@ -457,7 +453,7 @@ void qmdiEditor::setupActions() {
     });
     connect(actionCopyFilePath, &QAction::triggered, actionCopyFilePath, [this]() {
         auto c = QApplication::clipboard();
-        c->setText(getFileName());
+        c->setText(fileName);
     });
 
     QMenu *indentMenu = new QMenu(tr("Indentation"), this);
@@ -527,7 +523,7 @@ void qmdiEditor::setupActions() {
 
 void qmdiEditor::setModificationsLookupEnabled(bool value) {
     fileModifications = value;
-    if (!fileName.isEmpty()) {
+    if (!mdiClientFileName().isEmpty()) {
         if (fileModifications) {
             fileSystemWatcher->addPath(fileName);
         } else {
@@ -756,10 +752,10 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
     this->fileName = newFileName;
     this->mdiClientName = getShortFileName();
-    // removeModifications();
+    textEditor->removeModifications();
     fileSystemWatcher->addPath(newFileName);
     setModificationsLookupEnabled(modificationsEnabledState);
-
+    
     auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
     auto i = w->indexOf(this);
     w->setTabText(i, mdiClientName);
@@ -832,7 +828,7 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
 }
 
 void qmdiEditor::toggleHeaderImpl() {
-    auto otherFile = getCorrespondingFile(getFileName());
+    auto otherFile = getCorrespondingFile(fileName);
     if (!otherFile.isEmpty()) {
         auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
         if (pluginManager) {
@@ -915,7 +911,7 @@ void qmdiEditor::updateFileDetails() {
 }
 
 void qmdiEditor::updateIndenterMenu() {
-    auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), this->getFileName());
+    auto langInfo = ::Qutepart::chooseLanguage(QString(), QString(), this->fileName);
     auto k = 0;
     for (auto i : buttonChangeIndenter->menu()->actions()) {
         QFont font = i->font();
@@ -975,6 +971,8 @@ void qmdiEditor::loadContent() {
         return;
     }
 
+    QElapsedTimer timer;
+    timer.start();
     this->originalLineEnding = getLineEnding(file);
     auto textStream = QTextStream(&file);
     textStream.seek(0);
@@ -982,6 +980,7 @@ void qmdiEditor::loadContent() {
 
     QFileInfo fileInfo(file);
     file.close();
+    qDebug() << "File " << fileName << "loaded in" << timer.elapsed() << "mSec";
 
     fileName = fileInfo.absoluteFilePath();
     if (!fileInfo.isWritable()) {
@@ -994,7 +993,7 @@ void qmdiEditor::loadContent() {
 
     updateFileDetails();
     setModificationsLookupEnabled(modificationsEnabledState);
-    // removeModifications();
+    textEditor->removeModifications();
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
 }
