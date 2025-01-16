@@ -32,6 +32,7 @@
 #include <QTextEdit>
 #include <QToolBar>
 #include <QTreeView>
+#include <qmditabwidget.h>
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
@@ -993,4 +994,8 @@ void qmdiEditor::loadContent() {
     textEditor->removeModifications();
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
+    
+    if (auto tab = dynamic_cast<qmdiTabWidget*>(mdiServer)) {
+        emit tab->newClientAdded(this);
+    }
 }
