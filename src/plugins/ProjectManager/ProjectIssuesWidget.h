@@ -10,6 +10,7 @@ class ProjectIssuesWidget;
 }
 
 class PluginManager;
+class qmdiClient;
 
 struct CompileStatus {
     QString fileName;
@@ -35,6 +36,7 @@ class CompileStatusModel : public QAbstractTableModel {
     void clearAll();
     void addItem(const CompileStatus &status);
     CompileStatus getItem(const QModelIndex &index) const;
+    QList<CompileStatus> getItemsFor(const QString &filename) const;
 
     void setWarningsVisible(bool visible);
     void setErrorsVisible(bool visible);
@@ -68,7 +70,8 @@ class ProjectIssuesWidget : public QWidget {
 
   protected:
     void changeEvent(QEvent *e);
-
+    void decorateClient(qmdiClient *client);
+    
   private:
     PluginManager *manager;
     CompileStatusModel *model;

@@ -143,6 +143,17 @@ CompileStatus CompileStatusModel::getItem(const QModelIndex &index) const {
     return filteredStatuses.at(index.row());
 }
 
+QList<CompileStatus> CompileStatusModel::getItemsFor(const QString &filename) const
+{
+    auto fileStatus = QVector<CompileStatus>();
+    for (const auto &status : statuses) {
+        if (status.fileName  == filename) {
+            fileStatus.append(status);
+        }
+    }
+    return fileStatus;
+}
+
 void CompileStatusModel::setWarningsVisible(bool visible) {
     if (showWarnings != visible) {
         showWarnings = visible;
@@ -209,6 +220,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
     ui->issuesList->setItemDelegateForColumn(0, delegate);
 
     this->manager = parent;
+    connect(manager, &PluginManager::newClientAdded, this, &ProjectIssuesWidget::decorateClient);
     connect(ui->errorsButton, &QPushButton::clicked, this,
             [this]() { this->model->setErrorsVisible(this->ui->errorsButton->isChecked()); });
     connect(ui->warningsButton, &QPushButton::clicked, this,
@@ -261,6 +273,31 @@ void ProjectIssuesWidget::processLine(const QString &rawLines) {
                 break;
             }
         }
+    }
+}
+
+void ProjectIssuesWidget::decorateClient(qmdiClient *client) {
+    if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+        auto items = model->getItemsFor(editor->mdiClientFileName());
+        for (auto item: items) {
+            editor->setMetaDataMessage(item.row, item.message);
+            switch (typeToStatus(item.type)) {
+            case Qutepart::ERROR_BIT:
+                editor->setLineError(item.row, true);
+                break;
+            case Qutepart::WARNING_BIT:
+                editor->setLineWarning(item.row, true);
+                break;
+            case Qutepart::INFO_BIT:
+                editor->setLineInfo(item.row, true);
+                break;
+            default:
+                break;
+            }
+        }    
+        editor->update();     
+    } else {
+        qDebug() << "Could not decorate client for " << client->mdiClientFileName();
     }
 }
 
