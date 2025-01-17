@@ -5,20 +5,14 @@
 #include <QVector>
 #include <QWidget>
 
+#include "CompilerOutputDecoders.h"
+
 namespace Ui {
 class ProjectIssuesWidget;
 }
 
 class PluginManager;
 class qmdiClient;
-
-struct CompileStatus {
-    QString fileName;
-    int row;
-    int col;
-    QString type;
-    QString message;
-};
 
 class CompileStatusModel : public QAbstractTableModel {
     Q_OBJECT
@@ -76,4 +70,5 @@ class ProjectIssuesWidget : public QWidget {
     PluginManager *manager;
     CompileStatusModel *model;
     Ui::ProjectIssuesWidget *ui;
+    GccOutputDetector outputDetector;
 };

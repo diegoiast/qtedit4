@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE OFF)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 include(cmake/mold-linker.cmake)
 
@@ -83,6 +84,17 @@ set(qtedit4_sources
     src/plugins/imageviewer/imageviewer_plg.h
     src/plugins/hexviewer/hexviewer_plg.cpp
     src/plugins/hexviewer/hexviewer_plg.h
+    src/plugins/ProjectManager/BuildRunOutput.ui
+    src/plugins/ProjectManager/CompilerOutputDecoders.cpp
+    src/plugins/ProjectManager/CompilerOutputDecoders.h 
+    src/plugins/ProjectManager/GenericItems.cpp
+    src/plugins/ProjectManager/GenericItems.h
+    src/plugins/ProjectManager/kitdefinitions.h
+    src/plugins/ProjectManager/kitdefinitions.cpp
+    src/plugins/ProjectManager/kitdefinitionmodel.h
+    src/plugins/ProjectManager/kitdefinitionmodel.cpp
+    src/plugins/ProjectManager/kitdetector.h
+    src/plugins/ProjectManager/kitdetector.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.h
     src/plugins/ProjectManager/ProjectIssuesWidget.h 
@@ -94,15 +106,6 @@ set(qtedit4_sources
     src/plugins/ProjectManager/ProjectSearch.cpp
     src/plugins/ProjectManager/ProjectSearch.h
     src/plugins/ProjectManager/ProjectSearchGUI.ui
-    src/plugins/ProjectManager/BuildRunOutput.ui
-    src/plugins/ProjectManager/GenericItems.cpp
-    src/plugins/ProjectManager/GenericItems.h
-    src/plugins/ProjectManager/kitdefinitions.h
-    src/plugins/ProjectManager/kitdefinitions.cpp
-    src/plugins/ProjectManager/kitdefinitionmodel.h
-    src/plugins/ProjectManager/kitdefinitionmodel.cpp
-    src/plugins/ProjectManager/kitdetector.h
-    src/plugins/ProjectManager/kitdetector.cpp
     src/main.cpp
     qtedit4.qrc
 )

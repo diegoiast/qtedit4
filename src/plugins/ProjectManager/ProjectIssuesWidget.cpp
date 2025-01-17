@@ -237,7 +237,25 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
 
+auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
+    editor->setMetaDataMessage(status.row, status.message);
+    switch (typeToStatus(status.type)) {
+    case Qutepart::ERROR_BIT:
+        editor->setLineError(status.row, true);
+        break;
+    case Qutepart::WARNING_BIT:
+        editor->setLineWarning(status.row, true);
+        break;
+    case Qutepart::INFO_BIT:
+        editor->setLineInfo(status.row, true);
+        break;
+    default:
+        break;
+    }
+}
+
 void ProjectIssuesWidget::processLine(const QString &rawLines) {
+#if 0
     auto static gcc_output_re = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
 
     auto lines = rawLines.split("\n");
@@ -254,23 +272,17 @@ void ProjectIssuesWidget::processLine(const QString &rawLines) {
         auto message = match.captured(5);
 
         auto item = CompileStatus{file, line, column, type, message};
-        model->addItem(item);
-
-        auto client = manager->clientForFileName(file);
-        if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
-            editor->setMetaDataMessage(line, message);
-            switch (typeToStatus(type)) {
-            case Qutepart::ERROR_BIT:
-                editor->setLineError(line, true);
-                break;
-            case Qutepart::WARNING_BIT:
-                editor->setLineWarning(line, true);
-                break;
-            case Qutepart::INFO_BIT:
-                editor->setLineInfo(line, true);
-                break;
-            default:
-                break;
+#endif
+    auto lines = rawLines.split("\n");
+    for (auto const &line : lines) {
+        outputDetector.processLine(line);
+        auto items = outputDetector.foundStatus();
+        for (auto &item: items) {
+            model->addItem(item);
+            auto client = manager->clientForFileName(item.fileName);
+            if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+                setEditorStatus(editor, item);
+                editor->update();
             }
         }
     }
@@ -280,20 +292,7 @@ void ProjectIssuesWidget::decorateClient(qmdiClient *client) {
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         auto items = model->getItemsFor(editor->mdiClientFileName());
         for (auto item: items) {
-            editor->setMetaDataMessage(item.row, item.message);
-            switch (typeToStatus(item.type)) {
-            case Qutepart::ERROR_BIT:
-                editor->setLineError(item.row, true);
-                break;
-            case Qutepart::WARNING_BIT:
-                editor->setLineWarning(item.row, true);
-                break;
-            case Qutepart::INFO_BIT:
-                editor->setLineInfo(item.row, true);
-                break;
-            default:
-                break;
-            }
+            setEditorStatus(editor, item);
         }    
         editor->update();     
     } else {
