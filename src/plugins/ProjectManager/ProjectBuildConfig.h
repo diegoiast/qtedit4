@@ -20,6 +20,7 @@ struct TaskInfo {
 };
 
 struct ProjectBuildConfig {
+    ProjectBuildConfig() = default;
     QString sourceDir;
     QString buildDir;
     QList<ExecutableInfo> executables;

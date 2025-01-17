@@ -1,8 +1,8 @@
 #pragma once
 
-#include <QString>
 #include <QList>
 #include <QRegularExpression>
+#include <QString>
 
 struct CompileStatus {
     QString fileName;
@@ -13,7 +13,7 @@ struct CompileStatus {
 };
 
 class OutputDetector {
-public:
+  public:
     virtual ~OutputDetector() = default;
 
     virtual void processLine(const QString &line) = 0;
@@ -25,7 +25,7 @@ public:
 };
 
 class GccOutputDetector : public OutputDetector {
-public:
+  public:
     GccOutputDetector() = default;
     ~GccOutputDetector() override = default;
 
@@ -33,10 +33,10 @@ public:
     QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
-private:
-    // GCC output pattern for errors and warnings: file:line:column: message    
+  private:
+    // GCC output pattern for errors and warnings: file:line:column: message
     QRegularExpression regionPattern = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
-    
-    QList<CompileStatus> m_compileStatuses; 
+
+    QList<CompileStatus> m_compileStatuses;
     CompileStatus currentStatus = {};
 };

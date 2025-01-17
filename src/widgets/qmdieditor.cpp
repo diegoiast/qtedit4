@@ -994,8 +994,8 @@ void qmdiEditor::loadContent() {
     textEditor->removeModifications();
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
-    
-    if (auto tab = dynamic_cast<qmdiTabWidget*>(mdiServer)) {
+
+    if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
         emit tab->newClientAdded(this);
     }
 }

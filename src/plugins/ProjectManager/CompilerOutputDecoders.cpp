@@ -6,8 +6,8 @@ void GccOutputDetector::processLine(const QString &line) {
         if (!currentStatus.message.isEmpty()) {
             m_compileStatuses.append(currentStatus);
         }
-        
-       // gcc errors/warnings start at  line 1, we start and line 0
+
+        // gcc errors/warnings start at  line 1, we start and line 0
         auto fileName = match.captured(1);
         auto lineNmber = match.captured(2).toInt() - 1;
         auto columnNumber = match.captured(3).toInt() - 1;
@@ -31,16 +31,16 @@ void GccOutputDetector::processLine(const QString &line) {
 
 QList<CompileStatus> GccOutputDetector::foundStatus() {
     QList<CompileStatus> result = m_compileStatuses;
-    m_compileStatuses.clear();  // Reset the internal list
+    m_compileStatuses.clear(); // Reset the internal list
     return result;
 }
 
 void GccOutputDetector::endOfOutput() {
     if (!currentStatus.message.isEmpty()) {
         m_compileStatuses.append(currentStatus);
-        
-               // Clear the current message buffer
-        currentStatus.message.clear();  
+
+        // Clear the current message buffer
+        currentStatus.message.clear();
         currentStatus.fileName.clear();
     }
 }

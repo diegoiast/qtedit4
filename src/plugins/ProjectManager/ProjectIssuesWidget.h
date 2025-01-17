@@ -65,7 +65,7 @@ class ProjectIssuesWidget : public QWidget {
   protected:
     void changeEvent(QEvent *e);
     void decorateClient(qmdiClient *client);
-    
+
   private:
     PluginManager *manager;
     CompileStatusModel *model;

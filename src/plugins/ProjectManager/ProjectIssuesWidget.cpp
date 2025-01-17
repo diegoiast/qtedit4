@@ -143,11 +143,10 @@ CompileStatus CompileStatusModel::getItem(const QModelIndex &index) const {
     return filteredStatuses.at(index.row());
 }
 
-QList<CompileStatus> CompileStatusModel::getItemsFor(const QString &filename) const
-{
+QList<CompileStatus> CompileStatusModel::getItemsFor(const QString &filename) const {
     auto fileStatus = QVector<CompileStatus>();
     for (const auto &status : statuses) {
-        if (status.fileName  == filename) {
+        if (status.fileName == filename) {
             fileStatus.append(status);
         }
     }
@@ -277,7 +276,7 @@ void ProjectIssuesWidget::processLine(const QString &rawLines) {
     for (auto const &line : lines) {
         outputDetector.processLine(line);
         auto items = outputDetector.foundStatus();
-        for (auto &item: items) {
+        for (auto &item : items) {
             model->addItem(item);
             auto client = manager->clientForFileName(item.fileName);
             if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
@@ -291,10 +290,10 @@ void ProjectIssuesWidget::processLine(const QString &rawLines) {
 void ProjectIssuesWidget::decorateClient(qmdiClient *client) {
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         auto items = model->getItemsFor(editor->mdiClientFileName());
-        for (auto item: items) {
+        for (auto item : items) {
             setEditorStatus(editor, item);
-        }    
-        editor->update();     
+        }
+        editor->update();
     } else {
         qDebug() << "Could not decorate client for " << client->mdiClientFileName();
     }
