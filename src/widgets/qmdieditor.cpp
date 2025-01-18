@@ -683,7 +683,7 @@ bool qmdiEditor::doSaveAs() {
 }
 
 bool qmdiEditor::loadFile(const QString &newFileName) {
-    fileName = newFileName;
+    fileName = QDir::toNativeSeparators(newFileName);
     mdiClientName = getShortFileName();
 
     if (fileName.isEmpty()) {
@@ -980,7 +980,7 @@ void qmdiEditor::loadContent() {
     file.close();
     qDebug() << "File " << fileName << "loaded in" << timer.elapsed() << "mSec";
 
-    fileName = fileInfo.absoluteFilePath();
+    fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
     if (!fileInfo.isWritable()) {
         textEditor->setReadOnly(true);
         displayBannerMessage(

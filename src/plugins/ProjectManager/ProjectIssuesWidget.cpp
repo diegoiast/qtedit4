@@ -1,3 +1,4 @@
+#include <QDir>
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QStyledItemDelegate>
@@ -229,10 +230,10 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
     connect(ui->clearButton, &QPushButton::clicked, this, [this]() { this->model->clearAll(); });
     connect(ui->issuesList, &QTableView::clicked, this, [this](const QModelIndex &index) {
         auto item = this->model->getItem(index);
-        this->manager->openFile(item.fileName, item.row, item.col);
+        this->manager->openFile(QDir::toNativeSeparators(item.fileName), item.row, item.col);
         // qDebug() << "Will open file: " << item.fileName << "at" << item.col << item.row;
     });
-    
+
     outputDetector.add(new GccOutputDetector);
 }
 
