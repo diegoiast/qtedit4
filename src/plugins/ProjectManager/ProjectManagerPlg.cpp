@@ -733,7 +733,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
     }
 
     auto hash = getConfigDictionary();
-    auto projectBuildDir = expand(project->buildDir, hash);
+    auto projectBuildDir = QDir::toNativeSeparators(expand(project->buildDir, hash));
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(tr("This will delete <b>%1</b> (%2). Do you want to proceed?")
