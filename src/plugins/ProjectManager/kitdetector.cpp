@@ -405,40 +405,47 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         }
 
         for (const auto &subEntry : std::filesystem::directory_iterator(tools_path)) {
-            if (subEntry.is_directory()) {
-                auto dirName = subEntry.path().filename().string();
-                auto l = dirName.rfind("mingw", 0);
-                if (l != 0) {
-                    continue;
-                }
-                auto extraPath = ExtraPath();
-                extraPath.name = "MinGW " + dirName;
-                extraPath.compiler_path = dir.string();
-                if (unix_target) {
-                    // TODO
-                    // I am unsure what this part of the code does, as it makes no sense.
-                    // Maybe in a msys environment, or wsl... not dealing with that now.
-                    extraPath.comment = "# MingW installation from Qt (I*)";
-                    extraPath.command += "export MINGW_DIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "export PATH=\"${PATH};${MINGW_DIR}/bin";
-                } else {
-                    extraPath.comment = "@rem MingW installation from Qt (*)";
-                    extraPath.command += "set MINGW_DIR=%1";
-                    extraPath.command += "\n";
-                    extraPath.command += "set PATH=%PATH%;%MINGW_DIR%\\bin";
-                    extraPath.command += "\n";
-                    extraPath.command += "set CC=x86_64-w64-mingw32-gcc.exe";
-                    extraPath.command += "\n";
-                    extraPath.command += "set CXX=x86_64-w64-mingw32-g++.exe";
-                    extraPath.command += "\n";
-                    extraPath.command += "set CMAKE_GENERATOR=MinGW Makefiles";
-                    extraPath.command += "\n";
-                    extraPath.command += "set CMAKE_MAKE_PROGRAM=mingw32-make.exe";
-                }
-                replaceAll(extraPath.command, "%1", subEntry.path().string());
-                detectedCompilers.push_back(extraPath);
+            if (!subEntry.is_directory()) {
+                continue;
             }
+            auto dirName = subEntry.path().filename().string();
+            auto l = dirName.find("mingw");
+            if (l == std::string::npos) {
+                continue;
+            }
+            auto gcc_path = subEntry.path() / "bin" / "gcc.exe";
+            if (!std::filesystem::exists(gcc_path)) {
+                auto p = gcc_path.string();
+                continue;
+            }
+
+            auto extraPath = ExtraPath();
+            extraPath.name = "MinGW " + dirName;
+            extraPath.compiler_path = dir.string();
+            if (unix_target) {
+                // TODO
+                // I am unsure what this part of the code does, as it makes no sense.
+                // Maybe in a msys environment, or wsl... not dealing with that now.
+                extraPath.comment = "# MingW installation from Qt (I*)";
+                extraPath.command += "export MINGW_DIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "export PATH=\"${PATH};${MINGW_DIR}/bin";
+            } else {
+                extraPath.comment = "@rem MingW installation from Qt (*)";
+                extraPath.command += "set MINGW_DIR=%1";
+                extraPath.command += "\n";
+                extraPath.command += "set PATH=%PATH%;%MINGW_DIR%\\bin";
+                extraPath.command += "\n";
+                extraPath.command += "set CC=x86_64-w64-mingw32-gcc.exe";
+                extraPath.command += "\n";
+                extraPath.command += "set CXX=x86_64-w64-mingw32-g++.exe";
+                extraPath.command += "\n";
+                extraPath.command += "set CMAKE_GENERATOR=MinGW Makefiles";
+                extraPath.command += "\n";
+                extraPath.command += "set CMAKE_MAKE_PROGRAM=mingw32-make.exe";
+            }
+            replaceAll(extraPath.command, "%1", subEntry.path().string());
+            detectedCompilers.push_back(extraPath);
         }
     };
 
