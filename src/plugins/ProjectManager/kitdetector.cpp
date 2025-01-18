@@ -400,6 +400,9 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
     auto detectInstallToolchains = [unix_target, &detectedCompilers](std::filesystem::path dir) {
         // we got something like: c:\Qt\6.7.2
         auto tools_path = dir / "Tools";
+        if (!std::filesystem::is_directory(tools_path)) {
+            return;
+        }
 
         for (const auto &subEntry : std::filesystem::directory_iterator(tools_path)) {
             if (subEntry.is_directory()) {
