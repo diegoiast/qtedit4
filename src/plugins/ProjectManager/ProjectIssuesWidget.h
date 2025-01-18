@@ -70,5 +70,5 @@ class ProjectIssuesWidget : public QWidget {
     PluginManager *manager;
     CompileStatusModel *model;
     Ui::ProjectIssuesWidget *ui;
-    GccOutputDetector outputDetector;
+    GeneralDetector outputDetector;
 };

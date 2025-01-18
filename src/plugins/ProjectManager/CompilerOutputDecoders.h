@@ -24,6 +24,21 @@ class OutputDetector {
     virtual void endOfOutput() = 0;
 };
 
+class GeneralDetector : public OutputDetector {
+  public:
+    GeneralDetector() = default;
+    ~GeneralDetector() override;
+    virtual void processLine(const QString &line) override;
+    virtual QList<CompileStatus> foundStatus() override;
+    virtual void endOfOutput() override;
+    
+    void add(OutputDetector *detector);
+    void remove(OutputDetector *detector);
+    
+private:
+    QList<OutputDetector*> detectors;
+};
+
 class GccOutputDetector : public OutputDetector {
   public:
     GccOutputDetector() = default;

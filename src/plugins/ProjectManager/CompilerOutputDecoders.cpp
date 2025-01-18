@@ -44,3 +44,43 @@ void GccOutputDetector::endOfOutput() {
         currentStatus.fileName.clear();
     }
 }
+
+GeneralDetector::~GeneralDetector()
+{
+    qDeleteAll(detectors);
+}
+
+void GeneralDetector::processLine(const QString &line)
+{
+    for (auto detector: detectors) {
+        detector->processLine(line);
+    }
+}
+
+QList<CompileStatus> GeneralDetector::foundStatus()
+{
+    auto list = QList<CompileStatus>();
+    for (auto detector: detectors) {
+        list += detector->foundStatus();
+    }
+    return list;
+}
+
+void GeneralDetector::endOfOutput()
+{
+    for (auto detector: detectors) {
+        detector->endOfOutput();
+    }    
+}
+
+void GeneralDetector::add(OutputDetector *detector)
+{
+    detectors.append(detector);
+}
+
+void GeneralDetector::remove(OutputDetector *detector)
+{
+   if (detectors.removeOne(detector)) {
+        delete detector;
+    }
+}

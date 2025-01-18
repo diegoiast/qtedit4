@@ -232,6 +232,8 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
         this->manager->openFile(item.fileName, item.row, item.col);
         // qDebug() << "Will open file: " << item.fileName << "at" << item.col << item.row;
     });
+    
+    outputDetector.add(new GccOutputDetector);
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
@@ -254,24 +256,6 @@ auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
 }
 
 void ProjectIssuesWidget::processLine(const QString &rawLines) {
-#if 0
-    auto static gcc_output_re = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
-
-    auto lines = rawLines.split("\n");
-    for (auto const &r : lines) {
-        auto match = QRegularExpressionMatch(gcc_output_re.match(r));
-        if (!match.hasMatch()) {
-            continue;
-        }
-        auto file = match.captured(1);
-        // gcc works starts at line 1, we at line
-        auto line = match.captured(2).toInt() - 1;
-        auto column = match.captured(3).toInt() - 1;
-        auto type = match.captured(4);
-        auto message = match.captured(5);
-
-        auto item = CompileStatus{file, line, column, type, message};
-#endif
     auto lines = rawLines.split("\n");
     for (auto const &line : lines) {
         outputDetector.processLine(line);
