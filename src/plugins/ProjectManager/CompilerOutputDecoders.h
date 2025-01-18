@@ -31,12 +31,12 @@ class GeneralDetector : public OutputDetector {
     virtual void processLine(const QString &line) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
-    
+
     void add(OutputDetector *detector);
     void remove(OutputDetector *detector);
-    
-private:
-    QList<OutputDetector*> detectors;
+
+  private:
+    QList<OutputDetector *> detectors;
 };
 
 class GccOutputDetector : public OutputDetector {
@@ -50,7 +50,8 @@ class GccOutputDetector : public OutputDetector {
 
   private:
     // GCC output pattern for errors and warnings: file:line:column: message
-    QRegularExpression regionPattern = QRegularExpression(R"((.+):(\d+):(\d+):\s+(.+):\s+(.+))");
+    QRegularExpression regionPattern =
+        QRegularExpression(R"(([a-zA-Z]:\\[^:]+|\S+):(\d+):(\d+):\s+(.+):\s+(.+))");
 
     QList<CompileStatus> m_compileStatuses;
     CompileStatus currentStatus = {};
