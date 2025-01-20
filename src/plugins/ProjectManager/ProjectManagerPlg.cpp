@@ -291,7 +291,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto output = this->runProcess.readAllStandardError();
         processBuildOutput(output);
     });
-    connect(&runProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
+    connect(&runProcess, &QProcess::finished, this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
                 this->outputPanel->commandOuput->appendPlainText(output);

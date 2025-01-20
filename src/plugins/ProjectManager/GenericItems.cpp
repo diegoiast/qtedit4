@@ -1,7 +1,6 @@
 #include "GenericItems.h"
 #include <QDir>
 #include <QDirIterator>
-#include <QElapsedTimer>
 #include <QRunnable>
 #include <QThreadPool>
 #include <QTime>
