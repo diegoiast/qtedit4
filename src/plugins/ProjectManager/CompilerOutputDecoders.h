@@ -6,6 +6,7 @@
 
 struct CompileStatus {
     QString fileName;
+    QString displayName;
     int row;
     int col;
     QString type;

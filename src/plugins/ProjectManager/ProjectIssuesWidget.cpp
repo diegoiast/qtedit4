@@ -10,7 +10,7 @@
 #include "ui_ProjectIssuesWidget.h"
 #include "widgets/qmdieditor.h"
 
-auto typeToStatus(const QString &name) {
+auto typeToStatus(const QString &name) -> int {
     if (name.contains("error", Qt::CaseInsensitive)) {
         return Qutepart::ERROR_BIT;
     } else if (name.compare("warning", Qt::CaseInsensitive) == 0) {
@@ -44,7 +44,7 @@ class CenteredIconDelegate : public QStyledItemDelegate {
 
 CompileStatusModel::CompileStatusModel(QObject *parent)
     : QAbstractTableModel(parent), showWarnings(true), showErrors(true), showOthers(true) {
-    headers << "Type" << "Message" << "Location";
+    headers << tr("Type") << tr("Message") << tr("Location");
 }
 
 int CompileStatusModel::rowCount(const QModelIndex &parent) const {
@@ -63,8 +63,12 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
     auto const &status = filteredStatuses.at(index.row());
 
     if (index.column() == 0 && role == Qt::DecorationRole) {
+        auto static iconCache = QHash<int, QIcon>();
         auto iconType = typeToStatus(status.type);
-        return Qutepart::iconForStatus(iconType);
+        if (!iconCache.contains(iconType)) {
+            iconCache[iconType] = Qutepart::iconForStatus(iconType);
+        }
+        return iconCache.value(iconType);
     }
 
     if (role == Qt::DisplayRole) {
@@ -73,11 +77,8 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
             return {};
         case 1:
             return status.message;
-        case 2: {
-            auto fileInfo = QFileInfo(status.fileName);
-            auto fileName = fileInfo.fileName();
-            return QString("%1 (%2:%3)").arg(fileName).arg(status.row).arg(status.col);
-        }
+        case 2:
+            return QString("%1 (%2:%3)").arg(status.displayName).arg(status.row).arg(status.col);
         default:
             return {};
         }

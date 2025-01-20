@@ -1,5 +1,7 @@
 #include "CompilerOutputDecoders.h"
 
+#include <QFileInfo>
+
 void GccOutputDetector::processLine(const QString &line) {
     auto match = regionPattern.match(line);
     if (match.hasMatch()) {
@@ -13,7 +15,11 @@ void GccOutputDetector::processLine(const QString &line) {
         auto columnNumber = match.captured(3).toInt() - 1;
         auto type = match.captured(4);
         auto message = match.captured(5);
-        currentStatus = CompileStatus{fileName, lineNmber, columnNumber, type, message};
+
+        auto fi = QFileInfo(fileName);
+        auto displayName = fi.fileName();
+        currentStatus =
+            CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
     } else if (!line.isEmpty()) {
         if (!currentStatus.fileName.isEmpty()) {
             currentStatus.message += "\n";
@@ -87,7 +93,11 @@ void ClOutputDetector::processLine(const QString &line) {
         auto type = match.captured(4);
         // auto code = match.captured(5);
         auto message = match.captured(6);
-        compileStatuses.append(CompileStatus{fileName, lineNumber, columnNumber, type, message});
+
+        auto fi = QFileInfo(fileName);
+        auto displayName = fi.fileName();
+        compileStatuses.append(
+            CompileStatus{fileName, displayName, lineNumber, columnNumber, type, message});
     }
 }
 
