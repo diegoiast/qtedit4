@@ -56,3 +56,13 @@ class GccOutputDetector : public OutputDetector {
     QList<CompileStatus> m_compileStatuses;
     CompileStatus currentStatus = {};
 };
+
+class ClOutputDetector : public OutputDetector {
+  public:
+    void processLine(const QString &line);
+    QList<CompileStatus> foundStatus();
+    void endOfOutput();
+
+  public:
+    QList<CompileStatus> compileStatuses;
+};

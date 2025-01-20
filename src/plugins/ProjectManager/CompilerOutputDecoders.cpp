@@ -45,42 +45,58 @@ void GccOutputDetector::endOfOutput() {
     }
 }
 
-GeneralDetector::~GeneralDetector()
-{
-    qDeleteAll(detectors);
-}
+GeneralDetector::~GeneralDetector() { qDeleteAll(detectors); }
 
-void GeneralDetector::processLine(const QString &line)
-{
-    for (auto detector: detectors) {
+void GeneralDetector::processLine(const QString &line) {
+    for (auto detector : detectors) {
         detector->processLine(line);
     }
 }
 
-QList<CompileStatus> GeneralDetector::foundStatus()
-{
+QList<CompileStatus> GeneralDetector::foundStatus() {
     auto list = QList<CompileStatus>();
-    for (auto detector: detectors) {
+    for (auto detector : detectors) {
         list += detector->foundStatus();
     }
     return list;
 }
 
-void GeneralDetector::endOfOutput()
-{
-    for (auto detector: detectors) {
+void GeneralDetector::endOfOutput() {
+    for (auto detector : detectors) {
         detector->endOfOutput();
-    }    
+    }
 }
 
-void GeneralDetector::add(OutputDetector *detector)
-{
-    detectors.append(detector);
-}
+void GeneralDetector::add(OutputDetector *detector) { detectors.append(detector); }
 
-void GeneralDetector::remove(OutputDetector *detector)
-{
-   if (detectors.removeOne(detector)) {
+void GeneralDetector::remove(OutputDetector *detector) {
+    if (detectors.removeOne(detector)) {
         delete detector;
     }
+}
+
+void ClOutputDetector::processLine(const QString &line) {
+    static QRegularExpression clPattern(
+        R"(([a-zA-Z]:\\[^:]+|\S+)\((\d+),(\d+)\):\s+(\w+)\s+(\w+):\s+(.+))");
+
+    auto match = clPattern.match(line);
+    if (match.hasMatch()) {
+        auto fileName = match.captured(1);
+        auto lineNumber = match.captured(2).toInt();
+        auto columnNumber = match.captured(3).toInt();
+        auto type = match.captured(4);
+        // auto code = match.captured(5);
+        auto message = match.captured(6);
+        compileStatuses.append(CompileStatus{fileName, lineNumber, columnNumber, type, message});
+    }
+}
+
+QList<CompileStatus> ClOutputDetector::foundStatus() {
+    QList<CompileStatus> result = compileStatuses;
+    compileStatuses.clear();
+    return result;
+}
+
+void ClOutputDetector::endOfOutput() {
+    // nothing
 }

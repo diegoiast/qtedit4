@@ -148,6 +148,12 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setLineExecuting(int lineNumber, bool value) {
         textEditor->setLineExecuting(lineNumber, value);
     }
+    inline bool isEmpty() const {
+        if (!textEditor->document()) {
+            return true;
+        }
+        return textEditor->document()->isEmpty();
+    }
 
   protected:
     void focusInEvent(QFocusEvent *event) override;

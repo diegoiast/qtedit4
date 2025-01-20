@@ -234,12 +234,17 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
         // qDebug() << "Will open file: " << item.fileName << "at" << item.col << item.row;
     });
 
+    outputDetector.add(new ClOutputDetector);
     outputDetector.add(new GccOutputDetector);
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
 
 auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
+    if (editor->isEmpty()) {
+        return;
+    }
+
     editor->setMetaDataMessage(status.row, status.message);
     switch (typeToStatus(status.type)) {
     case Qutepart::ERROR_BIT:
@@ -275,7 +280,7 @@ void ProjectIssuesWidget::processLine(const QString &rawLines) {
 void ProjectIssuesWidget::decorateClient(qmdiClient *client) {
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         auto items = model->getItemsFor(editor->mdiClientFileName());
-        for (auto item : items) {
+        for (const auto &item : items) {
             setEditorStatus(editor, item);
         }
         editor->update();
