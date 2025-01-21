@@ -78,7 +78,7 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
         case 1:
             return status.message;
         case 2:
-            return QString("%1 (%2:%3)").arg(status.displayName).arg(status.row).arg(status.col);
+            return QString("%1 (%2:%3)").arg(status.displayName).arg(status.row+1).arg(status.col+1);
         default:
             return {};
         }
