@@ -110,7 +110,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     bool autoPreview = true;
 
     // No longer inheriting Qutepart, instead use "static inheritance"
-    inline void goTo(int x, int y) { textEditor->goTo(x, y); }
+    void goTo(int x, int y);
     inline void setLineWrapMode(QPlainTextEdit::LineWrapMode mode) {
         textEditor->setLineWrapMode(mode);
     }
@@ -177,6 +177,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     bool fileModifications = true;
     QTimer *loadingTimer = nullptr;
     bool documentHasBeenLoaded = true;
+    QPoint requestedPosition;
 
     QString fileName;
     QMenu *bookmarksMenu;

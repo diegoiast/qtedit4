@@ -606,6 +606,15 @@ void qmdiEditor::hideTimer_timeout() {
     }
 }
 
+void qmdiEditor::goTo(int x, int y) {
+    if (documentHasBeenLoaded) {
+        textEditor->goTo(x, y);
+    } else {
+        requestedPosition.setX(x);
+        requestedPosition.setY(y);
+    }
+}
+
 void qmdiEditor::focusInEvent(QFocusEvent *event) {
 
     QWidget::focusInEvent(event);
@@ -975,6 +984,7 @@ void qmdiEditor::loadContent() {
     auto textStream = QTextStream(&file);
     textStream.seek(0);
     textEditor->setPlainText(textStream.readAll());
+    textEditor->goTo(requestedPosition.x(), requestedPosition.y());
 
     QFileInfo fileInfo(file);
     file.close();
