@@ -799,7 +799,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
         }
         auto taskName = buildConfig->tasksInfo[taskIndex].name;
         auto taskCommand = buildConfig->tasksInfo[taskIndex].command;
-
+        selectedTaskIndex = taskIndex;
         this->gui->taskButton->setEnabled(true);
         this->gui->taskButton->setText(taskName);
         this->gui->taskButton->setToolTip(taskCommand);
