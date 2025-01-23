@@ -57,8 +57,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
 
     void setPreviewEnabled(bool enabled);
-    void setPreview(bool enabled);
+    void setPreviewVisible(bool enabled);
     bool isPreviewRequested();
+    bool isPreviewVisible() const;
 
     void setHistoryModel(SharedHistoryModel *model);
 

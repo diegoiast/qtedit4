@@ -22,15 +22,18 @@
 #include <QSimpleUpdater.h>
 #include <QUrl>
 
+#include <iplugin.h>
+#include <pluginmanager.h>
+
 #include "CommandPaletteWidget/commandpalette.h"
 #include "help_plg.h"
-#include "iplugin.h"
-#include <pluginmanager.h>
+#include "widgets/qmdieditor.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #else
 #include <unistd.h>
+
 #endif
 
 #if defined(__linux__)
@@ -376,6 +379,14 @@ void HelpPlugin::uiCleanUp() {
             }
         }
         return;
+    }
+
+    auto e = dynamic_cast<qmdiEditor *>(manager->currentClient());
+    if (e) {
+        if (e->isPreviewVisible()) {
+            e->setPreviewVisible(false);
+            return;
+        }
     }
 
     auto w = dynamic_cast<QWidget *>(manager->currentClient());

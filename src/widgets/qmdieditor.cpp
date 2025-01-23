@@ -540,11 +540,13 @@ void qmdiEditor::setEditorHighlighter(QString id) {
 
 void qmdiEditor::setPreviewEnabled(bool enabled) { this->previewButton->setEnabled(enabled); }
 
-void qmdiEditor::setPreview(bool enabled) { this->previewButton->setChecked(enabled); }
+void qmdiEditor::setPreviewVisible(bool enabled) { this->previewButton->setChecked(enabled); }
 
 bool qmdiEditor::isPreviewRequested() {
     return this->previewButton->isEnabled() && this->previewButton->isChecked();
 }
+
+bool qmdiEditor::isPreviewVisible() const { return this->previewButton->isChecked(); }
 
 void qmdiEditor::setHistoryModel(SharedHistoryModel *model) {
     operationsWidget->setSearchHistory(model);

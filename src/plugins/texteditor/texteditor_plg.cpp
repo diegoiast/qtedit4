@@ -427,7 +427,7 @@ bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) 
     auto shouldAutoPreview = getConfig().getAutoPreview();
     auto canOpenPreview = editor->hasPreview();
     editor->setPreviewEnabled(canOpenPreview);
-    editor->setPreview(canOpenPreview && shouldAutoPreview);
+    editor->setPreviewVisible(canOpenPreview && shouldAutoPreview);
     editor->setHistoryModel(historyModel);
     mdiServer->addClient(editor);
     editor->goTo(x, y);
