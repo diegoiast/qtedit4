@@ -10,6 +10,8 @@
 
 #include "iplugin.h"
 
+#include <QKeyEvent>
+
 class QAction;
 
 enum UpdateCheck {
@@ -46,12 +48,21 @@ class HelpPlugin : public IPlugin {
     HelpPlugin();
     ~HelpPlugin();
 
+    virtual void on_client_merged(qmdiHost *host) override;
+    virtual void on_client_unmerged(qmdiHost *host) override;
+
     void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
     void doStartupChecksForUpdate(bool notifyUserNoUpdates);
     void doChecksForUpdate(bool notifyUserNoUpdates);
+    void uiCleanUp();
+    bool isTaskRunnning() const;
+    bool isBottomPanelsVisible() const;
 
   public slots:
     void actionAbout_triggered();
     void checkForUpdates_triggered();
+
+  protected:
+    virtual bool eventFilter(QObject *obj, QEvent *event) override;
 };

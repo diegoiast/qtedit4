@@ -6,22 +6,26 @@
  * \see HelpPlugin
  */
 
-#include "help_plg.h"
-#include "iplugin.h"
-#include <QAction>
-#include <QApplication>
-#include <QDesktopServices>
-#include <QFile>
-#include <QMessageBox>
-#include <QSimpleUpdater.h>
-#include <QUrl>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <string>
 
+#include <QAction>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QDockWidget>
+#include <QFile>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QSimpleUpdater.h>
+#include <QUrl>
+
 #include "CommandPaletteWidget/commandpalette.h"
+#include "help_plg.h"
+#include "iplugin.h"
+#include <pluginmanager.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -150,14 +154,18 @@ auto static refreshSystemMenus() -> void {
 #endif
 }
 
-HelpPlugin::HelpPlugin() {
+HelpPlugin::HelpPlugin() : IPlugin() {
     name = tr("Help system browser");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
+}
 
+HelpPlugin::~HelpPlugin() {}
+
+void HelpPlugin::on_client_merged(qmdiHost *host) {
     auto updateChannelStrings = QStringList() << tr("Do not check for updates")
                                               << tr("Check for updates every time program starts")
                                               << tr("Check for updates once per day")
@@ -257,9 +265,16 @@ HelpPlugin::HelpPlugin() {
     menus["&Help"]->addAction(actionVisitHomePage);
     menus["&Help"]->addAction(actionAboutQt);
     menus["&Help"]->addAction(actionAbout);
+
+    auto w = dynamic_cast<QWidget *>(host);
+    w->installEventFilter(this);
 }
 
-HelpPlugin::~HelpPlugin() {}
+void HelpPlugin::on_client_unmerged(qmdiHost *host) {
+    IPlugin::on_client_unmerged(host);
+    auto w = dynamic_cast<QWidget *>(host);
+    w->removeEventFilter(this);
+}
 
 void HelpPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
@@ -344,6 +359,47 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
     getConfig().setLastUpdateTime(QString::number(currentTime));
 }
 
+void HelpPlugin::uiCleanUp() {
+    /*
+    Eventually - kill of the running task
+    if (isTaskRunnning()) {
+        return;
+    }
+    */
+
+    auto manager = getManager();
+    auto window = dynamic_cast<QMainWindow *>(mdiServer->mdiHost);
+    if (isBottomPanelsVisible()) {
+        for (auto dock : window->findChildren<QDockWidget *>()) {
+            if (window->dockWidgetArea(dock) == Qt::BottomDockWidgetArea && !dock->isFloating()) {
+                dock->hide();
+            }
+        }
+        return;
+    }
+
+    auto w = dynamic_cast<QWidget *>(manager->currentClient());
+    if (w) {
+        w->setFocus();
+    }
+}
+
+bool HelpPlugin::isTaskRunnning() const {
+    // TODO: how do we find the project manager from this context?
+    return false;
+}
+
+bool HelpPlugin::isBottomPanelsVisible() const {
+    auto window = dynamic_cast<QMainWindow *>(mdiServer->mdiHost);
+    for (auto dock : window->findChildren<QDockWidget *>()) {
+        if (window->dockWidgetArea(dock) == Qt::BottomDockWidgetArea && !dock->isFloating() &&
+            dock->isVisible()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void HelpPlugin::actionAbout_triggered() {
     auto appName = QCoreApplication::applicationName();
     auto version = QCoreApplication::applicationVersion();
@@ -380,3 +436,17 @@ void HelpPlugin::actionAbout_triggered() {
 }
 
 void HelpPlugin::checkForUpdates_triggered() { doChecksForUpdate(true); }
+
+bool HelpPlugin::eventFilter(QObject *obj, QEvent *event) {
+    auto handled = QObject::eventFilter(obj, event);
+
+    if (!handled && event->type() == QEvent::KeyPress) {
+        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        if (keyEvent->key() == Qt::Key_Escape) {
+            uiCleanUp();
+            return true;
+        }
+    }
+
+    return handled;
+}
