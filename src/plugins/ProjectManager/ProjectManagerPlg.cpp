@@ -776,7 +776,7 @@ auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     cursor.movePosition(QTextCursor::End);
     cursor.insertText(line);
     this->outputPanel->commandOuput->setTextCursor(cursor);
-    this->projectIssues->processLine(line);
+    this->projectIssues->processLine(line, this->getCurrentConfig()->sourceDir);
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {

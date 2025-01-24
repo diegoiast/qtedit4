@@ -240,6 +240,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
 
     outputDetector.add(new ClOutputDetector);
     outputDetector.add(new GccOutputDetector);
+    outputDetector.add(new CargoOutputDetector);
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }
@@ -265,10 +266,10 @@ auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
     }
 }
 
-void ProjectIssuesWidget::processLine(const QString &rawLines) {
+void ProjectIssuesWidget::processLine(const QString &rawLines, const QString &sourceDir) {
     auto lines = rawLines.split("\n");
     for (auto const &line : lines) {
-        outputDetector.processLine(line);
+        outputDetector.processLine(line, sourceDir);
         auto items = outputDetector.foundStatus();
         for (auto &item : items) {
             model->addItem(item);
