@@ -1,8 +1,9 @@
 #include "CompilerOutputDecoders.h"
 
+#include <QDir>
 #include <QFileInfo>
 
-void GccOutputDetector::processLine(const QString &line) {
+void GccOutputDetector::processLine(const QString &line, const QString &) {
     auto match = regionPattern.match(line);
     if (match.hasMatch()) {
         if (!currentStatus.message.isEmpty()) {
@@ -18,8 +19,10 @@ void GccOutputDetector::processLine(const QString &line) {
 
         auto fi = QFileInfo(fileName);
         auto displayName = fi.fileName();
-        currentStatus =
-            CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
+        if (!displayName.isEmpty()) {
+            currentStatus =
+                CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
+        }
     } else if (!line.isEmpty()) {
         if (!currentStatus.fileName.isEmpty()) {
             currentStatus.message += "\n";
@@ -53,9 +56,9 @@ void GccOutputDetector::endOfOutput() {
 
 GeneralDetector::~GeneralDetector() { qDeleteAll(detectors); }
 
-void GeneralDetector::processLine(const QString &line) {
+void GeneralDetector::processLine(const QString &line, const QString &sourceDir) {
     for (auto detector : detectors) {
-        detector->processLine(line);
+        detector->processLine(line, sourceDir);
     }
 }
 
@@ -81,7 +84,7 @@ void GeneralDetector::remove(OutputDetector *detector) {
     }
 }
 
-void ClOutputDetector::processLine(const QString &line) {
+void ClOutputDetector::processLine(const QString &line, const QString &) {
     static QRegularExpression clPattern(
         R"(([a-zA-Z]:\\[^:]+|\S+)\((\d+),(\d+)\):\s+(\w+)\s+(\w+):\s+(.+))");
 
@@ -109,4 +112,47 @@ QList<CompileStatus> ClOutputDetector::foundStatus() {
 
 void ClOutputDetector::endOfOutput() {
     // nothing
+}
+
+void CargoOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+    static QRegularExpression errorPattern(R"(^error: (.+))");
+    static QRegularExpression locationPattern(R"(^\s*-->\s*([^:]+):(\d+):(\d+))");
+
+    auto errorMatch = errorPattern.match(line);
+    if (errorMatch.hasMatch()) {
+        if (!currentStatus.message.isEmpty()) {
+            m_compileStatuses.append(currentStatus);
+        }
+        currentStatus = CompileStatus{"", "", -1, -1, "error", errorMatch.captured(1)};
+    } else {
+        auto locationMatch = locationPattern.match(line);
+        if (locationMatch.hasMatch()) {
+            currentStatus.fileName = sourceDir + QDir::separator() + locationMatch.captured(1);
+            currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();
+            currentStatus.row = locationMatch.captured(2).toInt() - 1;
+            currentStatus.col = locationMatch.captured(3).toInt() - 1;
+        } else if (!line.trimmed().isEmpty()) {
+            if (!currentStatus.message.isEmpty()) {
+                currentStatus.message += "\n";
+            }
+            currentStatus.message += line.trimmed();
+        } else if (!currentStatus.message.isEmpty() && !currentStatus.fileName.isEmpty()) {
+            m_compileStatuses.append(currentStatus);
+            currentStatus = {};
+        }
+    }
+}
+
+QList<CompileStatus> CargoOutputDetector::foundStatus() {
+    QList<CompileStatus> result = m_compileStatuses;
+    m_compileStatuses.clear();
+    return result;
+}
+
+void CargoOutputDetector::endOfOutput() {
+    if (!currentStatus.message.isEmpty()) {
+        m_compileStatuses.append(currentStatus);
+        currentStatus = {};
+    }
+    accumulatedMessage.clear();
 }
