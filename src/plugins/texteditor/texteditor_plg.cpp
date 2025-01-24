@@ -402,6 +402,9 @@ int TextEditorPlugin::canOpenFile(const QString &fileName) {
             return 5;
         }
     }
+    if (file.size() == 0) {
+        return 5;
+    }
 
     return 1;
 }
