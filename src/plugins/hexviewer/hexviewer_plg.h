@@ -19,6 +19,6 @@ class HexViewrPlugin : public IPlugin {
     ~HexViewrPlugin();
 
     QStringList myExtensions() override;
-    int canOpenFile(const QString fileName) override;
-    bool openFile(const QString fileName, int x = -1, int y = -1, int z = -1) override;
+    int canOpenFile(const QString &fileName) override;
+    bool openFile(const QString &fileName, int x = -1, int y = -1, int z = -1) override;
 };

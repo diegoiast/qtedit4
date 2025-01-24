@@ -146,7 +146,7 @@ QStringList HexViewrPlugin::myExtensions() {
     return s;
 }
 
-int HexViewrPlugin::canOpenFile(const QString fileName) {
+int HexViewrPlugin::canOpenFile(const QString &fileName) {
     static const QStringList extensions = {".bin", ".img", "blob", ".so",   ".AppImage",
                                            ".a",   ".exe", ".dll", ".dlib", ".pdf"};
     for (const QString &ext : extensions) {
@@ -161,9 +161,8 @@ int HexViewrPlugin::canOpenFile(const QString fileName) {
     return 2;
 }
 
-bool HexViewrPlugin::openFile(const QString fileName, int, int, int) {
+bool HexViewrPlugin::openFile(const QString &fileName, int, int, int) {
     auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
-    auto fi = QFileInfo(fileName);
     auto viewer = new qmdiHexViewer(tabWidget, fileName);
     mdiServer->addClient(viewer);
     return true;

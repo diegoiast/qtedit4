@@ -312,7 +312,7 @@ QStringList TextEditorPlugin::myExtensions() {
     return s;
 }
 
-int TextEditorPlugin::canOpenFile(const QString fileName) {
+int TextEditorPlugin::canOpenFile(const QString &fileName) {
     if (fileName.isEmpty()) {
         return 5;
     }
@@ -406,7 +406,7 @@ int TextEditorPlugin::canOpenFile(const QString fileName) {
     return 1;
 }
 
-bool TextEditorPlugin::openFile(const QString fileName, int x, int y, int zoom) {
+bool TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom) {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
 
     // In the future - the zoom, will be used to set state to the lines, if the value is really

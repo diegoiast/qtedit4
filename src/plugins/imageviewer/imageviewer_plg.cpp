@@ -84,7 +84,7 @@ QStringList ImageViewrPlugin::myExtensions() {
     return s;
 }
 
-int ImageViewrPlugin::canOpenFile(const QString fileName) {
+int ImageViewrPlugin::canOpenFile(const QString &fileName) {
     if (fileName.endsWith(".jpg", Qt::CaseInsensitive)) {
         return 5;
     } else if (fileName.endsWith(".jpeg", Qt::CaseInsensitive)) {
@@ -102,7 +102,7 @@ int ImageViewrPlugin::canOpenFile(const QString fileName) {
     }
 }
 
-bool ImageViewrPlugin::openFile(const QString fileName, int, int, int) {
+bool ImageViewrPlugin::openFile(const QString &fileName, int, int, int) {
     auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
     auto viewer = new qmdiImageViewer(tabWidget, fileName);
     mdiServer->addClient(viewer);
