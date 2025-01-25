@@ -12,6 +12,7 @@
 #include <sstream>
 
 #if defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__linux__)
+#include <pwd.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
@@ -118,8 +119,8 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
-static auto replaceAll(std::string &str, const std::string &from,
-                       const std::string &to) -> std::string & {
+static auto replaceAll(std::string &str, const std::string &from, const std::string &to)
+    -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
@@ -171,8 +172,7 @@ auto getHomeDir() -> std::filesystem::path {
     return {};
 }
 
-auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected,
-                           bool unix_target) -> void {
+auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected, bool unix_target) -> void {
     auto cargoHome = getHomeDir() / ".cargo";
     auto cargoHomeEnv = safeGetEnv("CARGO_HOME");
     if (!cargoHomeEnv.empty()) {
@@ -182,10 +182,10 @@ auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected,
     if (std::filesystem::exists(cargoPath)) {
         auto extraPath = KitDetector::ExtraPath();
         extraPath.name = "Rust - Cargo";
-        extraPath.compiler_path = (cargoHome / "bin").string();
-        extraPath.comment = "# found rust installation at" + cargoHome.string();
+        extraPath.compiler_path = cargoHome.string();
+        extraPath.comment = "# found rust installation at '" + cargoHome.string() + "'";
         if (unix_target) {
-            extraPath.command = "export PATH=\"${extraPath.compiler_path}/bin;${PATH}";
+            extraPath.command = "export PATH=\"" + extraPath.compiler_path + "/bin:${PATH}\"";
         } else {
             extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
         }
@@ -363,8 +363,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
     }
 }
 
-auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected,
-                                   bool unix_target) -> void {
+auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
+    -> void {
     auto path_env = safeGetEnv("PATH");
     if (path_env.empty()) {
         return;
