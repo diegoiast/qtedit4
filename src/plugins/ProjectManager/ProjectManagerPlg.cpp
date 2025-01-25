@@ -267,6 +267,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->setupUi(w2);
     outputDock = manager->createNewPanel(Panels::South, "buildoutput", tr("Output"), w2);
 
+    auto font = outputPanel->commandOuput->font();
+#if defined(_WIN32)
+    font.setFamily("Courier New");
+#else
+    font.setFamily("Monospace");
+#endif
+    font.setPointSize(10);
+    outputPanel->commandOuput->setFont(font);
+
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
     connect(outputPanel->copyOutput, &QAbstractButton::clicked, this, [this]() {
