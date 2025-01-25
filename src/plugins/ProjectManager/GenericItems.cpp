@@ -53,7 +53,7 @@ QString DirectoryModel::displayForItem(size_t i) const {
     auto fileName = fileList.at(i);
     auto path = [fileName, this]() {
         for (auto d : directoryList) {
-            if (fileName.startsWith(d)) {
+            if (QDir::toNativeSeparators(fileName).startsWith(d)) {
                 return d;
             }
         }
@@ -160,7 +160,7 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             auto options = QRegularExpression::UnanchoredWildcardConversion;
             auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
             auto regex = QRegularExpression(pattern);
-            bool matches = regex.match(fileName).hasMatch();
+            auto matches = regex.match(fileName).hasMatch();
             if (matches) {
                 return false;
             }
@@ -179,7 +179,7 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
             auto options = QRegularExpression::UnanchoredWildcardConversion;
             auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
             auto regex = QRegularExpression(pattern);
-            bool matches = regex.match(fileName).hasMatch();
+            auto matches = regex.match(fileName).hasMatch();
             if (matches) {
                 filterMatchFound = true;
                 break;
