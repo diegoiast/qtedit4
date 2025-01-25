@@ -118,14 +118,79 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
-static auto replaceAll(std::string &str, const std::string &from, const std::string &to)
-    -> std::string & {
+static auto replaceAll(std::string &str, const std::string &from,
+                       const std::string &to) -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
         start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
     }
     return str;
+}
+
+static auto safeGetEnv(const char *name) -> std::string {
+#if defined(_WIN32)
+    // TODO: we deal with ansi only - is this OK?
+    // Limit according to http://msdn.microsoft.com/en-us/library/ms683188.aspx
+    DWORD bufferSize = 65535;
+    std::string buff;
+    buff.resize(bufferSize);
+    bufferSize = GetEnvironmentVariableA(name, &buff[0], bufferSize);
+    if (bufferSize > 0) {
+        buff.resize(bufferSize);
+    } else {
+        buff.clear();
+    }
+    return buff;
+#else
+    auto v = std::getenv(name);
+    return v ? std::string(v) : std::string();
+#endif
+}
+
+auto getHomeDir() -> std::filesystem::path {
+#ifdef _WIN32
+    wchar_t szPath[MAX_PATH] = {0};
+    DWORD result = GetEnvironmentVariableW(L"USERPROFILE", szPath, MAX_PATH);
+    if (result > 0 && result < MAX_PATH) {
+        return std::filesystem::path(szPath);
+    }
+    if (SUCCEEDED(SHGetFolderPathW(NULL, CSIDL_PROFILE, NULL, 0, szPath))) {
+        return std::filesystem::path(szPath);
+    }
+#else
+    const char *homeDirEnv = std::getenv("HOME");
+    if (homeDirEnv) {
+        return std::filesystem::path(homeDirEnv);
+    }
+    struct passwd *pw = getpwuid(getuid());
+    if (pw) {
+        return std::filesystem::path(pw->pw_dir);
+    }
+#endif
+    return {};
+}
+
+auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected,
+                           bool unix_target) -> void {
+    auto cargoHome = getHomeDir() / ".cargo";
+    auto cargoHomeEnv = safeGetEnv("CARGO_HOME");
+    if (!cargoHomeEnv.empty()) {
+        cargoHome = std::filesystem::path(cargoHomeEnv);
+    }
+    auto cargoPath = cargoHome / "bin" / (unix_target ? "cargo" : "cargo.exe");
+    if (std::filesystem::exists(cargoPath)) {
+        auto extraPath = KitDetector::ExtraPath();
+        extraPath.name = "Rust - Cargo";
+        extraPath.compiler_path = (cargoHome / "bin").string();
+        extraPath.comment = "# found rust installation at" + cargoHome.string();
+        if (unix_target) {
+            extraPath.command = "export PATH=\"${extraPath.compiler_path}/bin;${PATH}";
+        } else {
+            extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+        }
+        detected.push_back(extraPath);
+    }
 }
 
 #if defined(_WIN32)
@@ -154,7 +219,7 @@ static auto checkVisualStudioVersion(PWSTR basePath, const std::wstring &version
     return false;
 }
 
-static auto findCompilersWindows(std::vector<KitDetector::ExtraPath> &detected) -> void {
+static auto findCppCompilersWindows(std::vector<KitDetector::ExtraPath> &detected) -> void {
     PWSTR programFiles = nullptr;
     PWSTR programFiles86 = nullptr;
 
@@ -225,26 +290,6 @@ static auto findCompilerToolsWindows(std::vector<KitDetector::ExtraPath> &detect
         }
     }
     return false;
-}
-
-static auto safeGetEnv(const char *name) -> std::string {
-#if defined(_WIN32)
-    // TODO: we deal with ansi only - is this OK?
-    // Limit according to http://msdn.microsoft.com/en-us/library/ms683188.aspx
-    DWORD bufferSize = 65535;
-    std::string buff;
-    buff.resize(bufferSize);
-    bufferSize = GetEnvironmentVariableA(name, &buff[0], bufferSize);
-    if (bufferSize > 0) {
-        buff.resize(bufferSize);
-    } else {
-        buff.clear();
-    }
-    return buff;
-#else
-    auto v = std::getenv(name);
-    return v ? std::string(v) : std::string();
-#endif
 }
 
 auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
@@ -318,8 +363,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
     }
 }
 
-auto static findCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
-    -> void {
+auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected,
+                                   bool unix_target) -> void {
     auto path_env = safeGetEnv("PATH");
     if (path_env.empty()) {
         return;
@@ -333,12 +378,13 @@ auto static findCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, b
 
 auto findCompilers(bool unix_target) -> std::vector<ExtraPath> {
     auto detected = std::vector<ExtraPath>();
-    findCompilersInPath(detected, unix_target);
+    findCppCompilersInPath(detected, unix_target);
 
 #if defined(_WIN32)
-    findCompilersWindows(detected);
+    findCppCompilersWindows(detected);
 #endif
 
+    findRustSetup(detected, unix_target);
     return detected;
 }
 
