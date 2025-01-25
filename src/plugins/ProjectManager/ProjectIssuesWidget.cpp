@@ -87,6 +87,17 @@ QVariant CompileStatusModel::data(const QModelIndex &index, int role) const {
         }
     }
 
+    if (role == Qt::ToolTipRole) {
+        switch (index.column()) {
+        case 1:
+            return status.message;
+        case 2:
+            return status.fileName;
+        default:
+            break;
+        }
+    }
+
     return {};
 }
 
@@ -242,6 +253,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
     outputDetector.add(new ClOutputDetector);
     outputDetector.add(new GccOutputDetector);
     outputDetector.add(new CargoOutputDetector);
+    outputDetector.add(new GoLangOutputDetector);
 }
 
 ProjectIssuesWidget::~ProjectIssuesWidget() { delete ui; }

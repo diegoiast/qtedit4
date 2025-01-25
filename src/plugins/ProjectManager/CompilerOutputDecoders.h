@@ -60,9 +60,9 @@ class GccOutputDetector : public OutputDetector {
 
 class ClOutputDetector : public OutputDetector {
   public:
-    void processLine(const QString &line, const QString &sourceDir);
-    QList<CompileStatus> foundStatus();
-    void endOfOutput();
+    virtual void processLine(const QString &line, const QString &sourceDir);
+    virtual QList<CompileStatus> foundStatus();
+    virtual void endOfOutput();
 
   public:
     QList<CompileStatus> compileStatuses;
@@ -73,9 +73,9 @@ class CargoOutputDetector : public OutputDetector {
     CargoOutputDetector() = default;
     ~CargoOutputDetector() override = default;
 
-    void processLine(const QString &line, const QString &sourceDir) override;
-    QList<CompileStatus> foundStatus() override;
-    void endOfOutput() override;
+    virtual void processLine(const QString &line, const QString &sourceDir) override;
+    virtual QList<CompileStatus> foundStatus() override;
+    virtual void endOfOutput() override;
 
   private:
     // Rust/Cargo output pattern for errors and warnings
@@ -84,5 +84,19 @@ class CargoOutputDetector : public OutputDetector {
 
     QList<CompileStatus> m_compileStatuses;
     CompileStatus currentStatus = {};
+    QString accumulatedMessage;
+};
+
+class GoLangOutputDetector : public OutputDetector {
+  public:
+    GoLangOutputDetector() = default;
+    ~GoLangOutputDetector() override = default;
+    virtual void processLine(const QString &line, const QString &sourceDir) override;
+    virtual void endOfOutput() override;
+    virtual QList<CompileStatus> foundStatus() override;
+
+  private:
+    QList<CompileStatus> m_compileStatuses;
+    CompileStatus currentStatus;
     QString accumulatedMessage;
 };

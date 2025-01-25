@@ -12,16 +12,19 @@ void GccOutputDetector::processLine(const QString &line, const QString &) {
 
         // gcc errors/warnings start at  line 1, we start and line 0
         auto fileName = match.captured(1);
-        auto lineNmber = match.captured(2).toInt() - 1;
-        auto columnNumber = match.captured(3).toInt() - 1;
-        auto type = match.captured(4);
-        auto message = match.captured(5);
+        // gcc clang use full file names, Go, will also match - but uses relative file names
+        if (!fileName.startsWith("./")) {
+            auto lineNmber = match.captured(2).toInt() - 1;
+            auto columnNumber = match.captured(3).toInt() - 1;
+            auto type = match.captured(4);
+            auto message = match.captured(5);
 
-        auto fi = QFileInfo(fileName);
-        auto displayName = fi.fileName();
-        if (!displayName.isEmpty()) {
-            currentStatus =
-                CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
+            auto fi = QFileInfo(fileName);
+            auto displayName = fi.fileName();
+            if (!displayName.isEmpty()) {
+                currentStatus =
+                    CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
+            }
         }
     } else if (!line.isEmpty()) {
         if (!currentStatus.fileName.isEmpty()) {
@@ -131,11 +134,6 @@ void CargoOutputDetector::processLine(const QString &line, const QString &source
             currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();
             currentStatus.row = locationMatch.captured(2).toInt() - 1;
             currentStatus.col = locationMatch.captured(3).toInt() - 1;
-        } else if (!line.trimmed().isEmpty()) {
-            if (!currentStatus.message.isEmpty()) {
-                currentStatus.message += "\n";
-            }
-            currentStatus.message += line.trimmed();
         } else if (!currentStatus.message.isEmpty() && !currentStatus.fileName.isEmpty()) {
             m_compileStatuses.append(currentStatus);
             currentStatus = {};
@@ -150,6 +148,53 @@ QList<CompileStatus> CargoOutputDetector::foundStatus() {
 }
 
 void CargoOutputDetector::endOfOutput() {
+    if (!currentStatus.message.isEmpty()) {
+        m_compileStatuses.append(currentStatus);
+        currentStatus = {};
+    }
+    accumulatedMessage.clear();
+}
+
+void GoLangOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+    auto static errorPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*(.*))");
+    auto static warningPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*warning:\s*(.*))");
+    auto errorMatch = errorPattern.match(line);
+    auto warningMatch = warningPattern.match(line);
+
+    if (errorMatch.hasMatch() || warningMatch.hasMatch()) {
+        if (!currentStatus.message.isEmpty()) {
+            m_compileStatuses.append(currentStatus);
+        }
+
+        auto match = errorMatch.hasMatch() ? errorMatch : warningMatch;
+        auto severity = errorMatch.hasMatch() ? "error" : "warning";
+        auto fileName =
+            QFileInfo(sourceDir + QDir::separator() + match.captured(1)).absoluteFilePath();
+        auto displayName = QFileInfo(fileName).fileName();
+        auto lineNumber = match.captured(2).toInt() - 1;
+        auto columnNumber = match.captured(3).toInt() - 1;
+        auto message = match.captured(4);
+
+        currentStatus =
+            CompileStatus{fileName, displayName, lineNumber, columnNumber, severity, message};
+    } else if (!line.trimmed().isEmpty()) {
+        if (!currentStatus.message.isEmpty()) {
+            currentStatus.message += "\n";
+        }
+        currentStatus.message += line.trimmed();
+    } else if (!currentStatus.message.isEmpty() && !currentStatus.fileName.isEmpty()) {
+        m_compileStatuses.append(currentStatus);
+        currentStatus = {};
+    }
+}
+
+QList<CompileStatus> GoLangOutputDetector::foundStatus() {
+    QList<CompileStatus> result = m_compileStatuses;
+    m_compileStatuses.clear();
+    return result;
+}
+
+void GoLangOutputDetector::endOfOutput() {
     if (!currentStatus.message.isEmpty()) {
         m_compileStatuses.append(currentStatus);
         currentStatus = {};
