@@ -52,9 +52,11 @@ QVariant DirectoryModel::data(const QModelIndex &index, int role) const {
 QString DirectoryModel::displayForItem(size_t i) const {
     auto fileName = fileList.at(i);
     auto path = [fileName, this]() {
-        for (auto d : directoryList) {
-            if (QDir::toNativeSeparators(fileName).startsWith(d)) {
-                return d;
+        for (auto &d : directoryList) {
+            auto fixedFileName = QDir::toNativeSeparators(fileName);
+            auto fixedDirName = QDir::toNativeSeparators(d);
+            if (fixedFileName.startsWith(fixedDirName)) {
+                return fixedDirName;
             }
         }
         return QString{};
@@ -64,7 +66,7 @@ QString DirectoryModel::displayForItem(size_t i) const {
     if (!path.endsWith('/') && !path.endsWith('\\')) {
         l++;
     }
-    return QDir::toNativeSeparators(fileName.remove(0, l));
+    return fileName.remove(0, l);
 }
 
 QString DirectoryModel::fileNameForItem(size_t i) const {
