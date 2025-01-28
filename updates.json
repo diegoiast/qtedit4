@@ -1,30 +1,30 @@
 {
    "updates":{
       "windows":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
-         "latest-version":"0.0.4",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.exe",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
+         "latest-version":"0.0.5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.exe",
+         "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5-rc1",
-         "latest-version":"0.0.5-rc1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5-rc1/qtedit4-qt6.8.1-v0.0.5-rc1-x86_64.exe",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
+         "latest-version":"0.0.5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.exe",
          "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
          "mandatory":true
       },
       "linux":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.4",
-         "latest-version":"0.0.4",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.4/qtedit4-qt6.8.1-v0.0.4-x86_64.AppImage",
-         "changelog":"Fixes running under gnome<br />Updates to the editor component<br />Added a minimap to the editors<br />Baby steps for a building projects",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
+         "latest-version":"0.0.5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.AppImage",
+         "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
          "mandatory":true
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5-rc1",
-         "latest-version":"0.0.5-rc1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5-rc1/qtedit4-qt6.8.1-v0.0.5-rc1-x86_64.AppImage",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
+         "latest-version":"0.0.5",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.AppImage",
          "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
          "mandatory":true
       }
