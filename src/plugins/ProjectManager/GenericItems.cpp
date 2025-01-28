@@ -53,8 +53,8 @@ QString DirectoryModel::displayForItem(size_t i) const {
     auto fileName = fileList.at(i);
     auto path = [fileName, this]() {
         for (auto &d : directoryList) {
-            auto fixedFileName = QDir::toNativeSeparators(fileName);
-            auto fixedDirName = QDir::toNativeSeparators(d);
+            auto fixedFileName = fileName;
+            auto fixedDirName = d;
             if (fixedFileName.startsWith(fixedDirName)) {
                 return fixedDirName;
             }
@@ -105,7 +105,7 @@ void DirectoryModel::addDirectory(const QString &path) {
 
 void DirectoryModel::scanStarted(const QString &rootPath) {
     qInfo() << "loading" << rootPath;
-    directoryList << rootPath;
+    directoryList.push_back(QDir::toNativeSeparators(rootPath));
 }
 
 void DirectoryModel::newFiles(const QStringList &files) {
@@ -115,7 +115,9 @@ void DirectoryModel::newFiles(const QStringList &files) {
         return;
     }
     beginInsertRows(QModelIndex(), startRow, endRow);
-    fileList << files;
+    for (auto &f : files) {
+        fileList.push_back(QDir::toNativeSeparators(f));
+    }
     endInsertRows();
     qInfo() << "Inserted" << files.size() << "files. First file:" << files.first();
 }
