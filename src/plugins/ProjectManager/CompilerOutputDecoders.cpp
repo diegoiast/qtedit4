@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-void GccOutputDetector::processLine(const QString &line, const QString &) {
+bool GccOutputDetector::processLine(const QString &line, const QString &) {
     auto match = regionPattern.match(line);
     if (match.hasMatch()) {
         if (!currentStatus.message.isEmpty()) {
@@ -23,13 +23,16 @@ void GccOutputDetector::processLine(const QString &line, const QString &) {
             auto displayName = fi.fileName();
             if (!displayName.isEmpty()) {
                 currentStatus =
-                    CompileStatus{fileName, displayName, lineNmber, columnNumber, type, message};
+                    CompileStatus{fileName, displayName, lineNmber,          columnNumber,
+                                  type,     message,     "GccOutputDetector"};
             }
+            return true;
         }
     } else if (!line.isEmpty()) {
         if (!currentStatus.fileName.isEmpty()) {
             currentStatus.message += "\n";
             currentStatus.message += line;
+            return true;
         }
     } else {
         // Empty line (can be treated as a boundary or EOF)
@@ -39,6 +42,8 @@ void GccOutputDetector::processLine(const QString &line, const QString &) {
             currentStatus.fileName.clear();
         }
     }
+
+    return false;
 }
 
 QList<CompileStatus> GccOutputDetector::foundStatus() {
@@ -59,10 +64,13 @@ void GccOutputDetector::endOfOutput() {
 
 GeneralDetector::~GeneralDetector() { qDeleteAll(detectors); }
 
-void GeneralDetector::processLine(const QString &line, const QString &sourceDir) {
+bool GeneralDetector::processLine(const QString &line, const QString &sourceDir) {
     for (auto detector : detectors) {
-        detector->processLine(line, sourceDir);
+        if (detector->processLine(line, sourceDir)) {
+            return true;
+        }
     }
+    return false;
 }
 
 QList<CompileStatus> GeneralDetector::foundStatus() {
@@ -87,7 +95,7 @@ void GeneralDetector::remove(OutputDetector *detector) {
     }
 }
 
-void ClOutputDetector::processLine(const QString &line, const QString &) {
+bool ClOutputDetector::processLine(const QString &line, const QString &) {
     static QRegularExpression clPattern(
         R"(([a-zA-Z]:\\[^:]+|\S+)\((\d+),(\d+)\):\s+(\w+)\s+(\w+):\s+(.+))");
 
@@ -102,9 +110,13 @@ void ClOutputDetector::processLine(const QString &line, const QString &) {
 
         auto fi = QFileInfo(fileName);
         auto displayName = fi.fileName();
-        compileStatuses.append(
-            CompileStatus{fileName, displayName, lineNumber, columnNumber, type, message});
+        compileStatuses.append(CompileStatus{fileName, displayName, lineNumber, columnNumber, type,
+                                             message, "ClOutputDetector"});
+
+        return true;
     }
+
+    return false;
 }
 
 QList<CompileStatus> ClOutputDetector::foundStatus() {
@@ -117,7 +129,7 @@ void ClOutputDetector::endOfOutput() {
     // nothing
 }
 
-void CargoOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+bool CargoOutputDetector::processLine(const QString &line, const QString &sourceDir) {
     static QRegularExpression errorPattern(R"(^error: (.+))");
     static QRegularExpression locationPattern(R"(^\s*-->\s*([^:]+):(\d+):(\d+))");
 
@@ -126,7 +138,9 @@ void CargoOutputDetector::processLine(const QString &line, const QString &source
         if (!currentStatus.message.isEmpty()) {
             m_compileStatuses.append(currentStatus);
         }
-        currentStatus = CompileStatus{"", "", -1, -1, "error", errorMatch.captured(1)};
+        currentStatus =
+            CompileStatus{"", "", -1, -1, "error", errorMatch.captured(1), "CargoOutputDetector"};
+        return true;
     } else {
         auto locationMatch = locationPattern.match(line);
         if (locationMatch.hasMatch()) {
@@ -134,11 +148,14 @@ void CargoOutputDetector::processLine(const QString &line, const QString &source
             currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();
             currentStatus.row = locationMatch.captured(2).toInt() - 1;
             currentStatus.col = locationMatch.captured(3).toInt() - 1;
+            return true;
         } else if (!currentStatus.message.isEmpty() && !currentStatus.fileName.isEmpty()) {
             m_compileStatuses.append(currentStatus);
             currentStatus = {};
         }
     }
+
+    return false;
 }
 
 QList<CompileStatus> CargoOutputDetector::foundStatus() {
@@ -155,7 +172,7 @@ void CargoOutputDetector::endOfOutput() {
     accumulatedMessage.clear();
 }
 
-void GoLangOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+bool GoLangOutputDetector::processLine(const QString &line, const QString &sourceDir) {
     auto static errorPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*(.*))");
     auto static warningPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*warning:\s*(.*))");
     auto errorMatch = errorPattern.match(line);
@@ -166,26 +183,30 @@ void GoLangOutputDetector::processLine(const QString &line, const QString &sourc
             m_compileStatuses.append(currentStatus);
         }
 
-        auto match = errorMatch.hasMatch() ? errorMatch : warningMatch;
-        auto severity = errorMatch.hasMatch() ? "error" : "warning";
-        auto fileName =
-            QFileInfo(sourceDir + QDir::separator() + match.captured(1)).absoluteFilePath();
-        auto displayName = QFileInfo(fileName).fileName();
-        auto lineNumber = match.captured(2).toInt() - 1;
-        auto columnNumber = match.captured(3).toInt() - 1;
-        auto message = match.captured(4);
+        QString severity = errorMatch.hasMatch() ? "error" : "warning";
+        QRegularExpressionMatch match = errorMatch.hasMatch() ? errorMatch : warningMatch;
 
-        currentStatus =
-            CompileStatus{fileName, displayName, lineNumber, columnNumber, severity, message};
+        currentStatus = CompileStatus{sourceDir + QDir::separator() + match.captured(1),
+                                      QFileInfo(match.captured(1)).fileName(),
+                                      match.captured(2).toInt() - 1,
+                                      match.captured(3).toInt() - 1,
+                                      severity,
+                                      match.captured(4)};
+
+        return true; // Line processed as an error or warning
     } else if (!line.trimmed().isEmpty()) {
         if (!currentStatus.message.isEmpty()) {
             currentStatus.message += "\n";
         }
         currentStatus.message += line.trimmed();
+        return true;
     } else if (!currentStatus.message.isEmpty() && !currentStatus.fileName.isEmpty()) {
         m_compileStatuses.append(currentStatus);
         currentStatus = {};
+        return true;
     }
+
+    return false;
 }
 
 QList<CompileStatus> GoLangOutputDetector::foundStatus() {

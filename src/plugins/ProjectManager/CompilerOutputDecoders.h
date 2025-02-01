@@ -11,13 +11,14 @@ struct CompileStatus {
     int col;
     QString type;
     QString message;
+    QString detectedBy;
 };
 
 class OutputDetector {
   public:
     virtual ~OutputDetector() = default;
 
-    virtual void processLine(const QString &line, const QString &sourceDir) = 0;
+    virtual bool processLine(const QString &line, const QString &sourceDir) = 0;
 
     // Returns the collected compile status and resets the list
     virtual QList<CompileStatus> foundStatus() = 0;
@@ -29,7 +30,7 @@ class GeneralDetector : public OutputDetector {
   public:
     GeneralDetector() = default;
     ~GeneralDetector() override;
-    virtual void processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
@@ -45,8 +46,8 @@ class GccOutputDetector : public OutputDetector {
     GccOutputDetector() = default;
     ~GccOutputDetector() override = default;
 
-    void processLine(const QString &lin, const QString &sourceDir) override;
-    QList<CompileStatus> foundStatus() override;
+    virtual bool processLine(const QString &lin, const QString &sourceDir) override;
+    virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
   private:
@@ -60,7 +61,7 @@ class GccOutputDetector : public OutputDetector {
 
 class ClOutputDetector : public OutputDetector {
   public:
-    virtual void processLine(const QString &line, const QString &sourceDir);
+    virtual bool processLine(const QString &line, const QString &sourceDir);
     virtual QList<CompileStatus> foundStatus();
     virtual void endOfOutput();
 
@@ -73,7 +74,7 @@ class CargoOutputDetector : public OutputDetector {
     CargoOutputDetector() = default;
     ~CargoOutputDetector() override = default;
 
-    virtual void processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
@@ -91,7 +92,7 @@ class GoLangOutputDetector : public OutputDetector {
   public:
     GoLangOutputDetector() = default;
     ~GoLangOutputDetector() override = default;
-    virtual void processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir) override;
     virtual void endOfOutput() override;
     virtual QList<CompileStatus> foundStatus() override;
 
