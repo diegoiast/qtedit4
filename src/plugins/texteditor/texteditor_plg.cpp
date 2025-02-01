@@ -280,13 +280,14 @@ void TextEditorPlugin::loadConfig(QSettings &settings) {
 
     auto themeFileName = getConfig().getTheme();
     delete this->theme;
-    this->theme = new Qutepart::Theme();
-    if (!this->theme->loadTheme(themeFileName)) {
-        qDebug() << "Failed loading thene " << themeFileName;
-        delete this->theme;
-        this->theme = nullptr;
+    if (!themeFileName.isEmpty()) {
+        this->theme = new Qutepart::Theme();
+        if (!this->theme->loadTheme(themeFileName)) {
+            qDebug() << "Failed loading theme " << themeFileName;
+            delete this->theme;
+            this->theme = nullptr;
+        }
     }
-
     auto history = getConfig().getSeachHistory();
     historyModel->setHistory(history);
 }
