@@ -414,10 +414,12 @@ bool TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom)
 
     // In the future - the zoom, will be used to set state to the lines, if the value is really
     // large. I will assume that font size bigger than 500 is not really existent.
-    if (zoom < 1000000) {
+    if (0 < zoom && zoom < 1000000) {
         auto f = editor->font();
         f.setPointSize(zoom);
         editor->setFont(f);
+    } else {
+        // Commands non i
     }
 
     auto langInfo = ::Qutepart::chooseLanguage({}, {}, fileName);
