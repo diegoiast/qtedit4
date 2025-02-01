@@ -10,7 +10,7 @@ set(QMDILIB_BUILD_EXAMPLES off)
 set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
-set(QTEDIT4_WORK_OFFLINE off)
+option(QTEDIT4_WORK_OFFLINE off)
 
 if (QTEDIT4_WORK_OFFLINE)
     # for this to work, you need to make these libraries available yourself.
