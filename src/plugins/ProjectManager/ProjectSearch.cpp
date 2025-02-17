@@ -81,7 +81,7 @@ void ProjectSearch::searchButton_clicked() {
     this->ui->treeWidget->clear();
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
-    QThreadPool::globalInstance()->start([=]() {
+    QThreadPool::globalInstance()->start([this, allowList, denyList]() {
         auto text = ui->searchFor->text().toStdString();
 
         for (auto const &fullFileName : std::as_const(model->fileList)) {

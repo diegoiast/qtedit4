@@ -3,6 +3,8 @@ project (qtedit4)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/mold-linker.cmake)
 
@@ -38,8 +40,6 @@ endif()
 
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network Svg Xml)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
