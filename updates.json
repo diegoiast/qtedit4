@@ -1,31 +1,31 @@
 {
    "updates":{
       "windows":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
-         "latest-version":"0.0.5",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.exe",
-         "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6",
+         "latest-version":"0.0.6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6/qtedit4-qt6.8.1-v0.0.6-x86_64.exe",
+         "changelog": "Various cleanups and fixes",
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6-beta1",
-         "latest-version":"0.0.6-beta1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6-beta1/qtedit4-qt6.8.1-v0.0.6-beta1-x86_64.exe",
-         "changelog": "Varios cleanups and fixes",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6",
+         "latest-version":"0.0.6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6/qtedit4-qt6.8.1-v0.0.6-x86_64.exe",
+         "changelog": "Various cleanups and fixes",
          "mandatory":true
       },
       "linux":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.5",
-         "latest-version":"0.0.5",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.5/qtedit4-qt6.8.1-v0.0.5-x86_64.AppImage",
-         "changelog":"UI optimizations<br /> Mark modified lines<br />Using Qt docking system<br />Project build and issues for C++, GoLang and Rust<br />",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6",
+         "latest-version":"0.0.6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6/qtedit4-qt6.8.1-v0.0.6-x86_64.AppImage",
+         "changelog": "Various cleanups and fixes",
          "mandatory":true
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6-beta1",
-         "latest-version":"0.0.6-beta1",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6-beta1/qtedit4-qt6.8.1-v0.0.6-beta1-x86_64.AppImage",
-         "changelog": "Varios cleanups and fixes",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.6",
+         "latest-version":"0.0.6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.6/qtedit4-qt6.8.1-v0.0.6-x86_64.AppImage",
+         "changelog": "Various cleanups and fixes",
          "mandatory":true
       }
    }
