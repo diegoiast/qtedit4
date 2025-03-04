@@ -34,6 +34,7 @@
 #include <QTreeView>
 #include <qmditabwidget.h>
 
+#include <QToolTip>
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
@@ -202,6 +203,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     setEditorFont(fnt);
 
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
+    textEditor->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     banner = new QWidget(this);
     banner->hide();
@@ -279,7 +281,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->contextMenu.addAction(actionCopyFilePath);
 
     this->installEventFilter(this);
-
+    textEditor->installEventFilter(this);
 #if defined(WIN32)
     originalLineEnding = "\r\n";
 #else
@@ -359,7 +361,7 @@ void qmdiEditor::setupActions() {
     previewButton->setFlat(true);
     previewButton->setCheckable(true);
 
-    connect(previewButton, &QAbstractButton::toggled, this, [=](bool toggled) {
+    connect(previewButton, &QAbstractButton::toggled, this, [this](bool toggled) {
         this->textPreview->setVisible(toggled);
         if (toggled) {
             updatePreview();
@@ -634,6 +636,25 @@ bool qmdiEditor::eventFilter(QObject *watched, QEvent *event) {
             break;
         default:
             break;
+        }
+    } else if (watched == textEditor) {
+        if (event->type() == QEvent::ToolTip) {
+
+            // We have viewports, so we need to translate it.
+            auto helpEvent = static_cast<QHelpEvent *>(event);
+            auto pos = textEditor->viewport()->mapFromGlobal(helpEvent->globalPos());
+            auto cursor = textEditor->cursorForPosition(pos);
+            cursor.select(QTextCursor::WordUnderCursor);
+            if (!cursor.selectedText().isEmpty()) {
+                auto toolTipText =
+                    QString("%1 %2").arg(cursor.selectedText()).arg(cursor.selectedText().length());
+                QToolTip::showText(helpEvent->globalPos(), toolTipText);
+            }
+
+            else {
+                QToolTip::hideText();
+            }
+            return true;
         }
     }
     return QWidget::eventFilter(watched, event);

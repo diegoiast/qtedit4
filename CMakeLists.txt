@@ -12,7 +12,8 @@ set(QMDILIB_BUILD_EXAMPLES off)
 set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
-option(QTEDIT4_WORK_OFFLINE off)
+set(LSP_USE_SANITIZERS off)
+option(QTEDIT4_WORK_OFFLINE "Making this off will force using CPM, if set on, first run get-code.sh" ON)
 
 if (QTEDIT4_WORK_OFFLINE)
     # for this to work, you need to make these libraries available yourself.
@@ -23,6 +24,9 @@ if (QTEDIT4_WORK_OFFLINE)
     add_subdirectory("lib/QJsonModel")
     add_subdirectory("lib/QSimpleUpdater")
     add_subdirectory("lib/QHexView")
+    add_subdirectory("lib/lsp-framework/")
+    # add_subdirectory("lib/lsp-cpp")
+    # add_subdirectory("lib/Proto3PO/")
 else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
@@ -95,6 +99,8 @@ set(qtedit4_sources
     src/plugins/ProjectManager/kitdefinitionmodel.cpp
     src/plugins/ProjectManager/kitdetector.h
     src/plugins/ProjectManager/kitdetector.cpp
+    src/plugins/ProjectManager/LspClientImpl.h
+    src/plugins/ProjectManager/LspClientImpl.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.h
     src/plugins/ProjectManager/ProjectIssuesWidget.h 
@@ -122,7 +128,16 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport Qt6::Svg Qt6::Xml 
+    qmdilib 
+    qutepart 
+    CommandPaletteWidget 
+    Pal::ImageViewer 
+    QHexView 
+    QSimpleUpdater 
+    QJsonModelStatic
+    lsp
+)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

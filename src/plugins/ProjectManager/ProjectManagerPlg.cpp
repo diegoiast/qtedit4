@@ -170,8 +170,8 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
 
     directoryModel = nullptr;
 
-    config.pluginName = "Project manager";
-    config.description = "Add support for building using CMake/Cargo/Go";
+    config.pluginName = tr("Project manager");
+    config.description = tr("Add support for building using CMake/Cargo/Go");
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Extra paths"))
                                      .setDescription(tr("Add new paths for compilers/tools"))
@@ -696,7 +696,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto manager = getManager();
     auto count = manager->visibleTabs();
-    for (auto i = 0; i < count; i++) {
+    for (auto i = 0u; i < count; i++) {
         auto client = manager->getMdiClient(i);
         if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
             editor->removeMetaData();

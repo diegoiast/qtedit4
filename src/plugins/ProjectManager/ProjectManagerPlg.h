@@ -1,9 +1,10 @@
 #pragma once
 
-#include "iplugin.h"
-#include "kitdefinitions.h"
 #include <QFileSystemWatcher>
 #include <QProcess>
+
+#include "iplugin.h"
+#include "kitdefinitions.h"
 
 class ProjectBuildModel;
 class ProjectIssuesWidget;
@@ -75,8 +76,8 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
-    QDockWidget *outputDock;
-    QDockWidget *issuesDock;
+    QDockWidget *outputDock = nullptr;
+    QDockWidget *issuesDock = nullptr;
     ProjectIssuesWidget *projectIssues = nullptr;
 
     QFileSystemWatcher configWatcher;
