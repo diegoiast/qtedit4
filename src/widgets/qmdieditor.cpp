@@ -34,6 +34,7 @@
 #include <QTreeView>
 #include <qmditabwidget.h>
 
+#include <QToolTip>
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
