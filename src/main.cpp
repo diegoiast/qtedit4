@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QStandardPaths>
 #include <QToolButton>
+#include <widgets/qmdSplitTab.h>
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -63,10 +64,22 @@ int main(int argc, char *argv[]) {
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
+    auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
 
-    auto textEditorPlugin = new TextEditorPlugin;
+#if 1
+    auto split = new qmdiSplitTab;
+    auto splitAction = new QAction("Split tabs", split);
 
+    QObject::connect(splitAction, &QAction::triggered, splitAction,
+                     [split, splitAction, textEditorPlugin]() {
+                         split->splitHorizontally();
+                         textEditorPlugin->fileNew();
+                     });
+
+    pluginManager.menus["Se&ttings"]->addAction(splitAction);
+    pluginManager.replaceMdiServer(split);
+#endif
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);

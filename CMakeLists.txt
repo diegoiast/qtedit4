@@ -78,6 +78,10 @@ set(qtedit4_sources
     src/widgets/QPathEdit.h
     src/widgets/LoadingWidget.cpp
     src/widgets/LoadingWidget.h
+    src/widgets/qmdSplitTab.cpp  
+    src/widgets/qmdSplitTab.h  
+    src/widgets/SplitTabWidget.cpp  
+    src/widgets/SplitTabWidget.h
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp
