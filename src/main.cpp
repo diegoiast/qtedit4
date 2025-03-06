@@ -12,7 +12,7 @@
 #include <QIcon>
 #include <QStandardPaths>
 #include <QToolButton>
-#include <widgets/qmdSplitTab.h>
+#include <widgets/qmdiSplitTab.h>
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -72,11 +72,10 @@ int main(int argc, char *argv[]) {
     auto splitAction = new QAction("Split tabs", split);
 
     splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
-    QObject::connect(splitAction, &QAction::triggered, splitAction,
-                     [split, splitAction, textEditorPlugin]() {
-                         split->splitHorizontally();
-                         textEditorPlugin->fileNew();
-                     });
+    QObject::connect(splitAction, &QAction::triggered, splitAction, [split, textEditorPlugin]() {
+        split->splitHorizontally();
+        textEditorPlugin->fileNew();
+    });
 
     pluginManager.menus["Se&ttings"]->addAction(splitAction);
     pluginManager.replaceMdiServer(split);
