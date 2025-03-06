@@ -5,7 +5,7 @@
 #include <qmdiclient.h>
 #include <qmdihost.h>
 
-#include "widgets/qmdSplitTab.h"
+#include "widgets/qmdiSplitTab.h"
 
 void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     SplitTabWidget::onTabFocusChanged(widget, focused);
