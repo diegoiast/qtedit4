@@ -14,19 +14,26 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     if (widget == activeWidget) {
         return;
     }
+    if (!focused) {
+        return;
+    }
 
-    if (activeWidget) {
-        mdiHost->unmergeClient(dynamic_cast<qmdiClient *>(activeWidget));
+    auto client = dynamic_cast<qmdiClient *>(activeWidget);
+    if (client) {
+        mdiHost->unmergeClient(client);
     }
 
     activeWidget = widget;
 
+    client = dynamic_cast<qmdiClient *>(activeWidget);
     if (activeWidget) {
-        mdiHost->mergeClient(dynamic_cast<qmdiClient *>(activeWidget));
+        mdiHost->mergeClient(client);
     }
 
     auto m = dynamic_cast<QMainWindow *>(mdiHost);
+    auto index = getCurrentClientIndex();
     mdiHost->updateGUI(m);
+    mdiSelected(client, index);
 }
 
 void qmdiSplitTab::addClient(qmdiClient *client) {
@@ -40,6 +47,7 @@ void qmdiSplitTab::addClient(qmdiClient *client) {
     }
 
     addTabToCurrentSplit(w, client->mdiClientName);
+    client->mdiServer = this;
     w->setFocus();
     // auto i = addTab(w, client->mdiClientName);
     // setTabToolTip(i, client->mdiClientFileName());
@@ -164,5 +172,11 @@ void qmdiSplitTab::setCurrentClientIndex(int i) {
         }
 
         currentCount += tabCount;
+    }
+}
+
+void qmdiSplitTab::mdiSelected(qmdiClient *client, int index) const {
+    if (onMdiSelected) {
+        onMdiSelected(client, index);
     }
 }
