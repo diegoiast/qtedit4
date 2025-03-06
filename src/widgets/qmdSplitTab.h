@@ -19,5 +19,7 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     virtual void setCurrentClientIndex(int i) override;
 
   private:
+    virtual void mdiSelected(qmdiClient *client, int index) const override;
+
     QWidget *activeWidget = nullptr;
 };
