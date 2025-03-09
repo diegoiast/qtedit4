@@ -260,7 +260,6 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->menus["&Search"]->addAction(actionFind);
     this->menus["&Search"]->addAction(actionFindNext);
     this->menus["&Search"]->addAction(actionFindPrev);
-    // this->menus["&Search"]->addAction( actionClearSearchHighlight );
     this->menus["&Search"]->addSeparator();
     this->menus["&Search"]->addAction(actionReplace);
     this->menus["&Search"]->addSeparator();
@@ -359,7 +358,7 @@ void qmdiEditor::setupActions() {
     previewButton->setFlat(true);
     previewButton->setCheckable(true);
 
-    connect(previewButton, &QAbstractButton::toggled, this, [=](bool toggled) {
+    connect(previewButton, &QAbstractButton::toggled, this, [this](bool toggled) {
         this->textPreview->setVisible(toggled);
         if (toggled) {
             updatePreview();
