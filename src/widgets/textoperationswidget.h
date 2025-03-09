@@ -72,14 +72,14 @@ class TextOperationsWidget : public QStackedWidget {
     QTextCursor searchCursor;
     QTimer replaceTimer;
     QTimer searchTimer;
+    QColor searchFoundBackgroundColor;
+    QColor searchNotFoundBackgroundColor;
 
   public:
     SharedHistoryModel *searchHistory;
     QWidget *searchWidget;
     QWidget *replaceWidget;
     QWidget *gotoLineWidget;
-    QColor searchFoundColor;
-    QColor searchNotFoundColor;
 
     Ui::searchForm *searchFormUi;
     Ui::replaceForm *replaceFormUi;

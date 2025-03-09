@@ -24,11 +24,24 @@
 
 #include <QDebug>
 
+auto static isLightPalette() -> bool {
+    QPalette palette = QApplication::palette();
+    QColor windowColor = palette.color(QPalette::Window);
+    return windowColor.lightness() > 128;
+}
+
 TextOperationsWidget::TextOperationsWidget(QWidget *parent, QWidget *e) : QStackedWidget(parent) {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
-    setObjectName("QsvTextOperationWidget");
-    searchFoundColor = QColor(0xDDDDFF);
-    searchNotFoundColor = QColor(0xFFAAAA);
+    setObjectName("TextOperationsWidget");
+
+    if (isLightPalette()) {
+        searchFoundBackgroundColor = QColor(0xDDDDFF);
+        searchNotFoundBackgroundColor = QColor(0xFFAAAA);
+    } else {
+        searchFoundBackgroundColor = QColor(0x1e3a5f);
+        searchNotFoundBackgroundColor = QColor(0xFF6A6A);
+    }
+
     editor = e;
 
     searchTimer.setInterval(250);
@@ -37,7 +50,7 @@ TextOperationsWidget::TextOperationsWidget(QWidget *parent, QWidget *e) : QStack
 
     // this one is slower, to let the user think about his action
     // this is a modifying command, unlike a passive search
-    replaceTimer.setInterval(100);
+    replaceTimer.setInterval(400);
     replaceTimer.setSingleShot(true);
     connect(&replaceTimer, &QTimer::timeout, this, &TextOperationsWidget::updateReplaceInput);
 
@@ -467,10 +480,10 @@ bool TextOperationsWidget::issueSearch(const QString &text, QTextCursor newCurso
 
     auto p = lineEdit->palette();
     if (found) {
-        p.setColor(QPalette::Base, searchFoundColor);
+        p.setColor(QPalette::Base, searchFoundBackgroundColor);
     } else {
         if (!text.isEmpty()) {
-            p.setColor(QPalette::Base, searchNotFoundColor);
+            p.setColor(QPalette::Base, searchNotFoundBackgroundColor);
         } else {
             p.setColor(QPalette::Base, lineEdit->style()->standardPalette().base().color());
         }
