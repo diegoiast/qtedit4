@@ -103,6 +103,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
 
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
+    void updateClientName();
 
   public:
     QString originalLineEnding = "\n";

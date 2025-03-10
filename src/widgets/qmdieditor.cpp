@@ -459,6 +459,7 @@ void qmdiEditor::setupActions() {
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
+    connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updateClientName);
 
     connect(actionCopyFileName, &QAction::triggered, actionCopyFileName, [this]() {
         auto c = QApplication::clipboard();
@@ -623,6 +624,27 @@ void qmdiEditor::hideTimer_timeout() {
     }
 }
 
+void qmdiEditor::updateClientName() {
+    auto MODIFIED_TEXT = " *";
+    if (textEditor->document()->isModified()) {
+        if (!mdiClientName.contains(MODIFIED_TEXT)) {
+            mdiClientName = getShortFileName() + MODIFIED_TEXT;
+            auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
+            auto i = w->indexOf(this);
+            w->setTabText(i, mdiClientName);
+            mdiServer->mdiSelected(this, i);
+        }
+    } else {
+        if (mdiClientName.contains(MODIFIED_TEXT)) {
+            mdiClientName = getShortFileName();
+            auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
+            auto i = w->indexOf(this);
+            w->setTabText(i, mdiClientName);
+            mdiServer->mdiSelected(this, i);
+        }
+    }
+}
+
 void qmdiEditor::goTo(int x, int y) {
     if (documentHasBeenLoaded) {
         textEditor->goTo(x, y);
@@ -719,6 +741,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     }
 
     documentHasBeenLoaded = false;
+    updateClientName();
     return true;
 }
 
@@ -771,6 +794,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     }
     file.close();
     textEditor->document()->setModified(false);
+    updateClientName();
 
     QApplication::restoreOverrideCursor();
 
@@ -1000,6 +1024,12 @@ void qmdiEditor::loadContent() {
     this->originalLineEnding = getLineEnding(file);
     auto textStream = QTextStream(&file);
     textStream.seek(0);
+
+    // why blocking signals?
+    // when loading, (setPlainText()) a signal is emited,  which triggers the system to believe
+    // that the content has been modified. just don't do this. It will also save some time
+    // on loading, since really, signals emited a this stage are not meaningful.
+    textEditor->blockSignals(true);
     textEditor->setPlainText(textStream.readAll());
     textEditor->goTo(requestedPosition.x(), requestedPosition.y());
 
@@ -1019,8 +1049,10 @@ void qmdiEditor::loadContent() {
     updateFileDetails();
     setModificationsLookupEnabled(modificationsEnabledState);
     textEditor->removeModifications();
+    textEditor->blockSignals(false);
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
+    updateClientName();
 
     if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
         emit tab->newClientAdded(this);
