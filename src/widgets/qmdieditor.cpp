@@ -438,22 +438,22 @@ void qmdiEditor::setupActions() {
     actionChangeCase->setObjectName("qmdiEditor::actionChangeCase");
     actionToggleHeader->setObjectName("qmdiEditor::actiohToggleHeader");
 
-    actionSave->setShortcutContext(Qt::WidgetShortcut);
-    actionSaveAs->setShortcutContext(Qt::WidgetShortcut);
-    actionUndo->setShortcutContext(Qt::WidgetShortcut);
-    actionRedo->setShortcutContext(Qt::WidgetShortcut);
-    actionCopy->setShortcutContext(Qt::WidgetShortcut);
-    actionCut->setShortcutContext(Qt::WidgetShortcut);
-    actionPaste->setShortcutContext(Qt::WidgetShortcut);
-    actionFind->setShortcutContext(Qt::WidgetShortcut);
-    actionFindNext->setShortcutContext(Qt::WidgetShortcut);
-    actionFindPrev->setShortcutContext(Qt::WidgetShortcut);
-    actionReplace->setShortcutContext(Qt::WidgetShortcut);
-    actionGotoLine->setShortcutContext(Qt::WidgetShortcut);
-    actionCapitalize->setShortcutContext(Qt::WidgetShortcut);
-    actionLowerCase->setShortcutContext(Qt::WidgetShortcut);
-    actionChangeCase->setShortcutContext(Qt::WidgetShortcut);
-    actionToggleHeader->setShortcutContext(Qt::WidgetShortcut);
+    actionSave->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionSaveAs->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionUndo->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionRedo->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionCopy->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionCut->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionPaste->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionFind->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionFindNext->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionFindPrev->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionReplace->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionGotoLine->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionCapitalize->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionLowerCase->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionChangeCase->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionToggleHeader->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
