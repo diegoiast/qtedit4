@@ -27,6 +27,7 @@ class BuildRunOutput;
 class ProjectManagerPlugin : public IPlugin {
 
     struct Config {
+        CONFIG_DEFINE(SaveBeforeTask, bool);
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
         CONFIG_DEFINE(FilterShow, QString);
@@ -68,6 +69,7 @@ class ProjectManagerPlugin : public IPlugin {
     void projectFile_modified(const QString &path);
 
   private:
+    auto saveAllDocuments() -> bool;
     auto processBuildOutput(const QString &line) -> void;
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
     auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
@@ -75,8 +77,8 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
-    QDockWidget *outputDock;
-    QDockWidget *issuesDock;
+    QDockWidget *outputDock = nullptr;
+    QDockWidget *issuesDock = nullptr;
     ProjectIssuesWidget *projectIssues = nullptr;
 
     QFileSystemWatcher configWatcher;

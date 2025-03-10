@@ -170,8 +170,16 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
 
     directoryModel = nullptr;
 
-    config.pluginName = "Project manager";
-    config.description = "Add support for building using CMake/Cargo/Go";
+    config.pluginName = tr("Project manager");
+    config.description = tr("Add support for building using CMake/Cargo/Go");
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Save before running tasks (build, config etc)"))
+            .setDescription(tr("If checked, files are saved before running any task"))
+            .setKey(Config::SaveBeforeTaskKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(true)
+            .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Extra paths"))
                                      .setDescription(tr("Add new paths for compilers/tools"))
@@ -267,13 +275,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->setupUi(w2);
     outputDock = manager->createNewPanel(Panels::South, "buildoutput", tr("Output"), w2);
 
-    auto font = outputPanel->commandOuput->font();
-#if defined(_WIN32)
-    font.setFamily("Courier New");
-#else
-    font.setFamily("Monospace");
-#endif
-    font.setPointSize(10);
+    auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel->commandOuput->setFont(font);
 
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
@@ -387,7 +389,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(gui->editBuildConfig, &QAbstractButton::clicked, this, [this]() {
         auto buildConfig = this->getCurrentConfig();
         if (buildConfig->fileName.isEmpty()) {
-            qDebug("Should save this");
             auto path = buildConfig->sourceDir + "/" + "qtedit4.json";
             buildConfig->saveToFile(path);
             configWatcher.addPath(buildConfig->fileName);
@@ -481,7 +482,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
     auto dirsToLoad = getConfig().getOpenDirs();
     QTimer::singleShot(0, this, [this, dirsToLoad]() {
-        for (auto &dirName : dirsToLoad) {
+        for (const auto &dirName : dirsToLoad) {
             auto config = projectModel->findConfigDir(dirName);
             if (config) {
                 continue;
@@ -730,6 +731,12 @@ void ProjectManagerPlugin::runTask_clicked() {
     if (!buildConfig || selectedTaskIndex >= buildConfig->tasksInfo.size()) {
         return;
     }
+
+    if (getConfig().getSaveBeforeTask()) {
+        if (!saveAllDocuments()) {
+            return;
+        }
+    }
     auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     this->projectIssues->clearAllIssues();
     do_runTask(&selectedTask);
@@ -778,6 +785,16 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
+}
+
+auto ProjectManagerPlugin::saveAllDocuments() -> bool {
+    for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
+        auto c = mdiServer->getClient(i);
+        if (!c->canCloseClient()) {
+            return false;
+        }
+    }
+    return true;
 }
 
 auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
