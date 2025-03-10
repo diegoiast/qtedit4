@@ -1026,9 +1026,9 @@ void qmdiEditor::loadContent() {
     textStream.seek(0);
 
     // why blocking signals?
-    // when loading, (setPlainText()) a signal is emited,  which triggers the system to believe
+    // when loading, (setPlainText()) a signal is emitted,  which triggers the system to believe
     // that the content has been modified. just don't do this. It will also save some time
-    // on loading, since really, signals emited a this stage are not meaningful.
+    // on loading, since really, signals emitted a this stage are not meaningful.
     textEditor->blockSignals(true);
     textEditor->setPlainText(textStream.readAll());
     textEditor->goTo(requestedPosition.x(), requestedPosition.y());
