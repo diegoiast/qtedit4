@@ -433,11 +433,27 @@ void qmdiEditor::setupActions() {
     actionFindPrev->setObjectName("qmdiEditor::actionFindPrev");
     actionReplace->setObjectName("qmdiEditor::actionReplace");
     actionGotoLine->setObjectName("qmdiEditor::actionGotoLine");
-
     actionCapitalize->setObjectName("qmdiEditor::actionCapitalize");
     actionLowerCase->setObjectName("qmdiEditor::actionLowerCase");
     actionChangeCase->setObjectName("qmdiEditor::actionChangeCase");
     actionToggleHeader->setObjectName("qmdiEditor::actiohToggleHeader");
+
+    actionSave->setShortcutContext(Qt::WidgetShortcut);
+    actionSaveAs->setShortcutContext(Qt::WidgetShortcut);
+    actionUndo->setShortcutContext(Qt::WidgetShortcut);
+    actionRedo->setShortcutContext(Qt::WidgetShortcut);
+    actionCopy->setShortcutContext(Qt::WidgetShortcut);
+    actionCut->setShortcutContext(Qt::WidgetShortcut);
+    actionPaste->setShortcutContext(Qt::WidgetShortcut);
+    actionFind->setShortcutContext(Qt::WidgetShortcut);
+    actionFindNext->setShortcutContext(Qt::WidgetShortcut);
+    actionFindPrev->setShortcutContext(Qt::WidgetShortcut);
+    actionReplace->setShortcutContext(Qt::WidgetShortcut);
+    actionGotoLine->setShortcutContext(Qt::WidgetShortcut);
+    actionCapitalize->setShortcutContext(Qt::WidgetShortcut);
+    actionLowerCase->setShortcutContext(Qt::WidgetShortcut);
+    actionChangeCase->setShortcutContext(Qt::WidgetShortcut);
+    actionToggleHeader->setShortcutContext(Qt::WidgetShortcut);
 
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
