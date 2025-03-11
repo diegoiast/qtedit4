@@ -148,6 +148,15 @@ TextEditorPlugin::TextEditorPlugin() {
                                      .setPossibleValue(values)
                                      .setDefaultValue(EndLineStyle::KeepOriginalEndline)
                                      .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Enable soft wrapping"))
+            .setDescription(
+                tr("When reaching the margin position, word continues on the next line"))
+            .setKey(Config::SoftWrappingKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(false)
+            .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Show right margin"))
                                      .setDescription("Shows a a margin at the end of line")
@@ -463,6 +472,7 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     editor->setDrawIndentations(getConfig().getShowIndentations());
     editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());
     editor->setEditorMarkWord(getConfig().getMarkCurrentWord());
+    editor->setSoftLineWrapping(getConfig().getSoftWrapping());
     editor->setLineNumbersVisible(getConfig().getShowLine());
     editor->setSmartHomeEnd(getConfig().getSmartHome());
     editor->setDrawSolidEdge(getConfig().getMargin());

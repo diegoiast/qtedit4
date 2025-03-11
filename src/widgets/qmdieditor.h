@@ -124,6 +124,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     inline void setBracketHighlightingEnabled(bool b) {
         textEditor->setBracketHighlightingEnabled(b);
     }
+    inline void setSoftLineWrapping(bool value) { textEditor->setSoftLineWrapping(value); }
+    inline bool softLineWrapping() const { return textEditor->softLineWrapping(); }
     inline void setLineNumbersVisible(bool b) { textEditor->setLineNumbersVisible(b); }
     inline void setSmartHomeEnd(bool b) { textEditor->setSmartHomeEnd(b); }
     inline void setDrawSolidEdge(bool b) { textEditor->setDrawSolidEdge(b); }

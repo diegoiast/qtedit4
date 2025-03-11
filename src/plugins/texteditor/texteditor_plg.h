@@ -31,6 +31,7 @@ class TextEditorPlugin : public IPlugin {
         CONFIG_DEFINE(MarkCurrentWord, bool)
         CONFIG_DEFINE(Margin, bool)
         CONFIG_DEFINE(ShowLine, bool)
+        CONFIG_DEFINE(SoftWrapping, bool)
         CONFIG_DEFINE(MarginOffset, int)
         CONFIG_DEFINE(LineEndingSave, EndLineStyle)
         CONFIG_DEFINE(Font, QString)
