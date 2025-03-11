@@ -430,7 +430,7 @@ bool TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom)
 
     applySettings(editor);
     auto loaded = editor->loadFile(fileName);
-    auto shouldAutoPreview = getConfig().getAutoPreview();
+    auto shouldAutoPreview = editor->autoPreview;
     auto canOpenPreview = editor->hasPreview();
     editor->setPreviewEnabled(canOpenPreview);
     editor->setPreviewVisible(canOpenPreview && shouldAutoPreview);
