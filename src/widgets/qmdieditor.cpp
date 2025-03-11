@@ -620,9 +620,9 @@ void qmdiEditor::hideTimer_timeout() {
 }
 
 void qmdiEditor::updateClientName() {
-    updatePreview();
+    auto static MODIFIED_TEXT = QString(" ") + QChar(0x270D); // pencil
 
-    auto MODIFIED_TEXT = " *";
+    updatePreview();
     if (textEditor->document()->isModified()) {
         if (!mdiClientName.contains(MODIFIED_TEXT)) {
             mdiClientName = getShortFileName() + MODIFIED_TEXT;
