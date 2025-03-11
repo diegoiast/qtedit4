@@ -367,7 +367,6 @@ void qmdiEditor::setupActions() {
 
     // FIXME - the new syntax for connecting a signal/slot crashes the app, using the old one works
     // connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
-    connect(textEditor, SIGNAL(textChanged()), this, SLOT(updatePreview()));
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("Save &as..."), this);
@@ -569,16 +568,12 @@ void qmdiEditor::setHistoryModel(SharedHistoryModel *model) {
 }
 
 bool qmdiEditor::isMarkDownDocument() const {
-    return mdiClientName.endsWith(".md", Qt::CaseInsensitive);
+    return fileName.endsWith(".md", Qt::CaseInsensitive);
 }
 
-bool qmdiEditor::isXPMDocument() const {
-    return mdiClientName.endsWith(".xpm", Qt::CaseInsensitive);
-}
+bool qmdiEditor::isXPMDocument() const { return fileName.endsWith(".xpm", Qt::CaseInsensitive); }
 
-bool qmdiEditor::isSVGDocument() const {
-    return mdiClientName.endsWith(".svg", Qt::CaseInsensitive);
-}
+bool qmdiEditor::isSVGDocument() const { return fileName.endsWith(".svg", Qt::CaseInsensitive); }
 
 bool qmdiEditor::isXMLDocument() const {
     QRegularExpression regex(R"(.*xml.*\.xml$)", QRegularExpression::CaseInsensitiveOption);
@@ -625,6 +620,8 @@ void qmdiEditor::hideTimer_timeout() {
 }
 
 void qmdiEditor::updateClientName() {
+    updatePreview();
+
     auto MODIFIED_TEXT = " *";
     if (textEditor->document()->isModified()) {
         if (!mdiClientName.contains(MODIFIED_TEXT)) {
