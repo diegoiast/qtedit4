@@ -30,6 +30,7 @@ class ProjectManagerPlugin : public IPlugin {
         CONFIG_DEFINE(SaveBeforeTask, bool);
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
+        CONFIG_DEFINE(SelectedDirectory, QString);
         CONFIG_DEFINE(FilterShow, QString);
         CONFIG_DEFINE(FilterOut, QString);
         CONFIG_DEFINE(SearchPattern, QString);
