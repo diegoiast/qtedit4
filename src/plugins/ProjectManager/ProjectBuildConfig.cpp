@@ -245,7 +245,6 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
     }
 
     auto jsonObj = QJsonObject();
-    jsonObj["sourceDir"] = sourceDir;
     jsonObj["build_directory"] = buildDir;
 
     auto execsArray = QJsonArray();
