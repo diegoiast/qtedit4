@@ -245,6 +245,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         model->setActions(collectWidgetActions(window));
         auto commandPalette = new CommandPalette(window);
         commandPalette->setDataModel(model);
+        commandPalette->setItemDelegate(new ActionDelegate(commandPalette));
         connect(commandPalette, &CommandPalette::didChooseItem, this,
                 [commandPalette](const QModelIndex &index, const QAbstractItemModel *model) {
                     auto data = model->data(index, Qt::UserRole);
