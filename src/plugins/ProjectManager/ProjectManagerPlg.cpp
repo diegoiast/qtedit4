@@ -90,6 +90,7 @@ class ProjectBuildModel : public QAbstractListModel {
     void addConfig(std::shared_ptr<ProjectBuildConfig> config);
     void removeConfig(size_t index);
     std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
+    int findConfigDirIndex(const QString dir);
     std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString dir);
     std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString fileName);
 
@@ -117,6 +118,17 @@ void ProjectBuildModel::removeConfig(size_t index) {
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) const {
     return this->configs.at(index);
+}
+
+int ProjectBuildModel::findConfigDirIndex(const QString dir) {
+    auto i = 0;
+    for (const auto &v : configs) {
+        if (v->sourceDir == dir) {
+            return i;
+        }
+        i++;
+    }
+    return -1;
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString dir) {
@@ -190,10 +202,17 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
 
     // project GUI
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Open directories"))
+                                     // .setDisplayName(tr("Open directories"))
                                      .setKey(Config::OpenDirsKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     // .setDisplayName(tr("Currently open directory"))
+                                     .setKey(Config::SelectedDirectoryKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue(QString{})
                                      .setUserEditable(false)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
@@ -487,6 +506,8 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             if (config) {
                 continue;
             }
+
+            gui->projectComboBox->blockSignals(true);
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
             if (!config->fileName.isEmpty()) {
@@ -494,12 +515,22 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
                        config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
+
+            auto selectedDirectory = getConfig().getSelectedDirectory();
+            auto index = projectModel->findConfigDirIndex(selectedDirectory);
+            if (index >= 0) {
+                gui->projectComboBox->setCurrentIndex(index);
+                newProjectSelected(index);
+            }
+            gui->projectComboBox->blockSignals(false);
         }
     });
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
+    auto selectedProject = getCurrentConfig();
     getConfig().setOpenDirs(projectModel->getAllOpenDirs());
+    getConfig().setSelectedDirectory(selectedProject->sourceDir);
     getConfig().setSearchPattern(searchPanelUI->getSearchPattern());
     getConfig().setSearchInclude(searchPanelUI->getSearchInclude());
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
