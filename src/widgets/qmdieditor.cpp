@@ -1051,7 +1051,11 @@ void qmdiEditor::loadContent() {
     documentHasBeenLoaded = true;
     updateClientName();
 
+    // TODO - we should remove dependency on qmdiTabWidget
     if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
         emit tab->newClientAdded(this);
     }
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    pluginManager->openFile("loaded:" + fileName);
 }

@@ -149,6 +149,11 @@ QStringList HexViewrPlugin::myExtensions() {
 int HexViewrPlugin::canOpenFile(const QString &fileName) {
     static const QStringList extensions = {".bin", ".img", "blob", ".so",   ".AppImage",
                                            ".a",   ".exe", ".dll", ".dlib", ".pdf"};
+
+    auto uri = QUrl(fileName);
+    if (uri.scheme().isEmpty() || uri.scheme() != "file") {
+        return -1;
+    }
     for (const QString &ext : extensions) {
         if (fileName.endsWith(ext, Qt::CaseInsensitive)) {
             return 6;
