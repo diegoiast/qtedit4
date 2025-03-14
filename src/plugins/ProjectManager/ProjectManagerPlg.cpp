@@ -90,9 +90,9 @@ class ProjectBuildModel : public QAbstractListModel {
     void addConfig(std::shared_ptr<ProjectBuildConfig> config);
     void removeConfig(size_t index);
     std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
-    int findConfigDirIndex(const QString dir);
-    std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString dir);
-    std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString fileName);
+    int findConfigDirIndex(const QString &dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString &dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString &fileName);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role) const override;
@@ -120,7 +120,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::getConfig(size_t index) c
     return this->configs.at(index);
 }
 
-int ProjectBuildModel::findConfigDirIndex(const QString dir) {
+int ProjectBuildModel::findConfigDirIndex(const QString &dir) {
     auto i = 0;
     for (const auto &v : configs) {
         if (v->sourceDir == dir) {
@@ -131,7 +131,7 @@ int ProjectBuildModel::findConfigDirIndex(const QString dir) {
     return -1;
 }
 
-std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString dir) {
+std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QString &dir) {
     for (const auto &v : configs) {
         if (v->sourceDir == dir) {
             return v;
@@ -140,7 +140,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigDir(const QStri
     return {};
 }
 
-std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QString fileName) {
+std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QString &fileName) {
     for (const auto &v : configs) {
         if (v->fileName == fileName) {
             return v;
@@ -529,12 +529,68 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     auto selectedProject = getCurrentConfig();
+    auto selectProjetName = selectedProject ? selectedProject->sourceDir : "";
     getConfig().setOpenDirs(projectModel->getAllOpenDirs());
-    getConfig().setSelectedDirectory(selectedProject->sourceDir);
+    getConfig().setSelectedDirectory(selectProjetName);
     getConfig().setSearchPattern(searchPanelUI->getSearchPattern());
     getConfig().setSearchInclude(searchPanelUI->getSearchInclude());
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
     IPlugin::saveConfig(settings);
+}
+
+int ProjectManagerPlugin::canOpenFile(const QString &fileName) {
+    auto uri = QUrl(fileName);
+    return uri.scheme() == "loaded" ? 5 : 0;
+}
+
+bool ProjectManagerPlugin::openFile(const QString &uri, int, int, int) {
+    auto filename = QUrl(uri).path();
+    auto fi = QFileInfo(filename);
+    auto dir = fi.dir().absolutePath();
+
+    auto project = this->projectModel->findConfigFile(filename);
+    if (project) {
+        // TODO - should we select this project?
+        return true;
+    }
+
+    project = this->projectModel->findConfigDir(dir);
+    if (project) {
+        // TODO - should we select this project?
+        return true;
+    }
+
+    if (!ProjectBuildConfig::canLoadFile(filename)) {
+        return true;
+    }
+
+    project = ProjectBuildConfig::buildFromFile(filename);
+    if (!project) {
+        // project file is not parsable. just bail out.
+        return false;
+    }
+
+    auto text = tr("This is a project file, do you want to load the project, or just edit the "
+                   "file?<br/><br/> <b>%1</b>")
+                    .arg(filename);
+    QMessageBox box;
+    box.setWindowTitle(tr("Load project"));
+    box.setIcon(QMessageBox::Question);
+    box.setText(text);
+    box.setTextFormat(Qt::RichText);
+    box.addButton("&Load the project (enter)", QMessageBox::AcceptRole);
+    box.addButton("&Edit the file (escape)", QMessageBox::RejectRole);
+    auto result = box.exec();
+
+    if (result == 2) {
+        // User chose "Load the project"
+        projectModel->addConfig(project);
+        getManager()->saveSettings();
+        return true;
+    }
+
+    // just edit the file
+    return false;
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {

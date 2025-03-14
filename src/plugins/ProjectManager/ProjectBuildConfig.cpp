@@ -1,5 +1,6 @@
 #include "ProjectBuildConfig.h"
 
+#include <QDir>
 #include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -235,6 +236,23 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         value->hideFilter = json["hideFilter"].toString();
     }
     return value;
+}
+
+bool ProjectBuildConfig::canLoadFile(const QString &filename) {
+    auto fi = QFileInfo(filename);
+    if (fi.fileName().compare("CMakeLists.txt", Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    if (fi.fileName().compare("Cargo.toml", Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    if (fi.fileName().compare("go.mod", Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    if (fi.fileName().compare("qtedit4.json", Qt::CaseInsensitive) == 0) {
+        return true;
+    }
+    return false;
 }
 
 auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {

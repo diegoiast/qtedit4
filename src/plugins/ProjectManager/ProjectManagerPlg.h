@@ -52,6 +52,9 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
+    int canOpenFile(const QString &fileName) override;
+    bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
+
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
     const QHash<QString, QString> getConfigDictionary() const;
     const KitDefinition *getCurrentKit() const;
