@@ -2,12 +2,13 @@
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QStyledItemDelegate>
-#include <qutepart/qutepart.h>
-#include <qutepart/theme.h>
 
 #include "ProjectIssuesWidget.h"
 #include "pluginmanager.h"
 #include "ui_ProjectIssuesWidget.h"
+
+// TODO: do not use qmdiEditor directly, but an interface. This will let
+//       us eventually be able to replace the editorplugin.
 #include "widgets/qmdieditor.h"
 
 auto typeToStatus(const QString &name) -> int {
@@ -20,27 +21,6 @@ auto typeToStatus(const QString &name) -> int {
     }
     return 0;
 }
-
-class CenteredIconDelegate : public QStyledItemDelegate {
-  public:
-    explicit CenteredIconDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override {
-        if (index.column() == 0) { // Only for the first column
-            auto icon = qvariant_cast<QIcon>(index.data(Qt::DecorationRole));
-            if (!icon.isNull()) {
-                auto iconRect = option.rect;
-                auto iconSize = option.decorationSize;
-                auto x = iconRect.x() + (iconRect.width() - iconSize.width()) / 2;
-                auto y = iconRect.y() + (iconRect.height() - iconSize.height()) / 2;
-                icon.paint(painter, x, y, iconSize.width(), iconSize.height());
-                return;
-            }
-        }
-        QStyledItemDelegate::paint(painter, option, index);
-    }
-};
 
 CompileStatusModel::CompileStatusModel(QObject *parent)
     : QAbstractTableModel(parent), showWarnings(true), showErrors(true), showOthers(true) {
@@ -231,9 +211,6 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
     ui->issuesList->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeToContents);
     ui->issuesList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Stretch);
 
-    auto delegate = new CenteredIconDelegate(ui->issuesList);
-    ui->issuesList->setItemDelegateForColumn(0, delegate);
-
     this->manager = parent;
     connect(manager, &PluginManager::newClientAdded, this, &ProjectIssuesWidget::decorateClient);
     connect(ui->errorsButton, &QPushButton::clicked, this,
@@ -247,6 +224,7 @@ ProjectIssuesWidget::ProjectIssuesWidget(PluginManager *parent)
         auto item = this->model->getItem(index);
         if (!item.fileName.isEmpty()) {
             this->manager->openFile(QDir::toNativeSeparators(item.fileName), item.row, item.col);
+            this->manager->openFile("projectmanager:scrolloutput", item.lineNumber);
         }
     });
 
@@ -279,12 +257,15 @@ auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
     }
 }
 
-void ProjectIssuesWidget::processLine(const QString &rawLines, const QString &sourceDir) {
+void ProjectIssuesWidget::processLine(const QString &rawLines, int lineNumber,
+                                      const QString &sourceDir) {
     auto lines = rawLines.split("\n");
     for (auto const &line : lines) {
+        lineNumber += 1;
         outputDetector.processLine(line, sourceDir);
         auto items = outputDetector.foundStatus();
         for (auto &item : items) {
+            item.lineNumber = lineNumber;
             model->addItem(item);
             auto client = manager->clientForFileName(item.fileName);
             if (auto editor = dynamic_cast<qmdiEditor *>(client)) {

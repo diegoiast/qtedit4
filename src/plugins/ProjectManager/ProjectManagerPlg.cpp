@@ -540,53 +540,27 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
 
 int ProjectManagerPlugin::canOpenFile(const QString &fileName) {
     auto uri = QUrl(fileName);
-    return uri.scheme() == "loaded" ? 5 : 0;
+    if (uri.scheme() == "loaded") {
+        return 5;
+    }
+    if (uri.scheme() == "projectmanager") {
+        return 5;
+    }
+    return 0;
 }
 
-bool ProjectManagerPlugin::openFile(const QString &uri, int, int, int) {
-    auto filename = QUrl(uri).path();
+bool ProjectManagerPlugin::openFile(const QString &requestedUri, int x, int, int) {
+    auto uri = QUrl(requestedUri);
+    auto filename = uri.path();
     auto fi = QFileInfo(filename);
     auto dir = fi.dir().absolutePath();
 
-    auto project = this->projectModel->findConfigFile(filename);
-    if (project) {
-        // TODO - should we select this project?
-        return true;
+    if (uri.scheme() == "loaded") {
+        return tryOpenProject(filename, dir);
     }
 
-    project = this->projectModel->findConfigDir(dir);
-    if (project) {
-        // TODO - should we select this project?
-        return true;
-    }
-
-    if (!ProjectBuildConfig::canLoadFile(filename)) {
-        return true;
-    }
-
-    project = ProjectBuildConfig::buildFromFile(filename);
-    if (!project) {
-        // project file is not parsable. just bail out.
-        return false;
-    }
-
-    auto text = tr("This is a project file, do you want to load the project, or just edit the "
-                   "file?<br/><br/> <b>%1</b>")
-                    .arg(filename);
-    QMessageBox box;
-    box.setWindowTitle(tr("Load project"));
-    box.setIcon(QMessageBox::Question);
-    box.setText(text);
-    box.setTextFormat(Qt::RichText);
-    box.addButton("&Load the project (enter)", QMessageBox::AcceptRole);
-    box.addButton("&Edit the file (escape)", QMessageBox::RejectRole);
-    auto result = box.exec();
-
-    if (result == 2) {
-        // User chose "Load the project"
-        projectModel->addConfig(project);
-        getManager()->saveSettings();
-        return true;
+    if (uri.scheme() == "projectmanager") {
+        return tryScrollOutput(x);
     }
 
     // just edit the file
@@ -887,9 +861,10 @@ auto ProjectManagerPlugin::saveAllDocuments() -> bool {
 auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     auto cursor = this->outputPanel->commandOuput->textCursor();
     cursor.movePosition(QTextCursor::End);
+    auto lineNumber = cursor.blockNumber();
     cursor.insertText(line);
     this->outputPanel->commandOuput->setTextCursor(cursor);
-    this->projectIssues->processLine(line, this->getCurrentConfig()->sourceDir);
+    this->projectIssues->processLine(line, lineNumber, this->getCurrentConfig()->sourceDir);
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
@@ -1032,4 +1007,61 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
             });
         }
     }
+}
+
+auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString &dir) -> bool {
+    auto project = this->projectModel->findConfigFile(filename);
+    if (project) {
+        // TODO - should we select this project?
+        return true;
+    }
+
+    project = this->projectModel->findConfigDir(dir);
+    if (project) {
+        // TODO - should we select this project?
+        return true;
+    }
+
+    if (!ProjectBuildConfig::canLoadFile(filename)) {
+        return true;
+    }
+
+    project = ProjectBuildConfig::buildFromFile(filename);
+    if (!project) {
+        // project file is not parsable. just bail out.
+        return false;
+    }
+
+    auto text = tr("This is a project file, do you want to load the project, or just edit the "
+                   "file?<br/><br/> <b>%1</b>")
+                    .arg(filename);
+    QMessageBox box;
+    box.setWindowTitle(tr("Load project"));
+    box.setIcon(QMessageBox::Question);
+    box.setText(text);
+    box.setTextFormat(Qt::RichText);
+    box.addButton("&Load the project (enter)", QMessageBox::AcceptRole);
+    box.addButton("&Edit the file (escape)", QMessageBox::RejectRole);
+    auto result = box.exec();
+
+    if (result == 2) {
+        // User chose "Load the project"
+        projectModel->addConfig(project);
+        getManager()->saveSettings();
+        return true;
+    }
+
+    return false;
+}
+
+auto ProjectManagerPlugin::tryScrollOutput(int line) -> bool {
+    auto block = this->outputPanel->commandOuput->document()->findBlockByLineNumber(line);
+    if (block.isValid()) {
+        QTextCursor cursor(block);
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        this->outputPanel->commandOuput->setTextCursor(cursor);
+        this->outputPanel->commandOuput->centerCursor();
+        return true;
+    }
+    return false;
 }

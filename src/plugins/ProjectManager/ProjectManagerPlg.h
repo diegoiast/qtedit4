@@ -77,6 +77,8 @@ class ProjectManagerPlugin : public IPlugin {
     auto processBuildOutput(const QString &line) -> void;
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
     auto updateExecutablesUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
+    auto tryOpenProject(const QString &filename, const QString &dir) -> bool;
+    auto tryScrollOutput(int line) -> bool;
 
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;

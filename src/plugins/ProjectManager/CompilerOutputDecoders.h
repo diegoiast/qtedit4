@@ -12,6 +12,9 @@ struct CompileStatus {
     QString type;
     QString message;
     QString detectedBy;
+
+    // this is the line number in the output
+    int lineNumber = 0;
 };
 
 class OutputDetector {
