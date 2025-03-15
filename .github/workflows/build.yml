@@ -11,9 +11,6 @@ on:
     branches:
       - main
 
-env:
-  QT_RELEASE_VER: 6.8.0
-
 jobs:
   build-cmake:
     name: Build ${{ matrix.config.name }} Qt ${{ matrix.qt_version }}
@@ -49,7 +46,7 @@ jobs:
             cxx: "clang++"
 
         qt_version:
-          - "6.8.1"
+          - "6.8.2"
 
         include:
           - generators: "Ninja"
