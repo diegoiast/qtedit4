@@ -191,7 +191,8 @@ bool GoLangOutputDetector::processLine(const QString &line, const QString &sourc
                                       match.captured(2).toInt() - 1,
                                       match.captured(3).toInt() - 1,
                                       severity,
-                                      match.captured(4)};
+                                      match.captured(4),
+                                      {}};
 
         return true; // Line processed as an error or warning
     } else if (!line.trimmed().isEmpty()) {
