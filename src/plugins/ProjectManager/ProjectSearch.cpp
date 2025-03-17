@@ -44,21 +44,19 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
 
     auto host = dynamic_cast<PluginManager *>(parent);
-    QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked, this,
-                     [host](QTreeWidgetItem *item, int column) {
-                         auto parent = item->parent();
-                         if (!parent) {
-                             return;
-                         }
-                         auto fileName = parent->text(2);
-                         auto line = item->text(1).toInt();
-                         host->openFile(fileName, line);
-                         host->focusCenter();
+    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, [host](QTreeWidgetItem *item, int) {
+        auto parent = item->parent();
+        if (!parent) {
+            return;
+        }
+        auto fileName = parent->text(2);
+        auto line = item->text(1).toInt();
+        host->openFile(fileName, line);
+        host->focusCenter();
 
-                         // TODO - this would be nice. I am unsure how to do this
-                         // editor->displayBannerMessage("Loaded", 7);
-                         Q_UNUSED(column);
-                     });
+        // TODO - this would be nice. I am unsure how to do this
+        // editor->displayBannerMessage("Loaded", 7);
+    });
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
@@ -78,10 +76,20 @@ const QString ProjectSearch::getSearchExclude() { return ui->excludeFiles->text(
 void ProjectSearch::setSearchExclude(const QString s) { ui->excludeFiles->setText(s); }
 
 void ProjectSearch::searchButton_clicked() {
+    static bool running = false;
+
+    if (running) {
+        running = false;
+        return;
+    }
+
     this->ui->treeWidget->clear();
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
-    QThreadPool::globalInstance()->start([this, allowList, denyList]() {
+    auto originalText = ui->searchButton->text();
+    ui->searchButton->setText("(click to stop)");
+    running = true;
+    QThreadPool::globalInstance()->start([this, originalText, allowList, denyList]() {
         auto text = ui->searchFor->text().toStdString();
 
         for (auto const &fullFileName : std::as_const(model->fileList)) {
@@ -116,7 +124,14 @@ void ProjectSearch::searchButton_clicked() {
             } else {
                 delete foundData;
             }
+
+            if (!running) {
+                qDebug() << "Aborted searching";
+                break;
+            }
         }
+
+        ui->searchButton->setText(originalText);
     });
 }
 
@@ -128,10 +143,12 @@ void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
     dirItem->setToolTip(0, fullFileName);
 
     for (const auto &s : *foundData) {
-        QTreeWidgetItem *lineItem = new QTreeWidgetItem(dirItem);
-        lineItem->setText(0, QString::fromStdString(s.line));
+        auto lineItem = new QTreeWidgetItem(dirItem);
+        auto trimmedText = QString::fromUtf8(s.line.data(), std::min(s.line.size(), size_t{256}));
+
+        lineItem->setText(0, trimmedText);
         lineItem->setText(1, QString::number(s.lineNumber));
-        lineItem->setToolTip(0, shortFileName);
+        lineItem->setToolTip(0, trimmedText);
         lineItem->setToolTip(1, shortFileName);
     }
     delete foundData;

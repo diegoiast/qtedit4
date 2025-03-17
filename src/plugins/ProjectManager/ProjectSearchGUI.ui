@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::StrongFocus</enum>
+   <enum>Qt::FocusPolicy::StrongFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -83,7 +83,7 @@
    <item>
     <widget class="QPushButton" name="searchButton">
      <property name="text">
-      <string>&amp;Search</string>
+      <string>Sear&amp;ch</string>
      </property>
     </widget>
    </item>
@@ -92,6 +92,24 @@
      <property name="columnCount">
       <number>2</number>
      </property>
+     <attribute name="headerCascadingSectionResizes">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="headerMinimumSectionSize">
+      <number>10</number>
+     </attribute>
+     <attribute name="headerDefaultSectionSize">
+      <number>10</number>
+     </attribute>
+     <attribute name="headerHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="headerShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
      <column>
       <property name="text">
        <string notr="true">1</string>
