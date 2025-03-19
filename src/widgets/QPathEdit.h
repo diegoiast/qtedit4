@@ -25,7 +25,7 @@ class QFileSystemModel;
 class DESIGNER_PLUGIN_EXPORT QPathEdit : public QWidget {
     Q_OBJECT
 
-    //! Defines the Widgets appereance
+    //! Defines the Widgets appearance
     Q_PROPERTY(Style style READ style WRITE setStyle)
     //! Holds the icon to be used for the edits button
     Q_PROPERTY(QIcon dialogButtonIcon READ dialogButtonIcon WRITE setDialogButtonIcon RESET
@@ -48,7 +48,7 @@ class DESIGNER_PLUGIN_EXPORT QPathEdit : public QWidget {
     Q_PROPERTY(QString editPath READ editPath NOTIFY editPathChanged)
     //! Holds the information, whether the current edits contents are a valid path or not
     Q_PROPERTY(bool acceptableInput READ hasAcceptableInput NOTIFY acceptableInputChanged)
-    //! Specifiy a placeholder to be shown if no path is entered
+    //! Specify a placeholder to be shown if no path is entered
     Q_PROPERTY(QString placeholder READ placeholder WRITE setPlaceholder)
     //! Holds name filters for the dialog and the completer
     Q_PROPERTY(QStringList nameFilters READ nameFilters WRITE setNameFilters)
@@ -56,11 +56,11 @@ class DESIGNER_PLUGIN_EXPORT QPathEdit : public QWidget {
     Q_PROPERTY(QStringList mimeTypeFilters READ mimeTypeFilters WRITE setMimeTypeFilters)
 
   public:
-    //! Descibes various styles that the edit can take
+    //! Describes various styles that the edit can take
     enum Style {
         SeperatedButton, //!< The button to open the dialog will be place next to the edit
         JoinedButton,    //!< The button to open the dialog will be placed inside the edit
-        NoButton //!< The QFileDialog is completly disabled and will never show. Thus, there is no
+        NoButton //!< The QFileDialog is completely disabled and will never show. Thus, there is no
                  //!< button either
     };
     Q_ENUM(Style)
@@ -69,7 +69,7 @@ class DESIGNER_PLUGIN_EXPORT QPathEdit : public QWidget {
     enum PathMode {
         ExistingFile,   //!< A single, existings file. This is basically "Open file"
         ExistingFolder, //!< A single, existing directory. This is basically "Open Folder"
-        AnyFile //!< A single, valid file, no matter if exisiting or not (the directory, however,
+        AnyFile //!< A single, valid file, no matter if existing or not (the directory, however,
                 //!< must exist). This is basically "Save File"
     };
     Q_ENUM(PathMode)

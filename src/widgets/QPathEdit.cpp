@@ -455,19 +455,22 @@ QValidator::State PathValidator::validate(QString &text, int &) const {
     }
 
     switch (mode) {
-    case QPathEdit::AnyFile: // acceptable, as long as it's not an directoy
+    // acceptable, as long as it's not an directory
+    case QPathEdit::AnyFile:
         if (pathInfo.isDir()) {
             return QValidator::Intermediate;
         } else {
             return QValidator::Acceptable;
         }
-    case QPathEdit::ExistingFile: // must be an existing file
+    // must be an existing file
+    case QPathEdit::ExistingFile:
         if (pathInfo.exists() && pathInfo.isFile()) {
             return QValidator::Acceptable;
         } else {
             return QValidator::Intermediate;
         }
-    case QPathEdit::ExistingFolder: // must be an existing folder
+    // must be an existing folder
+    case QPathEdit::ExistingFolder:
         if (pathInfo.exists() && pathInfo.isDir()) {
             return QValidator::Acceptable;
         } else {
