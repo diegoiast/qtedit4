@@ -82,24 +82,6 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-// Internal class
-class ProjectBuildModel : public QAbstractListModel {
-    std::vector<std::shared_ptr<ProjectBuildConfig>> configs;
-
-  public:
-    void addConfig(std::shared_ptr<ProjectBuildConfig> config);
-    void removeConfig(size_t index);
-    std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
-    int findConfigDirIndex(const QString &dir);
-    std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString &dir);
-    std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString &fileName);
-
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-    virtual QVariant data(const QModelIndex &index, int role) const override;
-
-    QStringList getAllOpenDirs() const;
-};
-
 void ProjectBuildModel::addConfig(std::shared_ptr<ProjectBuildConfig> config) {
     int row = configs.size();
     beginInsertRows(QModelIndex(), row, row);
@@ -415,7 +397,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         getManager()->openFile(buildConfig->fileName);
     });
 
-    searchPanelUI = new ProjectSearch(manager, directoryModel);
+    projectModel = new ProjectBuildModel();
+    searchPanelUI = new ProjectSearch(manager, projectModel);
     auto searchPanel = manager->createNewPanel(Panels::West, "search", tr("Search"), searchPanelUI);
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
@@ -433,7 +416,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
     kitsModel->setKitDefinitions(kits);
 
-    projectModel = new ProjectBuildModel();
     gui->projectComboBox->setModel(projectModel);
 
     runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
@@ -523,6 +505,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
                 newProjectSelected(index);
             }
             gui->projectComboBox->blockSignals(false);
+            searchPanelUI->updateProjectList();
         }
     });
 }
@@ -617,6 +600,7 @@ void ProjectManagerPlugin::addProject_clicked() {
     }
     projectModel->addConfig(buildConfig);
     directoryModel->addDirectory(dirName);
+    searchPanelUI->updateProjectList();
     getManager()->saveSettings();
 }
 
@@ -627,6 +611,7 @@ void ProjectManagerPlugin::removeProject_clicked() {
     }
     auto path = projectModel->getConfig(index)->fileName;
     projectModel->removeConfig(index);
+    searchPanelUI->updateProjectList();
     qDebug("remove %s to the watch dir", path.toStdString().c_str());
 
     configWatcher.removePath(path);
@@ -1047,6 +1032,7 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
     if (result == 2) {
         // User chose "Load the project"
         projectModel->addConfig(project);
+        searchPanelUI->updateProjectList();
         getManager()->saveSettings();
         return true;
     }

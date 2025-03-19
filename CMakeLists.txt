@@ -74,6 +74,10 @@ set(qtedit4_sources
     src/widgets/textpreview.h
     src/widgets/xmltreemodel.cpp
     src/widgets/xmltreemodel.h
+    src/widgets/QPathEdit.cpp
+    src/widgets/QPathEdit.h
+    src/widgets/LoadingWidget.cpp
+    src/widgets/LoadingWidget.h
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp

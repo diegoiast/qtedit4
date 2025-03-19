@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>433</height>
+    <width>476</width>
+    <height>609</height>
    </rect>
   </property>
   <property name="focusPolicy">
@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>5</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -32,7 +32,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Search for</string>
+      <string>&amp;Text</string>
      </property>
      <property name="buddy">
       <cstring>searchFor</cstring>
@@ -47,43 +47,35 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label_2">
+    <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&amp;Include files:</string>
+      <string>&amp;Where to search</string>
      </property>
      <property name="buddy">
-      <cstring>includeFiles</cstring>
+      <cstring>sourceCombo</cstring>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="includeFiles">
-     <property name="placeholderText">
-      <string>Files to include</string>
-     </property>
-    </widget>
+    <widget class="QComboBox" name="sourceCombo"/>
    </item>
    <item>
-    <widget class="QLabel" name="label_3">
+    <widget class="QLabel" name="pathEditLabel">
      <property name="text">
-      <string>E&amp;xclude files:</string>
+      <string>&amp;Path</string>
      </property>
      <property name="buddy">
-      <cstring>excludeFiles</cstring>
+      <cstring>pathEdit</cstring>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="excludeFiles">
-     <property name="placeholderText">
-      <string>Files to exclude</string>
-     </property>
-    </widget>
+    <widget class="QPathEdit" name="pathEdit" native="true"/>
    </item>
    <item>
     <widget class="QPushButton" name="searchButton">
      <property name="text">
-      <string>Sear&amp;ch</string>
+      <string>&amp;Search</string>
      </property>
     </widget>
    </item>
@@ -122,8 +114,59 @@
      </column>
     </widget>
    </item>
+   <item>
+    <widget class="LoadingWidget" name="progressIndicator" native="true"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>&amp;Include files:</string>
+     </property>
+     <property name="buddy">
+      <cstring>includeFiles</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="includeFiles">
+     <property name="placeholderText">
+      <string>Files to include</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>E&amp;xclude files:</string>
+     </property>
+     <property name="buddy">
+      <cstring>excludeFiles</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="excludeFiles">
+     <property name="placeholderText">
+      <string>Files to exclude</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QPathEdit</class>
+   <extends>QWidget</extends>
+   <header>widgets/QPathEdit.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LoadingWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/LoadingWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>
