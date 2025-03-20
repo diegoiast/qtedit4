@@ -1,4 +1,5 @@
 #include "GenericItems.h"
+#include <QApplication>
 #include <QDir>
 #include <QDirIterator>
 #include <QRunnable>
@@ -21,6 +22,7 @@ void FilesWorker::run() {
         if (files.size() == 1000) {
             emit filesLoaded(files);
             files.clear();
+            QApplication::processEvents();
         }
     }
     if (!files.empty()) {
@@ -52,7 +54,7 @@ QVariant DirectoryModel::data(const QModelIndex &index, int role) const {
 QString DirectoryModel::displayForItem(size_t i) const {
     auto fileName = fileList.at(i);
     auto path = [fileName, this]() {
-        for (auto &d : directoryList) {
+        for (auto const &d : directoryList) {
             auto fixedFileName = fileName;
             auto fixedDirName = d;
             if (fixedFileName.startsWith(fixedDirName)) {
@@ -115,14 +117,19 @@ void DirectoryModel::newFiles(const QStringList &files) {
         return;
     }
     beginInsertRows(QModelIndex(), startRow, endRow);
-    for (auto &f : files) {
+    for (auto const &f : files) {
         fileList.push_back(QDir::toNativeSeparators(f));
     }
     endInsertRows();
-    qInfo() << "Inserted" << files.size() << "files. First file:" << files.first();
+    qDebug().noquote() << QString("Found %1 files.").arg(fileList.size());
+
+    QApplication::processEvents();
 }
 
-void DirectoryModel::scanFinished() { qInfo() << fileList.size() << "files loaded"; }
+void DirectoryModel::scanFinished() {
+    emit didFinishLoading();
+    qInfo() << fileList.size() << "files loaded.";
+}
 
 void DirectoryModel::removeDirectory(const QString &path) {
     if (directoryList.contains(path)) {

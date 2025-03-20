@@ -599,8 +599,8 @@ void ProjectManagerPlugin::addProject_clicked() {
         configWatcher.addPath(buildConfig->fileName);
     }
     projectModel->addConfig(buildConfig);
-    directoryModel->addDirectory(dirName);
     searchPanelUI->updateProjectList();
+    gui->projectComboBox->setCurrentIndex(projectModel->rowCount() - 1);
     getManager()->saveSettings();
 }
 
@@ -642,8 +642,11 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterOutFiles->setEnabled(true);
         this->gui->filterOutFiles->setText(s2);
         if (lastProjectSelected != buildConfig) {
+            this->gui->loadingWidget->start();
             this->directoryModel->removeAllDirs();
             this->directoryModel->addDirectory(buildConfig->sourceDir);
+            connect(directoryModel, &DirectoryModel::didFinishLoading, this,
+                    [this]() { this->gui->loadingWidget->stop(); });
         }
     }
     lastProjectSelected = buildConfig;
