@@ -15,7 +15,6 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     auto layout = new QHBoxLayout(this);
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
-
     currentTabWidget = new QTabWidget(this);
     currentTabWidget->installEventFilter(this);
     currentTabWidget->setDocumentMode(true);
@@ -37,26 +36,24 @@ void SplitTabWidget::splitHorizontally() {
 }
 
 void SplitTabWidget::closeCurrentSplit() {
-    if (splitter->count() > 1) {
-        auto currentIndex = splitter->indexOf(currentTabWidget);
-        currentTabWidget->deleteLater();
-
-        if (currentIndex > 0) {
-            currentIndex = currentIndex - 1;
-        } else {
-            currentIndex = 0;
-        }
-        updateCurrentTabWidget(qobject_cast<QTabWidget *>(splitter->widget(currentIndex)));
-
-        equalizeWidths();
+    if (splitter->count() <= 1) {
+        return;
     }
+    auto currentIndex = splitter->indexOf(currentTabWidget);
+    currentTabWidget->deleteLater();
+    if (currentIndex > 0) {
+        currentIndex = currentIndex - 1;
+    } else {
+        currentIndex = 0;
+    }
+    updateCurrentTabWidget(qobject_cast<QTabWidget *>(splitter->widget(currentIndex)));
+    equalizeWidths();
 }
 
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label) {
-
+    auto index = currentTabWidget->addTab(widget, label);
     widget->setObjectName(label);
     widget->installEventFilter(this);
-    int index = currentTabWidget->addTab(widget, label);
     currentTabWidget->setCurrentIndex(index);
     widget->setFocus();
 }
@@ -77,24 +74,26 @@ void SplitTabWidget::closeCurrentTab() {
 }
 
 void SplitTabWidget::updateCurrentTabWidget(QTabWidget *newCurrent) {
-    if (currentTabWidget != newCurrent) {
-        currentTabWidget = newCurrent;
-        if (currentTabWidget && currentTabWidget->currentWidget()) {
-            onTabFocusChanged(currentTabWidget->currentWidget(), true);
-        }
+    if (currentTabWidget == newCurrent) {
+        return;
+    }
+    currentTabWidget = newCurrent;
+    if (currentTabWidget && currentTabWidget->currentWidget()) {
+        onTabFocusChanged(currentTabWidget->currentWidget(), true);
     }
 }
 
 void SplitTabWidget::equalizeWidths() {
     auto count = splitter->count();
-    if (count > 1) {
-        QList<int> sizes;
-        auto width = splitter->width() / count;
-        for (auto i = 0; i < count; ++i) {
-            sizes << width;
-        }
-        splitter->setSizes(sizes);
+    if (count <= 1) {
+        return;
     }
+    QList<int> sizes;
+    auto width = splitter->width() / count;
+    for (auto i = 0; i < count; ++i) {
+        sizes << width;
+    }
+    splitter->setSizes(sizes);
 }
 
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
@@ -137,22 +136,10 @@ void SplitTabWidget::moveNextTab() {
         widgetIndex = 0;
     }
 
-    // Update the visual state of all tab widgets
-    for (int i = 0; i < splitter->count(); ++i) {
-        auto tw = qobject_cast<QTabWidget *>(splitter->widget(i));
-        if (tw) {
-            tw->setStyleSheet(tw == tabWidget
-                                  ? ""
-                                  : "QTabBar::tab:selected { background-color: palette(window); }");
-        }
-    }
-
-    // currentTabWidget->tabBar()->setEnabled(false);
     currentTabWidget = tabWidget;
     currentTabWidget->setFocus(Qt::TabFocusReason);
     currentTabWidget->setCurrentIndex(widgetIndex);
     currentTabWidget->widget(widgetIndex)->setFocus();
-    // currentTabWidget->tabBar()->setEnabled(true);
 }
 
 void SplitTabWidget::movePrevTab() {
@@ -170,22 +157,13 @@ void SplitTabWidget::movePrevTab() {
         widgetIndex = tabWidget->count() - 1;
     }
 
-    // currentTabWidget->tabBar()->setEnabled(false);
     currentTabWidget = tabWidget;
     currentTabWidget->setFocus(Qt::TabFocusReason);
     currentTabWidget->setCurrentIndex(widgetIndex);
     currentTabWidget->widget(widgetIndex)->setFocus();
-    // currentTabWidget->tabBar()->setEnabled(true);
 }
 
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
-    widget = widget->parentWidget()->parentWidget();
-    for (int i = 0; i < splitter->count(); ++i) {
-        auto tw = qobject_cast<QTabWidget *>(splitter->widget(i));
-        if (tw) {
-            tw->setStyleSheet(splitter->widget(i) == widget
-                                  ? ""
-                                  : "QTabBar::tab:selected { background-color: palette(window); }");
-        }
-    }
+    Q_UNUSED(widget);
+    Q_UNUSED(focused);
 }
