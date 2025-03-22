@@ -55,6 +55,9 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
     auto position = mouseEvent->pos();
     auto clickedItem = tabBar->tabAt(position);
 
+    // almost... this "clickedItem" is relative to the tab widget, not the whole server
+    // TODO: fix it to a global index
+
     // just in case
     if (clickedItem == -1) {
         return QObject::eventFilter(obj, event);
@@ -66,13 +69,11 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
         break;
 
     case Qt::RightButton:
-        // on_rightMouse_pressed(clickedItem, position);
-        qDebug() << "Right button";
+        on_rightMouse_pressed(clickedItem, position);
         break;
 
     case Qt::MiddleButton:
-        // on_middleMouse_pressed(clickedItem, position);
-        qDebug() << "Middle button";
+        on_middleMouse_pressed(clickedItem, position);
         break;
 
     default:
@@ -239,3 +240,7 @@ void qmdiSplitTab::mdiSelected(qmdiClient *client, int index) const {
         onMdiSelected(client, index);
     }
 }
+
+void qmdiSplitTab::on_middleMouse_pressed(int i, QPoint p) { tryCloseClient(i); }
+
+void qmdiSplitTab::on_rightMouse_pressed(int i, QPoint p) { showClientMenu(i, p); }
