@@ -42,6 +42,8 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         setupActions();
     }
 
+    ~qmdiHexViewer() { mdiServer = nullptr; }
+
     void setupActions() {
         auto actionFind =
             new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditFind), tr("&Find"), this);

@@ -62,6 +62,8 @@ class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
         this->toolbars[tr("main")]->addAction(zoomOriginalAction);
     }
 
+    ~qmdiImageViewer() { mdiServer = nullptr; }
+
     virtual QString mdiClientFileName() override { return thisFileName; }
 
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override { return {}; }
