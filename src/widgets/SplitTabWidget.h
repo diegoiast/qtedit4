@@ -3,10 +3,33 @@
 
 #pragma once
 
+#include <QChildEvent>
+#include <QSplitter>
 #include <QWidget>
 
-class QSplitter;
 class QTabWidget;
+
+class SplitterWithWidgetAdded : public QSplitter {
+    Q_OBJECT
+
+  public:
+    SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent = nullptr)
+        : QSplitter(orientation, parent) {}
+
+  signals:
+    void widgetAdded(QWidget *widget);
+
+  protected:
+    void childEvent(QChildEvent *event) override {
+        if (event->type() == QEvent::ChildAdded) {
+            QWidget *addedWidget = qobject_cast<QWidget *>(event->child());
+            if (addedWidget) {
+                emit widgetAdded(addedWidget);
+            }
+        }
+        QSplitter::childEvent(event);
+    }
+};
 
 class SplitTabWidget : public QWidget {
     Q_OBJECT
@@ -23,6 +46,7 @@ class SplitTabWidget : public QWidget {
     void movePrevTab();
 
     virtual void onTabFocusChanged(QWidget *widget, bool focused);
+    virtual void onNewSplitCreated(QWidget *);
 
     bool closeSplitWhenEmpty = true;
 
@@ -30,7 +54,7 @@ class SplitTabWidget : public QWidget {
     bool eventFilter(QObject *watched, QEvent *event) override;
 
   protected:
-    QSplitter *splitter;
+    SplitterWithWidgetAdded *splitter;
     QTabWidget *currentTabWidget;
 
     void updateCurrentTabWidget(QTabWidget *newCurrent);

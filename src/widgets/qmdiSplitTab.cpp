@@ -1,7 +1,10 @@
 #include <QMainWindow>
+#include <QMouseEvent>
 #include <QSplitter>
+#include <QTabBar>
 #include <QTabWidget>
 
+#include <QEvent>
 #include <qmdiclient.h>
 #include <qmdihost.h>
 
@@ -34,6 +37,56 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     auto index = getCurrentClientIndex();
     mdiHost->updateGUI(m);
     mdiSelected(client, index);
+    splitter->installEventFilter(this);
+}
+
+bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
+    if (!obj->inherits("QTabBar")) {
+        return SplitTabWidget::eventFilter(obj, event);
+    }
+
+    if (event->type() != QEvent::MouseButtonPress) {
+        return SplitTabWidget::eventFilter(obj, event);
+    }
+
+    // compute the tab number
+    auto tabBar = qobject_cast<QTabBar *>(obj);
+    auto mouseEvent = static_cast<QMouseEvent *>(event);
+    auto position = mouseEvent->pos();
+    auto clickedItem = tabBar->tabAt(position);
+
+    // just in case
+    if (clickedItem == -1) {
+        return QObject::eventFilter(obj, event);
+    }
+
+    switch (mouseEvent->button()) {
+    case Qt::LeftButton:
+        return QObject::eventFilter(obj, event);
+        break;
+
+    case Qt::RightButton:
+        // on_rightMouse_pressed(clickedItem, position);
+        qDebug() << "Right button";
+        break;
+
+    case Qt::MiddleButton:
+        // on_middleMouse_pressed(clickedItem, position);
+        qDebug() << "Middle button";
+        break;
+
+    default:
+        return QObject::eventFilter(obj, event);
+    }
+
+    return true;
+}
+
+void qmdiSplitTab::onNewSplitCreated(QWidget *w) {
+    auto tabWidget = qobject_cast<QTabWidget *>(w);
+    if (tabWidget) {
+        tabWidget->tabBar()->installEventFilter(this);
+    }
 }
 
 void qmdiSplitTab::addClient(qmdiClient *client) {
@@ -58,11 +111,9 @@ void qmdiSplitTab::deleteClient(qmdiClient *client) {
     if (client == nullptr) {
         return;
     }
-
     if (mdiHost == nullptr) {
         return;
     }
-
     if (dynamic_cast<qmdiClient *>(activeWidget) != client) {
         return;
     }
@@ -89,14 +140,12 @@ qmdiClient *qmdiSplitTab::getClient(int i) const {
     if (i < 0) {
         return nullptr;
     }
-
-    int currentIndex = 0;
+    auto currentIndex = 0;
     for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
         auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
         if (!tabWidget) {
             continue;
         }
-
         for (auto innerIndex = 0; innerIndex < tabWidget->count(); innerIndex++) {
             if (currentIndex == i) {
                 return dynamic_cast<qmdiClient *>(tabWidget->widget(innerIndex));
@@ -104,7 +153,6 @@ qmdiClient *qmdiSplitTab::getClient(int i) const {
             currentIndex++;
         }
     }
-
     return nullptr;
 }
 
@@ -112,12 +160,10 @@ qmdiClient *qmdiSplitTab::getCurrentClient() const {
     if (!currentTabWidget) {
         return nullptr;
     }
-
     auto currentIndex = currentTabWidget->currentIndex();
     if (currentIndex < 0) {
         return nullptr;
     }
-
     return dynamic_cast<qmdiClient *>(currentTabWidget->widget(currentIndex));
 }
 
@@ -125,26 +171,19 @@ int qmdiSplitTab::getCurrentClientIndex() const {
     if (!currentTabWidget) {
         return -1;
     }
-
     auto currentWidgetIndex = currentTabWidget->currentIndex();
     if (currentWidgetIndex < 0) {
         return -1;
     }
-
-    // Calculate global index by counting all tabs before the current tab widget
-    int globalIndex = 0;
+    auto globalIndex = 0;
     for (auto i = 0; i < splitter->count(); i++) {
         auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(i));
         if (!tabWidget) {
             continue;
         }
-
         if (tabWidget == currentTabWidget) {
-            // Add the current widget's index within its tab widget
             return globalIndex + currentWidgetIndex;
         }
-
-        // Add the count of tabs in this tab widget
         globalIndex += tabWidget->count();
     }
 
@@ -181,16 +220,16 @@ void qmdiSplitTab::updateClientName(const qmdiClient *client) {
         if (!tabWidget) {
             continue;
         }
-
         for (auto innerIndex = 0; innerIndex < tabWidget->count(); innerIndex++) {
             auto w = tabWidget->widget(innerIndex);
             auto c = dynamic_cast<qmdiClient *>(w);
             if (!c) {
                 return;
             }
-
-            tabWidget->setTabText(innerIndex, c->mdiClientName);
-            return;
+            if (c == client) {
+                tabWidget->setTabText(innerIndex, c->mdiClientName);
+                return;
+            }
         }
     }
 }

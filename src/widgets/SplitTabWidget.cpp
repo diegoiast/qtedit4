@@ -9,16 +9,24 @@
 #include <QStackedWidget>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QTimer>
 
 SplitTabWidget::SplitTabWidget(QWidget *parent)
-    : QWidget(parent), splitter(new QSplitter(Qt::Horizontal, this)) {
+    : QWidget(parent), splitter(new SplitterWithWidgetAdded(Qt::Horizontal, this)) {
     auto layout = new QHBoxLayout(this);
+    connect(splitter, &SplitterWithWidgetAdded::widgetAdded, this,
+            [this](QWidget *w) { onNewSplitCreated(w); });
+
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
-    currentTabWidget = new QTabWidget(this);
-    currentTabWidget->installEventFilter(this);
-    currentTabWidget->setDocumentMode(true);
-    splitter->addWidget(currentTabWidget);
+
+    QTimer::singleShot(0, [this]() {
+        currentTabWidget = new QTabWidget(this);
+        currentTabWidget->installEventFilter(this);
+        currentTabWidget->setDocumentMode(true);
+        currentTabWidget->setMovable(true);
+        splitter->addWidget(currentTabWidget);
+    });
 }
 
 void SplitTabWidget::addTab(QWidget *widget, const QString &label) {
@@ -166,4 +174,8 @@ void SplitTabWidget::movePrevTab() {
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
     Q_UNUSED(widget);
     Q_UNUSED(focused);
+}
+
+void SplitTabWidget::onNewSplitCreated(QWidget *) {
+    // nohing
 }
