@@ -175,6 +175,26 @@ void qmdiSplitTab::setCurrentClientIndex(int i) {
     }
 }
 
+void qmdiSplitTab::updateClientName(const qmdiClient *client) {
+    for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
+        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
+        if (!tabWidget) {
+            continue;
+        }
+
+        for (auto innerIndex = 0; innerIndex < tabWidget->count(); innerIndex++) {
+            auto w = tabWidget->widget(innerIndex);
+            auto c = dynamic_cast<qmdiClient *>(w);
+            if (!c) {
+                return;
+            }
+
+            tabWidget->setTabText(innerIndex, c->mdiClientName);
+            return;
+        }
+    }
+}
+
 void qmdiSplitTab::mdiSelected(qmdiClient *client, int index) const {
     if (onMdiSelected) {
         onMdiSelected(client, index);
