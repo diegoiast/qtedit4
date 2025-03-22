@@ -113,7 +113,7 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
                 if (splitter->indexOf(tabWidget) != -1) {
                     updateCurrentTabWidget(tabWidget);
                     onTabFocusChanged(widget, true);
-                    return true;
+                    return false;
                 }
             }
         }
