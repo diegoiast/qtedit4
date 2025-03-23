@@ -25,6 +25,7 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     virtual void mdiSelected(qmdiClient *client, int index) const override;
     void on_middleMouse_pressed(int, QPoint);
     void on_rightMouse_pressed(int, QPoint);
+    int computeLeading(QTabWidget *);
 
     QWidget *activeWidget = nullptr;
 };

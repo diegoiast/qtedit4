@@ -49,19 +49,20 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
         return SplitTabWidget::eventFilter(obj, event);
     }
 
-    // compute the tab number
     auto tabBar = qobject_cast<QTabBar *>(obj);
     auto mouseEvent = static_cast<QMouseEvent *>(event);
     auto position = mouseEvent->pos();
     auto clickedItem = tabBar->tabAt(position);
 
-    // almost... this "clickedItem" is relative to the tab widget, not the whole server
-    // TODO: fix it to a global index
-
     // just in case
     if (clickedItem == -1) {
         return QObject::eventFilter(obj, event);
     }
+
+    auto tabWidget = qobject_cast<QTabWidget *>(tabBar->parent());
+    auto globalPosition = tabBar->mapToGlobal(position);
+    auto parentPosition = this->mapFromGlobal(globalPosition);
+    clickedItem += computeLeading(tabWidget);
 
     switch (mouseEvent->button()) {
     case Qt::LeftButton:
@@ -69,11 +70,11 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
         break;
 
     case Qt::RightButton:
-        on_rightMouse_pressed(clickedItem, position);
+        on_rightMouse_pressed(clickedItem, parentPosition);
         break;
 
     case Qt::MiddleButton:
-        on_middleMouse_pressed(clickedItem, position);
+        on_middleMouse_pressed(clickedItem, parentPosition);
         break;
 
     default:
@@ -103,9 +104,6 @@ void qmdiSplitTab::addClient(qmdiClient *client) {
     addTabToCurrentSplit(w, client->mdiClientName);
     client->mdiServer = this;
     w->setFocus();
-    // auto i = addTab(w, client->mdiClientName);
-    // setTabToolTip(i, client->mdiClientFileName());
-    // setCurrentIndex(i);
 }
 
 void qmdiSplitTab::deleteClient(qmdiClient *client) {
@@ -241,6 +239,24 @@ void qmdiSplitTab::mdiSelected(qmdiClient *client, int index) const {
     }
 }
 
-void qmdiSplitTab::on_middleMouse_pressed(int i, QPoint p) { tryCloseClient(i); }
+void qmdiSplitTab::on_middleMouse_pressed(int i, QPoint) { tryCloseClient(i); }
 
 void qmdiSplitTab::on_rightMouse_pressed(int i, QPoint p) { showClientMenu(i, p); }
+
+int qmdiSplitTab::computeLeading(QTabWidget *w) {
+    if (!w) {
+        return 0;
+    }
+    auto leadingIndex = 0;
+    for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
+        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
+        if (!tabWidget) {
+            continue;
+        }
+        if (tabWidget == w) {
+            return leadingIndex;
+        }
+        leadingIndex += tabWidget->count();
+    }
+    return leadingIndex;
+}
