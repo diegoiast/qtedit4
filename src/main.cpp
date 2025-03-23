@@ -76,9 +76,10 @@ int main(int argc, char *argv[]) {
         split->splitHorizontally();
         textEditorPlugin->fileNew();
     });
-
     pluginManager.menus["Se&ttings"]->addAction(splitAction);
     pluginManager.replaceMdiServer(split);
+    pluginManager.addAction(splitAction);
+    pluginManager.updateGUI();
 #endif
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
