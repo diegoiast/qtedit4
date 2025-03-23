@@ -55,7 +55,7 @@ class SplitTabWidget : public QWidget {
 
   protected:
     SplitterWithWidgetAdded *splitter;
-    QTabWidget *currentTabWidget;
+    QTabWidget *currentTabWidget = nullptr;
 
     void updateCurrentTabWidget(QTabWidget *newCurrent);
     void equalizeWidths();
