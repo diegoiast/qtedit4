@@ -20,11 +20,13 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    // Without this - event listner does not work, and menus don't work
     QTimer::singleShot(0, [this]() {
         currentTabWidget = new QTabWidget(this);
         currentTabWidget->installEventFilter(this);
         currentTabWidget->setDocumentMode(true);
         currentTabWidget->setMovable(true);
+        currentTabWidget->setObjectName(QString("QTabWidget#0)"));
         splitter->addWidget(currentTabWidget);
     });
 }
@@ -38,6 +40,7 @@ void SplitTabWidget::splitHorizontally() {
     auto newTabWidget = new QTabWidget(this);
     newTabWidget->installEventFilter(this);
     newTabWidget->setDocumentMode(true);
+    newTabWidget->setObjectName(QString("QTabWidget#%1)").arg(splitter->count()));
     splitter->insertWidget(currentIndex + 1, newTabWidget);
     updateCurrentTabWidget(newTabWidget);
     equalizeWidths();
@@ -47,14 +50,22 @@ void SplitTabWidget::closeCurrentSplit() {
     if (splitter->count() <= 1) {
         return;
     }
-    auto currentIndex = splitter->indexOf(currentTabWidget);
-    currentTabWidget->deleteLater();
+    closeSplitWithTabWidget(currentTabWidget);
+}
+
+void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
+    auto currentIndex = splitter->indexOf(tab);
+    tab->deleteLater();
     if (currentIndex > 0) {
         currentIndex = currentIndex - 1;
     } else {
         currentIndex = 0;
     }
-    updateCurrentTabWidget(qobject_cast<QTabWidget *>(splitter->widget(currentIndex)));
+
+    auto newWidget = splitter->widget(currentIndex);
+    auto newTab = qobject_cast<QTabWidget *>(newWidget);
+
+    updateCurrentTabWidget(newTab);
     equalizeWidths();
 }
 
@@ -105,7 +116,9 @@ void SplitTabWidget::equalizeWidths() {
 }
 
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
-    if (event->type() == QEvent::FocusIn || event->type() == QEvent::ShowToParent) {
+    if (event->type() == QEvent::ShowToParent || event->type() == QEvent::HideToParent ||
+        event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved) {
+
         // How can we detect that the widget is inside a QTabWidget?
         // Internally the QTabWidget has a QTabBar and a QStackedWidget.
         // When you request to add a new tab, internally you are adding a new widget
@@ -118,7 +131,11 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
         if (widget && parent) {
             auto tabWidget = qobject_cast<QTabWidget *>(parent->parentWidget());
             if (tabWidget) {
-                if (splitter->indexOf(tabWidget) != -1) {
+                if (tabWidget->count() == 1) {
+                    if (closeSplitWhenEmpty) {
+                        closeSplitWithTabWidget(tabWidget);
+                    }
+                } else if (splitter->indexOf(tabWidget) != -1) {
                     updateCurrentTabWidget(tabWidget);
                     onTabFocusChanged(widget, true);
                     return false;
@@ -177,5 +194,5 @@ void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
 }
 
 void SplitTabWidget::onNewSplitCreated(QWidget *) {
-    // nohing
+    // do nothing by default
 }
