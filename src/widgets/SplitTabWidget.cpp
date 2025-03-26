@@ -26,7 +26,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
         currentTabWidget->installEventFilter(this);
         currentTabWidget->setDocumentMode(true);
         currentTabWidget->setMovable(true);
-        currentTabWidget->setObjectName(QString("QTabWidget#0)"));
+        currentTabWidget->setObjectName(QString("QTabWidget#0"));
         splitter->addWidget(currentTabWidget);
     });
 }
@@ -40,7 +40,7 @@ void SplitTabWidget::splitHorizontally() {
     auto newTabWidget = new QTabWidget(this);
     newTabWidget->installEventFilter(this);
     newTabWidget->setDocumentMode(true);
-    newTabWidget->setObjectName(QString("QTabWidget#%1)").arg(splitter->count()));
+    newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
     splitter->insertWidget(currentIndex + 1, newTabWidget);
     updateCurrentTabWidget(newTabWidget);
     equalizeWidths();
@@ -76,7 +76,7 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label)
         currentTabWidget = new QTabWidget(this);
         currentTabWidget->installEventFilter(this);
         currentTabWidget->setDocumentMode(true);
-        currentTabWidget->setObjectName(QString("QTabWidget#%1)").arg(splitter->count()));
+        currentTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
         splitter->addWidget(currentTabWidget);
     }
     auto index = currentTabWidget->addTab(widget, label);
@@ -85,6 +85,15 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label)
     currentTabWidget->setCurrentIndex(index);
     widget->setFocus();
     onTabFocusChanged(currentTabWidget->currentWidget(), true);
+}
+
+void SplitTabWidget::moveTabToNewSplit(QWidget *widget) {
+    splitHorizontally();
+    auto oldTab = qobject_cast<QTabWidget *>(widget->parentWidget()->parentWidget());
+    auto index = oldTab->indexOf(widget);
+    auto text = oldTab->tabText(index);
+    currentTabWidget->addTab(widget, text);
+    oldTab->removeTab(index);
 }
 
 void SplitTabWidget::closeCurrentTab() {
@@ -196,6 +205,13 @@ void SplitTabWidget::movePrevTab() {
     currentTabWidget->setFocus(Qt::TabFocusReason);
     currentTabWidget->setCurrentIndex(widgetIndex);
     currentTabWidget->widget(widgetIndex)->setFocus();
+}
+
+QWidget *SplitTabWidget::getCurrentWidget() {
+    if (!currentTabWidget) {
+        return nullptr;
+    }
+    return currentTabWidget->currentWidget();
 }
 
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {

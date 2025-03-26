@@ -70,13 +70,20 @@ int main(int argc, char *argv[]) {
 #if 1
     auto split = new qmdiSplitTab;
     auto splitAction = new QAction("Split tabs", split);
-
     splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
     QObject::connect(splitAction, &QAction::triggered, splitAction, [split, textEditorPlugin]() {
         split->splitHorizontally();
         textEditorPlugin->fileNew();
     });
+    auto moveSplitAction = new QAction("Move editor to new split", split);
+    moveSplitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Backslash));
+    QObject::connect(moveSplitAction, &QAction::triggered, moveSplitAction, [split]() {
+        auto w = split->getCurrentWidget();
+        split->moveTabToNewSplit(w);
+    });
+
     pluginManager.menus["Se&ttings"]->addAction(splitAction);
+    pluginManager.menus["Se&ttings"]->addAction(moveSplitAction);
     pluginManager.replaceMdiServer(split);
     pluginManager.addAction(splitAction);
     pluginManager.updateGUI();

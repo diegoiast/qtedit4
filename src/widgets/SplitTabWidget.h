@@ -42,9 +42,11 @@ class SplitTabWidget : public QWidget {
     void closeCurrentSplit();
     void closeSplitWithTabWidget(QTabWidget *tab);
     void addTabToCurrentSplit(QWidget *widget, const QString &label);
+    void moveTabToNewSplit(QWidget *widget);
     void closeCurrentTab();
     void moveNextTab();
     void movePrevTab();
+    QWidget *getCurrentWidget();
 
     virtual void onTabFocusChanged(QWidget *widget, bool focused);
     virtual void onNewSplitCreated(QWidget *);
