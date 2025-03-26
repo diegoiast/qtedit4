@@ -59,7 +59,9 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
     if (currentIndex > 0) {
         currentIndex = currentIndex - 1;
     } else {
-        currentIndex = 0;
+        currentTabWidget = nullptr;
+        onTabFocusChanged(nullptr, false);
+        return;
     }
 
     auto newWidget = splitter->widget(currentIndex);
@@ -70,11 +72,19 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
 }
 
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label) {
+    if (!currentTabWidget) {
+        currentTabWidget = new QTabWidget(this);
+        currentTabWidget->installEventFilter(this);
+        currentTabWidget->setDocumentMode(true);
+        currentTabWidget->setObjectName(QString("QTabWidget#%1)").arg(splitter->count()));
+        splitter->addWidget(currentTabWidget);
+    }
     auto index = currentTabWidget->addTab(widget, label);
     widget->setObjectName(label);
     widget->installEventFilter(this);
     currentTabWidget->setCurrentIndex(index);
     widget->setFocus();
+    onTabFocusChanged(currentTabWidget->currentWidget(), true);
 }
 
 void SplitTabWidget::closeCurrentTab() {

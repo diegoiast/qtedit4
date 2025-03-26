@@ -18,6 +18,9 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
         return;
     }
     if (!focused) {
+        if (widget == nullptr) {
+            activeWidget = nullptr;
+        }
         return;
     }
 
