@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     auto moveSplitAction = new QAction("Move editor to new split", split);
     moveSplitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Backslash));
     QObject::connect(moveSplitAction, &QAction::triggered, moveSplitAction, [split]() {
-        // TODO - this action should be disbaled. I need expose the event of tabs modifies
+        // TODO - this action should be disabled. I need expose the event of tabs modifies
         //        to 3rd parties, and not keep it an internal event.
         if (split->getWigetsCountInCurrentSplit() < 2) {
             return;

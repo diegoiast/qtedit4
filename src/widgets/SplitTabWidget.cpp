@@ -20,7 +20,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    // Without this - event listner does not work, and menus don't work
+    // Without this - event listener does not work, and menus don't work
     QTimer::singleShot(0, [this]() {
         currentTabWidget = new QTabWidget(this);
         currentTabWidget->installEventFilter(this);
@@ -144,7 +144,7 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
         // When you request to add a new tab, internally you are adding a new widget
         // to the stacked widget (and also adding its name to the tab bar). So,
         // checking if the parent of a widget is a QTabWiget will always fail.
-        // Theoritically - this is an internal implementation of Qt, but QtWidgets
+        // Theoretically - this is an internal implementation of Qt, but QtWidgets
         // is "done" meaning this will not change.
         auto widget = qobject_cast<QWidget *>(watched);
         auto parent = qobject_cast<QStackedWidget *>(watched->parent());
