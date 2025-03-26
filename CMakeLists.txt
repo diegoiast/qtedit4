@@ -60,12 +60,10 @@ set(qtedit4_sources
     ${qutepart_SOURCE_DIR}/qutepart-syntax-files.qrc
     ${qutepart_SOURCE_DIR}/qutepart-theme-data.qrc
 
-    src/widgets/bannermessage.ui
     src/widgets/HistoryLineEdit.cpp
     src/widgets/HistoryLineEdit.h
     src/widgets/gotolineform.ui
-    src/widgets/qmdieditor.cpp
-    src/widgets/qmdieditor.h
+    src/widgets/bannermessage.ui
     src/widgets/replaceform.ui
     src/widgets/searchform.ui  
     src/widgets/textoperationswidget.cpp
@@ -78,6 +76,14 @@ set(qtedit4_sources
     src/widgets/QPathEdit.h
     src/widgets/LoadingWidget.cpp
     src/widgets/LoadingWidget.h
+    src/widgets/qmdiSplitTab.cpp  
+    src/widgets/qmdiSplitTab.h  
+    src/widgets/qmdieditor.cpp
+    src/widgets/qmdieditor.h
+    src/widgets/SplitTabWidget.cpp  
+    src/widgets/SplitTabWidget.h
+    src/widgets/qmdiSplitTab.cpp
+    src/widgets/qmdiSplitTab.h
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp

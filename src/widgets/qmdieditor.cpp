@@ -26,7 +26,6 @@
 #include <QStackedWidget>
 #include <QStyle>
 #include <QStyledItemDelegate>
-#include <QTabWidget>
 #include <QTextBlock>
 #include <QTextBrowser>
 #include <QTextEdit>
@@ -626,18 +625,12 @@ void qmdiEditor::updateClientName() {
     if (textEditor->document()->isModified()) {
         if (!mdiClientName.contains(MODIFIED_TEXT)) {
             mdiClientName = getShortFileName() + MODIFIED_TEXT;
-            auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
-            auto i = w->indexOf(this);
-            w->setTabText(i, mdiClientName);
-            mdiServer->mdiSelected(this, i);
+            mdiServer->updateClientName(this);
         }
     } else {
         if (mdiClientName.contains(MODIFIED_TEXT)) {
             mdiClientName = getShortFileName();
-            auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
-            auto i = w->indexOf(this);
-            w->setTabText(i, mdiClientName);
-            mdiServer->mdiSelected(this, i);
+            mdiServer->updateClientName(this);
         }
     }
 }
@@ -795,16 +788,12 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
 
     QApplication::restoreOverrideCursor();
 
-    this->fileName = newFileName;
-    this->mdiClientName = getShortFileName();
+    fileName = newFileName;
+    mdiClientName = getShortFileName();
     textEditor->removeModifications();
     fileSystemWatcher->addPath(newFileName);
     setModificationsLookupEnabled(modificationsEnabledState);
-
-    auto w = dynamic_cast<QTabWidget *>(this->mdiServer);
-    auto i = w->indexOf(this);
-    w->setTabText(i, mdiClientName);
-    w->setTabToolTip(i, mdiClientFileName());
+    mdiServer->updateClientName(this);
     updateFileDetails();
     return true;
 }
