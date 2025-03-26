@@ -47,6 +47,7 @@ class SplitTabWidget : public QWidget {
     void moveNextTab();
     void movePrevTab();
     QWidget *getCurrentWidget();
+    int getWigetsCountInCurrentSplit() const;
 
     virtual void onTabFocusChanged(QWidget *widget, bool focused);
     virtual void onNewSplitCreated(QWidget *);

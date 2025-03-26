@@ -94,6 +94,7 @@ void SplitTabWidget::moveTabToNewSplit(QWidget *widget) {
     auto text = oldTab->tabText(index);
     currentTabWidget->addTab(widget, text);
     oldTab->removeTab(index);
+    widget->setFocus();
 }
 
 void SplitTabWidget::closeCurrentTab() {
@@ -214,9 +215,17 @@ QWidget *SplitTabWidget::getCurrentWidget() {
     return currentTabWidget->currentWidget();
 }
 
+int SplitTabWidget::getWigetsCountInCurrentSplit() const {
+    if (!currentTabWidget) {
+        return 0;
+    }
+    return currentTabWidget->count();
+}
+
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
-    Q_UNUSED(widget);
-    Q_UNUSED(focused);
+    if (focused) {
+        widget->setFocus();
+    }
 }
 
 void SplitTabWidget::onNewSplitCreated(QWidget *) {
