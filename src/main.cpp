@@ -82,10 +82,11 @@ int main(int argc, char *argv[]) {
         split->moveTabToNewSplit(w);
     });
 
+    pluginManager.removeBuiltinActions();
     pluginManager.menus["Se&ttings"]->addAction(splitAction);
     pluginManager.menus["Se&ttings"]->addAction(moveSplitAction);
     pluginManager.replaceMdiServer(split);
-    pluginManager.addAction(splitAction);
+    pluginManager.addBuiltinActions();
     pluginManager.updateGUI();
 #endif
     pluginManager.setWindowTitle("qtedit4");
