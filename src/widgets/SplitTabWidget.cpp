@@ -157,7 +157,11 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
                     }
                 } else if (splitter->indexOf(tabWidget) != -1) {
                     updateCurrentTabWidget(tabWidget);
-                    onTabFocusChanged(widget, true);
+                    if (event->type() == QEvent::ChildRemoved) {
+                        onTabFocusChanged(widget, false);
+                    } else {
+                        onTabFocusChanged(widget, true);
+                    }
                     return false;
                 }
             }
