@@ -1,4 +1,4 @@
-#define VersionString "0.0.7-beta3"
+#define VersionString "0.0.7-beta4"
 #define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
 
 [Setup]

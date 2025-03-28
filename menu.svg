@@ -1,0 +1,18 @@
+<svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tropicalGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#454522;stop-opacity:1" /> <!-- Orange Red -->
+      <stop offset="35%" style="stop-color:#2ECC71;stop-opacity:1" /> <!-- Bright Green -->
+      <stop offset="100%" style="stop-color:#7b7;stop-opacity:1" /> <!-- Dark Violet -->
+    </linearGradient>
+  </defs>
+  
+  <rect width="120" height="40" fill="url(#tropicalGradient)" rx="5" ry="5"/>
+  
+  <line x1="10" y1="12" x2="30" y2="12" stroke="white" stroke-width="3"/>
+  <line x1="10" y1="20" x2="30" y2="20" stroke="white" stroke-width="3"/>
+  <line x1="10" y1="28" x2="30" y2="28" stroke="white" stroke-width="3"/>
+  
+  <text x="51" y="26" font-family="Arial, sans-serif" font-size="16" fill="888">qtedit4</text>
+  <text x="50" y="25" font-family="Arial, sans-serif" font-size="16" fill="#fff">qtedit4</text>
+</svg>
