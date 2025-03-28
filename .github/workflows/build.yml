@@ -46,7 +46,7 @@ jobs:
             cxx: "clang++"
 
         qt_version:
-          - "6.8.3"
+          - "6.8.2"
 
         include:
           - generators: "Ninja"
