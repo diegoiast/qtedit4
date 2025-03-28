@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QStandardPaths>
 #include <QToolButton>
+#include <widgets/qmdiSplitTab.h>
 
 #include "pluginmanager.h"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -63,10 +64,36 @@ int main(int argc, char *argv[]) {
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + "/qtedit4.ini";
+    auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
 
-    auto textEditorPlugin = new TextEditorPlugin;
+#if 1
+    auto split = new qmdiSplitTab;
+    auto splitAction = new QAction("Split tabs", split);
+    splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
+    QObject::connect(splitAction, &QAction::triggered, splitAction, [split, textEditorPlugin]() {
+        split->splitHorizontally();
+        textEditorPlugin->fileNew();
+    });
+    auto moveSplitAction = new QAction("Move editor to new split", split);
+    moveSplitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Backslash));
+    QObject::connect(moveSplitAction, &QAction::triggered, moveSplitAction, [split]() {
+        // TODO - this action should be disabled. I need expose the event of tabs modifies
+        //        to 3rd parties, and not keep it an internal event.
+        if (split->getWigetsCountInCurrentSplit() < 2) {
+            return;
+        }
+        auto w = split->getCurrentWidget();
+        split->moveTabToNewSplit(w);
+    });
 
+    pluginManager.removeBuiltinActions();
+    pluginManager.menus["Se&ttings"]->addAction(splitAction);
+    pluginManager.menus["Se&ttings"]->addAction(moveSplitAction);
+    pluginManager.replaceMdiServer(split);
+    pluginManager.addBuiltinActions();
+    pluginManager.updateGUI();
+#endif
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);

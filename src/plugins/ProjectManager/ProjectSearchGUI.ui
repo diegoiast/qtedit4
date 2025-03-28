@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>433</height>
+    <width>476</width>
+    <height>609</height>
    </rect>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::StrongFocus</enum>
+   <enum>Qt::FocusPolicy::StrongFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -21,7 +21,7 @@
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>5</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -32,7 +32,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&amp;Search for</string>
+      <string>&amp;Text</string>
      </property>
      <property name="buddy">
       <cstring>searchFor</cstring>
@@ -45,6 +45,77 @@
       <string>Search for</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="label_4">
+     <property name="text">
+      <string>&amp;Where to search</string>
+     </property>
+     <property name="buddy">
+      <cstring>sourceCombo</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QComboBox" name="sourceCombo"/>
+   </item>
+   <item>
+    <widget class="QLabel" name="pathEditLabel">
+     <property name="text">
+      <string>&amp;Path</string>
+     </property>
+     <property name="buddy">
+      <cstring>pathEdit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPathEdit" name="pathEdit" native="true"/>
+   </item>
+   <item>
+    <widget class="QPushButton" name="searchButton">
+     <property name="text">
+      <string>&amp;Search</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QTreeWidget" name="treeWidget">
+     <property name="columnCount">
+      <number>2</number>
+     </property>
+     <attribute name="headerCascadingSectionResizes">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="headerMinimumSectionSize">
+      <number>10</number>
+     </attribute>
+     <attribute name="headerDefaultSectionSize">
+      <number>10</number>
+     </attribute>
+     <attribute name="headerHighlightSections">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="headerShowSortIndicator" stdset="0">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="headerStretchLastSection">
+      <bool>false</bool>
+     </attribute>
+     <column>
+      <property name="text">
+       <string notr="true">1</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string notr="true">2</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item>
+    <widget class="LoadingWidget" name="progressIndicator" native="true"/>
    </item>
    <item>
     <widget class="QLabel" name="label_2">
@@ -80,32 +151,22 @@
      </property>
     </widget>
    </item>
-   <item>
-    <widget class="QPushButton" name="searchButton">
-     <property name="text">
-      <string>&amp;Search</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QTreeWidget" name="treeWidget">
-     <property name="columnCount">
-      <number>2</number>
-     </property>
-     <column>
-      <property name="text">
-       <string notr="true">1</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string notr="true">2</string>
-      </property>
-     </column>
-    </widget>
-   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QPathEdit</class>
+   <extends>QWidget</extends>
+   <header>widgets/QPathEdit.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>LoadingWidget</class>
+   <extends>QWidget</extends>
+   <header>widgets/LoadingWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections>
   <connection>

@@ -6,7 +6,7 @@ namespace Ui {
 class ProjectSearchGUI;
 }
 
-class DirectoryModel;
+class ProjectBuildModel;
 class QTreeWidgetItem;
 
 struct FoundData {
@@ -18,22 +18,23 @@ class ProjectSearch : public QWidget {
     Q_OBJECT
 
   public:
-    explicit ProjectSearch(QWidget *parent, DirectoryModel *m);
+    explicit ProjectSearch(QWidget *parent, ProjectBuildModel *m);
     ~ProjectSearch();
-    void setFocusOnSearch();
+    auto setFocusOnSearch() -> void;
 
     auto getSearchPattern() -> const QString;
-    auto setSearchPattern(const QString) -> void;
+    auto setSearchPattern(const QString &) -> void;
     auto getSearchInclude() -> const QString;
-    auto setSearchInclude(const QString) -> void;
+    auto setSearchInclude(const QString &) -> void;
     auto getSearchExclude() -> const QString;
-    auto setSearchExclude(const QString) -> void;
+    auto setSearchExclude(const QString &) -> void;
 
-  private slots:
-    void searchButton_clicked();
+  public slots:
+    auto updateProjectList() -> void;
+    auto searchButton_clicked() -> void;
     void file_searched(QString fullFileName, QString shortFileName, QList<FoundData> *foundData);
 
   private:
     Ui::ProjectSearchGUI *ui;
-    DirectoryModel *model;
+    ProjectBuildModel *model;
 };

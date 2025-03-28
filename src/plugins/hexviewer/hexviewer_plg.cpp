@@ -42,6 +42,8 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         setupActions();
     }
 
+    ~qmdiHexViewer() { mdiServer = nullptr; }
+
     void setupActions() {
         auto actionFind =
             new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditFind), tr("&Find"), this);
@@ -167,8 +169,8 @@ int HexViewrPlugin::canOpenFile(const QString &fileName) {
 }
 
 bool HexViewrPlugin::openFile(const QString &fileName, int, int, int) {
-    auto tabWidget = dynamic_cast<QTabWidget *>(mdiServer);
-    auto viewer = new qmdiHexViewer(tabWidget, fileName);
+    auto parentWidget = dynamic_cast<QWidget *>(mdiServer);
+    auto viewer = new qmdiHexViewer(parentWidget, fileName);
     mdiServer->addClient(viewer);
     return true;
 }

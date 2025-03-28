@@ -1,7 +1,10 @@
 #include "ProjectSearch.h"
 #include "GenericItems.h"
+#include "ProjectBuildConfig.h"
+#include "ProjectManagerPlg.h"
 #include "ui_ProjectSearchGUI.h"
 
+#include <QDirIterator>
 #include <QPushButton>
 #include <QThreadPool>
 #include <fstream>
@@ -28,7 +31,7 @@ void searchFile(const std::string &filename, const std::string &searchString,
     }
 }
 
-ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
+ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     : QWidget(parent), ui(new Ui::ProjectSearchGUI) {
     ui->setupUi(this);
     ui->searchFor->setFocus();
@@ -37,28 +40,58 @@ ProjectSearch::ProjectSearch(QWidget *parent, DirectoryModel *m)
     QStringList headerLabels;
     headerLabels << tr("Text") << tr("Line");
     ui->treeWidget->setHeaderLabels(headerLabels);
-    //    ui->treeWidget->header()->resizeSection(1, 30);
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->searchFor->setFocus();
-    connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
+
+    ui->pathEdit->setPathMode(QPathEdit::ExistingFolder);
+    ui->pathEdit->setPlaceholder(tr("Search in directory"));
+    ui->pathEdit->setStyle(QPathEdit::JoinedButton);
+    ui->pathEdit->setEditable(true);
+    ui->pathEdit->setDefaultDirectory(QDir::homePath());
+    ui->pathEdit->setPath(QDir::homePath());
 
     auto host = dynamic_cast<PluginManager *>(parent);
-    QObject::connect(ui->treeWidget, &QTreeWidget::itemClicked, this,
-                     [host](QTreeWidgetItem *item, int column) {
-                         auto parent = item->parent();
-                         if (!parent) {
-                             return;
-                         }
-                         auto fileName = parent->text(2);
-                         auto line = item->text(1).toInt();
-                         host->openFile(fileName, line);
-                         host->focusCenter();
+    connect(ui->treeWidget, &QTreeWidget::itemClicked, this, [host](QTreeWidgetItem *item, int) {
+        auto parent = item->parent();
+        if (!parent) {
+            return;
+        }
+        auto fileName = parent->text(2);
+        auto line = item->text(1).toInt() - 1;
+        host->openFile(fileName, line);
+        host->focusCenter();
 
-                         // TODO - this would be nice. I am unsure how to do this
-                         // editor->displayBannerMessage("Loaded", 7);
-                         Q_UNUSED(column);
-                     });
+        // TODO - this would be nice. I am unsure how to do this
+        // editor->displayBannerMessage("Loaded", 7);
+    });
+
+    connect(ui->sourceCombo, &QComboBox::activated, this, [this](int index) {
+        if (index <= 0) {
+            this->ui->pathEdit->blockSignals(true);
+            auto static lastDir = QDir::homePath();
+            auto lastDir2 = this->ui->pathEdit->path();
+            this->ui->pathEdit->setPath(lastDir);
+            lastDir = lastDir2;
+            this->ui->pathEdit->blockSignals(false);
+            return;
+        }
+
+        // else - use path from the selected project
+        auto project = model->getConfig(index - 1);
+        this->ui->pathEdit->setPath(project->sourceDir);
+    });
+
+    connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
+
+    connect(ui->pathEdit, &QPathEdit::pathChanged, this, [this](QString newPath) {
+        auto i = this->model->findConfigDirIndex(newPath);
+        if (i == -1) {
+            this->ui->sourceCombo->setCurrentIndex(0);
+        } else {
+            this->ui->sourceCombo->setCurrentIndex(i + 1);
+        }
+    });
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
@@ -67,36 +100,60 @@ void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
 const QString ProjectSearch::getSearchPattern() { return ui->searchFor->text(); }
 
-void ProjectSearch::setSearchPattern(const QString s) { ui->searchFor->setText(s); }
+void ProjectSearch::setSearchPattern(const QString &s) { ui->searchFor->setText(s); }
 
 const QString ProjectSearch::getSearchInclude() { return ui->includeFiles->text(); }
 
-void ProjectSearch::setSearchInclude(const QString s) { ui->includeFiles->setText(s); }
+void ProjectSearch::setSearchInclude(const QString &s) { ui->includeFiles->setText(s); }
 
 const QString ProjectSearch::getSearchExclude() { return ui->excludeFiles->text(); }
 
-void ProjectSearch::setSearchExclude(const QString s) { ui->excludeFiles->setText(s); }
+void ProjectSearch::setSearchExclude(const QString &s) { ui->excludeFiles->setText(s); }
+
+void ProjectSearch::updateProjectList() {
+    ui->sourceCombo->clear();
+    ui->sourceCombo->addItem(tr("Custom"));
+    for (auto i = 0; i < model->rowCount(); i++) {
+        auto p = model->getConfig(i);
+        ui->sourceCombo->addItem(p->sourceDir);
+    }
+}
 
 void ProjectSearch::searchButton_clicked() {
+    static bool running = false;
+
+    if (running) {
+        running = false;
+        return;
+    }
+
     this->ui->treeWidget->clear();
+
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
-    QThreadPool::globalInstance()->start([this, allowList, denyList]() {
+    auto originalText = ui->searchButton->text();
+    ui->searchButton->setText("(click to &stop)");
+    ui->progressIndicator->start();
+    running = true;
+    QThreadPool::globalInstance()->start([this, originalText, allowList, denyList]() {
         auto text = ui->searchFor->text().toStdString();
+        auto startSearchPath = ui->pathEdit->path();
 
-        for (auto const &fullFileName : std::as_const(model->fileList)) {
-            auto shortFilename = fullFileName;
-
-            for (auto &d : model->directoryList) {
-                if (!fullFileName.startsWith(d)) {
-                    continue;
-                }
-                // also trim the trailing slash
-                shortFilename = fullFileName.mid(d.size() + 1);
-                break;
+        QDirIterator it(startSearchPath, allowList.split(";"), QDir::Files,
+                        QDirIterator::Subdirectories);
+        while (it.hasNext()) {
+            auto fullFileName = it.next();
+            auto *foundData = new QList<FoundData>;
+            if (!fullFileName.startsWith(startSearchPath)) {
+                continue;
             }
 
-            auto *foundData = new QList<FoundData>;
+            auto trimCount = startSearchPath.size();
+            if (startSearchPath.endsWith('\\') || startSearchPath.endsWith('/')) {
+                trimCount++;
+            }
+            auto shortFileName = fullFileName.mid(trimCount);
+
             if (!FilenameMatches(fullFileName, allowList, denyList)) {
                 continue;
             };
@@ -109,14 +166,24 @@ void ProjectSearch::searchButton_clicked() {
                 QMetaObject::invokeMethod(
                     this, "file_searched", Qt::QueuedConnection,
                     Q_ARG(QString, fullFileName),
-                    Q_ARG(QString, shortFilename),
+                    Q_ARG(QString, shortFileName),
                     Q_ARG(QList<FoundData>*, foundData)
                 );
                 // clang-format on
             } else {
                 delete foundData;
             }
+
+            if (!running) {
+                break;
+            }
         }
+
+        // this is done, since the progress indicator needs to be stopped from the main thread
+        QTimer::singleShot(0, this, [this, originalText]() {
+            ui->searchButton->setText(originalText);
+            ui->progressIndicator->stop();
+        });
     });
 }
 
@@ -128,14 +195,16 @@ void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
     dirItem->setToolTip(0, fullFileName);
 
     for (const auto &s : *foundData) {
-        QTreeWidgetItem *lineItem = new QTreeWidgetItem(dirItem);
-        lineItem->setText(0, QString::fromStdString(s.line));
-        lineItem->setText(1, QString::number(s.lineNumber));
-        lineItem->setToolTip(0, shortFileName);
+        auto lineItem = new QTreeWidgetItem(dirItem);
+        auto trimmedText =
+            QString::fromUtf8(s.line.data(), std::min(s.line.size(), size_t{256})).trimmed();
+
+        lineItem->setText(0, trimmedText);
+        lineItem->setText(1, QString::number(s.lineNumber + 1));
+        lineItem->setToolTip(0, trimmedText);
         lineItem->setToolTip(1, shortFileName);
     }
     delete foundData;
     ui->treeWidget->expandItem(dirItem);
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
-    //    ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 }

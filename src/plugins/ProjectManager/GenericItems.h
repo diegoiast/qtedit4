@@ -48,6 +48,9 @@ class DirectoryModel : public QAbstractTableModel {
     void newFiles(const QStringList &files);
     void scanFinished();
 
+  signals:
+    void didFinishLoading();
+
   private:
     void removeDirectoryImpl(const QDir &directory);
 };

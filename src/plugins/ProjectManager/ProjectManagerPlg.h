@@ -2,10 +2,10 @@
 
 #include "iplugin.h"
 #include "kitdefinitions.h"
+#include <QAbstractItemModel>
 #include <QFileSystemWatcher>
 #include <QProcess>
 
-class ProjectBuildModel;
 class ProjectIssuesWidget;
 class FoldersModel;
 class DirectoryModel;
@@ -23,6 +23,23 @@ namespace Ui {
 class ProjectManagerGUI;
 class BuildRunOutput;
 } // namespace Ui
+
+class ProjectBuildModel : public QAbstractListModel {
+    std::vector<std::shared_ptr<ProjectBuildConfig>> configs;
+
+  public:
+    void addConfig(std::shared_ptr<ProjectBuildConfig> config);
+    void removeConfig(size_t index);
+    std::shared_ptr<ProjectBuildConfig> getConfig(size_t index) const;
+    int findConfigDirIndex(const QString &dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString &dir);
+    std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString &fileName);
+
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+
+    QStringList getAllOpenDirs() const;
+};
 
 class ProjectManagerPlugin : public IPlugin {
 
