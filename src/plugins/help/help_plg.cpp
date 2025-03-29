@@ -47,7 +47,8 @@
 
 // #define DEBUG_UPDATES
 
-auto static createDesktopMenuItem(const std::string &execPath, const std::string &svgIconContent)
+auto static createDesktopMenuItem(const std::string &programName, const std::string &version,
+                                  const std::string &execPath, const std::string &svgIconContent)
     -> std::string {
     const char *homeDir = std::getenv("HOME");
     if (!homeDir) {
@@ -56,10 +57,16 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
     }
 
     std::filesystem::path homePath(homeDir);
-    std::filesystem::path iconFile = homePath / ".local/share/icons/qtedit4.svg";
-    std::filesystem::path desktopFile = homePath / ".local/share/applications/qtedit4.desktop";
-    std::filesystem::create_directories(iconFile.parent_path());
-    std::filesystem::create_directories(desktopFile.parent_path());
+    std::filesystem::path iconFile = homePath / ".local/share/icons" / (programName + ".svg");
+    std::filesystem::path desktopFile =
+        homePath / ".local/share/applications" / (programName + ".desktop");
+    try {
+        std::filesystem::create_directories(iconFile.parent_path());
+        std::filesystem::create_directories(desktopFile.parent_path());
+    } catch (const std::filesystem::filesystem_error &e) {
+        std::cerr << "Error creating directories: " << e.what() << std::endl;
+        return {};
+    }
 
     std::ofstream iconStream(iconFile);
     if (!iconStream.is_open()) {
@@ -77,15 +84,12 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
 
     file << "[Desktop Entry]\n"
          << "Type=Application\n"
-         << "Name=qtedit4\n"
-         << QString("Comment=qtedit4 Text Editor version v%1\n")
-                .arg(qApp->applicationVersion())
-                .toStdString()
+         << "Name=" << programName << "\n"
+         << "Comment=" << programName << " Text Editor version v" << version << "\n"
          << "Exec=" << execPath << "\n"
          << "Icon=" << iconFile.string() << "\n"
          << "Categories=Utility;TextEditor;\n"
          << "Terminal=false\n";
-
     file.close();
     return desktopFile.string();
 }
@@ -228,7 +232,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
             auto svgContent = svgFile.readAll().toStdString();
             svgFile.close();
 
-            auto desktopFile = createDesktopMenuItem(exe, svgContent);
+            auto desktopFile = createDesktopMenuItem(
+                QApplication::applicationName().toStdString(),
+                QApplication::applicationVersion().toStdString(), exe, svgContent);
             if (!desktopFile.empty()) {
                 this->getManager()->openFile(QString::fromStdString(desktopFile));
             }
