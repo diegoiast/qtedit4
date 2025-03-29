@@ -75,7 +75,7 @@ class DESIGNER_PLUGIN_EXPORT QPathEdit : public QWidget {
     Q_ENUM(PathMode)
 
     //! Constructs a new QPathEdit widget. The mode will be QPathEdit::ExistingFile
-    explicit QPathEdit(QWidget *parent = nullptr, Style style = SeperatedButton);
+    explicit QPathEdit(QWidget *parent = nullptr, Style style = JoinedButton);
     //! Constructs a new QPathEdit widget
     explicit QPathEdit(PathMode pathMode, QWidget *parent = nullptr, Style style = SeperatedButton);
     //! Constructs a new QPathEdit widget with the given default directory
