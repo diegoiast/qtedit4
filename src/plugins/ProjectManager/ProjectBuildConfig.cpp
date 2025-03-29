@@ -216,10 +216,12 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         QList<TaskInfo> info;
         if (v.isArray()) {
             for (const auto &vv : v.toArray()) {
+                auto obj = vv.toObject();
                 TaskInfo taskInfo;
-                taskInfo.name = vv.toObject()["name"].toString();
-                taskInfo.command = vv.toObject()["command"].toString();
-                taskInfo.runDirectory = vv.toObject()["runDirectory"].toString();
+                taskInfo.name = obj["name"].toString();
+                taskInfo.command = obj["command"].toString();
+                taskInfo.runDirectory = obj["runDirectory"].toString();
+                taskInfo.isBuild = obj["isBuild"].toBool(false);
                 info.push_back(taskInfo);
             };
         }
@@ -287,6 +289,7 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
         taskObj["name"] = task.name;
         taskObj["command"] = task.command;
         taskObj["runDirectory"] = task.runDirectory;
+        taskObj["isBuild"] = task.isBuild;
 
         tasksArray.append(taskObj);
     }

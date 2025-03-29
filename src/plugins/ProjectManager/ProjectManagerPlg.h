@@ -109,6 +109,7 @@ class ProjectManagerPlugin : public IPlugin {
     int selectedTaskIndex = -1;
 
     QProcess runProcess;
+    const TaskInfo *runningTask = nullptr;
 
     KitDefinitionModel *kitsModel = nullptr;
     ProjectBuildModel *projectModel = nullptr;

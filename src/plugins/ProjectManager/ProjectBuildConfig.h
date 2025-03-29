@@ -15,6 +15,7 @@ struct TaskInfo {
     QString name;
     QString command;
     QString runDirectory;
+    bool isBuild;
 
     bool operator==(const TaskInfo &other) const;
 };
