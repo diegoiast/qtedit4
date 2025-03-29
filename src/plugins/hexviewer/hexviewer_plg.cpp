@@ -131,7 +131,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
 };
 
 HexViewrPlugin::HexViewrPlugin() {
-    name = tr("Image viewer plugin - based on QutePart");
+    name = tr("Hex viewer plugin");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
@@ -153,7 +153,8 @@ int HexViewrPlugin::canOpenFile(const QString &fileName) {
                                            ".a",   ".exe", ".dll", ".dlib", ".pdf"};
 
     auto uri = QUrl(fileName);
-    if (uri.scheme().isEmpty() || uri.scheme() != "file") {
+    auto scheme = uri.scheme();
+    if (!scheme.isEmpty() && scheme != "file") {
         return -1;
     }
     for (const QString &ext : extensions) {

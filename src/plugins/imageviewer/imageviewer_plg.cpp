@@ -70,7 +70,7 @@ class qmdiImageViewer : public pal::ImageViewer, public qmdiClient {
 };
 
 ImageViewrPlugin::ImageViewrPlugin() {
-    name = tr("Image viewer plugin - based on QutePart");
+    name = tr("Image viewer plugin");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
