@@ -310,6 +310,14 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 getManager()->showPanels(Qt::BottomDockWidgetArea);
                 outputDock->raise();
                 outputDock->show();
+                if (this->runningTask) {
+                    if (this->runningTask->isBuild) {
+                        if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
+                            qDebug() << "Notifying about a good build";
+                        }
+                    }
+                }
+                this->runningTask = nullptr;
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
@@ -706,6 +714,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto hash = getConfigDictionary();
     auto currentTask = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
+    runningTask = task;
 
     outputDock->raise();
     outputDock->show();
@@ -717,7 +726,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     if (!kit) {
         auto command = QStringList();
-        auto interpreter = QString();
+        auto interpreter = QString{};
 #if defined(__linux__)
         interpreter = "/bin/sh";
         command << "-c" << currentTask;
