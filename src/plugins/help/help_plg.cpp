@@ -33,7 +33,6 @@
 #include <windows.h>
 #else
 #include <unistd.h>
-
 #endif
 
 #if defined(__linux__)
@@ -46,6 +45,7 @@
 #endif
 
 // #define DEBUG_UPDATES
+// #define DISABLE_UPDATES
 
 auto static createDesktopMenuItem(const std::string &programName, const std::string &version,
                                   const std::string &execPath, const std::string &svgIconContent)
@@ -173,6 +173,7 @@ HelpPlugin::HelpPlugin() : IPlugin() {
 HelpPlugin::~HelpPlugin() {}
 
 void HelpPlugin::on_client_merged(qmdiHost *host) {
+#ifndef DISABLE_UPDATES
     auto updateChannelStrings = QStringList() << tr("Do not check for updates")
                                               << tr("Check for updates every time program starts")
                                               << tr("Check for updates once per day")
@@ -205,13 +206,14 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
                                      .setDefaultValue("0")
                                      .setUserEditable(false)
                                      .build());
+    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
+    connect(actionCheckForUpdates, &QAction::triggered, this,
+            &HelpPlugin::checkForUpdates_triggered);
+#endif
 
     auto actionAbout = new QAction(tr("&About"), this);
     actionAbout->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
-    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
-    connect(actionCheckForUpdates, &QAction::triggered, this,
-            &HelpPlugin::checkForUpdates_triggered);
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
     connect(actionVisitHomePage, &QAction::triggered, this,
@@ -264,7 +266,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         commandPalette->show();
     });
 
+#ifndef DISABLE_UPDATES
     menus["&Help"]->addAction(actionCheckForUpdates);
+#endif
 #if defined(DEBUG_UPDATES)
     auto debugChecks = new QAction("Debug check for updates", this);
     connect(debugChecks, &QAction::triggered, this, [this]() { doStartupChecksForUpdate(); });
@@ -297,6 +301,7 @@ void HelpPlugin::loadConfig(QSettings &settings) {
 }
 
 void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
+#ifndef DISABLE_UPDATES
     QString lastCheckStr = getConfig().getLastUpdateTime();
     auto updatesCheck = getConfig().getUpdatesChecks();
     auto lastCheck = lastCheckStr.toULongLong();
@@ -342,9 +347,13 @@ void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
         qDebug() << " - No need to check for updates";
 #endif
     }
+#else
+    Q_UNUSED(notifyUserNoUpdates)
+#endif
 }
 
 void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
+#ifndef DISABLE_UPDATES
     auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
 
     switch (getConfig().getUpdatesChannel()) {
@@ -367,6 +376,9 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
 
     auto currentTime = QDateTime::currentSecsSinceEpoch();
     getConfig().setLastUpdateTime(QString::number(currentTime));
+#else
+    Q_UNUSED(notifyUserNoUpdates)
+#endif
 }
 
 void HelpPlugin::uiCleanUp() {
