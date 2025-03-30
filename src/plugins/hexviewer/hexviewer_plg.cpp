@@ -50,7 +50,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         auto actionReplace =
             new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
         auto actionCopyBinary =
-            new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (binary"), this);
+            new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (binary)"), this);
         auto actionCopyAsHex = new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (HEX)"), this);
         auto actionPastBinary =
             new QAction(QIcon::fromTheme("edit-copy"), tr("Paste (binary)"), this);
