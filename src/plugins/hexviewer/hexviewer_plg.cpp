@@ -154,7 +154,8 @@ int HexViewrPlugin::canOpenFile(const QString &fileName) {
 
     auto uri = QUrl(fileName);
     auto scheme = uri.scheme();
-    if (!scheme.isEmpty() && scheme != "file") {
+    // > 1? this can be a windows drive
+    if (!scheme.isEmpty() && scheme != "file" && scheme.size() > 1) {
         return -1;
     }
     for (const QString &ext : extensions) {
