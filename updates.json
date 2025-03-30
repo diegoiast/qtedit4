@@ -8,9 +8,9 @@
          "mandatory":true
       },
       "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.7-beta5",
-         "latest-version":"0.0.7-beta5",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.7-beta5/qtedit4-qt6.8.2-v0.0.7-beta5-x86_64.exe",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.7-beta6",
+         "latest-version":"0.0.7-beta6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.7-beta6/qtedit4-qt6.8.2-v0.0.7-beta6-x86_64.exe",
          "changelog": "Various cleanups and fixes, split UI support, better file search",
          "mandatory":true
       },
@@ -22,9 +22,10 @@
          "mandatory":true
       },
       "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.7-beta5",
-         "latest-version":"0.0.7-beta5",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.7-beta5/qtedit4-qt6.8.2-v0.0.7-beta5-x86_64.AppImage",
+         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.7-beta6",
+         "latest-version":"0.0.7-beta6",
+         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.7-beta6/qtedit4-qt6.8.2-v0.0.7-beta6
+-x86_64.AppImage",
          "changelog": "Various cleanups and fixes, split UI support, better file search",
          "mandatory":true
       }
