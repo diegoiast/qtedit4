@@ -20,6 +20,7 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
     return
         this->name == other.name &&
         this->command == other.command &&
+        this->isBuild == other.isBuild &&
         this->runDirectory == other.runDirectory;
     /* clang-format on */
 }
@@ -59,6 +60,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
         t.name = "Build (parallel)";
         t.command = "cmake --build ${build_directory} --parallel";
         t.runDirectory = "${source_directory}";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
@@ -66,6 +68,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
         t.name = "Build (single thread)";
         t.command = "cmake --build ${build_directory}";
         t.runDirectory = "${source_directory}";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     return value;
@@ -97,6 +100,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.name = "cargo build";
         t.runDirectory = "${source_directory}";
         t.command = "cargo build";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
@@ -104,6 +108,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.name = "cargo build (release)";
         t.runDirectory = "${source_directory}";
         t.command = "cargo build --release";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {

@@ -310,14 +310,31 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 getManager()->showPanels(Qt::BottomDockWidgetArea);
                 outputDock->raise();
                 outputDock->show();
-                if (this->runningTask) {
-                    if (this->runningTask->isBuild) {
-                        if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
-                            qDebug() << "Notifying about a good build";
-                        }
+
+                auto process = sender();
+                auto var1 = process->property("runningTask").value<quintptr>();
+                auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
+
+                auto var3 = process->property("runningProject");
+                auto project = var3.value<std::shared_ptr<ProjectBuildConfig>>();
+
+                if (project && runningTask && runningTask->isBuild) {
+                    if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
+                        qDebug() << "Notifying about a good build" << project->buildDir
+                                 << project->sourceDir << runningTask->name;
                     }
+
+                    // clang-format off
+                    getManager()->handleCommand("buildFinished", {
+                        {"builDir", project->buildDir },
+                        {"sourceDir", project->sourceDir },
+                        {"task", runningTask->name}
+                    });
+                    // clang-format on
                 }
-                this->runningTask = nullptr;
+
+                runProcess.setProperty("runningTask", {});
+                runProcess.setProperty("runningProject", {});
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
@@ -712,9 +729,8 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
     auto hash = getConfigDictionary();
-    auto currentTask = expand(task->command, hash);
+    auto taskCommand = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
-    runningTask = task;
 
     outputDock->raise();
     outputDock->show();
@@ -729,7 +745,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         auto interpreter = QString{};
 #if defined(__linux__)
         interpreter = "/bin/sh";
-        command << "-c" << currentTask;
+        command << "-c" << taskCommand;
 #elif defined(_WIN32)
         interpreter = qgetenv("COMSPEC");
         command << "/k" << currentTask;
@@ -748,7 +764,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         env.insert("run_directory", expand(QDir::toNativeSeparators(workingDirectory), hash));
         env.insert("build_directory", expand(QDir::toNativeSeparators(project->buildDir), hash));
         env.insert("source_directory", QDir::toNativeSeparators(project->sourceDir));
-        env.insert("task", currentTask);
+        env.insert("task", taskCommand);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
@@ -762,15 +778,17 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         }
     }
 
+    runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
+    runProcess.setProperty("runningProject", QVariant::fromValue(project));
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
-                           .arg(QString::fromStdString(kit->filePath), currentTask);
+                           .arg(QString::fromStdString(kit->filePath), taskCommand);
             this->outputPanel->commandOuput->appendPlainText(msg);
         } else {
             this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
-                                                             currentTask);
+                                                             taskCommand);
         }
         qWarning() << "Process failed to start";
     }
@@ -795,9 +813,8 @@ void ProjectManagerPlugin::runTask_clicked() {
             return;
         }
     }
-    auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     this->projectIssues->clearAllIssues();
-    do_runTask(&selectedTask);
+    do_runTask(&buildConfig->tasksInfo[selectedTaskIndex]);
 }
 
 void ProjectManagerPlugin::clearProject_clicked() {
