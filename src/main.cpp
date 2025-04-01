@@ -14,6 +14,7 @@
 #include <widgets/qmdiSplitTab.h>
 
 #include "pluginmanager.h"
+#include "plugins/CTags/CTagsPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
@@ -102,6 +103,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.updateGUI();
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
 

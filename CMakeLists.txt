@@ -117,6 +117,10 @@ set(qtedit4_sources
     src/plugins/ProjectManager/ProjectSearch.cpp
     src/plugins/ProjectManager/ProjectSearch.h
     src/plugins/ProjectManager/ProjectSearchGUI.ui
+    src/plugins/CTags/CTagsPlugin.cpp
+    src/plugins/CTags/CTagsPlugin.hpp
+    src/plugins/CTags/CTagsLoader.cpp
+    src/plugins/CTags/CTagsLoader.hpp
     src/main.cpp
     qtedit4.qrc
 )
