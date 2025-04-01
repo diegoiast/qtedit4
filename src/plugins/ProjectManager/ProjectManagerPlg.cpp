@@ -18,6 +18,7 @@
 #include <widgets/qmdieditor.h>
 
 #include "GenericItems.h"
+#include "GlobalCommands.hpp"
 #include "ProjectBuildConfig.h"
 #include "ProjectIssuesWidget.h"
 #include "ProjectManagerPlg.h"
@@ -322,23 +323,30 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 auto buildDirectory = process->property("buildDirectory").toString();
                 auto sourceDirectory = process->property("sourceDirectory").toString();
 
+                auto projectName = QString{};
+                {
+                    auto d = QDir(sourceDirectory);
+                    projectName = d.dirName();
+                }
+
                 if (project && runningTask && runningTask->isBuild) {
                     if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
                         qDebug() << "Notifying about a good build" << project->buildDir
                                  << buildDirectory << project->sourceDir << sourceDirectory
                                  << runningTask->name;
-                    }
 
-                    // clang-format off
-                    getManager()->handleCommand("buildFinished", {
-                        {"builDir", project->buildDir },
-                        {"sourceDir", project->sourceDir },
-                        {"task", runningTask->name},
-                        {"workingDirectory", workingDirectory},
-                        {"buildDirectory", buildDirectory},
-                        {"sourceDirectory", sourceDirectory},
-                    });
-                    // clang-format on
+                        // clang-format off
+                        getManager()->handleCommand(GlobalCommands::BuildSucceeded, {
+                            {"builDir", project->buildDir },
+                            {"sourceDir", project->sourceDir },
+                            {"task", runningTask->name},
+                            {"workingDirectory", workingDirectory},
+                            {"buildDirectory", buildDirectory},
+                            {"sourceDirectory", sourceDirectory},
+                            {"projectName", projectName}
+                        });
+                        // clang-format on
+                    }
                 }
 
                 runProcess.setProperty("runningTask", {});
