@@ -318,17 +318,25 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 auto var3 = process->property("runningProject");
                 auto project = var3.value<std::shared_ptr<ProjectBuildConfig>>();
 
+                auto workingDirectory = process->property("workingDirectory").toString();
+                auto buildDirectory = process->property("buildDirectory").toString();
+                auto sourceDirectory = process->property("sourceDirectory").toString();
+
                 if (project && runningTask && runningTask->isBuild) {
                     if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
                         qDebug() << "Notifying about a good build" << project->buildDir
-                                 << project->sourceDir << runningTask->name;
+                                 << buildDirectory << project->sourceDir << sourceDirectory
+                                 << runningTask->name;
                     }
 
                     // clang-format off
                     getManager()->handleCommand("buildFinished", {
                         {"builDir", project->buildDir },
                         {"sourceDir", project->sourceDir },
-                        {"task", runningTask->name}
+                        {"task", runningTask->name},
+                        {"workingDirectory", workingDirectory},
+                        {"buildDirectory", buildDirectory},
+                        {"sourceDirectory", sourceDirectory},
                     });
                     // clang-format on
                 }
@@ -731,16 +739,23 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto hash = getConfigDictionary();
     auto taskCommand = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
+    auto buildDirectory = expand(project->buildDir, hash);
+    auto sourceDirectory = expand(project->sourceDir, hash);
+
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = buildDirectory;
+    }
+
+    workingDirectory = QDir::toNativeSeparators(workingDirectory);
+    buildDirectory = QDir::toNativeSeparators(buildDirectory);
+    sourceDirectory = QDir::toNativeSeparators(sourceDirectory);
 
     outputDock->raise();
     outputDock->show();
-    if (workingDirectory.isEmpty()) {
-        workingDirectory = project->buildDir;
-    }
-
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     if (!kit) {
+        // run the taskCommand directly in the native shell
         auto command = QStringList();
         auto interpreter = QString{};
 #if defined(__linux__)
@@ -748,7 +763,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         command << "-c" << taskCommand;
 #elif defined(_WIN32)
         interpreter = qgetenv("COMSPEC");
-        command << "/k" << currentTask;
+        command << "/k" << taskCommand;
 #else
         interpreter = "???";
 #endif
@@ -760,11 +775,13 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setArguments(command);
         runProcess.setProcessEnvironment(env);
     } else {
+        // ask the active kit, to run the task
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("run_directory", expand(QDir::toNativeSeparators(workingDirectory), hash));
-        env.insert("build_directory", expand(QDir::toNativeSeparators(project->buildDir), hash));
-        env.insert("source_directory", QDir::toNativeSeparators(project->sourceDir));
+        env.insert("run_directory", workingDirectory);
+        env.insert("build_directory", buildDirectory);
+        env.insert("source_directory", sourceDirectory);
         env.insert("task", taskCommand);
+        runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
@@ -780,6 +797,10 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
     runProcess.setProperty("runningProject", QVariant::fromValue(project));
+    runProcess.setProperty("workingDirectory", QVariant::fromValue(workingDirectory));
+    runProcess.setProperty("buildDirectory", QVariant::fromValue(buildDirectory));
+    runProcess.setProperty("sourceDirectory", QVariant::fromValue(sourceDirectory));
+
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         if (kit) {
