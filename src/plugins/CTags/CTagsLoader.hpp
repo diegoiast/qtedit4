@@ -53,13 +53,14 @@ class CTagsLoader {
   public:
     CTagsLoader(const std::string &ctagsBinary = "ctags");
     void setCtagsBinary(const std::string &ctagsBinary);
-    
+
+    void clear();
     bool loadFile(const std::string &file);
     bool scanFiles(const std::vector<std::string> &files);
     bool scanFiles(const std::string &ctagsFileName, const std::vector<std::string> &files);
     bool scanDirs(const std::string &dir);
     bool scanDirs(const std::string &ctagsFileName, const std::string &dir);
-    
+
     std::optional<CTag> findTag(const std::string &symbolName) const;
 
   private:

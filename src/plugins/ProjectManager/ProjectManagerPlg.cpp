@@ -538,6 +538,16 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
                 // config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
+            // clang-format off
+            auto hash = getConfigDictionary();
+            auto workingDirectory = expand(config->buildDir, hash);
+
+            getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
+                {GlobalArguments::ProjectName, config->name },
+                {GlobalArguments::SourceDirectory, config->sourceDir },
+                {GlobalArguments::BuildDirectory, workingDirectory },
+            });
+            // clang-format on
 
             auto selectedDirectory = getConfig().getSelectedDirectory();
             auto index = projectModel->findConfigDirIndex(selectedDirectory);
@@ -639,6 +649,15 @@ void ProjectManagerPlugin::addProject_clicked() {
         // buildConfig->fileName.toStdString().c_str());
         configWatcher.addPath(buildConfig->fileName);
     }
+
+    // clang-format off
+    handleCommand(GlobalCommands::ProjectLoaded, {
+        {GlobalArguments::ProjectName, buildConfig->name },
+        {GlobalArguments::SourceDirectory, buildConfig->sourceDir },
+        {GlobalArguments::BuildDirectory, buildConfig->buildDir },
+    });
+    // clang-format on
+
     projectModel->addConfig(buildConfig);
     searchPanelUI->updateProjectList();
     gui->projectComboBox->setCurrentIndex(projectModel->rowCount() - 1);
@@ -1092,6 +1111,13 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         projectModel->addConfig(project);
         searchPanelUI->updateProjectList();
         getManager()->saveSettings();
+        // clang-format off
+        handleCommand(GlobalCommands::ProjectLoaded, {
+            {GlobalArguments::ProjectName, project->name },
+            {GlobalArguments::SourceDirectory, project->sourceDir },
+            {GlobalArguments::BuildDirectory, project->buildDir },
+        });
+        // clang-format on
         return true;
     }
 
