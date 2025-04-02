@@ -160,10 +160,11 @@ class qmdiEditor : public QWidget, public qmdiClient {
     }
 
   protected:
-    void focusInEvent(QFocusEvent *event) override;
-    bool eventFilter(QObject *watched, QEvent *event) override;
+    virtual void focusInEvent(QFocusEvent *event) override;
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
     void handleTabSelected();
     void handleTabDeselected();
+    void handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition);
 
   private:
     QString getShortFileName();

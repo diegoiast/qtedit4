@@ -1,9 +1,9 @@
 /**
- * \file qmdieditor
- * \brief Implementation of
+ * \file qmdieditor.cpp
+ * \brief Implementation of the qmdiEditor
  * \author Diego Iastrubni diegoiast@gmail.com
  * License GPL 2008
- * \see class name
+ * \see Qutepart qmdiClient
  */
 
 #include <QActionGroup>
@@ -30,12 +30,14 @@
 #include <QTextBrowser>
 #include <QTextEdit>
 #include <QToolBar>
+#include <QToolTip>
 #include <QTreeView>
 #include <qmditabwidget.h>
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
+#include "GlobalCommands.hpp"
 #include "plugins/texteditor/thememanager.h"
 #include "qmdieditor.h"
 #include "widgets/textoperationswidget.h"
@@ -277,6 +279,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->contextMenu.addAction(actionCopyFilePath);
 
     this->installEventFilter(this);
+    this->textEditor->setMouseTracking(true);
+    this->textEditor->viewport()->installEventFilter(this);
 
 #if defined(WIN32)
     originalLineEnding = "\r\n";
@@ -363,9 +367,6 @@ void qmdiEditor::setupActions() {
             updatePreview();
         }
     });
-
-    // FIXME - the new syntax for connecting a signal/slot crashes the app, using the old one works
-    // connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("Save &as..."), this);
@@ -663,6 +664,14 @@ bool qmdiEditor::eventFilter(QObject *watched, QEvent *event) {
             break;
         }
     }
+
+    if (watched == textEditor->viewport()) {
+        if (event->type() == QEvent::ToolTip) {
+            QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+            handleWordTooltip(helpEvent->pos(), helpEvent->globalPos());
+            return true;
+        }
+    }
     return QWidget::eventFilter(watched, event);
 }
 
@@ -683,6 +692,41 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer->stop();
     delete loadingTimer;
     loadingTimer = nullptr;
+}
+
+void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
+    auto cursor = textEditor->cursorForPosition(localPosition);
+    cursor.select(QTextCursor::WordUnderCursor);
+
+    if (cursor.selectedText().isEmpty()) {
+        return;
+    }
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    auto symbol = cursor.selectedText();
+
+    // clang-format off
+    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, symbol },
+        {GlobalArguments::FileName, mdiClientFileName() },
+    });
+    // clang-format on
+
+    if (res.isEmpty()) {
+        return;
+    }
+
+    auto fileName = res[GlobalArguments::FileName].toString();
+    auto lineNumber = res[GlobalArguments::LineNumber].toString();
+    auto columnNumber = res[GlobalArguments::ColumnNumber].toString();
+    auto raw = res["raw"].toString();
+    auto text = QString("%1 - %2@%3,%4 [%5]")
+                    .arg(symbol)
+                    .arg(fileName)
+                    .arg(lineNumber)
+                    .arg(columnNumber)
+                    .arg(raw);
+    QToolTip::showText(globalPosition, text, textEditor);
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {
