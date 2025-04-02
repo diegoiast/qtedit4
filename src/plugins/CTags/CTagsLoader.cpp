@@ -10,7 +10,7 @@ CTagsLoader::CTagsLoader(const std::string &ctagsBinary) : ctagsBinary(ctagsBina
 
 bool CTagsLoader::loadFile(const std::string &file) {
     filename = file;
-    tags.clear();
+    // tags.clear();
     return load();
 }
 
@@ -51,7 +51,6 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
         return false;
     }
     bool result = loadFile(ctagsFileName);
-    std::filesystem::remove(ctagsFileName);
     return result;
 }
 
@@ -69,6 +68,8 @@ std::optional<CTag> CTagsLoader::findTag(const std::string &symbolName) const {
 void CTagsLoader::setCtagsBinary(const std::string &ctagsBinary) {
     this->ctagsBinary = ctagsBinary;
 }
+
+void CTagsLoader::clear() { tags.clear(); }
 
 bool CTagsLoader::load() {
     std::ifstream file(filename);
@@ -101,7 +102,7 @@ bool CTagsLoader::load() {
         }
 
         CTag newTag = {tagName, tagFile, tagAddress, -1, -1, tagFields};
-        calculateLineColumn(newTag);
+        // calculateLineColumn(newTag);
         tags.push_back(newTag);
     }
 
