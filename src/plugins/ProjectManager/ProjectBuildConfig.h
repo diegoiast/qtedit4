@@ -33,6 +33,7 @@ struct ProjectBuildConfig {
     QString hideFilter;
 
     // meta data
+    QString name;
     QString fileName;
 
     static auto tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;

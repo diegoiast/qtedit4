@@ -28,12 +28,14 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
 auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto cmakeFileName = directory + "/" + "CMakeLists.txt";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(cmakeFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;.vs;build;dist";
     value->buildDir = "${source_directory}/build";
@@ -77,12 +79,14 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto cargoFileName = directory + "/" + "Cargo.toml";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(cargoFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;target";
     value->buildDir = directory + "/target";
@@ -125,12 +129,14 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
 auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto gomodFileName = directory + "/" + "go.mod";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(gomodFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;";
     value->buildDir = "";
@@ -233,6 +239,7 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         return info;
     };
     if (!json.isNull()) {
+        value->name = json["name"].toString();
         value->buildDir = json["build_directory"].toString();
         value->executables = parseExecutables(json["executables"]);
         value->tasksInfo = parseTasksInfo(json["tasks"]);
