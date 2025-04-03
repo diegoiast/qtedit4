@@ -41,12 +41,12 @@ enum class TagFieldKey {
 };
 
 struct CTag {
-    std::string tagName;
-    std::string tagFile;
-    std::string tagAddress;
+    std::string name;
+    std::string file;
+    std::string address;
     int lineNumber = -1;
     int columnNumber = -1;
-    std::map<TagFieldKey, std::string> tagFields;
+    std::map<TagFieldKey, std::string> fields;
 };
 
 class CTagsLoader {

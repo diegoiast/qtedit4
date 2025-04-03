@@ -105,10 +105,10 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     auto tag = project->findTag(symbol.toStdString());
     if (tag) {
         CommandArgs res = {
-            {GlobalArguments::FileName, QString::fromStdString(tag->tagFile)},
+            {GlobalArguments::FileName, QString::fromStdString(tag->file)},
             {GlobalArguments::LineNumber, tag->lineNumber},
             {GlobalArguments::ColumnNumber, tag->columnNumber},
-            {"raw", QString ::fromStdString(tag->tagAddress)},
+            {"raw", QString ::fromStdString(tag->address)},
         };
         return res;
     }
