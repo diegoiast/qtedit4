@@ -11,11 +11,9 @@ CTagsPlugin::CTagsPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
-
-    ctags = new CTagsLoader;
 }
 
-CTagsPlugin::~CTagsPlugin() { delete ctags; }
+CTagsPlugin::~CTagsPlugin() { projects.clear(); }
 
 CTagsPlugin::Config &CTagsPlugin::getConfig() {
     static Config configObject{&this->config};
@@ -37,47 +35,82 @@ int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) c
 
 CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs &args) {
     if (command == GlobalCommands::BuildSucceeded) {
-        // TODO - run in another thread
-        // create tags file for this project
-        auto sourceDir = args["sourceDir"].toString().toStdString();
-        auto buildDirectory = args["buildDirectory"].toString().toStdString();
-        auto projectName = args["projectName"].toString().toStdString();
-        auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
-
-        // TODO - the tag should be realtive to the source dir
-        qDebug() << "Will create tags file" << ctagsFile << "for dir=" << sourceDir;
-        ctags->scanDirs(ctagsFile, sourceDir);
+        auto sourceDir = args["sourceDir"].toString();
+        auto buildDirectory = args["buildDirectory"].toString();
+        auto projectName = args["projectName"].toString();
+        newProjectBuilt(projectName, sourceDir, buildDirectory);
     }
 
     if (command == GlobalCommands::ProjectLoaded) {
-        auto projectName = args[GlobalArguments::ProjectName].toString().toStdString();
-        auto sourceDir = args[GlobalArguments::SourceDirectory].toString().toStdString();
-        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString().toStdString();
-        auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
-        qDebug() << "Will loadtags file" << ctagsFile << "for dir=" << sourceDir;
-        ctags->loadFile(ctagsFile);
+        auto projectName = args[GlobalArguments::ProjectName].toString();
+        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+        newProjectAdded(projectName, sourceDir, buildDirectory);
     }
 
     if (command == GlobalCommands::VariableInfo) {
-        // auto sourceDir = args["sourceDir"].toString().toStdString();
-        // auto buildDirectory = args["buildDirectory"].toString();
-        // auto projectName = args["projectName"].toString().toStdString();
-        // auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
         auto filename = args[GlobalArguments::FileName].toString();
         auto symbol = args[GlobalArguments::RequestedSymbol].toString();
+        return symbolInfoRequested(filename, symbol);
+    }
+    return {};
+}
 
-        // TODO - the tag should be realtive to the source dir
-        auto tag = ctags->findTag(symbol.toStdString());
+void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
+    this->ctagsBinary = newBinary;
+    for (auto k : projects.keys()) {
+        projects[k]->setCTagsBinary(newBinary.toStdString());
+    }
+}
 
-        if (tag) {
-            CommandArgs res = {
-                {GlobalArguments::FileName, QString::fromStdString(tag->tagFile)},
-                {GlobalArguments::LineNumber, tag->lineNumber},
-                {GlobalArguments::ColumnNumber, tag->columnNumber},
-                {"raw", QString ::fromStdString(tag->tagAddress)},
-            };
-            return res;
+void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sourceDir,
+                                  const QString &buildDirectory) {
+    CTagsLoader *ctags = nullptr;
+    if (projects.contains(sourceDir)) {
+        ctags = projects.value(sourceDir);
+    } else {
+        ctags = new CTagsLoader(ctagsBinary.toStdString());
+        projects[sourceDir] = ctags;
+    }
+
+    auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
+    ctags->loadFile(ctagsFile.toStdString());
+}
+
+void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sourceDir,
+                                  const QString &buildDirectory) {
+    // project should be loaded first, something is borked
+    if (!projects.contains(sourceDir)) {
+        qDebug() << "Project build, but not added first! ctags will not suppor it" << sourceDir;
+        return;
+    }
+    auto ctags = projects.value(sourceDir);
+    auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
+    ctags->scanDirs(ctagsFile.toStdString(), sourceDir.toStdString());
+}
+
+CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QString &symbol) {
+    CTagsLoader *project = nullptr;
+    for (auto &k : projects.keys()) {
+        if (fileName.startsWith(k)) {
+            project = projects[k];
+            break;
         }
+    }
+
+    if (!project) {
+        return {};
+    }
+
+    auto tag = project->findTag(symbol.toStdString());
+    if (tag) {
+        CommandArgs res = {
+            {GlobalArguments::FileName, QString::fromStdString(tag->tagFile)},
+            {GlobalArguments::LineNumber, tag->lineNumber},
+            {GlobalArguments::ColumnNumber, tag->columnNumber},
+            {"raw", QString ::fromStdString(tag->tagAddress)},
+        };
+        return res;
     }
     return {};
 }
