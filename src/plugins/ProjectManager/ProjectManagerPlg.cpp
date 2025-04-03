@@ -538,10 +538,10 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
                 // config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
-            // clang-format off
-            auto hash = getConfigDictionary();
-            auto workingDirectory = expand(config->buildDir, hash);
 
+            auto hash = getConfigDictionary(config);
+            auto workingDirectory = expand(config->buildDir, hash);
+            // clang-format off
             getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
                 {GlobalArguments::ProjectName, config->name },
                 {GlobalArguments::SourceDirectory, config->sourceDir },
@@ -609,9 +609,9 @@ std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() con
     return projectModel->getConfig(currentIndex);
 }
 
-const QHash<QString, QString> ProjectManagerPlugin::getConfigDictionary() const {
+const QHash<QString, QString>
+ProjectManagerPlugin::getConfigDictionary(std::shared_ptr<ProjectBuildConfig> project) const {
     auto dictionary = QHash<QString, QString>();
-    auto project = getCurrentConfig();
     if (project) {
         dictionary["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
         dictionary["build_directory"] = QDir::toNativeSeparators(project->buildDir);
@@ -694,7 +694,8 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterOutFiles->clear();
         this->gui->filterOutFiles->setEnabled(false);
     } else {
-        auto dictionary = getConfigDictionary();
+        auto project = getCurrentConfig();
+        auto dictionary = getConfigDictionary(project);
         auto s1 = expand(buildConfig->displayFilter, dictionary);
         auto s2 = expand(buildConfig->hideFilter, dictionary);
         this->gui->filterFiles->setEnabled(true);
@@ -721,8 +722,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         return;
     }
 
-    auto hash = getConfigDictionary();
     auto project = getCurrentConfig();
+    auto hash = getConfigDictionary(project);
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto currentTask = expand(executablePath, hash);
     auto workingDirectory = info->runDirectory;
@@ -763,7 +764,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto hash = getConfigDictionary();
+    auto hash = getConfigDictionary(project);
     auto taskCommand = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
     auto buildDirectory = expand(project->buildDir, hash);
@@ -871,7 +872,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
         return;
     }
 
-    auto hash = getConfigDictionary();
+    auto hash = getConfigDictionary(project);
     auto projectBuildDir = QDir::toNativeSeparators(expand(project->buildDir, hash));
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
