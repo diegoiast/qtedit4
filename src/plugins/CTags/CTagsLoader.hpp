@@ -52,7 +52,7 @@ struct CTag {
 class CTagsLoader {
   public:
     CTagsLoader(const std::string &ctagsBinary = "ctags");
-    void setCtagsBinary(const std::string &ctagsBinary);
+    void setCTagsBinary(const std::string &ctagsBinary);
 
     void clear();
     bool loadFile(const std::string &file);
