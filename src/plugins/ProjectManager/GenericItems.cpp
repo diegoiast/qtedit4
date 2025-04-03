@@ -106,7 +106,6 @@ void DirectoryModel::addDirectory(const QString &path) {
 }
 
 void DirectoryModel::scanStarted(const QString &rootPath) {
-    qInfo() << "loading" << rootPath;
     directoryList.push_back(QDir::toNativeSeparators(rootPath));
 }
 
