@@ -56,7 +56,7 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
 
 std::optional<CTag> CTagsLoader::findTag(const std::string &symbolName) const {
     auto it = std::find_if(tags.begin(), tags.end(),
-                           [&symbolName](const CTag &tag) { return tag.tagName == symbolName; });
+                           [&symbolName](const CTag &tag) { return tag.name == symbolName; });
 
     if (it != tags.end()) {
         return *it;
@@ -141,7 +141,7 @@ std::string CTagsLoader::runCommand(const std::string &command) {
 }
 
 void CTagsLoader::calculateLineColumn(CTag &tag) const {
-    std::ifstream file(tag.tagFile);
+    std::ifstream file(tag.file);
     if (!file.is_open()) {
         return;
     }
@@ -150,8 +150,8 @@ void CTagsLoader::calculateLineColumn(CTag &tag) const {
     std::regex pattern;
     bool patternSet = false;
 
-    if (tag.tagAddress[0] == '/') {
-        std::string patternStr = tag.tagAddress.substr(1, tag.tagAddress.length() - 2);
+    if (tag.address[0] == '/') {
+        std::string patternStr = tag.address.substr(1, tag.address.length() - 2);
         try {
             pattern = std::regex(patternStr);
             patternSet = true;
@@ -160,7 +160,7 @@ void CTagsLoader::calculateLineColumn(CTag &tag) const {
         }
     } else {
         try {
-            lineNumber = std::stoi(tag.tagAddress);
+            lineNumber = std::stoi(tag.address);
         } catch (const std::invalid_argument &e) {
             return;
         }
@@ -171,7 +171,7 @@ void CTagsLoader::calculateLineColumn(CTag &tag) const {
     while (std::getline(file, line)) {
         if (lineNumber != -1 && currentLine == lineNumber) {
             std::smatch match;
-            if (std::regex_search(line, match, std::regex(tag.tagName))) {
+            if (std::regex_search(line, match, std::regex(tag.name))) {
                 tag.lineNumber = lineNumber;
                 tag.columnNumber = static_cast<int>(match.position()) + 1;
                 return;
