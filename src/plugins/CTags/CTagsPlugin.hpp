@@ -19,7 +19,9 @@ class CTagsPlugin : public IPlugin {
         qmdiPluginConfig *config;
     };
     Config &getConfig();
-    CTagsLoader *ctags;
+    QHash<QString, CTagsLoader *> projects;
+
+    QString ctagsBinary = "ctags";
 
   public:
     CTagsPlugin();
@@ -27,4 +29,15 @@ class CTagsPlugin : public IPlugin {
 
     virtual int canHandleCommand(const QString &command, const CommandArgs &args) const override;
     virtual CommandArgs handleCommand(const QString &command, const CommandArgs &args) override;
+
+    void setCTagsBinary(const QString &newBinary);
+
+  protected:
+    void newProjectAdded(const QString &projectName, const QString &sourceDir,
+                         const QString &buildDirectory);
+    void newProjectBuilt(const QString &projectName, const QString &sourceDir,
+                         const QString &buildDirectory);
+    CommandArgs symbolInfoRequested(const QString &fileName, const QString &symbol);
+
+  private:
 };
