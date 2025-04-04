@@ -330,23 +330,23 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 }
 
                 if (project && runningTask && runningTask->isBuild) {
-                    if (exitStatus == QProcess::ExitStatus::NormalExit && exitCode == 0) {
-                        qDebug() << "Notifying about a good build" << project->buildDir
-                                 << buildDirectory << project->sourceDir << sourceDirectory
-                                 << runningTask->name;
+                    qDebug() << "Notifying about a good build" << project->buildDir
+                             << buildDirectory << project->sourceDir << sourceDirectory
+                             << runningTask->name;
 
-                        // clang-format off
-                        getManager()->handleCommand(GlobalCommands::BuildSucceeded, {
-                            {"builDir", project->buildDir },
-                            {"sourceDir", project->sourceDir },
-                            {"task", runningTask->name},
-                            {"workingDirectory", workingDirectory},
-                            {"buildDirectory", buildDirectory},
-                            {"sourceDirectory", sourceDirectory},
-                            {"projectName", projectName}
-                        });
-                        // clang-format on
-                    }
+                    // clang-format off
+                    getManager()->handleCommand(GlobalCommands::BuildFinished, {
+                        {"builDir", project->buildDir },
+                        {"sourceDir", project->sourceDir },
+                        {"task", runningTask->name},
+                        {"workingDirectory", workingDirectory},
+                        {"buildDirectory", buildDirectory},
+                        {"sourceDirectory", sourceDirectory},
+                        {"projectName", projectName},
+                        // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
+                        {"code", exitStatus == 0},
+                    });
+                    // clang-format on
                 }
 
                 runProcess.setProperty("runningTask", {});
