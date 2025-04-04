@@ -3,6 +3,7 @@
 #include "GlobalCommands.hpp"
 
 #include <QDebug>
+#include <QDir>
 
 CTagsPlugin::CTagsPlugin() {
     name = tr("CTags support");
@@ -58,7 +59,7 @@ CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs
 
 void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
     this->ctagsBinary = newBinary;
-    for (auto k : projects.keys()) {
+    for (const auto &k : projects.keys()) {
         projects[k]->setCTagsBinary(newBinary.toStdString());
     }
 }
@@ -66,32 +67,40 @@ void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
 void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sourceDir,
                                   const QString &buildDirectory) {
     CTagsLoader *ctags = nullptr;
-    if (projects.contains(sourceDir)) {
-        ctags = projects.value(sourceDir);
-    } else {
-        ctags = new CTagsLoader(ctagsBinary.toStdString());
-        projects[sourceDir] = ctags;
+    if (projectName.isEmpty() || buildDirectory.isEmpty()) {
+        return;
     }
 
-    auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
+    auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
+    if (projects.contains(nativeSourceDir)) {
+        ctags = projects.value(nativeSourceDir);
+    } else {
+        ctags = new CTagsLoader(ctagsBinary.toStdString());
+        projects[nativeSourceDir] = ctags;
+    }
+
+    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
     ctags->loadFile(ctagsFile.toStdString());
 }
 
 void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sourceDir,
                                   const QString &buildDirectory) {
     // project should be loaded first, something is borked
-    if (!projects.contains(sourceDir)) {
-        qDebug() << "Project build, but not added first! ctags will not suppor it" << sourceDir;
+    auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
+    if (!projects.contains(nativeSourceDir)) {
+        qDebug() << "Project build, but not added first! ctags will not suppor it"
+                 << nativeSourceDir;
         return;
     }
-    auto ctags = projects.value(sourceDir);
-    auto ctagsFile = buildDirectory + "/" + projectName + ".tags";
-    ctags->scanDirs(ctagsFile.toStdString(), sourceDir.toStdString());
+    auto ctags = projects.value(nativeSourceDir);
+    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
+    ctags->scanDirs(ctagsFile.toStdString(),
+                    QDir::toNativeSeparators(nativeSourceDir).toStdString());
 }
 
 CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QString &symbol) {
     CTagsLoader *project = nullptr;
-    for (auto &k : projects.keys()) {
+    for (const auto &k : projects.keys()) {
         if (fileName.startsWith(k)) {
             project = projects[k];
             break;
