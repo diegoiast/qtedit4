@@ -12,6 +12,8 @@ CTagsPlugin::CTagsPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
+
+    ctagsBinary = "c:\\Users\\diego\\Downloads\\ctags\\ctags.exe";
 }
 
 CTagsPlugin::~CTagsPlugin() { projects.clear(); }
@@ -22,7 +24,7 @@ CTagsPlugin::Config &CTagsPlugin::getConfig() {
 }
 
 int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) const {
-    if (command == GlobalCommands::BuildSucceeded) {
+    if (command == GlobalCommands::BuildFinished) {
         return CommandPriority::HighPriority;
     }
     if (command == GlobalCommands::ProjectLoaded) {
@@ -35,7 +37,7 @@ int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) c
 }
 
 CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs &args) {
-    if (command == GlobalCommands::BuildSucceeded) {
+    if (command == GlobalCommands::BuildFinished) {
         auto sourceDir = args["sourceDir"].toString();
         auto buildDirectory = args["buildDirectory"].toString();
         auto projectName = args["projectName"].toString();
