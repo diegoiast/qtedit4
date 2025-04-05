@@ -82,7 +82,8 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
         projects[nativeSourceDir] = ctags;
     }
 
-    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
+    auto ctagsFile =
+        QDir::toNativeSeparators(buildDirectory) + QDir::separator() + projectName + ".tags";
     ctags->loadFile(ctagsFile.toStdString());
 }
 
