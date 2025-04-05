@@ -703,41 +703,42 @@ static auto createTooltip(const QHash<QString, QVariant> &data) -> QString {
         return {};
     }
 
+    auto originalSymbol = data["symbol"].toString();
     auto tags = data["tags"].toList();
     if (tags.isEmpty()) {
         return {};
     }
 
     auto tooltip = QString("<html><body style='white-space:pre;'>");
-    tooltip += "<b>Symbol References:</b><br>";
+    tooltip += QString("<b>Symbol References:</b> <code>%1</code> (%2)<br>")
+                   .arg(originalSymbol)
+                   .arg(tags.size());
 
+    auto count = 0;
     for (const QVariant &item : tags) {
         auto const tag = item.toHash();
-        auto const fields = tag["fields"].toMap();
-        auto const priorityFields = QStringList{"Kind", "Scope", "Type", "Language", "Prototype"};
-
-        if (!tooltip.isEmpty()) {
-            tooltip += "<br>";
-        }
-        tooltip += QString("┌ <b>File:</b> %1<br>").arg(tag[GlobalArguments::FileName].toString());
-        for (auto const &key : priorityFields) {
-            if (fields.contains(key)) {
-                tooltip += QString("├ <b>%1:</b> %2<br>").arg(key).arg(fields[key].toString());
-            }
-        }
-
-        for (auto it = fields.constBegin(); it != fields.constEnd(); ++it) {
-            if (!priorityFields.contains(it.key())) {
-                tooltip += QString("├ <b>%1:</b> %2<br>").arg(it.key()).arg(it.value().toString());
-            }
-        }
-
+        auto const fieldType = tag["fieldType"].toString();
+        auto const fieldValue = tag["fieldValue"].toString();
         auto address = tag["raw"].toString();
         if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
             address.length() > MIN_LENGTH) {
             address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
         }
+
+        if (!tooltip.isEmpty()) {
+            tooltip += "<br>";
+        }
+
+        tooltip += QString("┌ <b>File:</b> %1<br>").arg(tag[GlobalArguments::FileName].toString());
+        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
         tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
+
+        count++;
+
+        if (count > 7) {
+            tooltip += "<br/> ... <i>and more</i>";
+            break;
+        }
     }
 
     tooltip += "</body></html>";
