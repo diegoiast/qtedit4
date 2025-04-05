@@ -61,16 +61,19 @@ class CTagsLoader {
     bool scanDirs(const std::string &dir);
     bool scanDirs(const std::string &ctagsFileName, const std::string &dir);
 
-    std::optional<CTag> findTag(const std::string &symbolName) const;
+    using TagListRef = std::vector<std::reference_wrapper<const CTag>>;
+    TagListRef findTags(const std::string &symbolName, bool exactMatch) const;
 
   private:
     bool load();
     bool parseCtagsOutput(const std::string &ctagsOutput);
     std::string runCommand(const std::string &command);
     void calculateLineColumn(CTag &tag) const;
-    TagFieldKey mapCharToTagFieldKey(char key) const;
 
     std::string filename;
     std::vector<CTag> tags;
     std::string ctagsBinary;
 };
+
+std::string tagFieldKeyToString(TagFieldKey key);
+TagFieldKey mapCharToTagFieldKey(char key);

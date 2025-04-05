@@ -694,6 +694,56 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
+static auto createTooltip(const QHash<QString, QVariant> &data) -> QString {
+    static auto const START_MARKER = QString("/^");
+    static auto const END_MARKER = QString("$/;\"");
+    static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
+
+    if (!data.contains("tags")) {
+        return {};
+    }
+
+    auto tags = data["tags"].toList();
+    if (tags.isEmpty()) {
+        return {};
+    }
+
+    auto tooltip = QString("<html><body style='white-space:pre;'>");
+    tooltip += "<b>Symbol References:</b><br>";
+
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const fields = tag["fields"].toMap();
+        auto const priorityFields = QStringList{"Kind", "Scope", "Type", "Language", "Prototype"};
+
+        if (!tooltip.isEmpty()) {
+            tooltip += "<br>";
+        }
+        tooltip += QString("┌ <b>File:</b> %1<br>").arg(tag[GlobalArguments::FileName].toString());
+        for (auto const &key : priorityFields) {
+            if (fields.contains(key)) {
+                tooltip += QString("├ <b>%1:</b> %2<br>").arg(key).arg(fields[key].toString());
+            }
+        }
+
+        for (auto it = fields.constBegin(); it != fields.constEnd(); ++it) {
+            if (!priorityFields.contains(it.key())) {
+                tooltip += QString("├ <b>%1:</b> %2<br>").arg(it.key()).arg(it.value().toString());
+            }
+        }
+
+        auto address = tag["raw"].toString();
+        if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
+            address.length() > MIN_LENGTH) {
+            address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
+        }
+        tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
+    }
+
+    tooltip += "</body></html>";
+    return tooltip;
+}
+
 void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
     auto cursor = textEditor->cursorForPosition(localPosition);
     cursor.select(QTextCursor::WordUnderCursor);
@@ -708,25 +758,15 @@ void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &gl
     // clang-format off
     auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
         {GlobalArguments::RequestedSymbol, symbol },
+        {GlobalArguments::RequestedSymbol, symbol },
         {GlobalArguments::FileName, mdiClientFileName() },
     });
     // clang-format on
 
-    if (res.isEmpty()) {
-        return;
+    auto tooltip = createTooltip(res);
+    if (!tooltip.isEmpty()) {
+        QToolTip::showText(globalPosition, tooltip, textEditor);
     }
-
-    auto fileName = res[GlobalArguments::FileName].toString();
-    auto lineNumber = res[GlobalArguments::LineNumber].toString();
-    auto columnNumber = res[GlobalArguments::ColumnNumber].toString();
-    auto raw = res["raw"].toString();
-    auto text = QString("%1 - %2@%3,%4 [%5]")
-                    .arg(symbol)
-                    .arg(fileName)
-                    .arg(lineNumber)
-                    .arg(columnNumber)
-                    .arg(raw);
-    QToolTip::showText(globalPosition, text, textEditor);
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {
