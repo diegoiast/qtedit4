@@ -1,10 +1,22 @@
 #include "CTagsLoader.hpp"
 #include <cstdio>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <string>
+#include <thread>
+
+#if defined(_WIN32) || defined(_WIN64)
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#else
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#endif
 
 CTagsLoader::CTagsLoader(const std::string &ctagsBinary) : ctagsBinary(ctagsBinary) {}
 
@@ -45,13 +57,36 @@ bool CTagsLoader::scanDirs(const std::string &dir) {
 }
 
 bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &dir) {
+    std::string logFile = ctagsFileName + ".log";
     std::string command = ctagsBinary + " -R -f \"" + ctagsFileName + "\" \"" + dir + "\"";
-    if (system(command.c_str()) != 0) {
-        std::cerr << "Error: Failed to generate ctags file." << std::endl;
-        return false;
-    }
-    bool result = loadFile(ctagsFileName);
-    return result;
+
+    std::thread([=, this]() {
+#if defined(_WIN32) || defined(_WIN64)
+        std::string fullCommand = "cmd /C \"" + command + " > \"" + logFile + "\" 2>&1\"";
+        STARTUPINFOA si = {sizeof(si), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        PROCESS_INFORMATION pi;
+        si.dwFlags = STARTF_USESHOWWINDOW;
+        si.wShowWindow = SW_HIDE;
+
+        if (CreateProcessA(NULL, const_cast<LPSTR>(fullCommand.c_str()), NULL, NULL, FALSE,
+                           CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        } else {
+            std::cerr << "Error: Failed to run the command." << std::endl;
+        }
+
+#else
+        std::string fullCommand =
+            command + " > " + logFile + " 2>&1 &"; // The '&' sends it to the background
+        if (system(fullCommand.c_str()) != 0) {
+            std::cerr << "Error: Failed to generate ctags file." << std::endl;
+        }
+#endif
+        loadFile(ctagsFileName);
+    }).detach();
+
+    return true;
 }
 
 std::optional<CTag> CTagsLoader::findTag(const std::string &symbolName) const {
