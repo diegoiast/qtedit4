@@ -121,20 +121,17 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     for (auto &tagRef : tags) {
         const CTag &tag = tagRef.get();
 
-        // Convert fields map to QVariantMap
-        QVariantMap fields;
-        for (const auto &[key, value] : tag.fields) {
-            fields[QString::fromStdString(tagFieldKeyToString(key))] =
-                QString::fromStdString(value);
-        }
-
-        tagList.append(QVariant::fromValue(
-            CommandArgs{{GlobalArguments::FileName, QString::fromStdString(tag.file)},
-                        {"fields", fields},
-                        {"raw", QString::fromStdString(tag.address)}}));
+        tagList.append(QVariant::fromValue(CommandArgs{
+            {GlobalArguments::FileName, QString::fromStdString(tag.file)},
+            {"fieldType", QString::fromStdString(tagFieldKeyToString(tag.field))},
+            {"fieldValue", QString::fromStdString(tag.fieldValue)},
+            {"raw", QString::fromStdString(tag.address)},
+        }));
     }
 
     CommandArgs res;
+    res["symbol"] = symbol;
+    res["fileName"] = fileName;
     res["tags"] = tagList;
 
     return res;
