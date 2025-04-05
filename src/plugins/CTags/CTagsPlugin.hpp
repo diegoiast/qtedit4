@@ -1,9 +1,9 @@
 /**
- * \file CTagsPLugin.hpp
- * \brief Definition of the help system  plugin
+ * \file CTagsPlugin.hpp
+ * \brief Definition of the CTag support plugin
  * \author Diego Iastrubni (diegoiast@gmail.com)
  * License MIT
- * \see HelpPlugin
+ * \see ProjectManager
  */
 
 #pragma once
@@ -11,7 +11,6 @@
 #include "iplugin.h"
 
 class CTagsLoader;
-// #include "CTagsLoader.hpp"
 
 class CTagsPlugin : public IPlugin {
     struct Config {
