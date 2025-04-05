@@ -70,6 +70,7 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
 
         if (CreateProcessA(NULL, const_cast<LPSTR>(fullCommand.c_str()), NULL, NULL, FALSE,
                            CREATE_NO_WINDOW, NULL, NULL, &si, &pi)) {
+            WaitForSingleObject(pi.hProcess, INFINITE);
             CloseHandle(pi.hProcess);
             CloseHandle(pi.hThread);
         } else {
