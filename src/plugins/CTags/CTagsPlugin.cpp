@@ -54,7 +54,8 @@ CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs
     if (command == GlobalCommands::VariableInfo) {
         auto filename = args[GlobalArguments::FileName].toString();
         auto symbol = args[GlobalArguments::RequestedSymbol].toString();
-        return symbolInfoRequested(filename, symbol);
+        auto exactMatch = args[GlobalArguments::RequestedSymbol].toBool();
+        return symbolInfoRequested(filename, symbol, exactMatch);
     }
     return {};
 }
@@ -100,7 +101,8 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
                     QDir::toNativeSeparators(nativeSourceDir).toStdString());
 }
 
-CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QString &symbol) {
+CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QString &symbol,
+                                             bool exactMatch) {
     CTagsLoader *project = nullptr;
     for (const auto &k : projects.keys()) {
         if (fileName.startsWith(k)) {
@@ -113,15 +115,26 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
         return {};
     }
 
-    auto tag = project->findTag(symbol.toStdString());
-    if (tag) {
-        CommandArgs res = {
-            {GlobalArguments::FileName, QString::fromStdString(tag->file)},
-            {GlobalArguments::LineNumber, tag->lineNumber},
-            {GlobalArguments::ColumnNumber, tag->columnNumber},
-            {"raw", QString ::fromStdString(tag->address)},
-        };
-        return res;
+    QVariantList tagList;
+    auto tags = project->findTags(symbol.toStdString(), exactMatch);
+    for (auto &tagRef : tags) {
+        const CTag &tag = tagRef.get();
+
+        // Convert fields map to QVariantMap
+        QVariantMap fields;
+        for (const auto &[key, value] : tag.fields) {
+            fields[QString::fromStdString(tagFieldKeyToString(key))] =
+                QString::fromStdString(value);
+        }
+
+        tagList.append(QVariant::fromValue(
+            CommandArgs{{GlobalArguments::FileName, QString::fromStdString(tag.file)},
+                        {"fields", fields},
+                        {"raw", QString::fromStdString(tag.address)}}));
     }
-    return {};
+
+    CommandArgs res;
+    res["tags"] = tagList;
+
+    return res;
 }

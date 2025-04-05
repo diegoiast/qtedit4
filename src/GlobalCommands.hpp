@@ -22,6 +22,7 @@ inline constexpr const char *VariableInfo = "VariableInfo";
 } // namespace GlobalCommands
 
 namespace GlobalArguments {
+inline constexpr const char *ExactMatch = "ExactMatch";
 inline constexpr const char *ProjectName = "ProjectName";
 inline constexpr const char *RequestedSymbol = "RequestedSymbol";
 inline constexpr const char *SourceDirectory = "SourceDirectory";
