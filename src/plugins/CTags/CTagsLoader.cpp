@@ -128,22 +128,19 @@ bool CTagsLoader::load() {
 
         std::stringstream ss(line);
         std::string tagName, tagFile, tagAddress, field;
-        std::map<TagFieldKey, std::string> tagFields;
+        TagFieldKey tagField = TagFieldKey::Unknown;
+        std::string tagFieldValue;
 
         std::getline(ss, tagName, '\t');
         std::getline(ss, tagFile, '\t');
         std::getline(ss, tagAddress, '\t');
 
-        while (std::getline(ss, field, '\t')) {
-            if (field.length() >= 2 && field[0] == 2) {
-                char key = field[1];
-                std::string value = field.substr(2);
-                TagFieldKey fieldKey = mapCharToTagFieldKey(key);
-                tagFields[fieldKey] = value;
-            }
+        if (std::getline(ss, field, '\t')) {
+            tagField = mapCharToTagFieldKey(field[0]);
+            std::getline(ss, tagFieldValue, '\t');
         }
 
-        CTag newTag = {tagName, tagFile, tagAddress, -1, -1, tagFields};
+        CTag newTag = {tagName, tagFile, tagAddress, tagField, tagFieldValue};
         // calculateLineColumn(newTag);
         tags.push_back(newTag);
     }
@@ -158,12 +155,11 @@ bool CTagsLoader::parseCtagsOutput(const std::string &ctagsOutput) {
     while (std::getline(ss, line)) {
         std::stringstream lineStream(line);
         std::string tagName, type, lineNumberStr, tagFile, tagAddress;
-        std::map<TagFieldKey, std::string> tagFields;
 
         lineStream >> tagName >> type >> lineNumberStr >> tagFile >> std::ws;
         tagAddress = line.substr(lineStream.tellg());
 
-        CTag newTag = {tagName, tagFile, tagAddress, std::stoi(lineNumberStr), 1, tagFields};
+        CTag newTag = {tagName, tagFile, tagAddress, TagFieldKey::Unknown, {}};
         tags.push_back(newTag);
     }
     return true;
@@ -182,99 +178,89 @@ std::string CTagsLoader::runCommand(const std::string &command) {
     return result;
 }
 
-void CTagsLoader::calculateLineColumn(CTag &tag) const {
-    std::ifstream file(tag.file);
-    if (!file.is_open()) {
-        return;
-    }
-
-    int lineNumber = -1;
-    std::regex pattern;
-    bool patternSet = false;
-
-    if (tag.address[0] == '/') {
-        std::string patternStr = tag.address.substr(1, tag.address.length() - 2);
-        try {
-            pattern = std::regex(patternStr);
-            patternSet = true;
-        } catch (const std::regex_error &e) {
-            return;
-        }
-    } else {
-        try {
-            lineNumber = std::stoi(tag.address);
-        } catch (const std::invalid_argument &e) {
-            return;
-        }
-    }
-
-    std::string line;
-    int currentLine = 1;
-    while (std::getline(file, line)) {
-        if (lineNumber != -1 && currentLine == lineNumber) {
-            std::smatch match;
-            if (std::regex_search(line, match, std::regex(tag.name))) {
-                tag.lineNumber = lineNumber;
-                tag.columnNumber = static_cast<int>(match.position()) + 1;
-                return;
-            }
-            return;
-        } else if (patternSet) {
-            std::smatch match;
-            if (std::regex_search(line, match, pattern)) {
-                tag.lineNumber = currentLine;
-                tag.columnNumber = static_cast<int>(match.position()) + 1;
-                return;
-            }
-        }
-        currentLine++;
-    }
-}
-
 TagFieldKey mapCharToTagFieldKey(char key) {
     switch (key) {
+    // Classes and structures
+    case 'c':
+        return TagFieldKey::Class;
+    case 's':
+        return TagFieldKey::Struct;
+
+    // Functions and methods
     case 'f':
-        return TagFieldKey::FileScope;
+        return TagFieldKey::Function;
+    case 'm':
+        return TagFieldKey::Method;
+
+    // Variables and fields
     case 'v':
         return TagFieldKey::Variable;
+    case 'g':
+        return TagFieldKey::EnumName;
+    case 'e':
+        return TagFieldKey::EnumValue;
+
+    // Namespaces and scope
+    case 'n':
+        return TagFieldKey::Namespace;
+    case 'd':
+        return TagFieldKey::Macro;
+
+    // Type information
     case 't':
         return TagFieldKey::Type;
     case 'p':
         return TagFieldKey::Prototype;
-    case 's':
-        return TagFieldKey::Scope;
+
+    // Other metadata
+    case 'F':
+        return TagFieldKey::FileScope;
     case 'i':
         return TagFieldKey::Inheritance;
     case 'l':
         return TagFieldKey::Language;
-    case 'r':
-        return TagFieldKey::Regex;
     case 'k':
         return TagFieldKey::Kind;
+    case 'r':
+        return TagFieldKey::Regex;
     }
     return TagFieldKey::Unknown;
 }
 
 std::string tagFieldKeyToString(TagFieldKey key) {
     switch (key) {
-    case TagFieldKey::FileScope:
-        return "FileScope";
+    case TagFieldKey::Class:
+        return "Class";
+    case TagFieldKey::Struct:
+        return "Struct";
+    case TagFieldKey::Function:
+        return "Function";
+    case TagFieldKey::Method:
+        return "Method";
     case TagFieldKey::Variable:
         return "Variable";
+    case TagFieldKey::EnumName:
+        return "EnumName";
+    case TagFieldKey::EnumValue:
+        return "EnumValue";
+    case TagFieldKey::Namespace:
+        return "Namespace";
+    case TagFieldKey::Macro:
+        return "Macro";
     case TagFieldKey::Type:
         return "Type";
     case TagFieldKey::Prototype:
         return "Prototype";
-    case TagFieldKey::Scope:
-        return "Scope";
+    case TagFieldKey::FileScope:
+        return "FileScope";
     case TagFieldKey::Inheritance:
         return "Inheritance";
     case TagFieldKey::Language:
         return "Language";
-    case TagFieldKey::Regex:
-        return "Regex";
     case TagFieldKey::Kind:
         return "Kind";
+    case TagFieldKey::Regex:
+        return "Regex";
     case TagFieldKey::Unknown:
         return "Unknown";
     }
