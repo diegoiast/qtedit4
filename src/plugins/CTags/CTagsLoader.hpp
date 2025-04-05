@@ -28,25 +28,42 @@
 #include <vector>
 
 enum class TagFieldKey {
-    FileScope,
+    Unknown,
+    // Classes and structures
+    Class,
+    Struct,
+
+    // Functions and methods
+    Function,
+    Method,
+
+    // Variables and fields
     Variable,
+    EnumName,
+    EnumValue,
+
+    // Namespaces and scope
+    Namespace,
+    Macro,
+
+    // Type information
     Type,
     Prototype,
-    Scope,
+
+    // Other metadata
+    FileScope,
     Inheritance,
     Language,
-    Regex,
     Kind,
-    Unknown
+    Regex
 };
 
 struct CTag {
     std::string name;
     std::string file;
     std::string address;
-    int lineNumber = -1;
-    int columnNumber = -1;
-    std::map<TagFieldKey, std::string> fields;
+    TagFieldKey field;
+    std::string fieldValue;
 };
 
 class CTagsLoader {
@@ -68,7 +85,6 @@ class CTagsLoader {
     bool load();
     bool parseCtagsOutput(const std::string &ctagsOutput);
     std::string runCommand(const std::string &command);
-    void calculateLineColumn(CTag &tag) const;
 
     std::string filename;
     std::vector<CTag> tags;
