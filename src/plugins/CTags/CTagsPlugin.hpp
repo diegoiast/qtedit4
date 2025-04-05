@@ -36,7 +36,7 @@ class CTagsPlugin : public IPlugin {
                          const QString &buildDirectory);
     void newProjectBuilt(const QString &projectName, const QString &sourceDir,
                          const QString &buildDirectory);
-    CommandArgs symbolInfoRequested(const QString &fileName, const QString &symbol);
+    CommandArgs symbolInfoRequested(const QString &fileName, const QString &symbol, bool exactMatch);
 
   private:
 };
