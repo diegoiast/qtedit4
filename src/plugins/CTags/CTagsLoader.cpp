@@ -89,15 +89,21 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
     return true;
 }
 
-std::optional<CTag> CTagsLoader::findTag(const std::string &symbolName) const {
-    auto it = std::find_if(tags.begin(), tags.end(),
-                           [&symbolName](const CTag &tag) { return tag.name == symbolName; });
-
-    if (it != tags.end()) {
-        return *it;
-    } else {
-        return std::nullopt;
+CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
+                                              bool exactMatch) const {
+    std::vector<std::reference_wrapper<const CTag>> foundTags;
+    for (const auto &tag : tags) {
+        if (exactMatch) {
+            if (tag.name == symbolName) {
+                foundTags.emplace_back(tag);
+            }
+        } else {
+            if (tag.name.rfind(symbolName, 0) == 0) {
+                foundTags.emplace_back(tag);
+            }
+        }
     }
+    return foundTags;
 }
 
 void CTagsLoader::setCTagsBinary(const std::string &ctagsBinary) {
@@ -224,7 +230,7 @@ void CTagsLoader::calculateLineColumn(CTag &tag) const {
     }
 }
 
-TagFieldKey CTagsLoader::mapCharToTagFieldKey(char key) const {
+TagFieldKey mapCharToTagFieldKey(char key) {
     switch (key) {
     case 'f':
         return TagFieldKey::FileScope;
@@ -244,7 +250,32 @@ TagFieldKey CTagsLoader::mapCharToTagFieldKey(char key) const {
         return TagFieldKey::Regex;
     case 'k':
         return TagFieldKey::Kind;
-    default:
-        return TagFieldKey::Unknown;
     }
+    return TagFieldKey::Unknown;
+}
+
+std::string tagFieldKeyToString(TagFieldKey key) {
+    switch (key) {
+    case TagFieldKey::FileScope:
+        return "FileScope";
+    case TagFieldKey::Variable:
+        return "Variable";
+    case TagFieldKey::Type:
+        return "Type";
+    case TagFieldKey::Prototype:
+        return "Prototype";
+    case TagFieldKey::Scope:
+        return "Scope";
+    case TagFieldKey::Inheritance:
+        return "Inheritance";
+    case TagFieldKey::Language:
+        return "Language";
+    case TagFieldKey::Regex:
+        return "Regex";
+    case TagFieldKey::Kind:
+        return "Kind";
+    case TagFieldKey::Unknown:
+        return "Unknown";
+    }
+    return "Invalid";
 }
