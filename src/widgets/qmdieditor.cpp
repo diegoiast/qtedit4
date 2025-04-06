@@ -203,12 +203,12 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
         auto title = QString("%1 - %2 %3").arg(simpleFileName).arg(fieldType).arg(fieldValue);
         auto a = new QAction(title, menu);
         QObject::connect(a, &QAction::triggered, a, [fileName, rawAddress, address, manager]() {
-            manager->openFile(fileName);
-            auto client = manager->clientForFileName(fileName);
+            auto nativeFileName = QDir::toNativeSeparators(fileName);
+            manager->openFile(nativeFileName);
+            auto client = manager->clientForFileName(nativeFileName);
             auto editor = dynamic_cast<qmdiEditor *>(client);
             if (editor) {
                 editor->loadContent();
-                // editor->findText(rawAddress);
                 editor->findText(address);
             }
         });
