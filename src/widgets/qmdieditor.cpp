@@ -210,6 +210,7 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
             if (editor) {
                 editor->loadContent();
                 editor->findText(address);
+                editor->setFocus();
             }
         });
         menu->addAction(a);
