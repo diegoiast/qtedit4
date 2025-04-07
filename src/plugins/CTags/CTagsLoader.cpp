@@ -93,14 +93,22 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
 CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
                                               bool exactMatch) const {
     std::vector<std::reference_wrapper<const CTag>> foundTags;
-    for (const auto &tag : tags) {
-        if (exactMatch) {
-            if (tag.name == symbolName) {
-                foundTags.emplace_back(tag);
-            }
-        } else {
-            if (tag.name.rfind(symbolName, 0) == 0) {
-                foundTags.emplace_back(tag);
+    std::string symbolLower = symbolName;
+    std::transform(symbolLower.begin(), symbolLower.end(), symbolLower.begin(), ::tolower);
+
+    if (symbolName.length() >= 3) {
+        for (const auto &tag : tags) {
+            if (exactMatch) {
+                if (tag.name == symbolName) {
+                    foundTags.emplace_back(tag);
+                }
+            } else {
+                std::string tagLower = tag.name;
+                std::transform(tagLower.begin(), tagLower.end(), tagLower.begin(), ::tolower);
+
+                if (tagLower.starts_with(symbolLower)) {
+                    foundTags.emplace_back(tag);
+                }
             }
         }
     }
