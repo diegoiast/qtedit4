@@ -171,6 +171,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void handleTabDeselected();
     void handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition);
     CommandArgs getSuggestionsForCurrentWord(const QPoint &localPosition);
+    QSet<QString> getTagCompletions(const QString &prefix);
 
   private:
     QString getShortFileName();

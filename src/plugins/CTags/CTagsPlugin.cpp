@@ -54,7 +54,7 @@ CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs
     if (command == GlobalCommands::VariableInfo) {
         auto filename = args[GlobalArguments::FileName].toString();
         auto symbol = args[GlobalArguments::RequestedSymbol].toString();
-        auto exactMatch = args[GlobalArguments::RequestedSymbol].toBool();
+        auto exactMatch = args[GlobalArguments::ExactMatch].toBool();
         return symbolInfoRequested(filename, symbol, exactMatch);
     }
     return {};
@@ -92,7 +92,7 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
     // project should be loaded first, something is borked
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
     if (!projects.contains(nativeSourceDir)) {
-        qDebug() << "Project build, but not added first! ctags will not suppor it"
+        qDebug() << "Project build, but not added first! ctags will not support it"
                  << nativeSourceDir;
         return;
     }
@@ -113,6 +113,7 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     }
 
     if (!project) {
+        qDebug() << fileName << "did not find project, will not return symbol info";
         return {};
     }
 
@@ -120,12 +121,12 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     auto tags = project->findTags(symbol.toStdString(), exactMatch);
     for (auto &tagRef : tags) {
         const CTag &tag = tagRef.get();
-
         tagList.append(QVariant::fromValue(CommandArgs{
             {GlobalArguments::FileName, QString::fromStdString(tag.file)},
-            {"fieldType", QString::fromStdString(tagFieldKeyToString(tag.field))},
-            {"fieldValue", QString::fromStdString(tag.fieldValue)},
-            {"raw", QString::fromStdString(tag.address)},
+            {GlobalArguments::Type, QString::fromStdString(tagFieldKeyToString(tag.field))},
+            {GlobalArguments::Value, QString::fromStdString(tag.fieldValue)},
+            {GlobalArguments::Raw, QString::fromStdString(tag.address)},
+            {GlobalArguments::Name, QString::fromStdString(tag.name)},
         }));
     }
 
@@ -133,6 +134,5 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     res["symbol"] = symbol;
     res["fileName"] = fileName;
     res["tags"] = tagList;
-
     return res;
 }

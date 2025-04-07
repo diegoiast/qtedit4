@@ -91,7 +91,7 @@ auto static getLineEnding(QIODevice &stream) -> QString {
     }
 
     auto pos = stream.pos();
-    auto ending = QString();
+    auto ending = QString{};
     while (!stream.atEnd()) {
         QChar ch = stream.read(1).at(0);
         if (ch == '\r' || ch == '\n') {
@@ -111,7 +111,7 @@ auto static getLineEnding(QIODevice &stream) -> QString {
     return ending;
 }
 
-static auto createSubFollowSymbolSubmenu(const CommandArgs &data) -> QString {
+static auto createTooltip(const CommandArgs &data) -> QString {
     static auto const START_MARKER = QString("/^");
     static auto const END_MARKER = QString("$/;\"");
     static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
@@ -134,9 +134,9 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data) -> QString {
     auto count = 0;
     for (const QVariant &item : tags) {
         auto const tag = item.toHash();
-        auto const fieldType = tag["fieldType"].toString();
-        auto const fieldValue = tag["fieldValue"].toString();
-        auto address = tag["raw"].toString();
+        auto const fieldType = tag[GlobalArguments::Type].toString();
+        auto const fieldValue = tag[GlobalArguments::Value].toString();
+        auto address = tag[GlobalArguments::Raw].toString();
         if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
             address.length() > MIN_LENGTH) {
             address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
@@ -267,6 +267,15 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     auto toolbar = new QWidget(this);
     auto layout2 = new QHBoxLayout(toolbar);
     auto layout = new QVBoxLayout(this);
+
+    // Set up completion callback
+    textEditor->setCompletionCallback([this](const QString &prefix) {
+        if (prefix.length() < 2) {
+            return QSet<QString>();
+        }
+        auto c = this->getTagCompletions(prefix);
+        return c;
+    });
 
     operationsWidget->hide();
     setupActions();
@@ -838,16 +847,47 @@ CommandArgs qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition
     // clang-format off
     auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
         {GlobalArguments::RequestedSymbol, symbol },
-        {GlobalArguments::RequestedSymbol, symbol },
         {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, true },
     });
     // clang-format on
     return res;
 }
 
+QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    if (!pluginManager) {
+        return {};
+    }
+
+    // clang-format off
+    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, prefix },
+        {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, false },
+    });
+    // clang-format on
+
+    if (!res.contains("tags")) {
+        return {};
+    }
+
+    auto tags = res["tags"].toList();
+    QSet<QString> completions;
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const name = tag[GlobalArguments::Name].toString();
+        if (!name.isEmpty()) {
+            completions.insert(name);
+        }
+    }
+
+    return completions;
+}
+
 void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
     auto res = getSuggestionsForCurrentWord(localPosition);
-    auto tooltip = createSubFollowSymbolSubmenu(res);
+    auto tooltip = createTooltip(res);
     if (!tooltip.isEmpty()) {
         QToolTip::showText(globalPosition, tooltip, textEditor);
     }
