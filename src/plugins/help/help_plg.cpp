@@ -211,6 +211,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
             &HelpPlugin::checkForUpdates_triggered);
 #endif
 
+    // We like this shortcut, even on non OSX computers
+    getManager()->actionConfig->setShortcut(QKeySequence("Ctrl+,"));
+
     auto actionAbout = new QAction(tr("&About"), this);
     actionAbout->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
