@@ -197,7 +197,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     fnt.setFixedPitch(true);
-    fnt.setPointSize(18);
+    fnt.setPointSize(14);
     setEditorFont(fnt);
 
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
