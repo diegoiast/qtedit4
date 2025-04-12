@@ -11,12 +11,10 @@
 #include "ui_searchform.h"
 
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QLayout>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPlainTextEdit>
-#include <QPushButton>
 #include <QStyle>
 #include <QTextBlock>
 #include <QTextDocument>
