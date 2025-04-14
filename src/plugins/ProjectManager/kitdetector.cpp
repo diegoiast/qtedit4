@@ -21,7 +21,11 @@ constexpr auto BINARY_EXT = "";
 constexpr auto ENV_SEPARATOR = ':';
 #elif defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
+
+// MinGW already defines this
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
 
 #include <functional>
 #include <qDebug>
