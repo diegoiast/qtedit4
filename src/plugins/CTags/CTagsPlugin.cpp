@@ -12,6 +12,58 @@
 #include <QProcess>
 #include <QStandardPaths>
 
+// FIXME: this is an ugly workaround. This is private API for Qt, and
+//        might break. I thing this is stable enough for now.
+//        Copied from 6.8.3\include\QtCore\6.8.3\QtCore\private
+class QZipReaderPrivate;
+class Q_CORE_EXPORT QZipReader {
+  public:
+    explicit QZipReader(const QString &fileName, QIODevice::OpenMode mode = QIODevice::ReadOnly);
+
+    explicit QZipReader(QIODevice *device);
+    ~QZipReader();
+
+    QIODevice *device() const;
+
+    bool isReadable() const;
+    bool exists() const;
+
+    struct FileInfo {
+        FileInfo() noexcept : isDir(false), isFile(false), isSymLink(false), crc(0), size(0) {}
+
+        bool isValid() const noexcept { return isDir || isFile || isSymLink; }
+
+        QString filePath;
+        uint isDir : 1;
+        uint isFile : 1;
+        uint isSymLink : 1;
+        QFile::Permissions permissions;
+        uint crc;
+        qint64 size;
+        QDateTime lastModified;
+    };
+
+    QList<FileInfo> fileInfoList() const;
+    int count() const;
+
+    FileInfo entryInfoAt(int index) const;
+    QByteArray fileData(const QString &fileName) const;
+    bool extractAll(const QString &destinationDir) const;
+
+    enum Status { NoError, FileReadError, FileOpenError, FilePermissionsError, FileError };
+
+    Status status() const;
+
+    void close();
+
+  private:
+    QZipReaderPrivate *d;
+    Q_DISABLE_COPY_MOVE(QZipReader)
+};
+
+Q_DECLARE_TYPEINFO(QZipReader::FileInfo, Q_RELOCATABLE_TYPE);
+Q_DECLARE_TYPEINFO(QZipReader::Status, Q_PRIMITIVE_TYPE);
+
 CTagsPlugin::CTagsPlugin() {
     name = tr("CTags support");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
@@ -68,87 +120,119 @@ CTagsPlugin::Config &CTagsPlugin::getConfig() {
 }
 
 void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
-#ifdef Q_OS_LINUX
-    auto url = QString("https://github.com/universal-ctags/ctags-nightly-build/releases/download/"
-                       "2025.04.12%2Bfccad9b77c17c60e908a69af8d251eec5f5296b5/"
-                       "uctags-2025.04.12-1-x86_64.pkg.tar.xz");
-    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-    auto archivePath = dataDir + "/uctags-2025.04.12-1-x86_64.pkg.tar.xz";
-    auto extractDir = dataDir + "/uctags-2025-04-12/";
-    auto ctagsHomeOriginal = getConfig().getCTagsHomepage();
+#if !defined(Q_OS_LINUX) && !defined(Q_OS_WIN)
+    QMessageBox::information(nullptr, tr("Download CTags"),
+                             tr("Universal CTags can be downloaded from:\n\n"
+                                "https://github.com/universal-ctags/ctags\n\n"
+                                "Please follow the installation instructions for your platform."));
+    return;
+#endif
 
+    QString url;
+    QString fileName;
+    QString extractDir;
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dataDir);
+
+#ifdef Q_OS_LINUX
+    url = "https://github.com/universal-ctags/ctags-nightly-build/releases/download/"
+          "2025.04.12%2Bfccad9b77c17c60e908a69af8d251eec5f5296b5/"
+          "uctags-2025.04.12-1-x86_64.pkg.tar.xz";
+    fileName = "uctags-2025.04.12-1-x86_64.pkg.tar.xz";
+    extractDir = dataDir + "/uctags-2025-04-12/";
+#elif defined(Q_OS_WIN)
+    url = "https://github.com/universal-ctags/ctags-win32/releases/download/"
+          "2025-04-14%2Fp6.1.20250413.0-3-g00ae476/"
+          "ctags-2025-04-14_p6.1.20250413.0-3-g00ae476-clang-x64.zip";
+    fileName = "ctags-2025-04-14_p6.1.20250413.0-3-g00ae476-clang-x64.zip";
+    extractDir = dataDir + "/ctags-2025-04-14/";
+#endif
+
+    auto archivePath = dataDir + "/" + fileName;
+    auto ctagsHomeOriginal = getConfig().getCTagsHomepage();
     QDir().mkpath(extractDir);
 
-    if (!QFile::exists(archivePath)) {
-        getConfig().setCTagsHomepage(tr("Downloading ctags binary"));
-        dialog->updateWidgetValues();
+    if (QFile::exists(archivePath)) {
+        qDebug() << "Archive already exists at" << archivePath;
 
-        QNetworkAccessManager manager;
-        QNetworkRequest request(QUrl{url});
-        QNetworkReply *reply = manager.get(request);
-        QEventLoop loop;
-        QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-        loop.exec();
+        extractArchive(archivePath, extractDir, dialog, ctagsHomeOriginal);
+        return;
+    }
+
+    getConfig().setCTagsHomepage(tr("Downloading ctags binary"));
+    dialog->updateWidgetValues();
+
+    QNetworkRequest request(QUrl{url});
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkReply *reply = manager->get(request);
+
+    connect(reply, &QNetworkReply::finished, this, [=, this]() {
+        reply->deleteLater();
 
         if (reply->error() != QNetworkReply::NoError) {
             QMessageBox::critical(nullptr, "Download Error", reply->errorString());
-            reply->deleteLater();
             getConfig().setCTagsHomepage(ctagsHomeOriginal);
             dialog->updateWidgetValues();
             return;
         }
 
         QFile file(archivePath);
-        if (file.open(QIODevice::WriteOnly)) {
-            file.write(reply->readAll());
-            file.close();
-            qDebug("Downloaded archive to %s", qPrintable(archivePath));
-        } else {
+        if (!file.open(QIODevice::WriteOnly)) {
             QMessageBox::critical(nullptr, "File Error", "Cannot write archive to disk.");
-            reply->deleteLater();
-
             getConfig().setCTagsHomepage(ctagsHomeOriginal);
             dialog->updateWidgetValues();
             return;
         }
-        reply->deleteLater();
-    } else {
-        qDebug("Archive already exists: %s", qPrintable(archivePath));
-    }
 
+        file.write(reply->readAll());
+        file.close();
+        qDebug() << "Downloaded archive to" << archivePath;
+
+        extractArchive(archivePath, extractDir, dialog, ctagsHomeOriginal);
+    });
+}
+
+void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extractDir,
+                                 qmdiConfigDialog *dialog, const QString &ctagsHomeOriginal) {
     getConfig().setCTagsHomepage(tr("Extracting ctags"));
+    dialog->updateWidgetValues();
 
-    QStringList args;
-    args << "-xJvf" << archivePath << "-C" << extractDir;
-    QProcess tar;
-    tar.setWorkingDirectory(extractDir);
-    tar.start("tar", args);
-    tar.waitForFinished(-1);
+    // usually on Unix systems
+    if (archivePath.endsWith(".tar.gz")) {
+        QStringList args{"-xJvf", archivePath, "-C", extractDir};
+        QProcess *tar = new QProcess(this);
+        tar->setWorkingDirectory(extractDir);
+        connect(tar, &QProcess::finished, this,
+                [=, this](int exitCode, QProcess::ExitStatus exitStatus) {
+                    tar->deleteLater();
 
-#if 0
-    auto stdoutStr = tar.readAllStandardOutput();
-    auto stderrStr = tar.readAllStandardError();
-    qDebug().noquote() << stdoutStr.trimmed();
-    qWarning().noquote() << stderrStr.trimmed();
-#endif
+                    if (exitStatus != QProcess::NormalExit || exitCode != 0) {
+                        qWarning("tar failed with code %d", exitCode);
+                        QMessageBox::critical(nullptr, "Extraction Error",
+                                              "Failed to extract required files.");
+                        getConfig().setCTagsHomepage(ctagsHomeOriginal);
+                        dialog->updateWidgetValues();
+                        return;
+                    }
 
-    if (tar.exitStatus() != QProcess::NormalExit || tar.exitCode() != 0) {
-        qWarning("tar failed with code %d", tar.exitCode());
-        QMessageBox::critical(nullptr, "Extraction Error", "Failed to extract required files.");
-        return;
+                    qDebug() << "Extracted ctags to" << extractDir;
+                    getConfig().setCTagsBinary(extractDir + "usr/local/bin/ctags");
+                    getConfig().setCTagsHomepage(ctagsHomeOriginal);
+                    dialog->updateWidgetValues();
+                });
+        tar->start("tar", args);
     }
 
-    qDebug("Extracted ctags tools to %s", qPrintable(extractDir));
-    getConfig().setCTagsBinary(extractDir + "usr/local/bin/ctags");
-    getConfig().setCTagsHomepage(ctagsHomeOriginal);
-    dialog->updateWidgetValues();
-#else
-    QMessageBox::information(nullptr, tr("Download CTags"),
-                             tr("Universal CTags can be downloaded from:\n\n"
-                                "https://github.com/universal-ctags/ctags\n\n"
-                                "Please follow the installation instructions for your platform."));
-#endif
+    // usually on Windows systems
+    if (archivePath.endsWith(".zip")) {
+        auto binaryPath = extractDir + "\\ctags.exe";
+        QZipReader z(archivePath);
+        z.extractAll(extractDir);
+
+        getConfig().setCTagsBinary(QDir::toNativeSeparators(binaryPath));
+        getConfig().setCTagsHomepage(ctagsHomeOriginal);
+        dialog->updateWidgetValues();
+    }
 }
 
 int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) const {
@@ -212,6 +296,7 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
 
     auto ctagsFile =
         QDir::toNativeSeparators(buildDirectory) + QDir::separator() + projectName + ".tags";
+    ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
     ctags->loadFile(ctagsFile.toStdString());
 }
 

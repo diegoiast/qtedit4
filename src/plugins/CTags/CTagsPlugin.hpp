@@ -38,7 +38,12 @@ class CTagsPlugin : public IPlugin {
     void setCTagsBinary(const QString &newBinary);
     void downloadCTags(qmdiConfigDialog *dialog);
 
-  protected:
+    void extractArchive(const QString &archivePath,
+                        const QString &extractDir,
+                        qmdiConfigDialog *dialog,
+                        const QString &ctagsHomeOriginal);
+
+protected:
     void newProjectAdded(const QString &projectName, const QString &sourceDir,
                          const QString &buildDirectory);
     void newProjectBuilt(const QString &projectName, const QString &sourceDir,
