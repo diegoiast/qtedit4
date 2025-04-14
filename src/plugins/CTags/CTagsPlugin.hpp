@@ -20,6 +20,7 @@ class CTagsPlugin : public IPlugin {
     struct Config {
         CONFIG_DEFINE(CTagsBinary, QString)
         CONFIG_DEFINE(DownloadCTags, QString)
+        CONFIG_DEFINE(CTagsHomepage, QString)
         qmdiPluginConfig *config;
     };
     Config &getConfig();
