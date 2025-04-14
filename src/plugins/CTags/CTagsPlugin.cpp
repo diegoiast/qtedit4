@@ -43,6 +43,7 @@ CTagsPlugin::CTagsPlugin() {
         qmdiConfigItem::Builder()
             .setDisplayName(tr("<a href='https://github.com/universal-ctags/ctags'>Visit Universal "
                                "CTags home page</a>"))
+            .setKey(Config::CTagsHomepageKey)
             .setType(qmdiConfigItem::Label)
             .build());
 
@@ -74,11 +75,15 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     auto archivePath = dataDir + "/uctags-2025.04.12-1-x86_64.pkg.tar.xz";
     auto extractDir = dataDir + "/uctags-2025-04-12/";
+    auto ctagsHomeOriginal = getConfig().getCTagsHomepage();
 
     QDir().mkpath(dataDir);
     QDir().mkpath(extractDir);
 
     if (!QFile::exists(archivePath)) {
+        getConfig().setCTagsHomepage(tr("Downloading ctags binary"));
+        dialog->updateWidgetValues();
+
         QNetworkAccessManager manager;
         QNetworkRequest request(QUrl{url});
         QNetworkReply *reply = manager.get(request);
@@ -89,6 +94,8 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
         if (reply->error() != QNetworkReply::NoError) {
             QMessageBox::critical(nullptr, "Download Error", reply->errorString());
             reply->deleteLater();
+            getConfig().setCTagsHomepage(ctagsHomeOriginal);
+            dialog->updateWidgetValues();
             return;
         }
 
@@ -100,12 +107,17 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
         } else {
             QMessageBox::critical(nullptr, "File Error", "Cannot write archive to disk.");
             reply->deleteLater();
+
+            getConfig().setCTagsHomepage(ctagsHomeOriginal);
+            dialog->updateWidgetValues();
             return;
         }
         reply->deleteLater();
     } else {
         qDebug("Archive already exists: %s", qPrintable(archivePath));
     }
+
+    getConfig().setCTagsHomepage(tr("Extracting ctags"));
 
     QStringList args;
     args << "-xJvf" << archivePath << "-C" << extractDir;
@@ -129,6 +141,7 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
 
     qDebug("Extracted ctags tools to %s", qPrintable(extractDir));
     getConfig().setCTagsBinary(extractDir + "usr/local/bin/ctags");
+    getConfig().setCTagsHomepage(ctagsHomeOriginal);
     dialog->updateWidgetValues();
 #else
     QMessageBox::information(nullptr, tr("Download CTags"),
