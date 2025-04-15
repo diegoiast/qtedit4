@@ -134,7 +134,7 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     QDir().mkpath(dataDir);
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
     url = "https://github.com/universal-ctags/ctags-nightly-build/releases/download/"
           "2025.04.12%2Bfccad9b77c17c60e908a69af8d251eec5f5296b5/"
           "uctags-2025.04.12-1-x86_64.pkg.tar.xz";
@@ -149,57 +149,54 @@ void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
 #endif
 
     auto archivePath = dataDir + "/" + fileName;
-    auto ctagsHomeOriginal = getConfig().getCTagsHomepage();
+    auto downloadTextOriginal = getConfig().getDownloadCTags();
     QDir().mkpath(extractDir);
 
+#if 0
     if (QFile::exists(archivePath)) {
         qDebug() << "Archive already exists at" << archivePath;
-
-        extractArchive(archivePath, extractDir, dialog, ctagsHomeOriginal);
+        extractArchive(archivePath, extractDir, dialog, downloadCtagsOriginal);
         return;
     }
+#endif
+    getConfig().setDownloadCTags(tr("Downloading..."));
 
-    getConfig().setCTagsHomepage(tr("Downloading ctags binary"));
     dialog->updateWidgetValues();
-
-    QNetworkRequest request(QUrl{url});
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkReply *reply = manager->get(request);
-
+    auto request = QNetworkRequest(QUrl{url});
+    auto manager = new QNetworkAccessManager(this);
+    auto reply = manager->get(request);
     connect(reply, &QNetworkReply::finished, this, [=, this]() {
         reply->deleteLater();
 
         if (reply->error() != QNetworkReply::NoError) {
             QMessageBox::critical(nullptr, "Download Error", reply->errorString());
-            getConfig().setCTagsHomepage(ctagsHomeOriginal);
+            getConfig().setDownloadCTags(downloadTextOriginal);
             dialog->updateWidgetValues();
             return;
         }
 
         QFile file(archivePath);
         if (!file.open(QIODevice::WriteOnly)) {
-            QMessageBox::critical(nullptr, "File Error", "Cannot write archive to disk.");
-            getConfig().setCTagsHomepage(ctagsHomeOriginal);
+            QMessageBox::critical(nullptr, tr("File Error"), tr("Cannot write archive to disk."));
+            getConfig().setDownloadCTags(downloadTextOriginal);
             dialog->updateWidgetValues();
             return;
         }
-
         file.write(reply->readAll());
         file.close();
-        qDebug() << "Downloaded archive to" << archivePath;
-
-        extractArchive(archivePath, extractDir, dialog, ctagsHomeOriginal);
+        extractArchive(archivePath, extractDir, dialog, downloadTextOriginal);
     });
 }
 
 void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extractDir,
-                                 qmdiConfigDialog *dialog, const QString &ctagsHomeOriginal) {
-    getConfig().setCTagsHomepage(tr("Extracting ctags"));
+                                 qmdiConfigDialog *dialog, const QString &downloadTextOriginal) {
+
+    getConfig().setDownloadCTags(tr("Extracting ctags"));
     dialog->updateWidgetValues();
 
     // usually on Unix systems
-    if (archivePath.endsWith(".tar.gz")) {
-        QStringList args{"-xJvf", archivePath, "-C", extractDir};
+    if (archivePath.endsWith(".tar.xz")) {
+        QStringList args{"-xvf", archivePath, "-C", extractDir};
         QProcess *tar = new QProcess(this);
         tar->setWorkingDirectory(extractDir);
         connect(tar, &QProcess::finished, this,
@@ -210,14 +207,13 @@ void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extr
                         qWarning("tar failed with code %d", exitCode);
                         QMessageBox::critical(nullptr, "Extraction Error",
                                               "Failed to extract required files.");
-                        getConfig().setCTagsHomepage(ctagsHomeOriginal);
+                        getConfig().setDownloadCTags(downloadTextOriginal);
                         dialog->updateWidgetValues();
                         return;
                     }
 
-                    qDebug() << "Extracted ctags to" << extractDir;
                     getConfig().setCTagsBinary(extractDir + "usr/local/bin/ctags");
-                    getConfig().setCTagsHomepage(ctagsHomeOriginal);
+                    getConfig().setDownloadCTags(downloadTextOriginal);
                     dialog->updateWidgetValues();
                 });
         tar->start("tar", args);
@@ -225,12 +221,12 @@ void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extr
 
     // usually on Windows systems
     if (archivePath.endsWith(".zip")) {
-        auto binaryPath = extractDir + "\\ctags.exe";
+        auto binaryPath = extractDir + "ctags.exe";
         QZipReader z(archivePath);
         z.extractAll(extractDir);
 
         getConfig().setCTagsBinary(QDir::toNativeSeparators(binaryPath));
-        getConfig().setCTagsHomepage(ctagsHomeOriginal);
+        getConfig().setCTagsHomepage(downloadTextOriginal);
         dialog->updateWidgetValues();
     }
 }
