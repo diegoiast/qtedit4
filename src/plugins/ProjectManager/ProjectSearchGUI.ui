@@ -70,7 +70,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPathEdit" name="pathEdit" native="true"/>
+    <widget class="PathWidget" name="pathEdit" native="true"/>
    </item>
    <item>
     <widget class="QPushButton" name="searchButton">
@@ -155,9 +155,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QPathEdit</class>
+   <class>PathWidget</class>
    <extends>QWidget</extends>
-   <header>widgets/QPathEdit.h</header>
+   <header>pathwidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
