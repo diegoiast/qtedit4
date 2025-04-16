@@ -13,11 +13,13 @@
 
 // We don't mind using open(), peopen() and friends
 #pragma warning(suppress : 4996)
+#include <cstdio> // For popen and pclose
 #include <io.h>
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
+#include <cstdio> // For popen and pclose
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
