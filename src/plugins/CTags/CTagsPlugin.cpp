@@ -106,9 +106,10 @@ CTagsPlugin::CTagsPlugin() {
                 }
             });
     connect(&qmdiDialogEvents::instance(), &qmdiDialogEvents::linkClicked, this,
-            [=](qmdiConfigDialog *dialog, const QString &labelKey, const QString &url) {
-                // todo - is this the correct way?
-                QDesktopServices::openUrl(url);
+            [=](qmdiConfigDialog *, const QString &labelKey, const QString &url) {
+                if (Config::CTagsHomepageKey == labelKey) {
+                    QDesktopServices::openUrl(url);
+                }
             });
 }
 
