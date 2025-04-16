@@ -44,11 +44,8 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     ui->searchFor->setFocus();
 
-    ui->pathEdit->setPathMode(QPathEdit::ExistingFolder);
-    ui->pathEdit->setPlaceholder(tr("Search in directory"));
-    ui->pathEdit->setStyle(QPathEdit::JoinedButton);
-    ui->pathEdit->setEditable(true);
-    ui->pathEdit->setDefaultDirectory(QDir::homePath());
+    ui->pathEdit->setFileMode(false);
+    ui->pathEdit->setPlaceholderText(tr("Search in directory"));
     ui->pathEdit->setPath(QDir::homePath());
 
     auto host = dynamic_cast<PluginManager *>(parent);
@@ -84,7 +81,7 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
 
     connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
 
-    connect(ui->pathEdit, &QPathEdit::pathChanged, this, [this](QString newPath) {
+    connect(ui->pathEdit, &PathWidget::pathChanged, this, [this](const QString &newPath) {
         auto i = this->model->findConfigDirIndex(newPath);
         if (i == -1) {
             this->ui->sourceCombo->setCurrentIndex(0);

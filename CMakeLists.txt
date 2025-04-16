@@ -73,8 +73,6 @@ set(qtedit4_sources
     src/widgets/textpreview.h
     src/widgets/xmltreemodel.cpp
     src/widgets/xmltreemodel.h
-    src/widgets/QPathEdit.cpp
-    src/widgets/QPathEdit.h
     src/widgets/LoadingWidget.cpp
     src/widgets/LoadingWidget.h
     src/widgets/qmdiSplitTab.cpp  
