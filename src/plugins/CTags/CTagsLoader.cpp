@@ -10,6 +10,11 @@
 #include <thread>
 
 #if defined(_WIN32) || defined(_WIN64)
+
+// We don't mind using open(), peopen() and friends
+#pragma warning(suppress : 4996)
+#include <io.h>
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
