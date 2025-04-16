@@ -1,4 +1,5 @@
 #include "CTagsLoader.hpp"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
