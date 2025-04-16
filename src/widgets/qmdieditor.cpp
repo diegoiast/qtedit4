@@ -69,14 +69,14 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
 
     if (cExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
         for (const auto &headerExt : headerExtensions) {
-            auto headerFileName = dirPath + "/" + baseName + "." + headerExt;
+            auto headerFileName = dirPath + QDir::separator() + baseName + "." + headerExt;
             if (QFileInfo::exists(headerFileName)) {
                 return headerFileName;
             }
         }
     } else if (headerExtensions.contains(fileInfo.suffix(), Qt::CaseInsensitive)) {
         for (const auto &cExt : cExtensions) {
-            auto cFileName = dirPath + "/" + baseName + "." + cExt;
+            auto cFileName = dirPath + QDir::separator() + baseName + "." + cExt;
             if (QFileInfo::exists(cFileName)) {
                 return cFileName;
             }
@@ -932,7 +932,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     fileName = QDir::toNativeSeparators(newFileName);
     mdiClientName = getShortFileName();
 
-    if (fileName.isEmpty()) {
+    if (this->fileName.isEmpty()) {
         this->fileName.clear();
         textEditor->clear();
         return true;
