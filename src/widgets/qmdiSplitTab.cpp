@@ -104,7 +104,7 @@ void qmdiSplitTab::addClient(qmdiClient *client) {
         return;
     }
 
-    addTabToCurrentSplit(w, client->mdiClientName);
+    addTabToCurrentSplit(w, client->mdiClientName, client->mdiClientFileName());
     client->mdiServer = this;
     w->setFocus();
 }
@@ -230,6 +230,7 @@ void qmdiSplitTab::updateClientName(const qmdiClient *client) {
             }
             if (c == client) {
                 tabWidget->setTabText(innerIndex, c->mdiClientName);
+                tabWidget->setTabToolTip(innerIndex, c->mdiClientFileName());
                 return;
             }
         }

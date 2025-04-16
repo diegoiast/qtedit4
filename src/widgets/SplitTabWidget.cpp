@@ -71,7 +71,8 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
     equalizeWidths();
 }
 
-void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label) {
+void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
+                                          const QString &tooltip) {
     if (!currentTabWidget) {
         currentTabWidget = new QTabWidget(this);
         currentTabWidget->installEventFilter(this);
@@ -83,6 +84,7 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label)
     widget->setObjectName(label);
     widget->installEventFilter(this);
     currentTabWidget->setCurrentIndex(index);
+    currentTabWidget->setTabToolTip(index, tooltip);
     widget->setFocus();
     onTabFocusChanged(currentTabWidget->currentWidget(), true);
 }

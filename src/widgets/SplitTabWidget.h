@@ -41,7 +41,7 @@ class SplitTabWidget : public QWidget {
     void splitHorizontally();
     void closeCurrentSplit();
     void closeSplitWithTabWidget(QTabWidget *tab);
-    void addTabToCurrentSplit(QWidget *widget, const QString &label);
+    void addTabToCurrentSplit(QWidget *widget, const QString &label, const QString &tooltip = {});
     void moveTabToNewSplit(QWidget *widget);
     void closeCurrentTab();
     void moveNextTab();
