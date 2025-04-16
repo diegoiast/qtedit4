@@ -33,7 +33,6 @@
 #include <windows.h>
 #else
 #include <unistd.h>
-
 #endif
 
 #if defined(__linux__)
@@ -46,8 +45,10 @@
 #endif
 
 // #define DEBUG_UPDATES
+// #define DISABLE_UPDATES
 
-auto static createDesktopMenuItem(const std::string &execPath, const std::string &svgIconContent)
+auto static createDesktopMenuItem(const std::string &programName, const std::string &version,
+                                  const std::string &execPath, const std::string &svgIconContent)
     -> std::string {
     const char *homeDir = std::getenv("HOME");
     if (!homeDir) {
@@ -56,10 +57,16 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
     }
 
     std::filesystem::path homePath(homeDir);
-    std::filesystem::path iconFile = homePath / ".local/share/icons/qtedit4.svg";
-    std::filesystem::path desktopFile = homePath / ".local/share/applications/qtedit4.desktop";
-    std::filesystem::create_directories(iconFile.parent_path());
-    std::filesystem::create_directories(desktopFile.parent_path());
+    std::filesystem::path iconFile = homePath / ".local/share/icons" / (programName + ".svg");
+    std::filesystem::path desktopFile =
+        homePath / ".local/share/applications" / (programName + ".desktop");
+    try {
+        std::filesystem::create_directories(iconFile.parent_path());
+        std::filesystem::create_directories(desktopFile.parent_path());
+    } catch (const std::filesystem::filesystem_error &e) {
+        std::cerr << "Error creating directories: " << e.what() << std::endl;
+        return {};
+    }
 
     std::ofstream iconStream(iconFile);
     if (!iconStream.is_open()) {
@@ -77,15 +84,12 @@ auto static createDesktopMenuItem(const std::string &execPath, const std::string
 
     file << "[Desktop Entry]\n"
          << "Type=Application\n"
-         << "Name=qtedit4\n"
-         << QString("Comment=qtedit4 Text Editor version v%1\n")
-                .arg(qApp->applicationVersion())
-                .toStdString()
+         << "Name=" << programName << "\n"
+         << "Comment=" << programName << " Text Editor version v" << version << "\n"
          << "Exec=" << execPath << "\n"
          << "Icon=" << iconFile.string() << "\n"
          << "Categories=Utility;TextEditor;\n"
          << "Terminal=false\n";
-
     file.close();
     return desktopFile.string();
 }
@@ -169,6 +173,7 @@ HelpPlugin::HelpPlugin() : IPlugin() {
 HelpPlugin::~HelpPlugin() {}
 
 void HelpPlugin::on_client_merged(qmdiHost *host) {
+#ifndef DISABLE_UPDATES
     auto updateChannelStrings = QStringList() << tr("Do not check for updates")
                                               << tr("Check for updates every time program starts")
                                               << tr("Check for updates once per day")
@@ -201,13 +206,17 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
                                      .setDefaultValue("0")
                                      .setUserEditable(false)
                                      .build());
+    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
+    connect(actionCheckForUpdates, &QAction::triggered, this,
+            &HelpPlugin::checkForUpdates_triggered);
+#endif
+
+    // We like this shortcut, even on non OSX computers
+    getManager()->actionConfig->setShortcut(QKeySequence("Ctrl+,"));
 
     auto actionAbout = new QAction(tr("&About"), this);
     actionAbout->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout));
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
-    auto actionCheckForUpdates = new QAction(tr("&Check for updates"), this);
-    connect(actionCheckForUpdates, &QAction::triggered, this,
-            &HelpPlugin::checkForUpdates_triggered);
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
     connect(actionVisitHomePage, &QAction::triggered, this,
@@ -228,7 +237,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
             auto svgContent = svgFile.readAll().toStdString();
             svgFile.close();
 
-            auto desktopFile = createDesktopMenuItem(exe, svgContent);
+            auto desktopFile = createDesktopMenuItem(
+                QApplication::applicationName().toStdString(),
+                QApplication::applicationVersion().toStdString(), exe, svgContent);
             if (!desktopFile.empty()) {
                 this->getManager()->openFile(QString::fromStdString(desktopFile));
             }
@@ -258,7 +269,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         commandPalette->show();
     });
 
+#ifndef DISABLE_UPDATES
     menus["&Help"]->addAction(actionCheckForUpdates);
+#endif
 #if defined(DEBUG_UPDATES)
     auto debugChecks = new QAction("Debug check for updates", this);
     connect(debugChecks, &QAction::triggered, this, [this]() { doStartupChecksForUpdate(); });
@@ -291,6 +304,7 @@ void HelpPlugin::loadConfig(QSettings &settings) {
 }
 
 void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
+#ifndef DISABLE_UPDATES
     QString lastCheckStr = getConfig().getLastUpdateTime();
     auto updatesCheck = getConfig().getUpdatesChecks();
     auto lastCheck = lastCheckStr.toULongLong();
@@ -336,9 +350,13 @@ void HelpPlugin::doStartupChecksForUpdate(bool notifyUserNoUpdates) {
         qDebug() << " - No need to check for updates";
 #endif
     }
+#else
+    Q_UNUSED(notifyUserNoUpdates)
+#endif
 }
 
 void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
+#ifndef DISABLE_UPDATES
     auto url = "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
 
     switch (getConfig().getUpdatesChannel()) {
@@ -361,6 +379,9 @@ void HelpPlugin::doChecksForUpdate(bool notifyUserNoUpdates) {
 
     auto currentTime = QDateTime::currentSecsSinceEpoch();
     getConfig().setLastUpdateTime(QString::number(currentTime));
+#else
+    Q_UNUSED(notifyUserNoUpdates)
+#endif
 }
 
 void HelpPlugin::uiCleanUp() {

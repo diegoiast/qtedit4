@@ -1,17 +1,21 @@
 /**
  * \file qmdieditor
- * \brief Definition of
+ * \brief Definition of the main editor for the IDE
  * \author Diego Iastrubni diegoiast@gmail.com
  * License GPL 2008
- * \see class name
  */
 
 #pragma once
 
-#include "endlinestyle.h"
+#include <QToolButton>
+
+// needed only for CommandArgs
+#include <pluginmanager.h>
+
 #include <qmdiclient.h>
-#include <qtoolbutton.h>
 #include <qutepart/qutepart.h>
+
+#include "endlinestyle.h"
 
 class QFileSystemWatcher;
 class QPushButton;
@@ -90,16 +94,17 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void transformBlockToLower();
     void transformBlockCase();
     void toggleHeaderImpl();
+    void loadContent();
 
     void chooseHighliter(const QString &newText);
     void chooseIndenter(const QAction *action);
+    void findText(const QString &text);
 
   private slots:
     void updateFileDetails();
     void updateIndenterMenu();
     void updateHighlighterMenu();
     void updatePreview();
-    void loadContent();
 
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
@@ -160,13 +165,17 @@ class qmdiEditor : public QWidget, public qmdiClient {
     }
 
   protected:
-    void focusInEvent(QFocusEvent *event) override;
-    bool eventFilter(QObject *watched, QEvent *event) override;
+    virtual void focusInEvent(QFocusEvent *event) override;
+    virtual bool eventFilter(QObject *watched, QEvent *event) override;
     void handleTabSelected();
     void handleTabDeselected();
+    void handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition);
+    CommandArgs getSuggestionsForCurrentWord(const QPoint &localPosition);
+    QSet<QString> getTagCompletions(const QString &prefix);
 
   private:
     QString getShortFileName();
+    void showContextMenu(const QPoint &localPosition, const QPoint &globalPosition);
 
     Qutepart::ThemeManager *themeManager = nullptr;
     Qutepart::Qutepart *textEditor = nullptr;

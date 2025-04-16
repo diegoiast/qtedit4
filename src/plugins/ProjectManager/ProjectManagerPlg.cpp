@@ -18,6 +18,7 @@
 #include <widgets/qmdieditor.h>
 
 #include "GenericItems.h"
+#include "GlobalCommands.hpp"
 #include "ProjectBuildConfig.h"
 #include "ProjectIssuesWidget.h"
 #include "ProjectManagerPlg.h"
@@ -310,6 +311,46 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 getManager()->showPanels(Qt::BottomDockWidgetArea);
                 outputDock->raise();
                 outputDock->show();
+
+                auto process = sender();
+                auto var1 = process->property("runningTask").value<quintptr>();
+                auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
+
+                auto var3 = process->property("runningProject");
+                auto project = var3.value<std::shared_ptr<ProjectBuildConfig>>();
+
+                auto workingDirectory = process->property("workingDirectory").toString();
+                auto buildDirectory = process->property("buildDirectory").toString();
+                auto sourceDirectory = process->property("sourceDirectory").toString();
+
+                auto projectName = QString{};
+                {
+                    auto d = QDir(sourceDirectory);
+                    projectName = d.dirName();
+                }
+
+                if (project && runningTask && runningTask->isBuild) {
+                    qDebug() << "Notifying about a good build" << project->buildDir
+                             << buildDirectory << project->sourceDir << sourceDirectory
+                             << runningTask->name;
+
+                    // clang-format off
+                    getManager()->handleCommand(GlobalCommands::BuildFinished, {
+                        {"builDir", project->buildDir },
+                        {"sourceDir", project->sourceDir },
+                        {"task", runningTask->name},
+                        {"workingDirectory", workingDirectory},
+                        {"buildDirectory", buildDirectory},
+                        {"sourceDirectory", sourceDirectory},
+                        {"projectName", projectName},
+                        // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
+                        {"code", exitStatus == 0},
+                    });
+                    // clang-format on
+                }
+
+                runProcess.setProperty("runningTask", {});
+                runProcess.setProperty("runningProject", {});
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
@@ -493,10 +534,20 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
             if (!config->fileName.isEmpty()) {
-                qDebug("loadConfig() - adding %s to the watch dir",
-                       config->fileName.toStdString().c_str());
+                // qDebug("loadConfig() - adding %s to the watch dir",
+                // config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
+
+            auto hash = getConfigDictionary(config);
+            auto workingDirectory = expand(config->buildDir, hash);
+            // clang-format off
+            getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
+                {GlobalArguments::ProjectName, config->name },
+                {GlobalArguments::SourceDirectory, config->sourceDir },
+                {GlobalArguments::BuildDirectory, workingDirectory },
+            });
+            // clang-format on
 
             auto selectedDirectory = getConfig().getSelectedDirectory();
             auto index = projectModel->findConfigDirIndex(selectedDirectory);
@@ -558,9 +609,9 @@ std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() con
     return projectModel->getConfig(currentIndex);
 }
 
-const QHash<QString, QString> ProjectManagerPlugin::getConfigDictionary() const {
+const QHash<QString, QString>
+ProjectManagerPlugin::getConfigDictionary(std::shared_ptr<ProjectBuildConfig> project) const {
     auto dictionary = QHash<QString, QString>();
-    auto project = getCurrentConfig();
     if (project) {
         dictionary["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
         dictionary["build_directory"] = QDir::toNativeSeparators(project->buildDir);
@@ -594,10 +645,19 @@ void ProjectManagerPlugin::addProject_clicked() {
     buildConfig = ProjectBuildConfig::buildFromDirectory(dirName);
     if (!buildConfig->fileName.isEmpty()) {
         // Auto generated config files have no filename
-        qDebug("on_addProject_clicked() : adding %s to the watch dir",
-               buildConfig->fileName.toStdString().c_str());
+        // qDebug("on_addProject_clicked() : adding %s to the watch dir",
+        // buildConfig->fileName.toStdString().c_str());
         configWatcher.addPath(buildConfig->fileName);
     }
+
+    // clang-format off
+    handleCommand(GlobalCommands::ProjectLoaded, {
+        {GlobalArguments::ProjectName, buildConfig->name },
+        {GlobalArguments::SourceDirectory, buildConfig->sourceDir },
+        {GlobalArguments::BuildDirectory, buildConfig->buildDir },
+    });
+    // clang-format on
+
     projectModel->addConfig(buildConfig);
     searchPanelUI->updateProjectList();
     gui->projectComboBox->setCurrentIndex(projectModel->rowCount() - 1);
@@ -612,7 +672,7 @@ void ProjectManagerPlugin::removeProject_clicked() {
     auto path = projectModel->getConfig(index)->fileName;
     projectModel->removeConfig(index);
     searchPanelUI->updateProjectList();
-    qDebug("remove %s to the watch dir", path.toStdString().c_str());
+    // qDebug("remove %s to the watch dir", path.toStdString().c_str());
 
     configWatcher.removePath(path);
     getManager()->saveSettings();
@@ -634,7 +694,8 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterOutFiles->clear();
         this->gui->filterOutFiles->setEnabled(false);
     } else {
-        auto dictionary = getConfigDictionary();
+        auto project = getCurrentConfig();
+        auto dictionary = getConfigDictionary(project);
         auto s1 = expand(buildConfig->displayFilter, dictionary);
         auto s2 = expand(buildConfig->hideFilter, dictionary);
         this->gui->filterFiles->setEnabled(true);
@@ -661,8 +722,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         return;
     }
 
-    auto hash = getConfigDictionary();
     auto project = getCurrentConfig();
+    auto hash = getConfigDictionary(project);
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto currentTask = expand(executablePath, hash);
     auto workingDirectory = info->runDirectory;
@@ -703,27 +764,34 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto hash = getConfigDictionary();
-    auto currentTask = expand(task->command, hash);
+    auto hash = getConfigDictionary(project);
+    auto taskCommand = expand(task->command, hash);
     auto workingDirectory = expand(task->runDirectory, hash);
+    auto buildDirectory = expand(project->buildDir, hash);
+    auto sourceDirectory = expand(project->sourceDir, hash);
+
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = buildDirectory;
+    }
+
+    workingDirectory = QDir::toNativeSeparators(workingDirectory);
+    buildDirectory = QDir::toNativeSeparators(buildDirectory);
+    sourceDirectory = QDir::toNativeSeparators(sourceDirectory);
 
     outputDock->raise();
     outputDock->show();
-    if (workingDirectory.isEmpty()) {
-        workingDirectory = project->buildDir;
-    }
-
     outputPanel->commandOuput->clear();
     outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
     if (!kit) {
+        // run the taskCommand directly in the native shell
         auto command = QStringList();
-        auto interpreter = QString();
+        auto interpreter = QString{};
 #if defined(__linux__)
         interpreter = "/bin/sh";
-        command << "-c" << currentTask;
+        command << "-c" << taskCommand;
 #elif defined(_WIN32)
         interpreter = qgetenv("COMSPEC");
-        command << "/k" << currentTask;
+        command << "/k" << taskCommand;
 #else
         interpreter = "???";
 #endif
@@ -735,11 +803,13 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         runProcess.setArguments(command);
         runProcess.setProcessEnvironment(env);
     } else {
+        // ask the active kit, to run the task
         auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("run_directory", expand(QDir::toNativeSeparators(workingDirectory), hash));
-        env.insert("build_directory", expand(QDir::toNativeSeparators(project->buildDir), hash));
-        env.insert("source_directory", QDir::toNativeSeparators(project->sourceDir));
-        env.insert("task", currentTask);
+        env.insert("run_directory", workingDirectory);
+        env.insert("build_directory", buildDirectory);
+        env.insert("source_directory", sourceDirectory);
+        env.insert("task", taskCommand);
+        runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
@@ -753,15 +823,21 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         }
     }
 
+    runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
+    runProcess.setProperty("runningProject", QVariant::fromValue(project));
+    runProcess.setProperty("workingDirectory", QVariant::fromValue(workingDirectory));
+    runProcess.setProperty("buildDirectory", QVariant::fromValue(buildDirectory));
+    runProcess.setProperty("sourceDirectory", QVariant::fromValue(sourceDirectory));
+
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
-                           .arg(QString::fromStdString(kit->filePath), currentTask);
+                           .arg(QString::fromStdString(kit->filePath), taskCommand);
             this->outputPanel->commandOuput->appendPlainText(msg);
         } else {
             this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
-                                                             currentTask);
+                                                             taskCommand);
         }
         qWarning() << "Process failed to start";
     }
@@ -786,9 +862,8 @@ void ProjectManagerPlugin::runTask_clicked() {
             return;
         }
     }
-    auto selectedTask = buildConfig->tasksInfo[selectedTaskIndex];
     this->projectIssues->clearAllIssues();
-    do_runTask(&selectedTask);
+    do_runTask(&buildConfig->tasksInfo[selectedTaskIndex]);
 }
 
 void ProjectManagerPlugin::clearProject_clicked() {
@@ -797,7 +872,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
         return;
     }
 
-    auto hash = getConfigDictionary();
+    auto hash = getConfigDictionary(project);
     auto projectBuildDir = QDir::toNativeSeparators(expand(project->buildDir, hash));
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
@@ -1037,6 +1112,13 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         projectModel->addConfig(project);
         searchPanelUI->updateProjectList();
         getManager()->saveSettings();
+        // clang-format off
+        handleCommand(GlobalCommands::ProjectLoaded, {
+            {GlobalArguments::ProjectName, project->name },
+            {GlobalArguments::SourceDirectory, project->sourceDir },
+            {GlobalArguments::BuildDirectory, project->buildDir },
+        });
+        // clang-format on
         return true;
     }
 

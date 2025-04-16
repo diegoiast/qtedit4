@@ -1,9 +1,9 @@
 /**
- * \file qmdieditor
- * \brief Implementation of
+ * \file qmdieditor.cpp
+ * \brief Implementation of the qmdiEditor
  * \author Diego Iastrubni diegoiast@gmail.com
  * License GPL 2008
- * \see class name
+ * \see Qutepart qmdiClient
  */
 
 #include <QActionGroup>
@@ -30,12 +30,14 @@
 #include <QTextBrowser>
 #include <QTextEdit>
 #include <QToolBar>
+#include <QToolTip>
 #include <QTreeView>
 #include <qmditabwidget.h>
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
 
+#include "GlobalCommands.hpp"
 #include "plugins/texteditor/thememanager.h"
 #include "qmdieditor.h"
 #include "widgets/textoperationswidget.h"
@@ -89,7 +91,7 @@ auto static getLineEnding(QIODevice &stream) -> QString {
     }
 
     auto pos = stream.pos();
-    auto ending = QString();
+    auto ending = QString{};
     while (!stream.atEnd()) {
         QChar ch = stream.read(1).at(0);
         if (ch == '\r' || ch == '\n') {
@@ -107,6 +109,112 @@ auto static getLineEnding(QIODevice &stream) -> QString {
     }
     stream.seek(pos);
     return ending;
+}
+
+static auto createTooltip(const CommandArgs &data) -> QString {
+    static auto const START_MARKER = QString("/^");
+    static auto const END_MARKER = QString("$/;\"");
+    static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
+
+    if (!data.contains("tags")) {
+        return {};
+    }
+
+    auto originalSymbol = data["symbol"].toString();
+    auto tags = data["tags"].toList();
+    if (tags.isEmpty()) {
+        return {};
+    }
+
+    auto tooltip = QString("<html><body style='white-space:pre;'>");
+    tooltip += QString("<b>Symbol References:</b> <code>%1</code> (%2)<br>")
+                   .arg(originalSymbol)
+                   .arg(tags.size());
+
+    auto count = 0;
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const fieldType = tag[GlobalArguments::Type].toString();
+        auto const fieldValue = tag[GlobalArguments::Value].toString();
+        auto address = tag[GlobalArguments::Raw].toString();
+        if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
+            address.length() > MIN_LENGTH) {
+            address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
+        }
+
+        if (!tooltip.isEmpty()) {
+            tooltip += "<br>";
+        }
+
+        tooltip += QString("┌ <b>File:</b> %1<br>").arg(tag[GlobalArguments::FileName].toString());
+        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
+        tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
+
+        count++;
+
+        if (count > 7) {
+            tooltip += "<br/> ... <i>and more</i>";
+            break;
+        }
+    }
+
+    tooltip += "</body></html>";
+    return tooltip;
+}
+
+static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
+                                         PluginManager *manager) -> void {
+    static auto const START_MARKER = QString("/^");
+    static auto const END_MARKER = QString("$/;\"");
+    static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
+
+    if (!data.contains("tags")) {
+        return;
+    }
+
+    auto tags = data["tags"].toList();
+    auto originalSymbol = data["symbol"].toString();
+    {
+        auto a = new QAction(originalSymbol, menu);
+        a->setEnabled(false);
+
+        if (tags.isEmpty()) {
+            a->setText(QObject::tr("%1 - not found").arg(originalSymbol));
+            menu->addAction(a);
+            return;
+        }
+        menu->addAction(a);
+    }
+
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const fileName = tag[GlobalArguments::FileName].toString();
+        auto const fieldType = tag["fieldType"].toString();
+        auto const fieldValue = tag["fieldValue"].toString();
+        auto const rawAddress = tag["raw"].toString();
+        auto address = rawAddress;
+        if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
+            address.length() > MIN_LENGTH) {
+            address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
+        }
+
+        auto fi = QFileInfo(fileName);
+        auto simpleFileName = fi.fileName();
+        auto title = QString("%1 - %2 %3").arg(simpleFileName).arg(fieldType).arg(fieldValue);
+        auto a = new QAction(title, menu);
+        QObject::connect(a, &QAction::triggered, a, [fileName, rawAddress, address, manager]() {
+            auto nativeFileName = QDir::toNativeSeparators(fileName);
+            manager->openFile(nativeFileName);
+            auto client = manager->clientForFileName(nativeFileName);
+            auto editor = dynamic_cast<qmdiEditor *>(client);
+            if (editor) {
+                editor->loadContent();
+                editor->findText(address);
+                editor->setFocus();
+            }
+        });
+        menu->addAction(a);
+    }
 }
 
 class BoldItemDelegate : public QStyledItemDelegate {
@@ -160,6 +268,15 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     auto layout2 = new QHBoxLayout(toolbar);
     auto layout = new QVBoxLayout(this);
 
+    // Set up completion callback
+    textEditor->setCompletionCallback([this](const QString &prefix) {
+        if (prefix.length() < 2) {
+            return QSet<QString>();
+        }
+        auto c = this->getTagCompletions(prefix);
+        return c;
+    });
+
     operationsWidget->hide();
     setupActions();
     layout2->setSpacing(0);
@@ -197,7 +314,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     fnt.setFixedPitch(true);
-    fnt.setPointSize(18);
+    fnt.setPointSize(14);
     setEditorFont(fnt);
 
     textEditor->setLineWrapMode(QPlainTextEdit::LineWrapMode::NoWrap);
@@ -277,6 +394,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->contextMenu.addAction(actionCopyFilePath);
 
     this->installEventFilter(this);
+    this->textEditor->setMouseTracking(true);
+    this->textEditor->viewport()->installEventFilter(this);
 
 #if defined(WIN32)
     originalLineEnding = "\r\n";
@@ -311,6 +430,25 @@ QString qmdiEditor::getShortFileName() {
         }
     }
     return s;
+}
+
+void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &globalPosition) {
+
+    auto followSybolMenu = new QMenu(this);
+    followSybolMenu->setTitle(tr("Follow symbol"));
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    auto res = getSuggestionsForCurrentWord(localPosition);
+    createSubFollowSymbolSubmenu(res, followSybolMenu, pluginManager);
+
+    auto menu = textEditor->createStandardContextMenu();
+    auto separator = new QAction(this);
+    separator->setSeparator(true);
+    menu->insertAction(menu->actions().first(), separator);
+    menu->insertMenu(menu->actions().first(), followSybolMenu);
+
+    menu->exec(globalPosition);
+    delete menu;
 }
 
 bool qmdiEditor::canCloseClient() {
@@ -363,9 +501,6 @@ void qmdiEditor::setupActions() {
             updatePreview();
         }
     });
-
-    // FIXME - the new syntax for connecting a signal/slot crashes the app, using the old one works
-    // connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updatePreview);
 
     actionSave = new QAction(QIcon::fromTheme("document-save"), tr("&Save"), this);
     actionSaveAs = new QAction(QIcon::fromTheme("document-save-as"), tr("Save &as..."), this);
@@ -663,6 +798,20 @@ bool qmdiEditor::eventFilter(QObject *watched, QEvent *event) {
             break;
         }
     }
+
+    if (watched == textEditor->viewport()) {
+        if (event->type() == QEvent::ToolTip) {
+            QHelpEvent *helpEvent = static_cast<QHelpEvent *>(event);
+            handleWordTooltip(helpEvent->pos(), helpEvent->globalPos());
+            return true;
+        }
+
+        if (event->type() == QEvent::ContextMenu) {
+            auto menuEvent = static_cast<QContextMenuEvent *>(event);
+            showContextMenu(menuEvent->pos(), menuEvent->globalPos());
+            return true;
+        }
+    }
     return QWidget::eventFilter(watched, event);
 }
 
@@ -683,6 +832,65 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer->stop();
     delete loadingTimer;
     loadingTimer = nullptr;
+}
+
+CommandArgs qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
+    auto cursor = textEditor->cursorForPosition(localPosition);
+    cursor.select(QTextCursor::WordUnderCursor);
+
+    if (cursor.selectedText().isEmpty()) {
+        return {};
+    }
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    auto symbol = cursor.selectedText();
+    // clang-format off
+    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, symbol },
+        {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, true },
+    });
+    // clang-format on
+    return res;
+}
+
+QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    if (!pluginManager) {
+        return {};
+    }
+
+    // clang-format off
+    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, prefix },
+        {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, false },
+    });
+    // clang-format on
+
+    if (!res.contains("tags")) {
+        return {};
+    }
+
+    auto tags = res["tags"].toList();
+    QSet<QString> completions;
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const name = tag[GlobalArguments::Name].toString();
+        if (!name.isEmpty()) {
+            completions.insert(name);
+        }
+    }
+
+    return completions;
+}
+
+void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
+    auto res = getSuggestionsForCurrentWord(localPosition);
+    auto tooltip = createTooltip(res);
+    if (!tooltip.isEmpty()) {
+        QToolTip::showText(globalPosition, tooltip, textEditor);
+    }
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {
@@ -871,6 +1079,73 @@ void qmdiEditor::toggleHeaderImpl() {
     }
 }
 
+void qmdiEditor::loadContent() {
+    if (documentHasBeenLoaded) {
+        return;
+    }
+    // clear older watches, and add a new one
+    auto sl = fileSystemWatcher->directories();
+    if (!sl.isEmpty()) {
+        fileSystemWatcher->removePaths(sl);
+    }
+
+    auto modificationsEnabledState = getModificationsLookupEnabled();
+    setModificationsLookupEnabled(false);
+    hideBannerMessage();
+    textEditor->setReadOnly(false);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
+
+    auto file = QFile(fileName);
+    if (!file.open(QIODevice::ReadOnly)) {
+        QApplication::restoreOverrideCursor();
+        return;
+    }
+
+    QElapsedTimer timer;
+    timer.start();
+    this->originalLineEnding = getLineEnding(file);
+    auto textStream = QTextStream(&file);
+    textStream.seek(0);
+
+    // why blocking signals?
+    // when loading, (setPlainText()) a signal is emitted,  which triggers the system to believe
+    // that the content has been modified. just don't do this. It will also save some time
+    // on loading, since really, signals emitted a this stage are not meaningful.
+    textEditor->blockSignals(true);
+    textEditor->setPlainText(textStream.readAll());
+    textEditor->goTo(requestedPosition.x(), requestedPosition.y());
+
+    QFileInfo fileInfo(file);
+    file.close();
+    qDebug() << "File " << fileName << "loaded in" << timer.elapsed() << "mSec";
+
+    fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
+    if (!fileInfo.isWritable()) {
+        textEditor->setReadOnly(true);
+        displayBannerMessage(
+            tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
+               "change the file attributes for write access'>here to force write access.</a>"),
+            10);
+    }
+
+    updateFileDetails();
+    setModificationsLookupEnabled(modificationsEnabledState);
+    textEditor->removeModifications();
+    textEditor->blockSignals(false);
+    QApplication::restoreOverrideCursor();
+    documentHasBeenLoaded = true;
+    updateClientName();
+
+    // TODO - we should remove dependency on qmdiTabWidget
+    if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
+        emit tab->newClientAdded(this);
+    }
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    pluginManager->openFile("loaded:" + fileName);
+}
+
 void qmdiEditor::chooseHighliter(const QString &newText) {
     auto langInfo = ::Qutepart::chooseLanguage(QString(), newText, {});
     if (langInfo.isValid()) {
@@ -887,6 +1162,15 @@ void qmdiEditor::chooseIndenter(const QAction *action) {
     if (j > 0) {
         textEditor->setIndentAlgorithm(static_cast<Qutepart::IndentAlg>(j));
     }
+}
+
+void qmdiEditor::findText(const QString &text) {
+    auto newCursor = textEditor->textCursor();
+    auto findOptions = QFlags<QTextDocument::FindFlag>();
+    auto c = textEditor->document()->find(text, newCursor, findOptions);
+
+    // c.movePosition(findOptions.testFlag(QTextDocument::FindBackward) ? QTextCursor::End
+    textEditor->setTextCursor(c);
 }
 
 /**
@@ -980,71 +1264,4 @@ void qmdiEditor::updatePreview() {
     } else if (isXMLDocument()) {
         textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XML);
     }
-}
-
-void qmdiEditor::loadContent() {
-    if (documentHasBeenLoaded) {
-        return;
-    }
-    // clear older watches, and add a new one
-    auto sl = fileSystemWatcher->directories();
-    if (!sl.isEmpty()) {
-        fileSystemWatcher->removePaths(sl);
-    }
-
-    auto modificationsEnabledState = getModificationsLookupEnabled();
-    setModificationsLookupEnabled(false);
-    hideBannerMessage();
-    textEditor->setReadOnly(false);
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QApplication::processEvents();
-
-    auto file = QFile(fileName);
-    if (!file.open(QIODevice::ReadOnly)) {
-        QApplication::restoreOverrideCursor();
-        return;
-    }
-
-    QElapsedTimer timer;
-    timer.start();
-    this->originalLineEnding = getLineEnding(file);
-    auto textStream = QTextStream(&file);
-    textStream.seek(0);
-
-    // why blocking signals?
-    // when loading, (setPlainText()) a signal is emitted,  which triggers the system to believe
-    // that the content has been modified. just don't do this. It will also save some time
-    // on loading, since really, signals emitted a this stage are not meaningful.
-    textEditor->blockSignals(true);
-    textEditor->setPlainText(textStream.readAll());
-    textEditor->goTo(requestedPosition.x(), requestedPosition.y());
-
-    QFileInfo fileInfo(file);
-    file.close();
-    qDebug() << "File " << fileName << "loaded in" << timer.elapsed() << "mSec";
-
-    fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
-    if (!fileInfo.isWritable()) {
-        textEditor->setReadOnly(true);
-        displayBannerMessage(
-            tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
-               "change the file attributes for write access'>here to force write access.</a>"),
-            10);
-    }
-
-    updateFileDetails();
-    setModificationsLookupEnabled(modificationsEnabledState);
-    textEditor->removeModifications();
-    textEditor->blockSignals(false);
-    QApplication::restoreOverrideCursor();
-    documentHasBeenLoaded = true;
-    updateClientName();
-
-    // TODO - we should remove dependency on qmdiTabWidget
-    if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
-        emit tab->newClientAdded(this);
-    }
-
-    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    pluginManager->openFile("loaded:" + fileName);
 }

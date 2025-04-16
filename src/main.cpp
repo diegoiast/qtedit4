@@ -1,4 +1,3 @@
-
 /**
  * \file main.cpp
  * \brief Entry point of application - QtEdit4
@@ -15,6 +14,7 @@
 #include <widgets/qmdiSplitTab.h>
 
 #include "pluginmanager.h"
+#include "plugins/CTags/CTagsPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("qtedit4");
-    QCoreApplication::setApplicationVersion("0.0.6");
+    QCoreApplication::setApplicationVersion("0.0.8");
 
 #if defined(WIN32)
     // default style on windows is ugly and unusable.
@@ -103,6 +103,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.updateGUI();
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
 

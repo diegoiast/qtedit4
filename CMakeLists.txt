@@ -5,6 +5,7 @@ set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 include(cmake/mold-linker.cmake)
 
@@ -116,6 +117,10 @@ set(qtedit4_sources
     src/plugins/ProjectManager/ProjectSearch.cpp
     src/plugins/ProjectManager/ProjectSearch.h
     src/plugins/ProjectManager/ProjectSearchGUI.ui
+    src/plugins/CTags/CTagsPlugin.cpp
+    src/plugins/CTags/CTagsPlugin.hpp
+    src/plugins/CTags/CTagsLoader.cpp
+    src/plugins/CTags/CTagsLoader.hpp
     src/main.cpp
     qtedit4.qrc
 )
@@ -132,7 +137,7 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::PrintSupport Qt6::Network Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir

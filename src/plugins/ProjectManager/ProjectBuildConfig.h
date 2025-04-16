@@ -15,6 +15,7 @@ struct TaskInfo {
     QString name;
     QString command;
     QString runDirectory;
+    bool isBuild = false;
 
     bool operator==(const TaskInfo &other) const;
 };
@@ -32,6 +33,7 @@ struct ProjectBuildConfig {
     QString hideFilter;
 
     // meta data
+    QString name;
     QString fileName;
 
     static auto tryGuessFromCMake(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;

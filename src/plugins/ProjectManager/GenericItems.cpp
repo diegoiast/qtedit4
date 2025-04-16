@@ -106,7 +106,6 @@ void DirectoryModel::addDirectory(const QString &path) {
 }
 
 void DirectoryModel::scanStarted(const QString &rootPath) {
-    qInfo() << "loading" << rootPath;
     directoryList.push_back(QDir::toNativeSeparators(rootPath));
 }
 
@@ -121,8 +120,6 @@ void DirectoryModel::newFiles(const QStringList &files) {
         fileList.push_back(QDir::toNativeSeparators(f));
     }
     endInsertRows();
-    qDebug().noquote() << QString("Found %1 files.").arg(fileList.size());
-
     QApplication::processEvents();
 }
 

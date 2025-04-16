@@ -50,7 +50,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         auto actionReplace =
             new QAction(QIcon::fromTheme("edit-find-replace"), tr("&Replace"), this);
         auto actionCopyBinary =
-            new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (binary"), this);
+            new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (binary)"), this);
         auto actionCopyAsHex = new QAction(QIcon::fromTheme("edit-copy"), tr("Copy (HEX)"), this);
         auto actionPastBinary =
             new QAction(QIcon::fromTheme("edit-copy"), tr("Paste (binary)"), this);
@@ -131,7 +131,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
 };
 
 HexViewrPlugin::HexViewrPlugin() {
-    name = tr("Image viewer plugin - based on QutePart");
+    name = tr("Hex viewer plugin");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
@@ -153,7 +153,9 @@ int HexViewrPlugin::canOpenFile(const QString &fileName) {
                                            ".a",   ".exe", ".dll", ".dlib", ".pdf"};
 
     auto uri = QUrl(fileName);
-    if (uri.scheme().isEmpty() || uri.scheme() != "file") {
+    auto scheme = uri.scheme();
+    // > 1? this can be a windows drive
+    if (!scheme.isEmpty() && scheme != "file" && scheme.size() > 1) {
         return -1;
     }
     for (const QString &ext : extensions) {

@@ -20,6 +20,7 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
     return
         this->name == other.name &&
         this->command == other.command &&
+        this->isBuild == other.isBuild &&
         this->runDirectory == other.runDirectory;
     /* clang-format on */
 }
@@ -27,12 +28,14 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
 auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto cmakeFileName = directory + "/" + "CMakeLists.txt";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(cmakeFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;.vs;build;dist";
     value->buildDir = "${source_directory}/build";
@@ -59,6 +62,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
         t.name = "Build (parallel)";
         t.command = "cmake --build ${build_directory} --parallel";
         t.runDirectory = "${source_directory}";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
@@ -66,6 +70,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
         t.name = "Build (single thread)";
         t.command = "cmake --build ${build_directory}";
         t.runDirectory = "${source_directory}";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     return value;
@@ -74,12 +79,14 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto cargoFileName = directory + "/" + "Cargo.toml";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(cargoFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;target";
     value->buildDir = directory + "/target";
@@ -97,6 +104,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.name = "cargo build";
         t.runDirectory = "${source_directory}";
         t.command = "cargo build";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
@@ -104,6 +112,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.name = "cargo build (release)";
         t.runDirectory = "${source_directory}";
         t.command = "cargo build --release";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
@@ -120,12 +129,14 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
 auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
     auto gomodFileName = directory + "/" + "go.mod";
+    auto di = QFileInfo(directory);
     auto fi = QFileInfo(gomodFileName);
     if (!fi.isReadable()) {
         return {};
     }
 
     auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;";
     value->buildDir = "";
@@ -216,16 +227,19 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         QList<TaskInfo> info;
         if (v.isArray()) {
             for (const auto &vv : v.toArray()) {
+                auto obj = vv.toObject();
                 TaskInfo taskInfo;
-                taskInfo.name = vv.toObject()["name"].toString();
-                taskInfo.command = vv.toObject()["command"].toString();
-                taskInfo.runDirectory = vv.toObject()["runDirectory"].toString();
+                taskInfo.name = obj["name"].toString();
+                taskInfo.command = obj["command"].toString();
+                taskInfo.runDirectory = obj["runDirectory"].toString();
+                taskInfo.isBuild = obj["isBuild"].toBool(false);
                 info.push_back(taskInfo);
             };
         }
         return info;
     };
     if (!json.isNull()) {
+        value->name = json["name"].toString();
         value->buildDir = json["build_directory"].toString();
         value->executables = parseExecutables(json["executables"]);
         value->tasksInfo = parseTasksInfo(json["tasks"]);
@@ -287,6 +301,7 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
         taskObj["name"] = task.name;
         taskObj["command"] = task.command;
         taskObj["runDirectory"] = task.runDirectory;
+        taskObj["isBuild"] = task.isBuild;
 
         tasksArray.append(taskObj);
     }
