@@ -63,6 +63,7 @@ jobs:
           version: ${{ matrix.qt_version }}
           modules: "qt5compat"
           cache: true
+          extra: "-b https://mirrors.dotsrc.org/qtproject"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
