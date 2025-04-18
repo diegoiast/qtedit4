@@ -64,7 +64,6 @@ auto appendAnsiHtml(QTextEdit *edit, const QString &ansiText) -> void {
 
 auto linkifyFileNames(const QString &html) -> QString {
     auto pathRegex = QRegularExpression(
-        // R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+\\/]+)(\.[\w+_-]+)?)(:\d+)?(:\d+)?)");
         R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
 
     QString result;
@@ -73,10 +72,12 @@ auto linkifyFileNames(const QString &html) -> QString {
 
     while (it.hasNext()) {
         auto match = it.next();
-        int start = match.capturedStart();
-        int end = match.capturedEnd();
+        auto start = match.capturedStart();
+        auto end = match.capturedEnd();
         auto fullMatch = match.captured(0);
         auto filePart = match.captured(1);
+        auto line = match.captured(3).mid(1);
+        auto column = match.captured(4).mid(1);
 
         // Check if inside an anchor tag
         bool insideAnchor = false;
@@ -91,10 +92,24 @@ auto linkifyFileNames(const QString &html) -> QString {
         if (insideAnchor) {
             result += fullMatch;
         } else {
-            // Convert backslashes to slashes for file:// URLs
+            auto fragment = QString{};
             auto urlPath = filePart;
+            // Convert backslashes to slashes for file:// URLs
             urlPath.replace("\\", "/");
             auto fileUrl = QUrl::fromLocalFile(urlPath);
+
+            if (!line.isEmpty()) {
+                fragment += line;
+            }
+            if (!column.isEmpty()) {
+                if (!fragment.isEmpty()) {
+                    fragment += ",";
+                }
+                fragment += column;
+            }
+            if (!fragment.isEmpty()) {
+                fileUrl.setFragment(fragment);
+            }
             auto link =
                 QString("<a href=\"%1\">%2</a>").arg(fileUrl.toString(), fullMatch.toHtmlEscaped());
             result += link;
@@ -133,7 +148,6 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
     while (it.hasNext()) {
         auto match = it.next();
         auto codes = match.captured(1).split(';');
-        auto style = QString{};
         auto isReset = (codes.isEmpty() || codes.contains("0"));
 
         result += htmlText.mid(lastPos, match.capturedStart() - lastPos);
@@ -142,7 +156,8 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
                 result += openTags.takeLast();
             }
         } else {
-            for (auto &code : codes) {
+            auto style = QString{};
+            for (auto const &code : codes) {
                 if (ansiToCss.contains(code)) {
                     style += QString("color:%1;").arg(ansiToCss.value(code));
                 } else if (code == "1") {

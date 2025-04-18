@@ -284,6 +284,36 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->commandOuput->setAcceptRichText(true);
     outputPanel->commandOuput->viewport()->setCursor(Qt::CursorShape::IBeamCursor);
     outputPanel->commandOuput->setLineWrapMode(QTextEdit::NoWrap);
+    connect(outputPanel->commandOuput, &QTextBrowser::anchorClicked, outputPanel->commandOuput,
+            [this](const QUrl &link) {
+                auto fileName = QFileInfo(link.toLocalFile()).filePath();
+                auto row = -1;
+                auto col = -1;
+                auto fragment = link.fragment();
+
+                if (!fragment.isEmpty()) {
+                    // line/rows are 1 based on copmiler output, internally they are 0 based
+                    auto parts = fragment.split(',');
+                    auto ok = false;
+                    if (!parts.isEmpty()) {
+                        row = parts[0].toInt(&ok);
+                        if (!ok) {
+                            row = -1;
+                        } else {
+                            row--;
+                        }
+                    }
+                    if (parts.size() > 1) {
+                        col = parts[1].toInt(&ok);
+                        if (!ok) {
+                            col = -1;
+                        } else {
+                            col--;
+                        }
+                    }
+                }
+                getManager()->openFile(fileName, row, col);
+            });
 
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
