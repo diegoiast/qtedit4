@@ -154,7 +154,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QPlainTextEdit" name="commandOuput">
+    <widget class="QTextBrowser" name="commandOuput">
      <property name="font">
       <font>
        <family>Monospace</family>
@@ -177,11 +177,14 @@
      <property name="textInteractionFlags">
       <set>Qt::TextInteractionFlag::LinksAccessibleByKeyboard|Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextBrowserInteraction|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
      </property>
-     <property name="backgroundVisible">
+     <property name="openLinks">
       <bool>false</bool>
      </property>
-     <property name="centerOnScroll">
+     <property name="backgroundVisible" stdset="0">
       <bool>false</bool>
+     </property>
+     <property name="centerOnScroll" stdset="0">
+      <bool>true</bool>
      </property>
     </widget>
    </item>

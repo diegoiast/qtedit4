@@ -7,6 +7,7 @@
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QTimer>
@@ -28,6 +29,20 @@
 #include "pluginmanager.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
+
+static auto appendAscii(QTextBrowser *edit, const QString &ansiText) -> void {
+    edit->moveCursor(QTextCursor::End);
+    edit->insertPlainText(ansiText);
+
+    const auto blockCount = edit->document()->blockCount();
+    const auto lastBlock = edit->document()->findBlockByNumber(blockCount - 1);
+    if (lastBlock.isValid()) {
+        QTextCursor cursor(lastBlock);
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        edit->setTextCursor(cursor);
+        // edit->centerCursor();
+    }
+}
 
 static auto str(QProcess::ExitStatus e) -> QString {
     switch (e) {
@@ -307,7 +322,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(&runProcess, &QProcess::finished, this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
-                this->outputPanel->commandOuput->appendPlainText(output);
+                appendAscii(outputPanel->commandOuput, output);
                 getManager()->showPanels(Qt::BottomDockWidgetArea);
                 outputDock->raise();
                 outputDock->show();
@@ -354,7 +369,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
-        this->outputPanel->commandOuput->appendPlainText(output);
+        appendAscii(outputPanel->commandOuput, output);
         qWarning() << "Process error occurred:" << error;
         qWarning() << "Error string:" << runProcess.errorString();
     });
@@ -732,8 +747,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     }
     workingDirectory = expand(workingDirectory, hash);
     outputPanel->commandOuput->clear();
-    outputPanel->commandOuput->appendPlainText("cd " + QDir::toNativeSeparators(workingDirectory));
-    outputPanel->commandOuput->appendPlainText(currentTask + "\n");
+    appendAscii(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
+    appendAscii(outputPanel->commandOuput, currentTask + "\n");
     outputDock->raise();
     outputDock->show();
 
@@ -781,7 +796,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputDock->raise();
     outputDock->show();
     outputPanel->commandOuput->clear();
-    outputPanel->commandOuput->appendPlainText("cd " + workingDirectory);
+    appendAscii(outputPanel->commandOuput, "cd " + workingDirectory);
     if (!kit) {
         // run the taskCommand directly in the native shell
         auto command = QStringList();
@@ -796,7 +811,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         interpreter = "???";
 #endif
         auto env = QProcessEnvironment::systemEnvironment();
-        outputPanel->commandOuput->appendPlainText(interpreter + " " + command.join(" "));
+        appendAscii(outputPanel->commandOuput, interpreter + " " + command.join(" "));
 
         runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProgram(interpreter);
@@ -834,10 +849,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
                            .arg(QString::fromStdString(kit->filePath), taskCommand);
-            this->outputPanel->commandOuput->appendPlainText(msg);
+            appendAscii(outputPanel->commandOuput, msg);
         } else {
-            this->outputPanel->commandOuput->appendPlainText("Process failed to start " +
-                                                             taskCommand);
+            appendAscii(outputPanel->commandOuput, "Process failed to start " + taskCommand);
         }
         qWarning() << "Process failed to start";
     }
@@ -1126,13 +1140,28 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
 }
 
 auto ProjectManagerPlugin::tryScrollOutput(int line) -> bool {
-    auto block = this->outputPanel->commandOuput->document()->findBlockByLineNumber(line);
-    if (block.isValid()) {
-        QTextCursor cursor(block);
-        cursor.movePosition(QTextCursor::StartOfBlock);
-        this->outputPanel->commandOuput->setTextCursor(cursor);
-        this->outputPanel->commandOuput->centerCursor();
-        return true;
+    if (line < 0) {
+        return false;
     }
-    return false;
+
+    auto browser = this->outputPanel->commandOuput;
+    auto doc = this->outputPanel->commandOuput->document();
+    if (!doc) {
+        return false;
+    }
+
+    auto block = doc->findBlockByLineNumber(line);
+    if (!block.isValid()) {
+        return false;
+    }
+
+    auto cursor = QTextCursor(block);
+    auto rect = browser->cursorRect(cursor);
+    auto blockY = rect.top();
+    auto viewportHeight = browser->viewport()->height();
+    auto centerScrollValue = blockY - viewportHeight / 2;
+    auto vScrollBar = browser->verticalScrollBar();
+    centerScrollValue = qMax(0, qMin(centerScrollValue, vScrollBar->maximum()));
+    vScrollBar->setValue(centerScrollValue);
+    return true;
 }
