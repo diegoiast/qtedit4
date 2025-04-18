@@ -18,6 +18,7 @@
 #include <qmditabwidget.h>
 #include <widgets/qmdieditor.h>
 
+#include "AnsiToHTML.hpp"
 #include "GenericItems.h"
 #include "GlobalCommands.hpp"
 #include "ProjectBuildConfig.h"
@@ -29,20 +30,6 @@
 #include "pluginmanager.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
-
-static auto appendAscii(QTextBrowser *edit, const QString &ansiText) -> void {
-    edit->moveCursor(QTextCursor::End);
-    edit->insertPlainText(ansiText);
-
-    const auto blockCount = edit->document()->blockCount();
-    const auto lastBlock = edit->document()->findBlockByNumber(blockCount - 1);
-    if (lastBlock.isValid()) {
-        QTextCursor cursor(lastBlock);
-        cursor.movePosition(QTextCursor::StartOfBlock);
-        edit->setTextCursor(cursor);
-        // edit->centerCursor();
-    }
-}
 
 static auto str(QProcess::ExitStatus e) -> QString {
     switch (e) {
@@ -294,6 +281,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel->commandOuput->setFont(font);
+    outputPanel->commandOuput->setAcceptRichText(true);
+    outputPanel->commandOuput->viewport()->setCursor(Qt::CursorShape::IBeamCursor);
+    outputPanel->commandOuput->setLineWrapMode(QTextEdit::NoWrap);
 
     connect(outputPanel->clearOutput, &QAbstractButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
@@ -322,7 +312,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(&runProcess, &QProcess::finished, this,
             [this](int exitCode, QProcess::ExitStatus exitStatus) {
                 auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
-                appendAscii(outputPanel->commandOuput, output);
+                appendAnsiHtml(outputPanel->commandOuput, output);
                 getManager()->showPanels(Qt::BottomDockWidgetArea);
                 outputDock->raise();
                 outputDock->show();
@@ -369,7 +359,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
-        appendAscii(outputPanel->commandOuput, output);
+        appendAnsiHtml(outputPanel->commandOuput, output);
         qWarning() << "Process error occurred:" << error;
         qWarning() << "Error string:" << runProcess.errorString();
     });
@@ -747,8 +737,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     }
     workingDirectory = expand(workingDirectory, hash);
     outputPanel->commandOuput->clear();
-    appendAscii(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
-    appendAscii(outputPanel->commandOuput, currentTask + "\n");
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
+    appendAnsiHtml(outputPanel->commandOuput, currentTask + "\n");
     outputDock->raise();
     outputDock->show();
 
@@ -796,7 +786,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputDock->raise();
     outputDock->show();
     outputPanel->commandOuput->clear();
-    appendAscii(outputPanel->commandOuput, "cd " + workingDirectory);
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory);
     if (!kit) {
         // run the taskCommand directly in the native shell
         auto command = QStringList();
@@ -811,7 +801,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         interpreter = "???";
 #endif
         auto env = QProcessEnvironment::systemEnvironment();
-        appendAscii(outputPanel->commandOuput, interpreter + " " + command.join(" "));
+        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" "));
 
         runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProgram(interpreter);
@@ -849,9 +839,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         if (kit) {
             auto msg = QString("Failed to run kit %1, with task=%2")
                            .arg(QString::fromStdString(kit->filePath), taskCommand);
-            appendAscii(outputPanel->commandOuput, msg);
+            appendAnsiHtml(outputPanel->commandOuput, msg);
         } else {
-            appendAscii(outputPanel->commandOuput, "Process failed to start " + taskCommand);
+            appendAnsiHtml(outputPanel->commandOuput, "Process failed to start " + taskCommand);
         }
         qWarning() << "Process failed to start";
     }
@@ -937,10 +927,8 @@ auto ProjectManagerPlugin::saveAllDocuments() -> bool {
 
 auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     auto cursor = this->outputPanel->commandOuput->textCursor();
-    cursor.movePosition(QTextCursor::End);
     auto lineNumber = cursor.blockNumber();
-    cursor.insertText(line);
-    this->outputPanel->commandOuput->setTextCursor(cursor);
+    appendAnsiHtml(this->outputPanel->commandOuput, line);
     this->projectIssues->processLine(line, lineNumber, this->getCurrentConfig()->sourceDir);
 }
 
