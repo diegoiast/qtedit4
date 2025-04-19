@@ -1,5 +1,3 @@
-#include "thememanager.h"
-#include <CommandPaletteWidget/commandpalette.h>
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -12,36 +10,17 @@
 #include <QStringList>
 #include <QStringListModel>
 #include <QUrl>
+
+#include <CommandPaletteWidget/commandpalette.h>
 #include <qmdiactiongroup.h>
 #include <qmdihost.h>
 #include <qmdiserver.h>
-#include <widgets/HistoryLineEdit.h>
 
+#include "AnsiToHTML.hpp"
 #include "texteditor_plg.h"
+#include "thememanager.h"
+#include "widgets/HistoryLineEdit.h"
 #include "widgets/qmdieditor.h"
-
-bool isPlainText(const QString &str) {
-    if (str.isEmpty()) {
-        return true;
-    }
-    auto textCharCount = 0;
-    auto totalCharCount = 0;
-    for (const auto &ch : str) {
-        totalCharCount++;
-        if (ch == '\0') {
-            return false;
-        }
-        if (ch.isLetterOrNumber() || ch.isPunct() || ch.isSpace() || ch.isSymbol() || ch.isMark()) {
-            textCharCount++;
-        } else if (ch.category() == QChar::Other_Control && ch.unicode() < 32) {
-            if (ch == '\n' || ch == '\r' || ch == '\t') {
-                textCharCount++;
-            }
-        }
-    }
-    auto textRatio = static_cast<double>(textCharCount) / totalCharCount;
-    return textRatio > 0.90;
-}
 
 TextEditorPlugin::TextEditorPlugin() {
     name = tr("Text editor plugin - based on QutePart");
