@@ -134,7 +134,10 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
         auto fileName = parent->text(2);
         auto line = item->text(1).toInt() - 1;
         host->openFile(fileName, line);
-        host->focusCenter();
+        auto w = dynamic_cast<QWidget *>(host->currentClient());
+        if (w) {
+            w->setFocus();
+        }
 
         // TODO - this would be nice. I am unsure how to do this
         // editor->displayBannerMessage("Loaded", 7);
@@ -265,7 +268,7 @@ void ProjectSearch::searchButton_clicked() {
 
 void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
                                   QList<FoundData> *foundData) {
-    QTreeWidgetItem *dirItem = new QTreeWidgetItem(ui->treeWidget);
+    auto dirItem = new QTreeWidgetItem(ui->treeWidget);
     dirItem->setText(0, shortFileName);
     dirItem->setText(2, fullFileName);
     dirItem->setToolTip(0, fullFileName);
