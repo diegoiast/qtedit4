@@ -21,11 +21,15 @@
 #include <unistd.h>
 #endif
 
+#if defined(WIN32)
+#include <io.h>
+#define read _read
+#endif
+
 #include <CommandPaletteWidget/CommandPalette>
 #include <qmdihost.h>
 #include <qmdiserver.h>
 #include <qmditabwidget.h>
-#include <widgets/qmdieditor.h>
 
 #include "AnsiToHTML.hpp"
 #include "GenericItems.h"
@@ -39,8 +43,9 @@
 #include "pluginmanager.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
+#include "widgets/qmdieditor.h"
 
-// #define USE_TTY_FOR_TASKS
+#define USE_TTY_FOR_TASKS
 
 static auto str(QProcess::ExitStatus e) -> QString {
     switch (e) {
@@ -96,8 +101,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto getCommandInterpreter(const QString &externalCommand)
-    -> std::tuple<QStringList, QString> {
+static auto
+getCommandInterpreter(const QString &externalCommand) -> std::tuple<QStringList, QString> {
     QString interpreter;
     QStringList command;
 
@@ -106,7 +111,7 @@ static auto getCommandInterpreter(const QString &externalCommand)
     command << "-c" << externalCommand;
 #elif defined(_WIN32)
     interpreter = qgetenv("COMSPEC");
-    command << "/k" << taskCommand;
+    command << "/k" << externalCommand;
 #else
     interpreter = "???"; // Default fallback
 #endif
@@ -114,7 +119,6 @@ static auto getCommandInterpreter(const QString &externalCommand)
     return {command, interpreter};
 }
 
-// Helper function to create a pseudo-terminal
 static auto setupPty(QProcess &process, int &masterFd) -> bool {
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
     masterFd = posix_openpt(O_RDWR | O_NOCTTY);
@@ -149,6 +153,13 @@ static auto setupPty(QProcess &process, int &masterFd) -> bool {
     process.setStandardErrorFile(QString::fromUtf8(slaveName));
 
     close(slaveFd);
+
+    QObject::connect(&process, &QProcess::finished, [&]() {
+        if (masterFd >= 0) {
+            close(masterFd);
+            masterFd = -1;
+        }
+    });
     return true;
 #else
     Q_UNUSED(process);
@@ -893,7 +904,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (usingPty && masterFd >= 0) {
         runProcess.setProcessChannelMode(QProcess::MergedChannels);
         auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(notifier, &QSocketNotifier::activated, [this, masterFd]() {
+        connect(notifier, &QSocketNotifier::activated, this, [this, masterFd]() {
             char buffer[4096];
             auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
             if (bytesRead > 0) {
