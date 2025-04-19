@@ -1,33 +1,110 @@
-#include "ProjectSearch.h"
-#include "GenericItems.h"
-#include "ProjectBuildConfig.h"
-#include "ProjectManagerPlg.h"
-#include "ui_ProjectSearchGUI.h"
+#include <algorithm>
+#include <cstring>
+#include <fstream>
+#include <functional>
+#include <string>
+#include <vector>
 
 #include <QDirIterator>
 #include <QPushButton>
 #include <QThreadPool>
-#include <fstream>
-#include <functional>
+
 #include <pluginmanager.h>
 #include <qmdihost.h>
-#include <string>
 
-void searchFile(const std::string &filename, const std::string &searchString,
-                std::function<void(const std::string &, size_t)> callback) {
+#include "AnsiToHTML.hpp"
+#include "GenericItems.h"
+#include "ProjectBuildConfig.h"
+#include "ProjectManagerPlg.h"
+#include "ProjectSearch.h"
+#include "ui_ProjectSearchGUI.h"
+
+void searchTextFile(std::ifstream &file, const std::string &searchString,
+                    std::function<void(const std::string &, size_t)> callback) {
+    auto line = std::string();
+    auto lineNumber = size_t(0);
+
+    while (std::getline(file, line)) {
+        if (line.find(searchString) != std::string::npos) {
+            callback(line, lineNumber);
+        }
+        lineNumber++;
+    }
+}
+
+auto searchBinaryFile(std::ifstream &file, const std::string &searchString,
+                      std::function<void(const std::string &, size_t)> callback) -> void {
+    if (!file.is_open() || searchString.empty()) {
+        return;
+    }
+
+    constexpr size_t bufferSize = 4096;
+    const size_t searchLen = searchString.size();
+    const size_t overlap = searchLen > 1 ? searchLen - 1 : 0;
+
+    auto buffer = std::vector<char>(bufferSize + overlap);
+    auto fileOffset = size_t{0};
+    auto prevTailSize = size_t{0};
+
+    while (file) {
+        file.read(buffer.data() + prevTailSize, bufferSize);
+        auto bytesRead = file.gcount();
+
+        if (bytesRead == 0) {
+            break;
+        }
+
+        auto totalBytes = prevTailSize + bytesRead;
+        for (auto i = 0; i + searchLen <= totalBytes; ++i) {
+            if (std::memcmp(buffer.data() + i, searchString.data(), searchLen) == 0) {
+                auto afterMatch = std::min<size_t>(100, totalBytes - (i + searchLen));
+                auto result = std::string(buffer.data() + i + searchLen, afterMatch);
+
+                if (afterMatch < 100) {
+                    auto extra = std::vector<char>(100 - afterMatch);
+                    auto oldPos = file.tellg();
+                    file.seekg(fileOffset + i + searchLen + afterMatch, std::ios::beg);
+                    file.read(extra.data(), extra.size());
+
+                    auto extraRead = file.gcount();
+                    result.append(extra.data(), extraRead);
+                    file.seekg(oldPos);
+                }
+                callback(result, fileOffset + i);
+            }
+        }
+
+        if (overlap > 0) {
+            std::memmove(buffer.data(), buffer.data() + totalBytes - overlap, overlap);
+        }
+        fileOffset += bytesRead;
+        prevTailSize = overlap;
+    }
+}
+
+auto searchFile(const std::string &filename, bool searchInBinaries, const std::string &searchString,
+                std::function<void(const std::string &, size_t)> callback) -> void {
     std::ifstream file(filename);
     if (!file.is_open()) {
         return;
     }
 
+    auto firstLines = std::string();
     auto line = std::string();
-    auto lineNumner = size_t(0);
+    for (auto i = 0; i < 5; i++) {
+        std::getline(file, line);
+        firstLines += line;
+    }
 
-    while (std::getline(file, line)) {
-        if (line.find(searchString) != std::string::npos) {
-            callback(line, lineNumner);
+    file.seekg(0);
+    if (isPlainText(QString::fromStdString(firstLines))) {
+        searchTextFile(file, searchString, callback);
+    } else {
+        if (searchInBinaries) {
+            searchBinaryFile(file, searchString, callback);
+        } else {
+            qDebug() << "Not searching inside file " << filename;
         }
-        lineNumner++;
     }
 }
 
@@ -150,13 +227,15 @@ void ProjectSearch::searchButton_clicked() {
                 trimCount++;
             }
             auto shortFileName = fullFileName.mid(trimCount);
+            auto searchInBinaries = ui->searchInBinaryFiles->isChecked();
 
             if (!FilenameMatches(fullFileName, allowList, denyList)) {
                 continue;
             };
-            searchFile(fullFileName.toStdString(), text, [foundData](auto line, auto line_number) {
-                foundData->push_back({line, line_number});
-            });
+            searchFile(fullFileName.toStdString(), searchInBinaries, text,
+                       [foundData](auto line, auto line_number) {
+                           foundData->push_back({line, line_number});
+                       });
 
             if (!foundData->empty()) {
                 // clang-format off

@@ -70,7 +70,14 @@
     </widget>
    </item>
    <item>
-    <widget class="PathWidget" name="pathEdit" native="true"/>
+    <widget class="PathWidget" name="pathEdit"/>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="searchInBinaryFiles">
+     <property name="text">
+      <string>Search in &amp;binary files</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QPushButton" name="searchButton">
@@ -156,7 +163,7 @@
  <customwidgets>
   <customwidget>
    <class>PathWidget</class>
-   <extends>QWidget</extends>
+   <extends>QLineEdit</extends>
    <header>pathwidget.h</header>
    <container>1</container>
   </customwidget>

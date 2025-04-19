@@ -93,8 +93,6 @@ set(qtedit4_sources
     src/plugins/imageviewer/imageviewer_plg.h
     src/plugins/hexviewer/hexviewer_plg.cpp
     src/plugins/hexviewer/hexviewer_plg.h
-    src/plugins/ProjectManager/AnsiToHTML.cpp
-    src/plugins/ProjectManager/AnsiToHTML.hpp
     src/plugins/ProjectManager/BuildRunOutput.ui
     src/plugins/ProjectManager/CompilerOutputDecoders.cpp
     src/plugins/ProjectManager/CompilerOutputDecoders.h 
@@ -121,6 +119,8 @@ set(qtedit4_sources
     src/plugins/CTags/CTagsPlugin.hpp
     src/plugins/CTags/CTagsLoader.cpp
     src/plugins/CTags/CTagsLoader.hpp
+    src/AnsiToHTML.cpp
+    src/AnsiToHTML.hpp
     src/main.cpp
     qtedit4.qrc
 )
