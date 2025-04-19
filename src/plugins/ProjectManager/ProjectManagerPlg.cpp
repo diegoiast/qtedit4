@@ -101,8 +101,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto
-getCommandInterpreter(const QString &externalCommand) -> std::tuple<QStringList, QString> {
+static auto getCommandInterpreter(const QString &externalCommand)
+    -> std::tuple<QStringList, QString> {
     QString interpreter;
     QStringList command;
 
