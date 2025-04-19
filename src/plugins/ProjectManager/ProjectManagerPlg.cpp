@@ -292,7 +292,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 auto fragment = link.fragment();
 
                 if (!fragment.isEmpty()) {
-                    // line/rows are 1 based on copmiler output, internally they are 0 based
+                    // line/rows are 1 based on compiler output, internally they are 0 based
                     auto parts = fragment.split(',');
                     auto ok = false;
                     if (!parts.isEmpty()) {
