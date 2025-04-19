@@ -66,8 +66,8 @@ auto linkifyFileNames(const QString &html) -> QString {
     auto pathRegex = QRegularExpression(
         R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
 
-    QString result;
-    int lastPos = 0;
+    auto result = QString{};
+    auto lastPos = 0;
     auto it = pathRegex.globalMatch(html);
 
     while (it.hasNext()) {
@@ -80,9 +80,9 @@ auto linkifyFileNames(const QString &html) -> QString {
         auto column = match.captured(4).mid(1);
 
         // Check if inside an anchor tag
-        bool insideAnchor = false;
-        int anchorOpen = html.lastIndexOf("<a ", start, Qt::CaseInsensitive);
-        int anchorClose = html.lastIndexOf("</a>", start, Qt::CaseInsensitive);
+        auto insideAnchor = false;
+        auto anchorOpen = html.lastIndexOf("<a ", start, Qt::CaseInsensitive);
+        auto anchorClose = html.lastIndexOf("</a>", start, Qt::CaseInsensitive);
         if (anchorOpen != -1 && (anchorClose == -1 || anchorOpen > anchorClose)) {
             insideAnchor = true;
         }
@@ -121,6 +121,9 @@ auto linkifyFileNames(const QString &html) -> QString {
 }
 
 auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
+    static auto ansiRegex = QRegularExpression("\x1b\\[([0-9;]*)m");
+    static auto removeRegex = QRegularExpression("\x1b\\[K");
+
     auto htmlText = ansiText;
     htmlText.replace("&", "&amp;");
     htmlText.replace("<", "&lt;");
@@ -128,10 +131,8 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
     htmlText.replace(" ", "&nbsp;");
     htmlText.replace("\n", "<br>\n");
 
-    // Remove "erase to end of line" codes
-    htmlText.remove(QRegularExpression("\x1b\\[K"));
+    htmlText.remove(removeRegex);
 
-    // ANSI color code map
     auto ansiToCss = QMap<QString, QString>{
         {"30", "black"},        {"31", "red"},        {"32", "green"},      {"33", "yellow"},
         {"34", "blue"},         {"35", "magenta"},    {"36", "cyan"},       {"37", "white"},
@@ -139,7 +140,6 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
         {"94", "lightskyblue"}, {"95", "violet"},     {"96", "lightcyan"},  {"97", "whitesmoke"},
     };
 
-    auto ansiRegex = QRegularExpression("\x1b\\[([0-9;]*)m");
     auto lastPos = 0;
     auto it = ansiRegex.globalMatch(htmlText);
     QStringList openTags;
@@ -157,7 +157,7 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
             }
         } else {
             auto style = QString{};
-            for (auto const &code : codes) {
+            for (auto const &code : std::as_const(codes)) {
                 if (ansiToCss.contains(code)) {
                     style += QString("color:%1;").arg(ansiToCss.value(code));
                 } else if (code == "1") {
