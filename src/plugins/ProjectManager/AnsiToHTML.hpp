@@ -27,6 +27,9 @@ auto appendAnsiHtml(QTextEdit *edit, const QString &ansiText) -> void;
 /// Convert an HTML string, linking all filenames inside "<a href>"
 auto linkifyFileNames(const QString &html) -> QString;
 
+/// Convert an HTML string, linking all URLS inside "<a href>"
+auto linkifyUrls(const QString &html) -> QString;
+
 /// Convert ANSI escaped string, to HTML
 auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString;
 

@@ -373,6 +373,10 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->commandOuput->setLineWrapMode(QTextEdit::NoWrap);
     connect(outputPanel->commandOuput, &QTextBrowser::anchorClicked, outputPanel->commandOuput,
             [this](const QUrl &link) {
+                if (!link.isLocalFile()) {
+                    QDesktopServices::openUrl(link);
+                    return;
+                }
                 auto fileName = QFileInfo(link.toLocalFile()).filePath();
                 auto row = -1;
                 auto col = -1;

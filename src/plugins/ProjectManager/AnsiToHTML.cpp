@@ -62,6 +62,12 @@ auto appendAnsiHtml(QTextEdit *edit, const QString &ansiText) -> void {
     }
 }
 
+auto static isInsideAnchor(const QString &html, int pos) -> bool {
+    auto open = html.lastIndexOf("<a ", pos, Qt::CaseInsensitive);
+    auto close = html.lastIndexOf("</a>", pos, Qt::CaseInsensitive);
+    return open != -1 && (close == -1 || open > close);
+};
+
 auto linkifyFileNames(const QString &html) -> QString {
     auto pathRegex = QRegularExpression(
         R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
@@ -78,17 +84,9 @@ auto linkifyFileNames(const QString &html) -> QString {
         auto filePart = match.captured(1);
         auto line = match.captured(3).mid(1);
         auto column = match.captured(4).mid(1);
-
-        // Check if inside an anchor tag
-        auto insideAnchor = false;
-        auto anchorOpen = html.lastIndexOf("<a ", start, Qt::CaseInsensitive);
-        auto anchorClose = html.lastIndexOf("</a>", start, Qt::CaseInsensitive);
-        if (anchorOpen != -1 && (anchorClose == -1 || anchorOpen > anchorClose)) {
-            insideAnchor = true;
-        }
+        auto insideAnchor = isInsideAnchor(html, start);
 
         result += html.mid(lastPos, start - lastPos);
-
         if (insideAnchor) {
             result += fullMatch;
         } else {
@@ -118,6 +116,33 @@ auto linkifyFileNames(const QString &html) -> QString {
     }
     result += html.mid(lastPos);
     return result;
+}
+
+QString linkifyUrls(const QString &html) {
+    static const QRegularExpression urlRegex(
+        R"((([a-z][a-z0-9+\-.]*://[^\s<>"']+)|www\.[^\s<>"']+))",
+        QRegularExpression::CaseInsensitiveOption);
+
+    auto output = QString{};
+    auto lastPos = 0;
+    auto matchIter = urlRegex.globalMatch(html);
+    while (matchIter.hasNext()) {
+        auto match = matchIter.next();
+        auto start = match.capturedStart();
+        auto end = match.capturedEnd();
+
+        if (isInsideAnchor(html, start)) {
+            continue;
+        }
+        output += html.mid(lastPos, start - lastPos);
+        auto url = match.captured(0);
+        // Only prepend http:// if the url starts with www.
+        auto href = url.startsWith("www.", Qt::CaseInsensitive) ? "http://" + url : url;
+        output += "<a href=\"" + href.toHtmlEscaped() + "\">" + url.toHtmlEscaped() + "</a>";
+        lastPos = end;
+    }
+    output += html.mid(lastPos);
+    return output;
 }
 
 auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
@@ -178,6 +203,8 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
     while (!openTags.isEmpty()) {
         result += openTags.takeLast();
     }
+
+    result = linkifyUrls(result);
 
     if (linkifyFiles) {
         result = linkifyFileNames(result);
