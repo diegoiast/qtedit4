@@ -144,7 +144,12 @@ bool CargoOutputDetector::processLine(const QString &line, const QString &source
     } else {
         auto locationMatch = locationPattern.match(line);
         if (locationMatch.hasMatch()) {
-            currentStatus.fileName = sourceDir + QDir::separator() + locationMatch.captured(1);
+            auto fileName = locationMatch.captured(1);
+            if (!fileName.startsWith('\\') && !fileName.startsWith('/') && fileName[1] != ':') {
+                fileName = sourceDir + fileName;
+                return false;
+            }
+            currentStatus.fileName = fileName;
             currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();
             currentStatus.row = locationMatch.captured(2).toInt() - 1;
             currentStatus.col = locationMatch.captured(3).toInt() - 1;
@@ -183,10 +188,16 @@ bool GoLangOutputDetector::processLine(const QString &line, const QString &sourc
             m_compileStatuses.append(currentStatus);
         }
 
-        QString severity = errorMatch.hasMatch() ? "error" : "warning";
-        QRegularExpressionMatch match = errorMatch.hasMatch() ? errorMatch : warningMatch;
+        auto severity = errorMatch.hasMatch() ? "error" : "warning";
+        auto match = errorMatch.hasMatch() ? errorMatch : warningMatch;
 
-        currentStatus = CompileStatus{sourceDir + QDir::separator() + match.captured(1),
+        auto fileName = match.captured(1);
+        if (!fileName.startsWith('\\') && !fileName.startsWith('/') && fileName[1] != ':') {
+            fileName = sourceDir + fileName;
+            return false;
+        }
+
+        currentStatus = CompileStatus{fileName,
                                       QFileInfo(match.captured(1)).fileName(),
                                       match.captured(2).toInt() - 1,
                                       match.captured(3).toInt() - 1,
