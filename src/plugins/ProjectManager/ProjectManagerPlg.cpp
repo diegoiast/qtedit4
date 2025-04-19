@@ -9,8 +9,17 @@
 #include <QMessageBox>
 #include <QScrollBar>
 #include <QSettings>
+#include <QSocketNotifier>
 #include <QStandardPaths>
 #include <QTimer>
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+#include <fcntl.h>
+#include <stdlib.h>
+#include <sys/ioctl.h>
+#include <termios.h>
+#include <unistd.h>
+#endif
 
 #include <CommandPaletteWidget/CommandPalette>
 #include <qmdihost.h>
@@ -30,6 +39,8 @@
 #include "pluginmanager.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
+
+// #define USE_TTY_FOR_TASKS
 
 static auto str(QProcess::ExitStatus e) -> QString {
     switch (e) {
@@ -83,6 +94,67 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
     KitDetector::findQtVersions(KitDetector::platformUnix, qtVersionsFound, compilersFound);
     KitDetector::generateKitFiles(directoryPath, tools, compilersFound, qtVersionsFound,
                                   KitDetector::platformUnix);
+}
+
+static auto getCommandInterpreter(const QString &externalCommand)
+    -> std::tuple<QStringList, QString> {
+    QString interpreter;
+    QStringList command;
+
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    interpreter = "/bin/sh";
+    command << "-c" << externalCommand;
+#elif defined(_WIN32)
+    interpreter = qgetenv("COMSPEC");
+    command << "/k" << taskCommand;
+#else
+    interpreter = "???"; // Default fallback
+#endif
+
+    return {command, interpreter};
+}
+
+// Helper function to create a pseudo-terminal
+static auto setupPty(QProcess &process, int &masterFd) -> bool {
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+    masterFd = posix_openpt(O_RDWR | O_NOCTTY);
+    if (masterFd < 0) {
+        return false;
+    }
+
+    if (grantpt(masterFd) < 0) {
+        close(masterFd);
+        return false;
+    }
+
+    if (unlockpt(masterFd) < 0) {
+        close(masterFd);
+        return false;
+    }
+
+    char slaveName[512];
+    if (ptsname_r(masterFd, slaveName, sizeof(slaveName)) != 0) {
+        close(masterFd);
+        return false;
+    }
+
+    int slaveFd = open(slaveName, O_RDWR | O_NOCTTY);
+    if (slaveFd < 0) {
+        close(masterFd);
+        return false;
+    }
+
+    process.setStandardInputFile(QString::fromUtf8(slaveName));
+    process.setStandardOutputFile(QString::fromUtf8(slaveName));
+    process.setStandardErrorFile(QString::fromUtf8(slaveName));
+
+    close(slaveFd);
+    return true;
+#else
+    Q_UNUSED(process);
+    Q_UNUSED(masterFd);
+    return false;
+#endif
 }
 
 void ProjectBuildModel::addConfig(std::shared_ptr<ProjectBuildConfig> config) {
@@ -235,8 +307,8 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
 }
 
 void ProjectManagerPlugin::showAbout() {
-    QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), "About",
-                             "The project manager plugin");
+    QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), tr("About"),
+                             tr("The project manager plugin"));
 }
 
 void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
@@ -278,6 +350,10 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel = new Ui::BuildRunOutput;
     outputPanel->setupUi(w2);
     outputDock = manager->createNewPanel(Panels::South, "buildoutput", tr("Output"), w2);
+    outputPanel->commandOuput->setLineWrapMode(QTextEdit::LineWrapMode::NoWrap);
+    outputPanel->commandOuput->viewport()->setCursor(Qt::CursorShape::IBeamCursor);
+    outputPanel->commandOuput->setOpenExternalLinks(false);
+    outputPanel->commandOuput->setOpenLinks(false);
 
     auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel->commandOuput->setFont(font);
@@ -761,6 +837,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     auto hash = getConfigDictionary(project);
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto currentTask = expand(executablePath, hash);
+    auto [command, interpreter] = getCommandInterpreter(currentTask);
+
     auto workingDirectory = info->runDirectory;
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
@@ -771,21 +849,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     appendAnsiHtml(outputPanel->commandOuput, currentTask + "\n");
     outputDock->raise();
     outputDock->show();
-
-    auto command = QStringList();
-    auto interpreter = QString();
-#if defined(__linux__)
-    interpreter = "/bin/sh";
-    command.append("-c");
-    command.append(currentTask);
-#elif defined(_WIN32)
-    interpreter = qgetenv("COMSPEC");
-    command << "/k" << currentTask;
-#else
-    interpreter = "???";
-#endif
-    runProcess.start(interpreter, command);
     runProcess.setWorkingDirectory(workingDirectory);
+    runProcess.start(interpreter, command);
     if (!runProcess.waitForStarted()) {
         qWarning() << "Process failed to start";
     }
@@ -808,7 +873,6 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (workingDirectory.isEmpty()) {
         workingDirectory = buildDirectory;
     }
-
     workingDirectory = QDir::toNativeSeparators(workingDirectory);
     buildDirectory = QDir::toNativeSeparators(buildDirectory);
     sourceDirectory = QDir::toNativeSeparators(sourceDirectory);
@@ -817,37 +881,52 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputDock->show();
     outputPanel->commandOuput->clear();
     appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory);
+
+    auto env = QProcessEnvironment::systemEnvironment();
+    env.insert("FORCE_COLOR", "1");
+    env.insert("CLICOLOR_FORCE", "1");
+
+#if defined(USE_TTY_FOR_TASKS)
+    auto usingPty = false;
+    auto masterFd = -1;
+    usingPty = setupPty(runProcess, masterFd);
+    if (usingPty && masterFd >= 0) {
+        runProcess.setProcessChannelMode(QProcess::MergedChannels);
+        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
+        connect(notifier, &QSocketNotifier::activated, [this, masterFd]() {
+            char buffer[4096];
+            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
+            if (bytesRead > 0) {
+                buffer[bytesRead] = '\0';
+                auto data = QByteArray(buffer, bytesRead);
+                auto lines = QString::fromUtf8(data);
+                qDebug() << "Get from PTY" << lines;
+                processBuildOutput(lines);
+            }
+        });
+        env.insert("TERM", "xterm-256color)");
+    }
+#endif
+
     if (!kit) {
         // run the taskCommand directly in the native shell
-        auto command = QStringList();
-        auto interpreter = QString{};
-#if defined(__linux__)
-        interpreter = "/bin/sh";
-        command << "-c" << taskCommand;
-#elif defined(_WIN32)
-        interpreter = qgetenv("COMSPEC");
-        command << "/k" << taskCommand;
-#else
-        interpreter = "???";
-#endif
-        auto env = QProcessEnvironment::systemEnvironment();
+        auto [command, interpreter] = getCommandInterpreter(taskCommand);
         appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" "));
 
         runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProgram(interpreter);
         runProcess.setArguments(command);
-        runProcess.setProcessEnvironment(env);
     } else {
         // ask the active kit, to run the task
-        auto env = QProcessEnvironment::systemEnvironment();
         env.insert("run_directory", workingDirectory);
         env.insert("build_directory", buildDirectory);
         env.insert("source_directory", sourceDirectory);
         env.insert("task", taskCommand);
-        runProcess.setWorkingDirectory(workingDirectory);
-        runProcess.setProcessEnvironment(env);
         runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
+
+    runProcess.setWorkingDirectory(workingDirectory);
+    runProcess.setProcessEnvironment(env);
 
     auto manager = getManager();
     auto count = manager->visibleTabs();
@@ -1158,13 +1237,18 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
 }
 
 auto ProjectManagerPlugin::tryScrollOutput(int line) -> bool {
-    if (line < 0) {
+
+    auto browser = this->outputPanel->commandOuput;
+    if (!browser) {
         return false;
     }
 
-    auto browser = this->outputPanel->commandOuput;
-    auto doc = this->outputPanel->commandOuput->document();
+    const auto doc = browser->document();
     if (!doc) {
+        return false;
+    }
+
+    if (line < 0 || line >= doc->blockCount()) {
         return false;
     }
 
