@@ -11,11 +11,29 @@
 #include <QTabWidget>
 #include <QTimer>
 
+SplitterWithWidgetAdded::SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent)
+    : QSplitter(orientation, parent) {}
+
+void SplitterWithWidgetAdded::childEvent(QChildEvent *event) {
+    if (event->type() == QEvent::ChildAdded) {
+        auto addedWidget = qobject_cast<QWidget *>(event->child());
+        if (addedWidget) {
+            emit widgetAdded(addedWidget);
+        }
+    }
+    QSplitter::childEvent(event);
+}
+
 SplitTabWidget::SplitTabWidget(QWidget *parent)
     : QWidget(parent), splitter(new SplitterWithWidgetAdded(Qt::Horizontal, this)) {
     auto layout = new QHBoxLayout(this);
-    connect(splitter, &SplitterWithWidgetAdded::widgetAdded, this,
-            [this](QWidget *w) { onNewSplitCreated(w); });
+    connect(splitter, &SplitterWithWidgetAdded::widgetAdded, this, [this](QWidget *w) {
+        auto tab = qobject_cast<QTabWidget *>(w);
+        if (tab) {
+            auto count = splitter->count();
+            onNewSplitCreated(tab, count);
+        }
+    });
 
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -214,6 +232,11 @@ void SplitTabWidget::movePrevTab() {
     currentTabWidget->widget(widgetIndex)->setFocus();
 }
 
+void SplitTabWidget::setButtonProvider(ButtonsProvider *newProvider) {
+    this->buttonsProvider = newProvider;
+    // TODO - how do we modify existing tabs?
+}
+
 QWidget *SplitTabWidget::getCurrentWidget() {
     if (!currentTabWidget) {
         return nullptr;
@@ -234,6 +257,11 @@ void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
     }
 }
 
-void SplitTabWidget::onNewSplitCreated(QWidget *) {
-    // do nothing by default
+void SplitTabWidget::onNewSplitCreated(QTabWidget *tabWidget, int count) {
+    if (buttonsProvider) {
+        auto left = buttonsProvider->requestButton(true, count, this);
+        auto right = buttonsProvider->requestButton(false, count, this);
+        tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
+        tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+    }
 }

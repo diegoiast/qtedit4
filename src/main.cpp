@@ -70,6 +70,7 @@ int main(int argc, char *argv[]) {
 #if 1
     auto split = new qmdiSplitTab;
     auto splitAction = new QAction("Split tabs", split);
+    split->setButtonProvider(new DefaultButtonsProvider);
     splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
     QObject::connect(splitAction, &QAction::triggered, splitAction, [split, textEditorPlugin]() {
         split->splitHorizontally();

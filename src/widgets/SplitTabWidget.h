@@ -8,27 +8,24 @@
 #include <QWidget>
 
 class QTabWidget;
+class SplitTabWidget;
+
+class ButtonsProvider {
+  public:
+    virtual QWidget *requestButton(bool first, int tabSize, SplitTabWidget *split) = 0;
+};
 
 class SplitterWithWidgetAdded : public QSplitter {
     Q_OBJECT
 
   public:
-    SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent = nullptr)
-        : QSplitter(orientation, parent) {}
+    SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent = nullptr);
 
   signals:
     void widgetAdded(QWidget *widget);
 
   protected:
-    void childEvent(QChildEvent *event) override {
-        if (event->type() == QEvent::ChildAdded) {
-            QWidget *addedWidget = qobject_cast<QWidget *>(event->child());
-            if (addedWidget) {
-                emit widgetAdded(addedWidget);
-            }
-        }
-        QSplitter::childEvent(event);
-    }
+    void childEvent(QChildEvent *event) override;
 };
 
 class SplitTabWidget : public QWidget {
@@ -46,21 +43,23 @@ class SplitTabWidget : public QWidget {
     void closeCurrentTab();
     void moveNextTab();
     void movePrevTab();
+
+    void setButtonProvider(ButtonsProvider *newProvider);
+    inline ButtonsProvider *getButtonProvider() const { return buttonsProvider; }
     QWidget *getCurrentWidget();
     int getWigetsCountInCurrentSplit() const;
 
     virtual void onTabFocusChanged(QWidget *widget, bool focused);
-    virtual void onNewSplitCreated(QWidget *);
+    virtual void onNewSplitCreated(QTabWidget *tabWidget, int count);
 
     bool closeSplitWhenEmpty = true;
 
   protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
 
-  protected:
-    SplitterWithWidgetAdded *splitter;
+    SplitterWithWidgetAdded *splitter = nullptr;
     QTabWidget *currentTabWidget = nullptr;
-
+    ButtonsProvider *buttonsProvider = nullptr;
     void updateCurrentTabWidget(QTabWidget *newCurrent);
     void equalizeWidths();
 };

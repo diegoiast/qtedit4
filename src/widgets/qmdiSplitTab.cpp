@@ -1,14 +1,40 @@
+#include <QEvent>
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QSplitter>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QToolButton>
 
-#include <QEvent>
+#include <pluginmanager.h>
 #include <qmdiclient.h>
 #include <qmdihost.h>
 
 #include "widgets/qmdiSplitTab.h"
+
+QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
+
+    if (first) {
+        auto addNewMdiClient = new QToolButton(split);
+        addNewMdiClient->setAutoRaise(true);
+        addNewMdiClient->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
+        QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient, [manager]() {
+            if (manager) {
+                emit manager->newFileRequested();
+            }
+        });
+        return addNewMdiClient;
+    }
+
+    auto tabCloseBtn = new QToolButton(split);
+    tabCloseBtn->setAutoRaise(true);
+    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
+
+    Q_UNUSED(tabIndex);
+    return tabCloseBtn;
+}
 
 void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     SplitTabWidget::onTabFocusChanged(widget, focused);
@@ -87,11 +113,9 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
     return true;
 }
 
-void qmdiSplitTab::onNewSplitCreated(QWidget *w) {
-    auto tabWidget = qobject_cast<QTabWidget *>(w);
-    if (tabWidget) {
-        tabWidget->tabBar()->installEventFilter(this);
-    }
+void qmdiSplitTab::onNewSplitCreated(QTabWidget *tabWidget, int count) {
+    SplitTabWidget::onNewSplitCreated(tabWidget, count);
+    tabWidget->tabBar()->installEventFilter(this);
 }
 
 void qmdiSplitTab::addClient(qmdiClient *client) {

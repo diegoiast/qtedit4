@@ -3,13 +3,18 @@
 #include "SplitTabWidget.h"
 #include "qmdiserver.h"
 
+class DefaultButtonsProvider : public ButtonsProvider {
+  public:
+    virtual QWidget *requestButton(bool first, int tabIndex, SplitTabWidget *split);
+};
+
 class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
 
   public:
     // SplitTabWidget
     virtual void onTabFocusChanged(QWidget *widget, bool focused) override;
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
-    virtual void onNewSplitCreated(QWidget *) override;
+    virtual void onNewSplitCreated(QTabWidget *tabWidget, int count) override;
 
     // qmdiServer interface
     virtual void addClient(qmdiClient *client) override;
