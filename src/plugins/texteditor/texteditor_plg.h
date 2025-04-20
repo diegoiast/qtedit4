@@ -66,6 +66,7 @@ class TextEditorPlugin : public IPlugin {
   public slots:
     virtual void configurationHasBeenModified() override;
     void fileNew();
+    qmdiClient *fileNewEditor();
 
   private:
     QAction *chooseTheme;

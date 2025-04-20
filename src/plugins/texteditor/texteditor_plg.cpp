@@ -479,8 +479,13 @@ void TextEditorPlugin::configurationHasBeenModified() {
 }
 
 void TextEditorPlugin::fileNew() {
+    auto editor = fileNewEditor();
+    mdiServer->addClient(editor);
+}
+
+qmdiClient *TextEditorPlugin::fileNewEditor() {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     editor->setHistoryModel(historyModel);
-    mdiServer->addClient(editor);
     applySettings(editor);
+    return editor;
 }

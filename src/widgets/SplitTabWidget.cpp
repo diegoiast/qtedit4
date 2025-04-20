@@ -15,13 +15,13 @@ SplitterWithWidgetAdded::SplitterWithWidgetAdded(Qt::Orientation orientation, QW
     : QSplitter(orientation, parent) {}
 
 void SplitterWithWidgetAdded::childEvent(QChildEvent *event) {
+    QSplitter::childEvent(event);
     if (event->type() == QEvent::ChildAdded) {
         auto addedWidget = qobject_cast<QWidget *>(event->child());
         if (addedWidget) {
             emit widgetAdded(addedWidget);
         }
     }
-    QSplitter::childEvent(event);
 }
 
 SplitTabWidget::SplitTabWidget(QWidget *parent)
@@ -99,12 +99,41 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
         splitter->addWidget(currentTabWidget);
     }
     auto index = currentTabWidget->addTab(widget, label);
-    widget->setObjectName(label);
-    widget->installEventFilter(this);
     currentTabWidget->setCurrentIndex(index);
     currentTabWidget->setTabToolTip(index, tooltip);
+    widget->setObjectName(label);
+    widget->installEventFilter(this);
     widget->setFocus();
     onTabFocusChanged(currentTabWidget->currentWidget(), true);
+}
+
+void SplitTabWidget::addTabToSplit(int splitNumber, QWidget *widget, const QString &label,
+                                   const QString &tooltip) {
+    auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(splitNumber));
+    if (!tabWidget) {
+        return;
+    }
+
+    auto index = tabWidget->addTab(widget, label);
+    tabWidget->setCurrentIndex(index);
+    tabWidget->setTabToolTip(index, tooltip);
+    widget->setObjectName(label);
+    widget->installEventFilter(this);
+    widget->setFocus();
+    onTabFocusChanged(tabWidget->currentWidget(), true);
+}
+
+int SplitTabWidget::findSplitIndex(QTabWidget *w) {
+    for (auto i = 0; i < splitter->count(); i++) {
+        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(i));
+        if (!tabWidget) {
+            continue;
+        }
+        if (w == tabWidget) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void SplitTabWidget::moveTabToNewSplit(QWidget *widget) {

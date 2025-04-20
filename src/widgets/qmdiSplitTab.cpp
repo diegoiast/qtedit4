@@ -12,28 +12,36 @@
 
 #include "widgets/qmdiSplitTab.h"
 
+// This is not default, as close button on each tab takes space. Mid button click exists, right
+// button click brings a menu to close.
+#define CLOSABLE_TABS 0
+
 QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
+    Q_UNUSED(tabIndex);
     auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
         auto addNewMdiClient = new QToolButton(split);
         addNewMdiClient->setAutoRaise(true);
         addNewMdiClient->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
-        QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient, [manager]() {
-            if (manager) {
-                emit manager->newFileRequested();
-            }
-        });
+        QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient,
+                         [manager, addNewMdiClient]() {
+                             if (manager) {
+                                 emit manager->newFileRequested(addNewMdiClient);
+                             }
+                         });
         return addNewMdiClient;
     }
 
+#if CLOSABLE_TABS
     auto tabCloseBtn = new QToolButton(split);
     tabCloseBtn->setAutoRaise(true);
     tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
     QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
-
-    Q_UNUSED(tabIndex);
     return tabCloseBtn;
+#else
+    return nullptr;
+#endif
 }
 
 void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
@@ -115,7 +123,21 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
 
 void qmdiSplitTab::onNewSplitCreated(QTabWidget *tabWidget, int count) {
     SplitTabWidget::onNewSplitCreated(tabWidget, count);
+    qDebug() << "Added tab " << count << tabWidget;
     tabWidget->tabBar()->installEventFilter(this);
+
+#if CLOSABLE_TABS
+    tabWidget->setTabsClosable(true);
+    connect(tabWidget, &QTabWidget::tabCloseRequested, tabWidget, [this, tabWidget](int index) {
+        auto widget = tabWidget->widget(index);
+        auto client = dynamic_cast<qmdiClient *>(widget);
+        if (!client) {
+            delete widget;
+            return;
+        }
+        client->closeClient();
+    });
+#endif
 }
 
 void qmdiSplitTab::addClient(qmdiClient *client) {

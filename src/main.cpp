@@ -112,7 +112,23 @@ int main(int argc, char *argv[]) {
     pluginManager.show();
 
     pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
-                          [textEditorPlugin]() { textEditorPlugin->fileNew(); });
+                          [&pluginManager, textEditorPlugin, split](QObject *s) {
+                              auto tab = qobject_cast<QTabWidget *>(s->parent());
+                              auto index = split->findSplitIndex(tab);
+                              qDebug() << "sender tab is" << tab << "split" << index;
+                              if (!tab || index < 0) {
+                                  textEditorPlugin->fileNew();
+                                  return;
+                              }
+
+                              // we know where exactly to put this
+                              auto client = textEditorPlugin->fileNewEditor();
+                              auto editor = dynamic_cast<QWidget *>(client);
+                              split->addTabToSplit(index, editor, client->mdiClientName,
+                                                   client->mdiClientFileName());
+                              client->mdiServer = pluginManager.getMdiServer();
+                              editor->setFocus();
+                          });
 
     pluginManager.openFiles(parser.positionalArguments());
     return app.exec();
