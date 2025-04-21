@@ -6,11 +6,23 @@
 
 // SPDX-License-Identifier: MIT
 
+#include <QApplication>
+#include <QColor>
 #include <QEvent>
+#include <QFontMetrics>
+#include <QGraphicsDropShadowEffect>
+#include <QLinearGradient>
 #include <QMainWindow>
+#include <QMenu>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPushButton>
+#include <QSize>
 #include <QSplitter>
-#include <QTabBar>
+#include <QString>
+#include <QStyle>
+#include <QStyleOptionMenuItem>
 #include <QTabWidget>
 #include <QTimer>
 #include <QToolButton>
@@ -26,39 +38,173 @@
 // button click brings a menu to close.
 #define CLOSABLE_TABS 0
 
+class DecoratedButton : public QPushButton {
+  public:
+    explicit DecoratedButton(const QString &text, QWidget *parent = nullptr);
+    QSize minimumSizeHint() const override;
+
+  protected:
+    bool hovering;
+    bool pressed;
+    virtual void enterEvent(QEnterEvent *event) override;
+    virtual void leaveEvent(QEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void paintEvent(QPaintEvent *event) override;
+};
+
+class DecoratedMenu : public QMenu {
+  public:
+    explicit DecoratedMenu(const QString &sidebarText, QWidget *parent = nullptr);
+
+  protected:
+    void paintEvent(QPaintEvent *event) override;
+
+  private:
+    QString m_sidebarText;
+    int m_sidebarWidth;
+};
+
+DecoratedMenu::DecoratedMenu(const QString &sidebarText, QWidget *parent)
+    : QMenu(parent), m_sidebarText(sidebarText) {
+    m_sidebarWidth = style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this);
+    setObjectName("fancyShmancyMenu");
+}
+
+void DecoratedMenu::paintEvent(QPaintEvent *event) {
+    QMenu::paintEvent(event);
+
+    auto p = QPainter(this);
+    auto sidebarRect = QRect(0, 0, m_sidebarWidth, height());
+    auto grad = QLinearGradient(sidebarRect.topLeft(), sidebarRect.bottomLeft());
+    auto sidebarColor = palette().color(QPalette::Highlight);
+    grad.setColorAt(0, sidebarColor);
+    grad.setColorAt(1, sidebarColor.lighter(150));
+
+    p.fillRect(sidebarRect, grad);
+    p.save();
+    p.translate(sidebarRect.center());
+    p.rotate(-90);
+    auto rotatedRect = QRect(-sidebarRect.height() / 2, -sidebarRect.width() / 2,
+                             sidebarRect.height(), sidebarRect.width());
+
+    p.setPen(Qt::darkGray);
+    p.translate(-1, +1);
+    p.drawText(rotatedRect, Qt::AlignCenter, m_sidebarText);
+    p.translate(+2, -2);
+    p.setPen(Qt::white);
+    p.drawText(rotatedRect, Qt::AlignCenter, m_sidebarText);
+    p.restore();
+}
+
 QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
-    Q_UNUSED(tabIndex);
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
+    auto isMinimizedMode = manager->isInMinimizedMode();
+    if (isMinimizedMode && tabIndex == 0) {
+        return getFirstTabButtons(first, split);
+    }
+    return getNonFirstTabButtons(first, split);
+}
+
+QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *split) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
-        auto addbutton = new QToolButton(split);
-        addbutton->setAutoRaise(true);
-        addbutton->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
-        QObject::connect(addbutton, &QAbstractButton::clicked, addbutton, [addbutton, split]() {
-            auto manager = dynamic_cast<PluginManager *>(split->parent());
-            auto tab = qobject_cast<QTabWidget *>(addbutton->parentWidget());
-            if (tab) {
-                split->updateCurrentTabWidget(tab);
-            }
-            if (manager) {
-                emit manager->newFileRequested(addbutton);
+#if 0
+        auto appMenuButton = new DecoratedButton(QApplication::applicationName(), split);
+#else
+        auto appMenuButton = new QToolButton(split);
+        appMenuButton->setObjectName("fancyShmancyMenu");
+        appMenuButton->setIcon(split->windowIcon());
+        appMenuButton->setText(QApplication::applicationName());
+        appMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        appMenuButton->setPopupMode(QToolButton::InstantPopup);
+        appMenuButton->setAutoRaise(true);
+
+        auto appHighlightColor = qApp->palette().color(QPalette::Highlight);
+        auto b = appHighlightColor.lighter();
+        b.setAlpha(180);
+
+        auto highlightedStyle = QString("QToolButton { background-color: %1 }"
+                                        "QToolButton:hover { background-color: %2 }"
+                                        "QToolButton:pressed { background-color: %2 }")
+                                    .arg(b.name(QColor::HexArgb))
+                                    .arg(appHighlightColor.name(QColor::HexArgb));
+        appMenuButton->setStyleSheet(highlightedStyle);
+
+#endif
+
+        auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
+        auto menu = manager->menus.updatePopMenu(popup);
+        appMenuButton->setMenu(menu);
+
+        auto action = new QAction(appMenuButton);
+        action->setShortcuts({Qt::ALT | Qt::Key_M, Qt::ALT | Qt::Key_Atilde});
+        action->setShortcutContext(Qt::ApplicationShortcut);
+        QObject::connect(action, &QAction::triggered, appMenuButton, [appMenuButton] {
+            if (appMenuButton->menu() && appMenuButton->menu()->isVisible()) {
+                appMenuButton->menu()->close();
+            } else if (appMenuButton->menu()) {
+                appMenuButton->showMenu();
             }
         });
-        return addbutton;
+
+        if (appMenuAction) {
+            manager->removeAction(appMenuAction);
+        }
+        manager->addAction(action);
+        appMenuAction = action;
+
+        appMenuButton->setToolTip(
+            manager->tr("Application menu %1").arg(appMenuAction->shortcut().toString()));
+        QObject::connect(appMenuButton, &QObject::destroyed, split, [this, action]() {
+            if (appMenuAction == action) {
+                appMenuAction = nullptr;
+            }
+        });
+
+        return appMenuButton;
     }
 
-#if !CLOSABLE_TABS
-    auto closeButton = new QToolButton(split);
-    closeButton->setAutoRaise(true);
-    closeButton->setIcon(QIcon::fromTheme("document-close"));
-    QObject::connect(closeButton, &QAbstractButton::clicked, closeButton, [closeButton, split]() {
-        auto manager = dynamic_cast<PluginManager *>(split->parent());
-        auto tab = qobject_cast<QTabWidget *>(closeButton->parentWidget());
-        if (tab) {
-            split->updateCurrentTabWidget(tab);
-        }
-        manager->closeClient();
-    });
-    return closeButton;
+#if not CLOSABLE_TABS
+    auto tabCloseBtn = new QToolButton(split);
+    tabCloseBtn->setObjectName("simple-close-button");
+    tabCloseBtn->setAutoRaise(true);
+    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
+    return tabCloseBtn;
+#else
+    return nullptr;
+#endif
+}
+
+QWidget *DefaultButtonsProvider::getNonFirstTabButtons(bool first, SplitTabWidget *split) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
+
+    if (first) {
+        auto tabNewBtn = new QToolButton(split);
+        tabNewBtn->setObjectName("newDocumentSplitButton");
+        tabNewBtn->setAutoRaise(true);
+        tabNewBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
+        QObject::connect(tabNewBtn, &QAbstractButton::clicked, tabNewBtn,
+                         [manager, tabNewBtn, split]() {
+                             auto tab = qobject_cast<QTabWidget *>(tabNewBtn->parentWidget());
+                             if (tab) {
+                                 split->updateCurrentTabWidget(tab);
+                             }
+                             if (manager) {
+                                 emit manager->newFileRequested(tabNewBtn);
+                             }
+                         });
+        return tabNewBtn;
+    }
+
+#if not CLOSABLE_TABS
+    auto tabCloseBtn = new QToolButton(split);
+    tabCloseBtn->setAutoRaise(true);
+    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
+    return tabCloseBtn;
 #else
     return nullptr;
 #endif
@@ -107,6 +253,26 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     auto index = getCurrentClientIndex();
     mdiHost->updateGUI(m);
     mdiSelected(client, index);
+
+    if (auto firstTab = qobject_cast<QTabWidget *>(splitter->widget(0))) {
+        if (auto button = qobject_cast<QToolButton *>(firstTab->cornerWidget(Qt::TopLeftCorner))) {
+            auto menu = new DecoratedMenu(QApplication::applicationName(), this);
+            mdiHost->menus.updatePopMenu(menu);
+            button->setMenu(menu);
+        };
+    }
+}
+
+bool qmdiSplitTab::event(QEvent *ev) {
+    if (ev->type() == QEvent::ParentChange) {
+        // when minimized mode changes, modify buttons for each tab
+        auto manager = dynamic_cast<PluginManager *>(parentWidget());
+        if (manager) {
+            connect(manager, &PluginManager::minimizedModeChanged, this,
+                    &SplitTabWidget::onSplitCountMaybeChanged);
+        }
+    }
+    return QWidget::event(ev);
 }
 
 bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
@@ -394,4 +560,110 @@ QTabWidget *qmdiSplitTab::tabWidgetFromIndex(int globalIndex, int &localIndex) c
 
     localIndex = -1;
     return nullptr;
+}
+
+DecoratedButton::DecoratedButton(const QString &text, QWidget *parent)
+    : QPushButton(parent), hovering(false), pressed(false) {
+    setCursor(Qt::PointingHandCursor);
+    setText(text);
+}
+
+QSize DecoratedButton::minimumSizeHint() const {
+    auto fm = QFontMetrics(font());
+    auto textWidth = fm.horizontalAdvance(text()) + 10;
+    auto textHeight = fm.height();
+
+    // Minimum 120x40
+    return QSize(qMax(120, textWidth), qMax(40, textHeight + 10));
+}
+
+void DecoratedButton::enterEvent(QEnterEvent *event) {
+    hovering = true;
+    update();
+    QPushButton::enterEvent(event);
+}
+
+void DecoratedButton::leaveEvent(QEvent *event) {
+    hovering = false;
+    update();
+    QPushButton::leaveEvent(event);
+}
+
+void DecoratedButton::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        pressed = true;
+        update();
+    }
+    QPushButton::mousePressEvent(event);
+}
+
+void DecoratedButton::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        pressed = false;
+        update();
+    }
+    QPushButton::mouseReleaseEvent(event);
+}
+
+void DecoratedButton::paintEvent(QPaintEvent *event) {
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    // --- Background Gradient ---
+    QColor startColor = QColor("#44ee44");
+    QColor endColor = startColor.lighter();
+
+    if (pressed) {
+        startColor = startColor.darker(140); // 40% darker
+        endColor = endColor.darker(140);
+    } else if (hovering) {
+        startColor = startColor.darker(115); // 15% darker
+        endColor = endColor.darker(115);
+    }
+
+    QLinearGradient bgGradient(0, 0, width(), height());
+    bgGradient.setColorAt(0.0, startColor);
+    bgGradient.setColorAt(1.0, endColor);
+
+    QRectF bgRect = rect();
+    QPainterPath path;
+    path.addRoundedRect(bgRect, 4, 4);
+    painter.fillPath(path, bgGradient);
+
+    // --- Shadow Effect (when hovered) ---
+    if (hovering) {
+        QGraphicsDropShadowEffect shadowEffect;
+        shadowEffect.setOffset(0, 3); // Make the shadow drop a little lower
+        shadowEffect.setBlurRadius(8);
+        shadowEffect.setColor(QColor(0, 0, 0, 80)); // Slightly transparent shadow
+        painter.setOpacity(1); // Draw without transparency for proper shadow effect
+        // shadowEffect.drawSource(&painter);
+    }
+
+    // --- Hamburger Icon ---
+    QPen pen;
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setWidth(4);
+
+    // Line 1: white + light gray split
+    pen.setColor(Qt::white);
+    painter.setPen(pen);
+    painter.drawLine(8, 12, 10, 12);
+
+    pen.setColor(QColor("#eeeeee"));
+    painter.setPen(pen);
+    painter.drawLine(15, 12, 26, 12);
+
+    // Lines 2 and 3: green
+    pen.setColor(QColor("#4ee44e"));
+    painter.setPen(pen);
+    painter.drawLine(8, 20, 26, 20);
+    painter.drawLine(8, 28, 26, 28);
+
+    // --- Text (from QPushButton) ---
+    painter.setPen(Qt::white);
+    QFont font("Arial", 10);
+    painter.setFont(font);
+    QRect textRect(32, 0, width() - 32, height());
+    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, text());
 }

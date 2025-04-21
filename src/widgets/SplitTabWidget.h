@@ -138,7 +138,7 @@ class SplitTabWidget : public QWidget {
     ButtonsProvider *buttonsProvider = nullptr;
     void equalizeWidths();
 
-  private slots:
+  public slots:
     void onSplitCountMaybeChanged();
 
   public:
