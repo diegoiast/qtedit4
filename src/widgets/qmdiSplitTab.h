@@ -8,12 +8,26 @@
 
 #pragma once
 
+#include <QPainter>
+#include <QPushButton>
+#include <QSize>
+#include <QSplitter>
+#include <QTabBar>
+#include <QTabWidget>
+#include <QToolButton>
+
 #include "SplitTabWidget.h"
 #include "qmdiserver.h"
 
 class DefaultButtonsProvider : public ButtonsProvider {
   public:
     virtual QWidget *requestButton(bool first, int tabIndex, SplitTabWidget *split);
+
+    QWidget *getFirstTabButtons(bool first, SplitTabWidget *split);
+    QWidget *getNonFirstTabButtons(bool first, SplitTabWidget *split);
+
+  private:
+    QAction *appMenuAction = nullptr;
 };
 
 class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
@@ -23,6 +37,7 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     // SplitTabWidget
     qmdiSplitTab(QWidget *parent = nullptr);
     virtual void onTabFocusChanged(QWidget *widget, bool focused) override;
+    virtual bool event(QEvent *ev) override;
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
     virtual void onNewSplitCreated(QTabWidget *tabWidget, int count) override;
 
