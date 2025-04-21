@@ -393,7 +393,6 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
 
     auto newWidget = splitter->widget(currentIndex);
     auto newTab = qobject_cast<QTabWidget *>(newWidget);
-
     updateCurrentTabWidget(newTab);
     equalizeWidths();
 
@@ -626,9 +625,19 @@ void SplitTabWidget::onSplitCountMaybeChanged() {
     for (auto i = 0; i < splitter->count(); ++i) {
         auto tabWidget = qobject_cast<DraggableTabWidget *>(splitter->widget(i));
         if (tabWidget) {
-            auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar());
-            if (tabBar) {
+            if (auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar())) {
                 tabBar->setDragAndDropEnabled(enableDragAndDrop);
+            }
+
+            if (buttonsProvider) {
+                auto left = buttonsProvider->requestButton(true, i, this);
+                auto right = buttonsProvider->requestButton(false, i, this);
+                left->setParent(tabWidget);
+                right->setParent(tabWidget);
+                left->show();
+                right->show();
+                tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
+                tabWidget->setCornerWidget(right, Qt::TopRightCorner);
             }
         }
     }
