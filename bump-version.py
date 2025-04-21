@@ -109,6 +109,20 @@ def reformat_json(json_file):
         json.dump(data, f, indent=3)
     print(f"Reformatted {json_file}")
 
+def update_build_sh(build_sh_path, app_version=None, qt_version=None):
+    with open(build_sh_path, 'r', encoding='utf-8') as f:
+        lines = f.readlines()
+    new_lines = []
+    for line in lines:
+        if app_version and line.strip().startswith('APP_VERSION='):
+            new_lines.append(f'APP_VERSION="{app_version}"\n')
+        elif qt_version and line.strip().startswith('QT_VERSION='):
+            new_lines.append(f'QT_VERSION="{qt_version}"\n')
+        else:
+            new_lines.append(line)
+    with open(build_sh_path, 'w', encoding='utf-8') as f:
+        f.writelines(new_lines)
+
 def main():
     parser = argparse.ArgumentParser(description='Update version numbers across project files')
     parser.add_argument('new_version', nargs='?', help='New version number to set')
@@ -119,6 +133,7 @@ def main():
     parser.add_argument('--iss', default='setup_script.iss', help='Path to .iss file')
     parser.add_argument('--cpp', default='src/main.cpp', help='Path to main.cpp file')
     parser.add_argument('--json', default='updates.json', help='Path to updates.json file')
+    parser.add_argument('--build-sh', default='build.sh', help='Path to build.sh file')
     args = parser.parse_args()
 
     iss_file = args.iss
@@ -145,9 +160,12 @@ def main():
     # Print versions after update
     print_versions('Updated Versions', iss_file, cpp_file, json_file)
 
+    # Patch up build.sh
+    update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
+
     # Stage files for git only if --git is specified
     if args.git:
-        git_add([iss_file, cpp_file, json_file])
+        git_add([iss_file, cpp_file, json_file, args.build_sh])
 
 if __name__ == "__main__":
     main()
