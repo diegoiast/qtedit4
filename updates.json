@@ -12,6 +12,7 @@
          "latest-version": "0.0.9-alpha1",
          "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-alpha1/qtedit4-qt6.8.3-v0.0.9-alpha1-x86_64.exe",
          "changelog": "Various cleanups and fixes, split UI support, better file search",
+         "changelog": "CTags support, color builds",
          "mandatory": true
       },
       "linux": {
@@ -25,7 +26,7 @@
          "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9-alpha1",
          "latest-version": "0.0.9-alpha1",
          "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-alpha1/qtedit4-qt6.8.3-v0.0.9-alpha1-x86_64.AppImage",
-         "changelog": "Various cleanups and fixes, split UI support, better file search",
+         "changelog": "CTags support, color builds",
          "mandatory": true
       }
    }
