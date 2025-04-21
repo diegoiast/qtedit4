@@ -1,7 +1,32 @@
 #pragma once
 
+#include <QPainter>
+#include <QPushButton>
+#include <QSize>
+#include <QSplitter>
+#include <QTabBar>
+#include <QTabWidget>
+#include <QToolButton>
+
 #include "SplitTabWidget.h"
 #include "qmdiserver.h"
+
+class CustomMenuButton : public QPushButton {
+    Q_OBJECT
+
+  public:
+    explicit CustomMenuButton(const QString &text, QWidget *parent = nullptr);
+    QSize minimumSizeHint() const override;
+
+  protected:
+    bool hovering;
+    bool pressed;
+    virtual void enterEvent(QEnterEvent *event) override;
+    virtual void leaveEvent(QEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void paintEvent(QPaintEvent *event) override;
+};
 
 class DefaultButtonsProvider : public ButtonsProvider {
   public:

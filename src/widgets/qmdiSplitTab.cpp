@@ -1,6 +1,14 @@
+#include <QApplication>
 #include <QEvent>
+#include <QFontMetrics>
+#include <QGraphicsDropShadowEffect>
+#include <QLinearGradient>
 #include <QMainWindow>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
+#include <QPushButton>
+#include <QSize>
 #include <QSplitter>
 #include <QTabBar>
 #include <QTabWidget>
@@ -21,8 +29,8 @@ QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTa
     auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
-        auto addNewMdiClient = new QToolButton(split);
-        addNewMdiClient->setAutoRaise(true);
+        auto addNewMdiClient = new CustomMenuButton(QApplication::applicationName(), split);
+        // addNewMdiClient->setAutoRaise(true);
         addNewMdiClient->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
         QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient,
                          [manager, addNewMdiClient]() {
@@ -309,4 +317,111 @@ int qmdiSplitTab::computeLeading(QTabWidget *w) {
         leadingIndex += tabWidget->count();
     }
     return leadingIndex;
+}
+
+CustomMenuButton::CustomMenuButton(const QString &text, QWidget *parent)
+    : QPushButton(parent), hovering(false), pressed(false) {
+    setCursor(Qt::PointingHandCursor);
+    setText(text); // We'll draw the text manually based on the button's current text
+}
+
+QSize CustomMenuButton::minimumSizeHint() const {
+    // Get font metrics for the current text
+    QFontMetrics fm(font());
+    int textWidth = fm.horizontalAdvance(text()) + 10; // Add padding to the text width
+    int textHeight = fm.height();
+
+    // Button height should accommodate the text height + padding
+    return QSize(qMax(120, textWidth), qMax(40, textHeight + 10)); // Minimum 120x40
+}
+
+void CustomMenuButton::enterEvent(QEnterEvent *event) {
+    hovering = true;
+    update();
+    QPushButton::enterEvent(event);
+}
+
+void CustomMenuButton::leaveEvent(QEvent *event) {
+    hovering = false;
+    update();
+    QPushButton::leaveEvent(event);
+}
+
+void CustomMenuButton::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        pressed = true;
+        update();
+    }
+    QPushButton::mousePressEvent(event);
+}
+
+void CustomMenuButton::mouseReleaseEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        pressed = false;
+        update();
+    }
+    QPushButton::mouseReleaseEvent(event);
+}
+
+void CustomMenuButton::paintEvent(QPaintEvent *event) {
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+
+    // --- Background Gradient ---
+    QColor startColor = QColor("#41cd52");
+    QColor endColor = QColor("#41cd52");
+
+    if (pressed) {
+        startColor = startColor.darker(140); // 40% darker
+        endColor = endColor.darker(140);
+    } else if (hovering) {
+        startColor = startColor.darker(115); // 15% darker
+        endColor = endColor.darker(115);
+    }
+
+    QLinearGradient bgGradient(0, 0, width(), height());
+    bgGradient.setColorAt(0.0, startColor);
+    bgGradient.setColorAt(1.0, endColor);
+
+    QRectF bgRect = rect();
+    QPainterPath path;
+    path.addRoundedRect(bgRect, 4, 4);
+    painter.fillPath(path, bgGradient);
+
+    // --- Shadow Effect (when hovered) ---
+    if (hovering) {
+        QGraphicsDropShadowEffect shadowEffect;
+        shadowEffect.setOffset(0, 3); // Make the shadow drop a little lower
+        shadowEffect.setBlurRadius(8);
+        shadowEffect.setColor(QColor(0, 0, 0, 80)); // Slightly transparent shadow
+        painter.setOpacity(1); // Draw without transparency for proper shadow effect
+        // shadowEffect.drawSource(&painter);
+    }
+
+    // --- Hamburger Icon ---
+    QPen pen;
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setWidth(4);
+
+    // Line 1: white + light gray split
+    pen.setColor(Qt::white);
+    painter.setPen(pen);
+    painter.drawLine(8, 12, 10, 12);
+
+    pen.setColor(QColor("#eeeeee"));
+    painter.setPen(pen);
+    painter.drawLine(15, 12, 26, 12);
+
+    // Lines 2 and 3: green
+    pen.setColor(QColor("#4ee44e"));
+    painter.setPen(pen);
+    painter.drawLine(8, 20, 26, 20);
+    painter.drawLine(8, 28, 26, 28);
+
+    // --- Text (from QPushButton) ---
+    painter.setPen(Qt::white);
+    QFont font("Arial", 14);
+    painter.setFont(font);
+    QRect textRect(32, 0, width() - 32, height());
+    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, text());
 }
