@@ -357,6 +357,7 @@ void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString
 void SplitTabWidget::splitHorizontally() {
     auto currentIndex = splitter->indexOf(currentTabWidget);
     auto newTabWidget = new DraggableTabWidget(this);
+    newTabWidget->setObjectName(QString("tabWidget#%1").arg(currentIndex + 1));
     newTabWidget->setDocumentMode(true);
     newTabWidget->setMovable(true);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
@@ -387,13 +388,13 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
         currentIndex = currentIndex - 1;
     } else {
         currentTabWidget = nullptr;
-        onTabFocusChanged(nullptr, false);
+        emit onTabFocusChanged(nullptr, false);
+        QTimer::singleShot(0, this, [this]() { emit onSplitCountMaybeChanged(); });
         return;
     }
 
     auto newWidget = splitter->widget(currentIndex);
     auto newTab = qobject_cast<QTabWidget *>(newWidget);
-
     updateCurrentTabWidget(newTab);
     equalizeWidths();
 
@@ -630,9 +631,38 @@ void SplitTabWidget::onSplitCountMaybeChanged() {
     for (auto i = 0; i < splitter->count(); ++i) {
         auto tabWidget = qobject_cast<DraggableTabWidget *>(splitter->widget(i));
         if (tabWidget) {
-            auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar());
-            if (tabBar) {
+            if (auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar())) {
                 tabBar->setDragAndDropEnabled(enableDragAndDrop);
+            }
+
+            if (buttonsProvider) {
+                if (auto oldWidget = tabWidget->cornerWidget(Qt::TopLeftCorner)) {
+                    oldWidget->deleteLater();
+                }
+                if (auto oldWidget = tabWidget->cornerWidget(Qt::TopRightCorner)) {
+                    oldWidget->deleteLater();
+                }
+
+                auto left = buttonsProvider->requestButton(true, i, this);
+                auto right = buttonsProvider->requestButton(false, i, this);
+                if (left) {
+                    left->setParent(tabWidget);
+                    left->show();
+                }
+                if (right) {
+                    right->setParent(tabWidget);
+                    right->show();
+                }
+                tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
+                tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+#if 0
+                qDebug() << QString("Adding to widget=%1@left -> %2")
+                                .arg(tabWidget->objectName())
+                                .arg(left->objectName());
+                qDebug() << QString("Adding to widget=%1@right -> %2")
+                                .arg(tabWidget->objectName())
+                                .arg(right->objectName());
+#endif
             }
         }
     }
