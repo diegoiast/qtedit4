@@ -1,33 +1,32 @@
 {
-   "updates":{
-      "windows":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version":"0.0.8",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
+   "updates": {
+      "windows": {
+         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+         "latest-version": "0.0.8",
+         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
          "changelog": "Various cleanups and fixes",
-         "mandatory":true
+         "mandatory": true
       },
-      "windows-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version":"0.0.8",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
+      "windows-testing": {
+         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+         "latest-version": "0.0.8",
+         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
          "changelog": "Various cleanups and fixes, split UI support, better file search",
-         "mandatory":true
+         "mandatory": true
       },
-      "linux":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version":"0.0.8",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.AppImage",
+      "linux": {
+         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+         "latest-version": "0.0.8",
+         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.AppImage",
          "changelog": "Various cleanups and fixes",
-         "mandatory":true
+         "mandatory": true
       },
-      "linux-testing":{
-         "open-url":"https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version":"0.0.8",
-         "download-url":"https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8
--x86_64.AppImage",
+      "linux-testing": {
+         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+         "latest-version": "0.0.8",
+         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.AppImage",
          "changelog": "Various cleanups and fixes, split UI support, better file search",
-         "mandatory":true
+         "mandatory": true
       }
    }
 }
