@@ -861,7 +861,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     workingDirectory = expand(workingDirectory, hash);
     outputPanel->commandOuput->clear();
     appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
-    appendAnsiHtml(outputPanel->commandOuput, currentTask + "\n");
+    appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(currentTask));
     outputDock->raise();
     outputDock->show();
     runProcess.setWorkingDirectory(workingDirectory);
@@ -895,7 +895,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputDock->raise();
     outputDock->show();
     outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory);
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory + "\n");
 
     auto env = QProcessEnvironment::systemEnvironment();
     env.insert("FORCE_COLOR", "1");

@@ -72,17 +72,9 @@ auto appendAscii(QTextEdit *edit, const QString &ansiText) -> void {
 auto appendAnsiHtml(QTextEdit *edit, const QString &ansiText) -> void {
     auto html = ansiToHtml(ansiText, true);
     edit->moveCursor(QTextCursor::End);
-    // edit->insertHtml(html + "<br>");
     edit->insertHtml(html);
-
-    const auto blockCount = edit->document()->blockCount();
-    const auto lastBlock = edit->document()->findBlockByNumber(blockCount - 1);
-    if (lastBlock.isValid()) {
-        QTextCursor cursor(lastBlock);
-        cursor.movePosition(QTextCursor::StartOfBlock);
-        edit->setTextCursor(cursor);
-        // edit->centerCursor();
-    }
+    edit->moveCursor(QTextCursor::End);
+    edit->ensureCursorVisible();
 }
 
 auto static isInsideAnchor(const QString &html, int pos) -> bool {
