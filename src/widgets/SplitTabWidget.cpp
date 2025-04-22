@@ -38,6 +38,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    // fixme: port this to be splitHorizontally
     // Without this - event listener does not work, and menus don't work
     QTimer::singleShot(0, [this]() {
         currentTabWidget = new QTabWidget(this);
@@ -92,6 +93,7 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
                                           const QString &tooltip) {
     if (!currentTabWidget) {
+        // fixme: port this to be splitHorizontally
         currentTabWidget = new QTabWidget(this);
         currentTabWidget->installEventFilter(this);
         currentTabWidget->setDocumentMode(true);
@@ -200,7 +202,8 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
         if (widget && parent) {
             auto tabWidget = qobject_cast<QTabWidget *>(parent->parentWidget());
             if (tabWidget) {
-                if (tabWidget->count() == 1) {
+                // Only close the split if it's a ChildRemoved event and we're down to 1 tab
+                if (event->type() == QEvent::ChildRemoved && tabWidget->count() == 1) {
                     if (closeSplitWhenEmpty) {
                         closeSplitWithTabWidget(tabWidget);
                     }
