@@ -250,9 +250,9 @@ int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) c
 
 CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs &args) {
     if (command == GlobalCommands::BuildFinished) {
-        auto sourceDir = args["sourceDir"].toString();
-        auto buildDirectory = args["buildDirectory"].toString();
-        auto projectName = args["projectName"].toString();
+        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+        auto projectName = args[GlobalArguments::Name].toString();
         newProjectBuilt(projectName, sourceDir, buildDirectory);
     }
 
@@ -288,21 +288,17 @@ void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
 
 void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sourceDir,
                                   const QString &buildDirectory) {
-    CTagsLoader *ctags = nullptr;
     if (projectName.isEmpty() || buildDirectory.isEmpty()) {
         return;
     }
 
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
-    if (projects.contains(nativeSourceDir)) {
-        ctags = projects.value(nativeSourceDir);
-    } else {
-        ctags = new CTagsLoader(ctagsBinary.toStdString());
-        projects[nativeSourceDir] = ctags;
+    if (!projects.contains(nativeSourceDir)) {
+        projects[nativeSourceDir] = new CTagsLoader(ctagsBinary.toStdString());
     }
 
-    auto ctagsFile =
-        QDir::toNativeSeparators(buildDirectory) + QDir::separator() + projectName + ".tags";
+    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
+    auto ctags = projects[nativeSourceDir];
     ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
     ctags->loadFile(ctagsFile.toStdString());
 }
@@ -311,7 +307,7 @@ void CTagsPlugin::projectRemoved(const QString &projectName, const QString &sour
                                  const QString &buildDirectory) {
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
     if (!projects.contains(nativeSourceDir)) {
-        qDebug() << "CTAGS: Tried unloading project, but not found" << nativeSourceDir
+        qDebug() << "CTagsPlugin: Tried unloading project, but not found" << nativeSourceDir
                  << projectName << buildDirectory;
         return;
     }
@@ -326,7 +322,7 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
     // project should be loaded first, something is borked
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
     if (!projects.contains(nativeSourceDir)) {
-        qDebug() << "Project build, but not added first! ctags will not support it"
+        qDebug() << "CTagsPlugin: Project build, but not added first! ctags will not support it"
                  << nativeSourceDir;
         return;
     }
@@ -347,7 +343,8 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     }
 
     if (!project) {
-        qDebug() << fileName << "did not find project, will not return symbol info";
+        qDebug() << "CTagsPlugin: " << fileName
+                 << "did not find project, will not return symbol info";
         return {};
     }
 

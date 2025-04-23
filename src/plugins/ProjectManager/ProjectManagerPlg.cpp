@@ -441,14 +441,10 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 auto process = sender();
                 auto var1 = process->property("runningTask").value<quintptr>();
                 auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
-
-                auto var3 = process->property("runningProject");
-                auto project = var3.value<std::shared_ptr<ProjectBuildConfig>>();
-
-                auto workingDirectory = process->property("workingDirectory").toString();
+                
+                auto project = process->property("runningProject").value<std::shared_ptr<ProjectBuildConfig>>();
                 auto buildDirectory = process->property("buildDirectory").toString();
                 auto sourceDirectory = process->property("sourceDirectory").toString();
-
                 auto projectName = QString{};
                 {
                     auto d = QDir(sourceDirectory);
@@ -462,13 +458,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
                     // clang-format off
                     getManager()->handleCommand(GlobalCommands::BuildFinished, {
-                        {"builDir", project->buildDir },
-                        {"sourceDir", project->sourceDir },
-                        {"task", runningTask->name},
-                        {"workingDirectory", workingDirectory},
-                        {"buildDirectory", buildDirectory},
-                        {"sourceDirectory", sourceDirectory},
-                        {"projectName", projectName},
+                        {GlobalArguments::BuildDirectory, buildDirectory },
+                        {GlobalArguments::SourceDirectory, sourceDirectory },
+                        {GlobalArguments::Name, runningTask->name},
                         // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
                         {"code", exitStatus == 0},
                     });
@@ -771,16 +763,19 @@ void ProjectManagerPlugin::addProject_clicked() {
     buildConfig = ProjectBuildConfig::buildFromDirectory(dirName);
     if (!buildConfig->fileName.isEmpty()) {
         // Auto generated config files have no filename
-        // qDebug("on_addProject_clicked() : adding %s to the watch dir",
         // buildConfig->fileName.toStdString().c_str());
         configWatcher.addPath(buildConfig->fileName);
     }
 
+    auto hash = getConfigDictionary(buildConfig);
+    auto buildDirectory = expand(buildConfig->buildDir, hash);
+    auto sourceDirectory = expand(buildConfig->sourceDir, hash);
+
     // clang-format off
-    handleCommand(GlobalCommands::ProjectLoaded, {
+    getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
         {GlobalArguments::ProjectName, buildConfig->name },
-        {GlobalArguments::SourceDirectory, buildConfig->sourceDir },
-        {GlobalArguments::BuildDirectory, buildConfig->buildDir },
+        {GlobalArguments::SourceDirectory, sourceDirectory },
+        {GlobalArguments::BuildDirectory, buildDirectory },
     });
     // clang-format on
 
@@ -1253,12 +1248,16 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         // User chose "Load the project"
         projectModel->addConfig(project);
         searchPanelUI->updateProjectList();
+        auto hash = getConfigDictionary(project);
+        auto buildDirectory = expand(project->buildDir, hash);
+        auto sourceDirectory = expand(project->sourceDir, hash);
+
         getManager()->saveSettings();
         // clang-format off
-        handleCommand(GlobalCommands::ProjectLoaded, {
+        getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
             {GlobalArguments::ProjectName, project->name },
-            {GlobalArguments::SourceDirectory, project->sourceDir },
-            {GlobalArguments::BuildDirectory, project->buildDir },
+            {GlobalArguments::SourceDirectory, sourceDirectory },
+            {GlobalArguments::BuildDirectory, buildDirectory },
         });
         // clang-format on
         return true;
