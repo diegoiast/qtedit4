@@ -908,7 +908,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (usingPty && masterFd >= 0) {
         runProcess.setProcessChannelMode(QProcess::MergedChannels);
         auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(notifier, &QSocketNotifier::activated, this, [this, masterFd]() {
+        connect(&runProcess, &QProcess::finished, notifier,
+                [notifier, masterFd]() { delete notifier; });
+        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
             char buffer[4096];
             auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
             if (bytesRead > 0) {
@@ -918,7 +920,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
                 processBuildOutput(lines);
             }
         });
-        env.insert("TERM", "xterm-256color)");
+        env.insert("TERM", "xterm-256color");
     }
 #endif
 
