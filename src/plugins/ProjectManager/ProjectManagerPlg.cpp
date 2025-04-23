@@ -430,46 +430,47 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto output = this->runProcess.readAllStandardError();
         processBuildOutput(output);
     });
-    connect(&runProcess, &QProcess::finished, this,
-            [this](int exitCode, QProcess::ExitStatus exitStatus) {
-                auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
-                appendAnsiHtml(outputPanel->commandOuput, output);
-                getManager()->showPanels(Qt::BottomDockWidgetArea);
-                outputDock->raise();
-                outputDock->show();
+    connect(
+        &runProcess, &QProcess::finished, this,
+        [this](int exitCode, QProcess::ExitStatus exitStatus) {
+            auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
+            appendAnsiHtml(outputPanel->commandOuput, output);
+            getManager()->showPanels(Qt::BottomDockWidgetArea);
+            outputDock->raise();
+            outputDock->show();
 
-                auto process = sender();
-                auto var1 = process->property("runningTask").value<quintptr>();
-                auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
-                
-                auto project = process->property("runningProject").value<std::shared_ptr<ProjectBuildConfig>>();
-                auto buildDirectory = process->property("buildDirectory").toString();
-                auto sourceDirectory = process->property("sourceDirectory").toString();
-                auto projectName = QString{};
-                {
-                    auto d = QDir(sourceDirectory);
-                    projectName = d.dirName();
-                }
+            auto process = sender();
+            auto var1 = process->property("runningTask").value<quintptr>();
+            auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
 
-                if (project && runningTask && runningTask->isBuild) {
-                    qDebug() << "Notifying about a good build" << project->buildDir
-                             << buildDirectory << project->sourceDir << sourceDirectory
-                             << runningTask->name;
+            auto project =
+                process->property("runningProject").value<std::shared_ptr<ProjectBuildConfig>>();
+            auto buildDirectory = process->property("buildDirectory").toString();
+            auto sourceDirectory = process->property("sourceDirectory").toString();
+            auto projectName = QString{};
+            {
+                auto d = QDir(sourceDirectory);
+                projectName = d.dirName();
+            }
 
-                    // clang-format off
-                    getManager()->handleCommand(GlobalCommands::BuildFinished, {
-                        {GlobalArguments::BuildDirectory, buildDirectory },
-                        {GlobalArguments::SourceDirectory, sourceDirectory },
-                        {GlobalArguments::Name, runningTask->name},
-                        // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
-                        {"code", exitStatus == 0},
-                    });
-                    // clang-format on
-                }
+            if (project && runningTask && runningTask->isBuild) {
+                qDebug() << "Notifying about a good build" << project->buildDir << buildDirectory
+                         << project->sourceDir << sourceDirectory << runningTask->name;
 
-                runProcess.setProperty("runningTask", {});
-                runProcess.setProperty("runningProject", {});
-            });
+                // clang-format off
+                getManager()->handleCommand(GlobalCommands::BuildFinished, {
+                    {GlobalArguments::BuildDirectory, buildDirectory },
+                    {GlobalArguments::SourceDirectory, sourceDirectory },
+                    {GlobalArguments::Name, runningTask->name},
+                    // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
+                    {"code", exitStatus == 0},
+                });
+                // clang-format on
+            }
+
+            runProcess.setProperty("runningTask", {});
+            runProcess.setProperty("runningProject", {});
+        });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("[error: code=%1]").arg((int)error);
         appendAnsiHtml(outputPanel->commandOuput, output);
