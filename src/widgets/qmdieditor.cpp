@@ -146,7 +146,8 @@ static auto createTooltip(const CommandArgs &data) -> QString {
             tooltip += "<br>";
         }
 
-        tooltip += QString("┌ <b>File:</b> %1<br>").arg(tag[GlobalArguments::FileName].toString());
+        auto fixedFileName = QDir::toNativeSeparators(tag[GlobalArguments::FileName].toString());
+        tooltip += QString("┌ <b>File:</b> %1<br>").arg(fixedFileName);
         tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
         tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
 

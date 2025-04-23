@@ -158,6 +158,7 @@ bool CargoOutputDetector::processLine(const QString &line, const QString &source
             if (!fileName.startsWith('\\') && !fileName.startsWith('/') && fileName[1] != ':') {
                 fileName = sourceDir + "/" + fileName;
             }
+            fileName = QDir::toNativeSeparators(fileName);
             currentStatus.fileName = fileName;
             currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();
             currentStatus.row = locationMatch.captured(2).toInt() - 1;
