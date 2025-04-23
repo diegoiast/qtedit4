@@ -9,6 +9,7 @@ class DefaultButtonsProvider : public ButtonsProvider {
 };
 
 class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
+    Q_OBJECT
 
   public:
     // SplitTabWidget
@@ -25,6 +26,9 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     virtual int getCurrentClientIndex() const override;
     virtual void setCurrentClientIndex(int i) override;
     virtual void updateClientName(const qmdiClient *client) override;
+
+  signals:
+    void newClientAdded(qmdiClient *);
 
   private:
     virtual void mdiSelected(qmdiClient *client, int index) const override;

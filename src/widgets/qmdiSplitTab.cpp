@@ -153,6 +153,7 @@ void qmdiSplitTab::addClient(qmdiClient *client) {
     addTabToCurrentSplit(w, client->mdiClientName, client->mdiClientFileName());
     client->mdiServer = this;
     w->setFocus();
+    emit newClientAdded(client);
 }
 
 void qmdiSplitTab::deleteClient(qmdiClient *client) {

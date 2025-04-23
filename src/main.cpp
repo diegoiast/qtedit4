@@ -87,6 +87,8 @@ int main(int argc, char *argv[]) {
         auto w = split->getCurrentWidget();
         split->moveTabToNewSplit(w);
     });
+    QObject::connect(split, &qmdiSplitTab::newClientAdded, &pluginManager,
+                     &PluginManager::newClientAdded);
 
     pluginManager.removeBuiltinActions();
     pluginManager.menus["Se&ttings"]->addAction(splitAction);
