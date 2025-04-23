@@ -1072,6 +1072,7 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
 
 void qmdiEditor::toggleHeaderImpl() {
     auto otherFile = getCorrespondingFile(fileName);
+    otherFile = QDir::toNativeSeparators(otherFile);
     if (!otherFile.isEmpty()) {
         auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
         if (pluginManager) {
@@ -1223,6 +1224,7 @@ void qmdiEditor::updateFileDetails() {
                              fileName.endsWith(".hh", Qt::CaseInsensitive) ||
                              fileName.endsWith(".hpp", Qt::CaseInsensitive) ||
                              fileName.endsWith(".cpp", Qt::CaseInsensitive) ||
+                             fileName.endsWith(".c", Qt::CaseInsensitive) ||
                              fileName.endsWith(".cc", Qt::CaseInsensitive) ||
                              fileName.endsWith(".c++", Qt::CaseInsensitive) ||
                              fileName.endsWith(".cxx", Qt::CaseInsensitive);
