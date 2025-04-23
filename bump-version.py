@@ -81,7 +81,7 @@ def update_json_versions(file_path, new_version, update_all=False, qt_version=No
                 )
 
         f.seek(0)
-        json.dump(data, f, indent=3)
+        json.dump(data, f, indent=4)
         f.truncate()
 
 def print_versions(title, iss_file, cpp_file, json_file):
@@ -106,7 +106,7 @@ def reformat_json(json_file):
     with open(json_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     with open(json_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=3)
+        json.dump(data, f, indent=4)
     print(f"Reformatted {json_file}")
 
 def update_build_sh(build_sh_path, app_version=None, qt_version=None):
