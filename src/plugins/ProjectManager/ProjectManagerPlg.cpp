@@ -915,7 +915,6 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
                 buffer[bytesRead] = '\0';
                 auto data = QByteArray(buffer, bytesRead);
                 auto lines = QString::fromUtf8(data);
-                qDebug() << "Get from PTY" << lines;
                 processBuildOutput(lines);
             }
         });
@@ -1052,8 +1051,9 @@ auto ProjectManagerPlugin::saveAllDocuments() -> bool {
 auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     auto cursor = this->outputPanel->commandOuput->textCursor();
     auto lineNumber = cursor.blockNumber();
+    auto plaintext = removeAnsiEscapeCodes(line);
     appendAnsiHtml(this->outputPanel->commandOuput, line);
-    this->projectIssues->processLine(line, lineNumber, this->getCurrentConfig()->sourceDir);
+    this->projectIssues->processLine(plaintext, lineNumber, this->getCurrentConfig()->sourceDir);
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {

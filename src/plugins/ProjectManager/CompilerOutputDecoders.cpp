@@ -132,6 +132,16 @@ void ClOutputDetector::endOfOutput() {
 bool CargoOutputDetector::processLine(const QString &line, const QString &sourceDir) {
     static QRegularExpression errorPattern(R"(^error: (.+))");
     static QRegularExpression locationPattern(R"(^\s*-->\s*([^:]+):(\d+):(\d+))");
+    static QRegularExpression contextPattern(R"(^\s*\|\s*\d+\s*\|\s*(.*))");
+
+    auto contextMatch = contextPattern.match(line);
+    if (contextMatch.hasMatch()) {
+        QString codeLine = contextMatch.captured(1).trimmed();
+        if (!codeLine.isEmpty() && !currentStatus.message.isEmpty()) {
+            currentStatus.message += "\nCode: " + codeLine;
+        }
+        return true;
+    }
 
     auto errorMatch = errorPattern.match(line);
     if (errorMatch.hasMatch()) {
@@ -146,8 +156,7 @@ bool CargoOutputDetector::processLine(const QString &line, const QString &source
         if (locationMatch.hasMatch()) {
             auto fileName = locationMatch.captured(1);
             if (!fileName.startsWith('\\') && !fileName.startsWith('/') && fileName[1] != ':') {
-                fileName = sourceDir + fileName;
-                return false;
+                fileName = sourceDir + "/" + fileName;
             }
             currentStatus.fileName = fileName;
             currentStatus.displayName = QFileInfo(currentStatus.fileName).fileName();

@@ -37,4 +37,4 @@ auto linkifyUrls(const QString &html) -> QString;
 auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString;
 
 /// Convert a text containing ANSI escaped code to raw text.
-auto removeAnsiEscapeCodes(QString &input) -> QString;
+auto removeAnsiEscapeCodes(const QString &input) -> QString;
