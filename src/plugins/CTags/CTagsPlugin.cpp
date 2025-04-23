@@ -239,6 +239,9 @@ int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) c
     if (command == GlobalCommands::ProjectLoaded) {
         return CommandPriority::HighPriority;
     }
+    if (command == GlobalCommands::ProjectRemoved) {
+        return CommandPriority::HighPriority;
+    }
     if (command == GlobalCommands::VariableInfo) {
         return CommandPriority::HighPriority;
     }
@@ -258,6 +261,13 @@ CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs
         auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
         auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
         newProjectAdded(projectName, sourceDir, buildDirectory);
+    }
+
+    if (command == GlobalCommands::ProjectRemoved) {
+        auto projectName = args[GlobalArguments::ProjectName].toString();
+        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+        projectRemoved(projectName, sourceDir, buildDirectory);
     }
 
     if (command == GlobalCommands::VariableInfo) {
@@ -295,6 +305,20 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
         QDir::toNativeSeparators(buildDirectory) + QDir::separator() + projectName + ".tags";
     ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
     ctags->loadFile(ctagsFile.toStdString());
+}
+
+void CTagsPlugin::projectRemoved(const QString &projectName, const QString &sourceDir,
+                                 const QString &buildDirectory) {
+    auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
+    if (!projects.contains(nativeSourceDir)) {
+        qDebug() << "CTAGS: Tried unloading project, but not found" << nativeSourceDir
+                 << projectName << buildDirectory;
+        return;
+    }
+    auto ctags = projects[nativeSourceDir];
+    ctags->clear();
+    projects.remove(nativeSourceDir);
+    delete ctags;
 }
 
 void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sourceDir,

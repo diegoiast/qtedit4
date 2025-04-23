@@ -44,6 +44,8 @@ class CTagsPlugin : public IPlugin {
   protected:
     void newProjectAdded(const QString &projectName, const QString &sourceDir,
                          const QString &buildDirectory);
+    void projectRemoved(const QString &projectName, const QString &sourceDir,
+                        const QString &buildDirectory);
     void newProjectBuilt(const QString &projectName, const QString &sourceDir,
                          const QString &buildDirectory);
     CommandArgs symbolInfoRequested(const QString &fileName, const QString &symbol,

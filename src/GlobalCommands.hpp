@@ -13,6 +13,9 @@ inline constexpr const char *BuildFinished = "BuildFinished";
 // Broadcast - a new project has been loaded (ctags plugin uses to load a tags file)
 inline constexpr const char *ProjectLoaded = "ProjectLoaded";
 
+// Broadcast - a new project has been removed (ctags plugin uses to clear memory)
+inline constexpr const char *ProjectRemoved = "ProjectRemoved";
+
 // User clicked on an issue, scroll the build output to the line passed in payload
 inline constexpr const char *ScrollOutput = "ScrollOutput";
 

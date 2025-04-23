@@ -795,13 +795,21 @@ void ProjectManagerPlugin::removeProject_clicked() {
     if (index < 0) {
         return;
     }
-    auto path = projectModel->getConfig(index)->fileName;
+    auto config = projectModel->getConfig(index);
+    auto path = config->fileName;
     projectModel->removeConfig(index);
     searchPanelUI->updateProjectList();
-    // qDebug("remove %s to the watch dir", path.toStdString().c_str());
-
     configWatcher.removePath(path);
     getManager()->saveSettings();
+
+    // clang-format off
+    getManager()->handleCommand(GlobalCommands::ProjectRemoved, {
+        {GlobalArguments::ProjectName, config->name },
+        {GlobalArguments::SourceDirectory, config->sourceDir },
+        {GlobalArguments::BuildDirectory, config->buildDir },
+        }
+    );
+    // clang-format on
 }
 
 void ProjectManagerPlugin::newProjectSelected(int index) {
