@@ -1,32 +1,32 @@
 {
-   "updates": {
-      "windows": {
-         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version": "0.0.8",
-         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
-         "changelog": "Various cleanups and fixes",
-         "mandatory": true
-      },
-      "windows-testing": {
-         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9-beta1",
-         "latest-version": "0.0.9-beta1",
-         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-beta1/qtedit4-qt6.8.3-v0.0.9-beta1-x86_64.exe",
-         "changelog": "CTags support, color builds",
-         "mandatory": true
-      },
-      "linux": {
-         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
-         "latest-version": "0.0.8",
-         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.AppImage",
-         "changelog": "Various cleanups and fixes",
-         "mandatory": true
-      },
-      "linux-testing": {
-         "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9-beta1",
-         "latest-version": "0.0.9-beta1",
-         "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-beta1/qtedit4-qt6.8.3-v0.0.9-beta1-x86_64.AppImage",
-         "changelog": "CTags support, color builds",
-         "mandatory": true
-      }
-   }
+    "updates": {
+        "windows": {
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+            "latest-version": "0.0.8",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.exe",
+            "changelog": "Various cleanups and fixes",
+            "mandatory": true
+        },
+        "windows-testing": {
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9-beta2",
+            "latest-version": "0.0.9-beta2",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-beta2/qtedit4-qt6.8.3-v0.0.9-beta2-x86_64.exe",
+            "changelog": "CTags support, color builds",
+            "mandatory": true
+        },
+        "linux": {
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.8",
+            "latest-version": "0.0.8",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.8/qtedit4-qt6.8.3-v0.0.8-x86_64.AppImage",
+            "changelog": "Various cleanups and fixes",
+            "mandatory": true
+        },
+        "linux-testing": {
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9-beta2",
+            "latest-version": "0.0.9-beta2",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.9-beta2/qtedit4-qt6.8.3-v0.0.9-beta2-x86_64.AppImage",
+            "changelog": "CTags support, color builds",
+            "mandatory": true
+        }
+    }
 }
