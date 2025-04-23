@@ -1201,6 +1201,12 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
 }
 
 auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString &dir) -> bool {
+    auto manager = getManager();
+    auto client = manager->clientForFileName(filename);
+    if (client) {
+        emit manager->newClientAdded(client);
+    }
+
     auto project = this->projectModel->findConfigFile(filename);
     if (project) {
         // TODO - should we select this project?
