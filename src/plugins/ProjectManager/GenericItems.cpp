@@ -125,7 +125,7 @@ void DirectoryModel::newFiles(const QStringList &files) {
 
 void DirectoryModel::scanFinished() {
     emit didFinishLoading();
-    qInfo() << fileList.size() << "files loaded.";
+    qInfo() << "DirectoryModel: " << fileList.size() << "files loaded for" << directoryList;
 }
 
 void DirectoryModel::removeDirectory(const QString &path) {
