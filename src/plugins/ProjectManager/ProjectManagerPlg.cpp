@@ -643,19 +643,23 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
     auto dirsToLoad = getConfig().getOpenDirs();
-    QTimer::singleShot(0, this, [this, dirsToLoad]() {
-        for (const auto &dirName : dirsToLoad) {
-            auto config = projectModel->findConfigDir(dirName);
-            if (config) {
-                continue;
-            }
+    auto index = std::make_shared<int>(0); // Shared counter
 
+    auto processNext = std::make_shared<std::function<void()>>();
+    *processNext = [this, dirsToLoad, index, processNext]() {
+        if (*index >= dirsToLoad.size()) {
+            return;
+        }
+
+        const auto &dirName = dirsToLoad[*index];
+        (*index)++;
+
+        auto config = projectModel->findConfigDir(dirName);
+        if (!config) {
             gui->projectComboBox->blockSignals(true);
             config = ProjectBuildConfig::buildFromDirectory(dirName);
             projectModel->addConfig(config);
             if (!config->fileName.isEmpty()) {
-                // qDebug("loadConfig() - adding %s to the watch dir",
-                // config->fileName.toStdString().c_str());
                 configWatcher.addPath(config->fileName);
             }
 
@@ -663,9 +667,9 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             auto workingDirectory = expand(config->buildDir, hash);
             // clang-format off
             getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
-                {GlobalArguments::ProjectName, config->name },
-                {GlobalArguments::SourceDirectory, config->sourceDir },
-                {GlobalArguments::BuildDirectory, workingDirectory },
+                {GlobalArguments::ProjectName, config->name},
+                {GlobalArguments::SourceDirectory, config->sourceDir},
+                {GlobalArguments::BuildDirectory, workingDirectory},
             });
             // clang-format on
 
@@ -678,7 +682,9 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             gui->projectComboBox->blockSignals(false);
             searchPanelUI->updateProjectList();
         }
-    });
+        QTimer::singleShot(200, this, *processNext);
+    };
+    QTimer::singleShot(500, this, *processNext);
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
