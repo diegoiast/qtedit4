@@ -58,7 +58,9 @@ auto TextPreview::previewText(const QString &filename, const QString &str, Previ
     case JSON: {
         setCurrentIndex(2);
         auto model = new QJsonModel(this);
-        model->loadJson(str.toUtf8());
+        if (!str.isEmpty()) {
+            model->loadJson(str.toUtf8());
+        }
         treeView->setModel(model);
         treeView->expandAll();
         treeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
