@@ -354,11 +354,11 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     for (auto &tagRef : tags) {
         const CTag &tag = tagRef.get();
         tagList.append(QVariant::fromValue(CommandArgs{
-            {GlobalArguments::FileName, QString::fromStdString(tag.file)},
-            {GlobalArguments::Type, QString::fromStdString(tagFieldKeyToString(tag.field))},
-            {GlobalArguments::Value, QString::fromStdString(tag.fieldValue)},
-            {GlobalArguments::Raw, QString::fromStdString(tag.address)},
-            {GlobalArguments::Name, QString::fromStdString(tag.name)},
+            {GlobalArguments::FileName, QString::fromStdString(std::string{tag.file})},
+            {GlobalArguments::Type, QString::fromStdString(tagFieldKeyToString(tag.fieldKey))},
+            {GlobalArguments::Value, QString::fromStdString(std::string{tag.fieldValue})},
+            {GlobalArguments::Raw, QString::fromStdString(std::string{tag.address})},
+            {GlobalArguments::Name, QString::fromStdString(std::string{tag.name})},
         }));
     }
 

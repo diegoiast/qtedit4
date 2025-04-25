@@ -1,5 +1,7 @@
 #include "CTagsLoader.hpp"
+
 #include <algorithm>
+#include <chrono>
 #include <cstdio>
 #include <cstdlib>
 #include <filesystem>
@@ -7,6 +9,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <thread>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -100,15 +103,16 @@ CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
     std::transform(symbolLower.begin(), symbolLower.end(), symbolLower.begin(), ::tolower);
 
     if (symbolName.length() >= 3) {
-        for (const auto &tag : tags) {
-            if (exactMatch) {
+        if (exactMatch) {
+            for (const auto &tag : tags) {
                 if (tag.name == symbolName) {
                     foundTags.emplace_back(tag);
                 }
-            } else {
-                std::string tagLower = tag.name;
+            }
+        } else {
+            for (const auto &tag : tags) {
+                auto tagLower = std::string(tag.name);
                 std::transform(tagLower.begin(), tagLower.end(), tagLower.begin(), ::tolower);
-
                 if (tagLower.starts_with(symbolLower)) {
                     foundTags.emplace_back(tag);
                 }
@@ -125,38 +129,76 @@ void CTagsLoader::setCTagsBinary(const std::string &ctagsBinary) {
 void CTagsLoader::clear() { tags.clear(); }
 
 bool CTagsLoader::load() {
+    using namespace std::chrono;
+    auto start = steady_clock::now();
+
     std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "CTAGS: Error: Could not open file " << filename << std::endl;
         return false;
     }
 
+    tags.clear();
+    // tags.reserve(500000); // Adjust based on expected file size
+
     std::string line;
+    size_t count = 0;
+
     while (std::getline(file, line)) {
-        if (!line.empty() && line[0] == '!') {
+        if (line.empty() || line[0] == '!') {
             continue;
         }
 
-        std::stringstream ss(line);
-        std::string tagName, tagFile, tagAddress, field;
-        TagFieldKey tagField = TagFieldKey::Unknown;
-        std::string tagFieldValue;
+        tags.emplace_back(); // add a new empty CTag
+        CTag &tag = tags.back();
 
-        std::getline(ss, tagName, '\t');
-        std::getline(ss, tagFile, '\t');
-        std::getline(ss, tagAddress, '\t');
+        tag.originalLine = std::move(line); // store original line
+        std::string_view sv(tag.originalLine);
 
-        if (std::getline(ss, field, '\t')) {
-            tagField = mapCharToTagFieldKey(field[0]);
-            std::getline(ss, tagFieldValue, '\t');
+        size_t tab1 = sv.find('\t');
+        if (tab1 == std::string_view::npos) {
+            tags.pop_back();
+            continue;
         }
 
-        CTag newTag = {tagName, tagFile, tagAddress, tagField, tagFieldValue};
-        // calculateLineColumn(newTag);
-        tags.push_back(newTag);
+        size_t tab2 = sv.find('\t', tab1 + 1);
+        if (tab2 == std::string_view::npos) {
+            tags.pop_back();
+            continue;
+        }
+
+        size_t tab3 = sv.find('\t', tab2 + 1);
+
+        tag.name = sv.substr(0, tab1);
+        tag.file = sv.substr(tab1 + 1, tab2 - tab1 - 1);
+        tag.address = sv.substr(
+            tab2 + 1, (tab3 == std::string_view::npos ? std::string_view::npos : tab3 - tab2 - 1));
+
+        tag.fieldKey = TagFieldKey::Unknown;
+        if (tab3 != std::string_view::npos) {
+            size_t tab4 = sv.find('\t', tab3 + 1);
+            std::string_view field =
+                sv.substr(tab3 + 1, (tab4 == std::string_view::npos ? std::string_view::npos
+                                                                    : tab4 - tab3 - 1));
+
+            if (!field.empty()) {
+                tag.fieldKey = mapCharToTagFieldKey(field[0]);
+                if (tab4 != std::string_view::npos && tab4 + 1 < sv.size()) {
+                    tag.fieldValue = sv.substr(tab4 + 1);
+                }
+            }
+        }
+
+        ++count;
     }
 
     file.close();
+
+    auto end = steady_clock::now();
+    auto duration = duration_cast<milliseconds>(end - start).count();
+    std::cout << "CTAGS: Loaded " << count << " tags from " << filename << " in " << duration
+              << " ms" << std::endl;
+
     return true;
 }
 
@@ -170,7 +212,7 @@ bool CTagsLoader::parseCtagsOutput(const std::string &ctagsOutput) {
         lineStream >> tagName >> type >> lineNumberStr >> tagFile >> std::ws;
         tagAddress = line.substr(lineStream.tellg());
 
-        CTag newTag = {tagName, tagFile, tagAddress, TagFieldKey::Unknown, {}};
+        CTag newTag = {tagName, tagFile, tagAddress, TagFieldKey::Unknown, {}, {}};
         tags.push_back(newTag);
     }
     return true;

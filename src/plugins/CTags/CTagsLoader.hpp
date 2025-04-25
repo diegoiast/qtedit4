@@ -59,11 +59,14 @@ enum class TagFieldKey {
 };
 
 struct CTag {
-    std::string name;
-    std::string file;
-    std::string address;
-    TagFieldKey field;
-    std::string fieldValue;
+    std::string_view name;
+    std::string_view file;
+    std::string_view address;
+    TagFieldKey fieldKey;
+    std::string_view fieldValue;
+
+    // Owns the memory
+    std::string originalLine;
 };
 
 class CTagsLoader {
