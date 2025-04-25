@@ -32,6 +32,7 @@ inline constexpr const char *SourceDirectory = "SourceDirectory";
 inline constexpr const char *BuildDirectory = "BuildDirectory";
 inline constexpr const char *FileName = "FileName";
 inline constexpr const char *Name = "Name";
+inline constexpr const char *TaskName = "TaskName";
 inline constexpr const char *LineNumber = "LineNumber";
 inline constexpr const char *ColumnNumber = "ColumnNumber";
 inline constexpr const char *Type = "Type";

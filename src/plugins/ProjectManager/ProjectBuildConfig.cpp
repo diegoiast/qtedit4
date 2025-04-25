@@ -27,7 +27,7 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
 
 auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
-    auto cmakeFileName = directory + "/" + "CMakeLists.txt";
+    auto cmakeFileName = directory + QDir::separator() + "CMakeLists.txt";
     auto di = QFileInfo(directory);
     auto fi = QFileInfo(cmakeFileName);
     if (!fi.isReadable()) {
@@ -168,7 +168,7 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
-    auto configFileName = directory + "/" + "qtedit4.json";
+    auto configFileName = directory + QDir::separator() + "qtedit4.json";
     auto config = buildFromFile(configFileName);
     if (!config) {
         config = tryGuessFromCMake(directory);
@@ -193,11 +193,9 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         return {};
     }
 
-    auto value = std::make_shared<ProjectBuildConfig>();
+    auto value = std::shared_ptr<ProjectBuildConfig>();
     auto fi = QFileInfo(jsonFileName);
     auto json = QJsonDocument::fromJson(file.readAll());
-    value->sourceDir = fi.absolutePath();
-    value->fileName = fi.absoluteFilePath();
     file.close();
 
     auto toHash = [](QJsonValueRef v) -> QHash<QString, QString> {
@@ -239,6 +237,9 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         return info;
     };
     if (!json.isNull()) {
+        value = std::make_shared<ProjectBuildConfig>();
+        value->sourceDir = fi.absolutePath();
+        value->fileName = fi.absoluteFilePath();
         value->name = json["name"].toString();
         value->buildDir = json["build_directory"].toString();
         value->executables = parseExecutables(json["executables"]);
@@ -248,6 +249,13 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
         value->activeTaskName = json["activeTaskName"].toString();
         value->displayFilter = json["displayFilter"].toString();
         value->hideFilter = json["hideFilter"].toString();
+
+        if (value->name.isEmpty()) {
+            value->name = fi.dir().dirName();
+        }
+    } else {
+        qDebug() << "ProjectBuildConfig::buildFromFile: Loading file failed, malformed JSON?"
+                 << jsonFileName;
     }
     return value;
 }

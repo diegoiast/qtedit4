@@ -461,7 +461,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 getManager()->handleCommand(GlobalCommands::BuildFinished, {
                     {GlobalArguments::BuildDirectory, buildDirectory },
                     {GlobalArguments::SourceDirectory, sourceDirectory },
-                    {GlobalArguments::Name, runningTask->name},
+                    {GlobalArguments::TaskName, runningTask->name},
+                    {GlobalArguments::Name, project->name},
                     // {"",  exitStatus == QProcess::ExitStatus::NormalExit},
                     {"code", exitStatus == 0},
                 });
@@ -472,7 +473,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             runProcess.setProperty("runningProject", {});
         });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
-        auto output = QString("[error: code=%1]").arg((int)error);
+        auto output = QString("\n[error: code=%1]").arg((int)error);
         appendAnsiHtml(outputPanel->commandOuput, output);
         qWarning() << "Process error occurred:" << error;
         qWarning() << "Error string:" << runProcess.errorString();

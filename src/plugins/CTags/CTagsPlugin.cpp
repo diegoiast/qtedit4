@@ -252,6 +252,7 @@ CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs
     if (command == GlobalCommands::BuildFinished) {
         auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
         auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+        auto taskName = args[GlobalArguments::TaskName].toString();
         auto projectName = args[GlobalArguments::Name].toString();
         newProjectBuilt(projectName, sourceDir, buildDirectory);
     }
