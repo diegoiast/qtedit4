@@ -664,12 +664,12 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             }
 
             auto hash = getConfigDictionary(config);
-            auto workingDirectory = expand(config->buildDir, hash);
+            auto buildDirectory = QDir::toNativeSeparators(expand(config->buildDir, hash));
             // clang-format off
             getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
                 {GlobalArguments::ProjectName, config->name},
                 {GlobalArguments::SourceDirectory, config->sourceDir},
-                {GlobalArguments::BuildDirectory, workingDirectory},
+                {GlobalArguments::BuildDirectory, buildDirectory},
             });
             // clang-format on
 

@@ -38,9 +38,9 @@ auto searchBinaryFile(std::ifstream &file, const std::string &searchString,
         return;
     }
 
-    constexpr size_t bufferSize = 4096;
-    const size_t searchLen = searchString.size();
-    const size_t overlap = searchLen > 1 ? searchLen - 1 : 0;
+    auto constexpr bufferSize = 4096;
+    auto const searchLen = searchString.size();
+    auto const overlap = searchLen > 1 ? searchLen - 1 : 0;
 
     auto buffer = std::vector<char>(bufferSize + overlap);
     auto fileOffset = size_t{0};
@@ -146,7 +146,7 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     connect(ui->sourceCombo, &QComboBox::activated, this, [this](int index) {
         if (index <= 0) {
             this->ui->pathEdit->blockSignals(true);
-            auto static lastDir = QDir::homePath();
+            auto static lastDir = QDir::toNativeSeparators(QDir::homePath());
             auto lastDir2 = this->ui->pathEdit->path();
             this->ui->pathEdit->setPath(lastDir);
             lastDir = lastDir2;
@@ -156,7 +156,7 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
 
         // else - use path from the selected project
         auto project = model->getConfig(index - 1);
-        this->ui->pathEdit->setPath(project->sourceDir);
+        this->ui->pathEdit->setPath(QDir::toNativeSeparators(project->sourceDir));
     });
 
     connect(ui->searchButton, &QPushButton::clicked, this, &ProjectSearch::searchButton_clicked);
@@ -192,7 +192,7 @@ void ProjectSearch::updateProjectList() {
     ui->sourceCombo->addItem(tr("Custom"));
     for (auto i = 0; i < model->rowCount(); i++) {
         auto p = model->getConfig(i);
-        ui->sourceCombo->addItem(p->sourceDir);
+        ui->sourceCombo->addItem(p->name);
     }
 }
 
@@ -214,12 +214,12 @@ void ProjectSearch::searchButton_clicked() {
     running = true;
     QThreadPool::globalInstance()->start([this, originalText, allowList, denyList]() {
         auto text = ui->searchFor->text().toStdString();
-        auto startSearchPath = ui->pathEdit->path();
+        auto startSearchPath = QDir::toNativeSeparators(ui->pathEdit->path());
 
         QDirIterator it(startSearchPath, allowList.split(";"), QDir::Files,
                         QDirIterator::Subdirectories);
         while (it.hasNext()) {
-            auto fullFileName = it.next();
+            auto fullFileName = QDir::toNativeSeparators(it.next());
             auto *foundData = new QList<FoundData>;
             if (!fullFileName.startsWith(startSearchPath)) {
                 continue;
