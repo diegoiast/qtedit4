@@ -23,7 +23,8 @@ QVariant KitDefinitionModel::data(const QModelIndex &index, int role) const {
     case Qt::DisplayRole:
         return QString::fromStdString(kit.name);
     case Qt::ToolTipRole:
-        return QString::fromStdString(kit.filePath);
+        return QString("%1\n%2")
+            .arg(QString::fromStdString(kit.name), QString::fromStdString(kit.filePath));
     }
     return {};
 }

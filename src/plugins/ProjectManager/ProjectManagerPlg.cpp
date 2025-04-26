@@ -571,13 +571,19 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     });
     manager->addAction(projectSearch);
     kitsModel = new KitDefinitionModel();
-    gui->kitComboBox->setModel(kitsModel);
-
     auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
     auto kits = findKitDefinitions(QDir::toNativeSeparators(dataPath).toStdString());
     kitsModel->setKitDefinitions(kits);
 
+    gui->kitComboBox->setModel(kitsModel);
+    connect(gui->kitComboBox, &QComboBox::activated, gui->kitComboBox, [this](int newIndex) {
+        auto kit = kitsModel->getKit(newIndex);
+        auto tooltip = QString("%1\n%2").arg(QString::fromStdString(kit.name),
+                                             QString::fromStdString(kit.filePath));
+        gui->kitComboBox->setToolTip(tooltip);
+    });
     gui->projectComboBox->setModel(projectModel);
+    emit gui->kitComboBox->activated(0);
 
     runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
     buildAction = new QAction(QIcon::fromTheme("document-save-as"), tr("&Run task"), this);
