@@ -938,7 +938,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (!kit) {
         // run the taskCommand directly in the native shell
         auto [command, interpreter] = getCommandInterpreter(taskCommand);
-        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" "));
+        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
 
         runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProgram(interpreter);
@@ -973,11 +973,11 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     runProcess.start();
     if (!runProcess.waitForStarted()) {
         if (kit) {
-            auto msg = QString("Failed to run kit %1, with task=%2")
+            auto msg = QString("Failed to run kit %1, with task:\n%2\n")
                            .arg(QString::fromStdString(kit->filePath), taskCommand);
             appendAnsiHtml(outputPanel->commandOuput, msg);
         } else {
-            appendAnsiHtml(outputPanel->commandOuput, "Process failed to start " + taskCommand);
+            appendAnsiHtml(outputPanel->commandOuput, "Process failed to start\n" + taskCommand);
         }
         qWarning() << "Process failed to start";
     }
