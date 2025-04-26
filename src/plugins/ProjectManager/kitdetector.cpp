@@ -123,8 +123,8 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
-static auto replaceAll(std::string &str, const std::string &from, const std::string &to)
-    -> std::string & {
+static auto replaceAll(std::string &str, const std::string &from,
+                       const std::string &to) -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
@@ -367,8 +367,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
     }
 }
 
-auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
-    -> void {
+auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected,
+                                   bool unix_target) -> void {
     auto path_env = safeGetEnv("PATH");
     if (path_env.empty()) {
         return;
@@ -402,15 +402,16 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         // clang-format on
     };
 
-    const std::vector<std::string> envVars = {
+    const std::vector<std::string> qt6EnvVars = {
         // clang-format off
         "QTDIR",
         "QT_DIR",
-        "QT6DIR"
+        "QT6DIR",
+        "QT6_DIR",
         // clang-format on
     };
 
-    for (const auto &envVar : envVars) {
+    for (const auto &envVar : qt6EnvVars) {
         auto envValue = safeGetEnv(envVar.c_str());
         if (!envValue.empty()) {
             knownLocations.push_back(std::filesystem::path(envValue));
@@ -436,11 +437,12 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
             extraPath.command = "export QTDIR=%1";
             extraPath.command += "\n";
             extraPath.command += "export QT_DIR=%1";
+            extraPath.command += "export QT6_DIR=%1";
         } else {
             extraPath.comment = "@rem qt installation";
-            extraPath.command = "SET QTDIR=%1";
-            extraPath.command += "\n";
-            extraPath.command += "SET QT_DIR=%1";
+            extraPath.command = "SET QTDIR=%1\n";
+            extraPath.command += "SET QT_DIR=%1\n";
+            extraPath.command += "SET QT6_DIR=%1\n";
         }
         replaceAll(extraPath.command, "%1", dir);
         replaceAll(extraPath.comment, "%1", dir);
@@ -476,23 +478,17 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
                 // TODO
                 // I am unsure what this part of the code does, as it makes no sense.
                 // Maybe in a msys environment, or wsl... not dealing with that now.
-                extraPath.comment = "# MingW installation from Qt (I*)";
-                extraPath.command += "export MINGW_DIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "export PATH=\"${PATH};${MINGW_DIR}/bin";
+                extraPath.comment = "# MingW installation from Qt (*)";
+                extraPath.command += "export MINGW_DIR=%1\n";
+                extraPath.command += "export PATH=\"${PATH};${MINGW_DIR}/bin\n";
             } else {
                 extraPath.comment = "@rem MingW installation from Qt (*)";
-                extraPath.command += "set MINGW_DIR=%1";
-                extraPath.command += "\n";
-                extraPath.command += "set PATH=%PATH%;%MINGW_DIR%\\bin";
-                extraPath.command += "\n";
-                extraPath.command += "set CC=x86_64-w64-mingw32-gcc.exe";
-                extraPath.command += "\n";
-                extraPath.command += "set CXX=x86_64-w64-mingw32-g++.exe";
-                extraPath.command += "\n";
-                extraPath.command += "set CMAKE_GENERATOR=MinGW Makefiles";
-                extraPath.command += "\n";
-                extraPath.command += "set CMAKE_MAKE_PROGRAM=mingw32-make.exe";
+                extraPath.command += "set MINGW_DIR=%1\n";
+                extraPath.command += "set PATH=%PATH%;%MINGW_DIR%\\bin\n";
+                extraPath.command += "set CC=x86_64-w64-mingw32-gcc.exe\n";
+                extraPath.command += "set CXX=x86_64-w64-mingw32-g++.exe\n";
+                extraPath.command += "set CMAKE_GENERATOR=MinGW Makefiles\n";
+                extraPath.command += "set CMAKE_MAKE_PROGRAM=mingw32-make.exe\n";
             }
             replaceAll(extraPath.command, "%1", subEntry.path().string());
             detectedCompilers.push_back(extraPath);
