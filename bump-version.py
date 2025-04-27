@@ -5,40 +5,49 @@ import json
 import argparse
 import subprocess
 
+def detect_line_ending(text):
+    if '\r\n' in text:
+        return '\r\n'
+    elif '\r' in text:
+        return '\r'
+    return '\n'
+
 def get_iss_version(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    with open(file_path, 'rb') as f:
+        content = f.read().decode('utf-8')
     match = re.search(r'#define\s+VersionString\s+"([^"]+)"', content)
     return match.group(1) if match else None
 
 def update_iss_version(file_path, new_version):
-    with open(file_path, 'r+', encoding='utf-8') as f:
-        content = f.read()
+    with open(file_path, 'rb+') as f:
+        content = f.read().decode('utf-8')
+        line_ending = detect_line_ending(content)
         content_new = re.sub(
             r'(#define\s+VersionString\s+")([^"]+)(")',
             fr'\g<1>{new_version}\g<3>',
             content
         )
         f.seek(0)
-        f.write(content_new)
+        f.write(content_new.replace('\n', line_ending).encode('utf-8'))
         f.truncate()
 
 def get_cpp_version(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+    with open(file_path, 'rb') as f:
+        content = f.read().decode('utf-8')
     match = re.search(r'QCoreApplication::setApplicationVersion\("([^"]+)"\)', content)
     return match.group(1) if match else None
 
 def update_cpp_version(file_path, new_version):
-    with open(file_path, 'r+', encoding='utf-8') as f:
-        content = f.read()
+    with open(file_path, 'rb+') as f:
+        content = f.read().decode('utf-8')
+        line_ending = detect_line_ending(content)
         content_new = re.sub(
             r'(QCoreApplication::setApplicationVersion\(")([^"]+)("\))',
             fr'\g<1>{new_version}\g<3>',
             content
         )
         f.seek(0)
-        f.write(content_new)
+        f.write(content_new.replace('\n', line_ending).encode('utf-8'))
         f.truncate()
 
 def get_json_versions(file_path):
@@ -48,41 +57,42 @@ def get_json_versions(file_path):
     return versions
 
 def update_json_versions(file_path, new_version, update_all=False, qt_version=None):
-    with open(file_path, 'r+', encoding='utf-8') as f:
-        data = json.load(f)
+    with open(file_path, 'r', encoding='utf-8') as f:
+        original_content = f.read()
+        line_ending = detect_line_ending(original_content)
+        data = json.loads(original_content)
 
-        environments = data['updates'].keys()
-        if not update_all:
-            environments = [k for k in environments if 'testing' in k]
+    environments = data['updates'].keys()
+    if not update_all:
+        environments = [k for k in environments if 'testing' in k]
 
-        for env in environments:
-            env_data = data['updates'][env]
-            env_data['latest-version'] = new_version
-            # Update open-url version
-            if 'open-url' in env_data:
-                env_data['open-url'] = re.sub(
-                    r'/tag/v[\d\w\.\-]+',
-                    f'/tag/v{new_version}',
-                    env_data['open-url']
-                )
-            # Update download-url version and qt version, preserving file extension
-            if 'download-url' in env_data:
-                # Replace v<version> in the path
-                env_data['download-url'] = re.sub(
-                    r'/download/v[\d\w\.\-]+/',
-                    f'/download/v{new_version}/',
-                    env_data['download-url']
-                )
-                # Replace the entire filename segment before the extension
-                env_data['download-url'] = re.sub(
-                    r'qtedit4-qt[\d\.]+-v[\d\w\.\-]+-x86_64',
-                    f'qtedit4-qt{qt_version}-v{new_version}-x86_64' if qt_version else f'qtedit4-qt6.8.3-v{new_version}-x86_64',
-                    env_data['download-url']
-                )
+    for env in environments:
+        env_data = data['updates'][env]
+        env_data['latest-version'] = new_version
+        if 'open-url' in env_data:
+            env_data['open-url'] = re.sub(
+                r'/tag/v[\d\w\.\-]+',
+                f'/tag/v{new_version}',
+                env_data['open-url']
+            )
+        if 'download-url' in env_data:
+            env_data['download-url'] = re.sub(
+                r'/download/v[\d\w\.\-]+/',
+                f'/download/v{new_version}/',
+                env_data['download-url']
+            )
+            env_data['download-url'] = re.sub(
+                r'qtedit4-qt[\d\.]+-v[\d\w\.\-]+-x86_64',
+                f'qtedit4-qt{qt_version}-v{new_version}-x86_64' if qt_version else f'qtedit4-qt6.8.3-v{new_version}-x86_64',
+                env_data['download-url']
+            )
 
-        f.seek(0)
-        json.dump(data, f, indent=4)
-        f.truncate()
+    # Dump to JSON string, then apply original line endings
+    new_json = json.dumps(data, indent=4)
+    new_json = new_json.replace('\n', line_ending)
+
+    with open(file_path, 'w', encoding='utf-8', newline='') as f:
+        f.write(new_json)
 
 def print_versions(title, iss_file, cpp_file, json_file):
     print(f"\n{title.center(40, '-')}")
@@ -104,24 +114,33 @@ def git_add(files):
 
 def reformat_json(json_file):
     with open(json_file, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    with open(json_file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=4)
+        original_content = f.read()
+        line_ending = detect_line_ending(original_content)
+        data = json.loads(original_content)
+
+    formatted = json.dumps(data, indent=4).replace('\n', line_ending)
+
+    with open(json_file, 'w', encoding='utf-8', newline='') as f:
+        f.write(formatted)
+
     print(f"Reformatted {json_file}")
 
 def update_build_sh(build_sh_path, app_version=None, qt_version=None):
-    with open(build_sh_path, 'r', encoding='utf-8') as f:
-        lines = f.readlines()
+    with open(build_sh_path, 'rb') as f:
+        content = f.read().decode('utf-8')
+        line_ending = detect_line_ending(content)
+        lines = content.splitlines()
     new_lines = []
     for line in lines:
         if app_version and line.strip().startswith('APP_VERSION='):
-            new_lines.append(f'APP_VERSION="{app_version}"\n')
+            new_lines.append(f'APP_VERSION="{app_version}"')
         elif qt_version and line.strip().startswith('QT_VERSION='):
-            new_lines.append(f'QT_VERSION="{qt_version}"\n')
+            new_lines.append(f'QT_VERSION="{qt_version}"')
         else:
             new_lines.append(line)
-    with open(build_sh_path, 'w', encoding='utf-8') as f:
-        f.writelines(new_lines)
+    new_content = line_ending.join(new_lines) + line_ending
+    with open(build_sh_path, 'wb') as f:
+        f.write(new_content.encode('utf-8'))
 
 def main():
     parser = argparse.ArgumentParser(description='Update version numbers across project files')
@@ -149,21 +168,16 @@ def main():
     if not args.new_version:
         parser.error("the following arguments are required: new_version (unless --reformat-json is used)")
 
-    # Print versions before update
     print_versions('Current Versions', iss_file, cpp_file, json_file)
 
-    # Update files
     update_iss_version(iss_file, args.new_version)
     update_cpp_version(cpp_file, args.new_version)
     update_json_versions(json_file, args.new_version, update_all=args.all, qt_version=args.qt_version)
 
-    # Print versions after update
     print_versions('Updated Versions', iss_file, cpp_file, json_file)
 
-    # Patch up build.sh
     update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
 
-    # Stage files for git only if --git is specified
     if args.git:
         git_add([iss_file, cpp_file, json_file, args.build_sh])
 
