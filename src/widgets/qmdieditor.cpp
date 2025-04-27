@@ -187,12 +187,12 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
         menu->addAction(a);
     }
 
-    for (const QVariant &item : tags) {
+    for (const QVariant &item : std::as_const(tags)) {
         auto const tag = item.toHash();
         auto const fileName = tag[GlobalArguments::FileName].toString();
-        auto const fieldType = tag["fieldType"].toString();
-        auto const fieldValue = tag["fieldValue"].toString();
-        auto const rawAddress = tag["raw"].toString();
+        auto const fieldType = tag[GlobalArguments::Type].toString();
+        auto const fieldValue = tag[GlobalArguments::Value].toString();
+        auto const rawAddress = tag[GlobalArguments::Raw].toString();
         auto address = rawAddress;
         if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
             address.length() > MIN_LENGTH) {
@@ -201,7 +201,7 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
 
         auto fi = QFileInfo(fileName);
         auto simpleFileName = fi.fileName();
-        auto title = QString("%1 - %2 %3").arg(simpleFileName).arg(fieldType).arg(fieldValue);
+        auto title = QString("%1 - %2 %3").arg(simpleFileName, fieldType, fieldValue);
         auto a = new QAction(title, menu);
         QObject::connect(a, &QAction::triggered, a, [fileName, rawAddress, address, manager]() {
             auto nativeFileName = QDir::toNativeSeparators(fileName);
@@ -210,7 +210,9 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
             auto editor = dynamic_cast<qmdiEditor *>(client);
             if (editor) {
                 editor->loadContent();
-                editor->findText(address);
+                if (!address.isEmpty()) {
+                    editor->findText(address);
+                }
                 editor->setFocus();
             }
         });

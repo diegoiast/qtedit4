@@ -184,7 +184,7 @@ bool CompileStatusModel::areOthersVisible() const { return showOthers; }
 
 void CompileStatusModel::applyFilter() {
     filteredStatuses.clear();
-    for (const auto &status : statuses) {
+    for (const auto &status : std::as_const(statuses)) {
         if (shouldShowStatus(status)) {
             filteredStatuses.append(status);
         }
@@ -260,7 +260,7 @@ auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
 void ProjectIssuesWidget::processLine(const QString &rawLines, int lineNumber,
                                       const QString &sourceDir) {
     auto lines = rawLines.split("\n");
-    for (auto const &line : lines) {
+    for (auto const &line : std::as_const(lines)) {
         lineNumber += 1;
         outputDetector.processLine(line, sourceDir);
         auto items = outputDetector.foundStatus();
@@ -279,7 +279,7 @@ void ProjectIssuesWidget::processLine(const QString &rawLines, int lineNumber,
 void ProjectIssuesWidget::decorateClient(qmdiClient *client) {
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         auto items = model->getItemsFor(editor->mdiClientFileName());
-        for (const auto &item : items) {
+        for (const auto &item : std::as_const(items)) {
             setEditorStatus(editor, item);
         }
         editor->update();
