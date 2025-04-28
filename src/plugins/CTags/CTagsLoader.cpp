@@ -66,6 +66,7 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
     std::string logFile = ctagsFileName + ".log";
     std::string command = ctagsBinary + " -R -f \"" + ctagsFileName + "\" \"" + dir + "\"";
 
+    // std::cerr << command;
     std::thread([=, this]() {
 #if defined(_WIN32) || defined(_WIN64)
         std::string fullCommand = "cmd /C \"" + command + " > \"" + logFile + "\" 2>&1\"";
@@ -84,8 +85,7 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
         }
 
 #else
-        std::string fullCommand =
-            command + " > " + logFile + " 2>&1 &"; // The '&' sends it to the background
+        std::string fullCommand = command + " > " + logFile + " 2>&1";
         if (system(fullCommand.c_str()) != 0) {
             std::cerr << "Error: Failed to generate ctags file." << std::endl;
         }
