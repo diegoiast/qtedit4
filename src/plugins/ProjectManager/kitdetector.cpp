@@ -123,8 +123,8 @@ static auto is_command_in_path(const std::string &cmd,
 }
 */
 
-static auto replaceAll(std::string &str, const std::string &from,
-                       const std::string &to) -> std::string & {
+static auto replaceAll(std::string &str, const std::string &from, const std::string &to)
+    -> std::string & {
     size_t start_pos = 0;
     while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
         str.replace(start_pos, from.length(), to);
@@ -367,8 +367,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
     }
 }
 
-auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected,
-                                   bool unix_target) -> void {
+auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
+    -> void {
     auto path_env = safeGetEnv("PATH");
     if (path_env.empty()) {
         return;
