@@ -1,9 +1,11 @@
-# QtEdit4 - a text editor build in Qt6  
+# qtedit4 - an IDE for Rust, Go, C++ and more
 
 ![qtedit4](qtedit4.png)
 
 ![GitHub Releases](https://img.shields.io/github/v/release/diegoiast/qtedit4?include_prereleases)
 ![GitHub All Releases](https://img.shields.io/github/downloads/diegoiast/qtedit4/total)
+![Activity](https://img.shields.io/github/commit-activity/m/diegoiast/qtedit4)
+![Open Issues](https://img.shields.io/github/issues-raw/diegoiast/qtedit4)
 
 ![Build Status](https://github.com/diegoiast/qtedit4/actions/workflows/build.yml/badge.svg)
 ![Clang Format](https://github.com/diegoiast/qtedit4/actions/workflows/clang-format.yml/badge.svg)
@@ -17,26 +19,20 @@
 ![Issues](https://img.shields.io/github/issues/diegoiast/qtedit4)
 ![Pull Requests](https://img.shields.io/github/issues-pr/diegoiast/qtedit4)
 [![Buy Me a Coffee](https://img.shields.io/badge/-Buy%20Me%20a%20Coffee-FFDD00?style=flat&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/diegoiast)
--->
-
-<!-- Activity -->
-![Activity](https://img.shields.io/github/commit-activity/m/diegoiast/qtedit4)
-![Open Issues](https://img.shields.io/github/issues-raw/diegoiast/qtedit4)
-<!-- 
 ![Closed Issues](https://img.shields.io/github/issues-closed/diegoiast/qtedit4)
 ![Open PRs](https://img.shields.io/github/issues-pr-raw/diegoiast/qtedit4)
 ![Closed PRs](https://img.shields.io/github/issues-pr-closed/diegoiast/qtedit4)
 -->
 
-[![Download version 0.0.9](https://img.shields.io/badge/Download-%F0%9F%93%81-limegreen?style=for-the-badge)](https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9)
-
-
 qtedit4 is an IDE for Rust, Go, C++ Python and more. Its focus is local development, 
 not web development. Its currently on early development. There are releases for Windows
-(exe installer) and Linux (AppImage).  
+(exe installer) and Linux (AppImage).
 
+[![Download version 0.0.9](https://img.shields.io/badge/Download-%F0%9F%93%81-limegreen?style=for-the-badge)](https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9)
 
-
+Want to contribue? Look at [hack.md](hack.md) for guideance (TLDR: 
+clone this repo, and `cmake -S build -B build; cmake --build build`, you will need a C++ compiler
+, CMake and Qt installed).
 
 ## License
 Code is GPLv2 or higher. Read each file's as some files have a less-restrictive license. 
@@ -59,8 +55,3 @@ started a new project, called qtedit4.
 
 This means that some of the code originated in Qt3, and got migrated to Qt6 over the last
 (too much) years.
-
-Want to contribue? Look at [hack.md](hack.md) for guideance (TLDR: 
-clone this repo, and `cmake -S build -B build; cmake --build build`).
-
-
