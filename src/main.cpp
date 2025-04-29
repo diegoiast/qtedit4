@@ -22,6 +22,8 @@
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 
+#define USE_SPLIT
+
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);
     Q_INIT_RESOURCE(qutepart_theme_data);
@@ -67,7 +69,7 @@ int main(int argc, char *argv[]) {
     auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
 
-#if 1
+#if defined(USE_SPLIT)
     auto split = new qmdiSplitTab;
     auto splitAction = new QAction("Split tabs", split);
     split->setButtonProvider(new DefaultButtonsProvider);
@@ -113,6 +115,7 @@ int main(int argc, char *argv[]) {
     pluginManager.restoreSettings();
     pluginManager.show();
 
+#if defined(USE_SPLIT)
     pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
                           [&pluginManager, textEditorPlugin, split](QObject *s) {
                               auto tab = qobject_cast<QTabWidget *>(s->parent());
@@ -130,6 +133,10 @@ int main(int argc, char *argv[]) {
                               client->mdiServer = pluginManager.getMdiServer();
                               editor->setFocus();
                           });
+#else
+    pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
+                          [textEditorPlugin]() { textEditorPlugin->fileNew(); });
+#endif
 
     pluginManager.openFiles(parser.positionalArguments());
     return app.exec();
