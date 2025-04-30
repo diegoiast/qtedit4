@@ -38,16 +38,8 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
 
-    // fixme: port this to be splitHorizontally
-    // Without this - event listener does not work, and menus don't work
-    QTimer::singleShot(0, [this]() {
-        currentTabWidget = new QTabWidget(this);
-        currentTabWidget->installEventFilter(this);
-        currentTabWidget->setDocumentMode(true);
-        currentTabWidget->setMovable(true);
-        currentTabWidget->setObjectName(QString("QTabWidget#0"));
-        splitter->addWidget(currentTabWidget);
-    });
+    // Whty a timer? without this - event listener does not work, and menus don't work
+    QTimer::singleShot(0, splitter, [this]() { splitHorizontally(); });
 }
 
 void SplitTabWidget::addTab(QWidget *widget, const QString &label) {
@@ -59,6 +51,7 @@ void SplitTabWidget::splitHorizontally() {
     auto newTabWidget = new QTabWidget(this);
     newTabWidget->installEventFilter(this);
     newTabWidget->setDocumentMode(true);
+    newTabWidget->setMovable(false);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
     splitter->insertWidget(currentIndex + 1, newTabWidget);
     updateCurrentTabWidget(newTabWidget);
@@ -93,12 +86,7 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
                                           const QString &tooltip) {
     if (!currentTabWidget) {
-        // fixme: port this to be splitHorizontally
-        currentTabWidget = new QTabWidget(this);
-        currentTabWidget->installEventFilter(this);
-        currentTabWidget->setDocumentMode(true);
-        currentTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
-        splitter->addWidget(currentTabWidget);
+        splitHorizontally();
     }
     auto index = currentTabWidget->addTab(widget, label);
     currentTabWidget->setCurrentIndex(index);
