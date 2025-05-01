@@ -49,7 +49,6 @@ void SplitTabWidget::addTab(QWidget *widget, const QString &label) {
 void SplitTabWidget::splitHorizontally() {
     auto currentIndex = splitter->indexOf(currentTabWidget);
     auto newTabWidget = new QTabWidget(this);
-    newTabWidget->installEventFilter(this);
     newTabWidget->setDocumentMode(true);
     newTabWidget->setMovable(false);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
@@ -59,7 +58,9 @@ void SplitTabWidget::splitHorizontally() {
 }
 
 void SplitTabWidget::closeCurrentSplit() {
+    // We wlaways keep at last a single tab. Why? since it may contain a menu for the app.
     if (splitter->count() <= 1) {
+        onTabFocusChanged(nullptr, true);
         return;
     }
     closeSplitWithTabWidget(currentTabWidget);
@@ -176,7 +177,7 @@ void SplitTabWidget::equalizeWidths() {
 
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
     if (event->type() == QEvent::ShowToParent || event->type() == QEvent::HideToParent ||
-        event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved) {
+        event->type() == QEvent::ChildRemoved) {
 
         // How can we detect that the widget is inside a QTabWidget?
         // Internally the QTabWidget has a QTabBar and a QStackedWidget.
@@ -191,16 +192,24 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
             auto tabWidget = qobject_cast<QTabWidget *>(parent->parentWidget());
             if (tabWidget) {
                 // Only close the split if it's a ChildRemoved event and we're down to 1 tab
-                if (event->type() == QEvent::ChildRemoved && tabWidget->count() == 1) {
-                    if (closeSplitWhenEmpty) {
-                        closeSplitWithTabWidget(tabWidget);
-                    }
-                } else if (splitter->indexOf(tabWidget) != -1) {
+                auto index = splitter->indexOf(tabWidget);
+                if (index != -1) {
                     updateCurrentTabWidget(tabWidget);
-                    if (event->type() == QEvent::ChildRemoved) {
+                    switch (event->type()) {
+                    // case QEvent::ChildRemoved:
+                    case QEvent::HideToParent:
                         onTabFocusChanged(widget, false);
-                    } else {
+                        if (currentTabWidget->count() == 1) {
+                            if (closeSplitWhenEmpty) {
+                                closeCurrentSplit();
+                            }
+                        }
+                        break;
+                    case QEvent::ShowToParent:
                         onTabFocusChanged(widget, true);
+                        break;
+                    default:
+                        break;
                     }
                     return false;
                 }
@@ -272,7 +281,7 @@ int SplitTabWidget::getWigetsCountInCurrentSplit() const {
 }
 
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
-    if (focused) {
+    if (widget && focused) {
         widget->setFocus();
     }
 }
