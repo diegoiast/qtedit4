@@ -434,15 +434,18 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         extraPath.compiler_path = dir;
         if (unix_target) {
             extraPath.comment = "# qt installation";
-            extraPath.command = "export QTDIR=%1";
-            extraPath.command += "\n";
-            extraPath.command += "export QT_DIR=%1";
-            extraPath.command += "export QT6_DIR=%1";
+            extraPath.command = "export QTDIR=%1\n";
+            extraPath.command += "export QT_DIR=%1\n";
+            extraPath.command += "export QT6_DIR=%1\n";
+            extraPath.command += "# lets add qt to the path\n";
+            extraPath.command += "export PATH=\"$QT6_DIR;$PATH\"\n";
         } else {
-            extraPath.comment = "@rem qt installation";
+            extraPath.comment = "@REM qt installation";
             extraPath.command = "SET QTDIR=%1\n";
             extraPath.command += "SET QT_DIR=%1\n";
             extraPath.command += "SET QT6_DIR=%1\n";
+            extraPath.command += "@REM lets add qt to the path\n";
+            extraPath.command += "SET PATH=%QT6_DIR%;%PATH%\n";
         }
         replaceAll(extraPath.command, "%1", dir);
         replaceAll(extraPath.comment, "%1", dir);
