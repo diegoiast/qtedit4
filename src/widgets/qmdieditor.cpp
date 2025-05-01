@@ -713,7 +713,7 @@ bool qmdiEditor::isXPMDocument() const { return fileName.endsWith(".xpm", Qt::Ca
 bool qmdiEditor::isSVGDocument() const { return fileName.endsWith(".svg", Qt::CaseInsensitive); }
 
 bool qmdiEditor::isXMLDocument() const {
-    QRegularExpression regex(R"(.*xml.*\.xml$)", QRegularExpression::CaseInsensitiveOption);
+    static QRegularExpression regex(R"(.*xml.*\.xml$)", QRegularExpression::CaseInsensitiveOption);
     return regex.match(syntaxLangID).hasMatch();
 }
 
@@ -1064,7 +1064,8 @@ void qmdiEditor::transformBlockCase() {
 
 void qmdiEditor::fileMessage_clicked(const QString &s) {
     if (s == ":reload") {
-        loadFile(fileName);
+        documentHasBeenLoaded = false;
+        loadContent();
         hideBannerMessage();
     } else if (s == ":forcerw") {
         hideBannerMessage();
