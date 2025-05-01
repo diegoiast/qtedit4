@@ -50,7 +50,7 @@ void SplitTabWidget::splitHorizontally() {
     auto currentIndex = splitter->indexOf(currentTabWidget);
     auto newTabWidget = new QTabWidget(this);
     newTabWidget->setDocumentMode(true);
-    newTabWidget->setMovable(false);
+    newTabWidget->setMovable(true);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
     splitter->insertWidget(currentIndex + 1, newTabWidget);
     updateCurrentTabWidget(newTabWidget);
