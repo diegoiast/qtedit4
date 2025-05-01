@@ -90,12 +90,7 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
         splitHorizontally();
     }
     auto index = currentTabWidget->addTab(widget, label);
-    currentTabWidget->setCurrentIndex(index);
-    currentTabWidget->setTabToolTip(index, tooltip);
-    widget->setObjectName(label);
-    widget->installEventFilter(this);
-    widget->setFocus();
-    onTabFocusChanged(currentTabWidget->currentWidget(), true);
+    addTabToSplit(index, widget, label, tooltip);
 }
 
 void SplitTabWidget::addTabToSplit(int splitNumber, QWidget *widget, const QString &label,
