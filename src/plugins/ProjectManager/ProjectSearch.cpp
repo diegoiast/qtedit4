@@ -210,6 +210,10 @@ void ProjectSearch::searchButton_clicked() {
     ui->searchButton->setText("(click to &stop)");
     ui->progressIndicator->start();
     running = true;
+
+    if (allowList.isEmpty()) {
+        allowList = "*";
+    }
     QThreadPool::globalInstance()->start([this, originalText, allowList, denyList]() {
         auto text = ui->searchFor->text().toStdString();
         auto startSearchPath = QDir::toNativeSeparators(ui->pathEdit->path());
