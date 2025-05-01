@@ -102,8 +102,6 @@ auto searchFile(const std::string &filename, bool searchInBinaries, const std::s
     } else {
         if (searchInBinaries) {
             searchBinaryFile(file, searchString, callback);
-        } else {
-            qDebug() << "Not searching inside file " << filename;
         }
     }
 }

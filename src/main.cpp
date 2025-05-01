@@ -117,7 +117,6 @@ int main(int argc, char *argv[]) {
                           [&pluginManager, textEditorPlugin, split](QObject *s) {
                               auto tab = qobject_cast<QTabWidget *>(s->parent());
                               auto index = split->findSplitIndex(tab);
-                              qDebug() << "sender tab is" << tab << "split" << index;
                               if (!tab || index < 0) {
                                   textEditorPlugin->fileNew();
                                   return;

@@ -123,7 +123,6 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
 
 void qmdiSplitTab::onNewSplitCreated(QTabWidget *tabWidget, int count) {
     SplitTabWidget::onNewSplitCreated(tabWidget, count);
-    qDebug() << "Added tab " << count << tabWidget;
     tabWidget->tabBar()->installEventFilter(this);
 
 #if CLOSABLE_TABS
