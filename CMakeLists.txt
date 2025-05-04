@@ -119,6 +119,8 @@ set(qtedit4_sources
     src/plugins/CTags/CTagsPlugin.hpp
     src/plugins/CTags/CTagsLoader.cpp
     src/plugins/CTags/CTagsLoader.hpp
+    src/plugins/SplitViewPlugin/SplitViewPlugin.cpp
+    src/plugins/SplitViewPlugin/SplitViewPlugin.hpp
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp
