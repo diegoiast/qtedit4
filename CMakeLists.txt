@@ -125,6 +125,8 @@ set(qtedit4_sources
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     
+    src/plugins/LSP/LspPlugin.cpp
+    src/plugins/LSP/LspPlugin.hpp
     src/plugins/LSP/LspClientImpl.cpp
     src/plugins/LSP/LspClientImpl.hpp
     
