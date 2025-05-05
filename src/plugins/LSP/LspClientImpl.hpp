@@ -21,7 +21,7 @@ class LspClientImpl {
     using DiagnosticsCallback = std::function<void(const std::vector<lsp::Diagnostic> &)>;
     using TextChangedCallback = std::function<std::string()>;
 
-    explicit LspClientImpl(const std::string &documentRoot);
+    explicit LspClientImpl();
     ~LspClientImpl();
 
     // Disable copy and move
@@ -30,6 +30,7 @@ class LspClientImpl {
     LspClientImpl(LspClientImpl &&) = delete;
     LspClientImpl &operator=(LspClientImpl &&) = delete;
 
+    void setDocumentRoot(const std::string &documentRoot);
     void setCompletionCallback(CompletionCallback callback);
     void setDiagnosticsCallback(DiagnosticsCallback callback);
     void setTextChangedCallback(TextChangedCallback callback);
@@ -62,8 +63,8 @@ class LspClientImpl {
     HANDLE m_clangdStdIn;
     HANDLE m_clangdStdOut;
 #else
-    pid_t m_clangdPid;
-    int m_clangdStdIn;
-    int m_clangdStdOut;
+    pid_t m_clangdPid = -1;
+    int m_clangdStdIn = -1;
+    int m_clangdStdOut = -1;
 #endif
 };

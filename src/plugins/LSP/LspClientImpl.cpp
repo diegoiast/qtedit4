@@ -12,7 +12,10 @@
 
 #include "LspClientImpl.hpp"
 
-LspClientImpl::LspClientImpl(const std::string &documentRoot) : m_documentRoot(documentRoot) {
+LspClientImpl::LspClientImpl() {}
+
+void LspClientImpl::setDocumentRoot(const std::string &newRoot) {
+    m_documentRoot = newRoot;
     startClangd();
     initializeLspServer();
 }
