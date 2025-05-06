@@ -102,23 +102,45 @@ CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
     std::string symbolLower = symbolName;
     std::transform(symbolLower.begin(), symbolLower.end(), symbolLower.begin(), ::tolower);
 
+    using namespace std::chrono;
+    auto start = steady_clock::now();
+
+    auto iteration_count = 0;
     if (symbolName.length() >= 3) {
         if (exactMatch) {
-            for (const auto &tag : tags) {
-                if (tag.name == symbolName) {
-                    foundTags.emplace_back(tag);
-                }
+            auto comp = [](const CTag &tag, const std::string &name) { return tag.name < name; };
+            auto it = std::lower_bound(tags.begin(), tags.end(), symbolName, comp);
+            while (it != tags.end() && it->name == symbolName) {
+                std::cerr << "Testing " << it->name << " iteration: " << iteration_count << "\n";
+                iteration_count++;
+                foundTags.emplace_back(*it);
+                ++it;
             }
         } else {
-            for (const auto &tag : tags) {
-                auto tagLower = std::string(tag.name);
+            auto it = std::lower_bound(tags.begin(), tags.end(), symbolLower,
+                                       [](const CTag &tag, const std::string &prefix) {
+                                           auto tagLower = std::string(tag.name);
+                                           std::transform(tagLower.begin(), tagLower.end(),
+                                                          tagLower.begin(), ::tolower);
+                                           return tagLower < prefix;
+                                       });
+
+            for (; it != tags.end(); ++it) {
+
+                auto tagLower = std::string(it->name);
                 std::transform(tagLower.begin(), tagLower.end(), tagLower.begin(), ::tolower);
-                if (tagLower.starts_with(symbolLower)) {
-                    foundTags.emplace_back(tag);
+                if (!tagLower.starts_with(symbolLower)) {
+                    break;
                 }
+                foundTags.emplace_back(*it);
             }
         }
     }
+
+    auto end = steady_clock::now();
+    auto duration = duration_cast<milliseconds>(end - start).count();
+    std::cout << "CTAGS: found " << foundTags.size() << " in " << duration << " ms, searched for "
+              << symbolName << std::endl;
     return foundTags;
 }
 
