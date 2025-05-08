@@ -233,6 +233,9 @@ void ProjectSearch::searchButton_clicked() {
             }
             auto shortFileName = fullFileName.mid(trimCount);
             auto searchInBinaries = ui->searchInBinaryFiles->isChecked();
+            if (shortFileName.startsWith('/') || shortFileName.startsWith('\\') ) {
+                shortFileName.remove(0, 1);
+            }
 
             if (!FilenameMatches(fullFileName, allowList, denyList)) {
                 continue;
