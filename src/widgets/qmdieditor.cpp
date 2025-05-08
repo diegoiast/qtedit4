@@ -86,12 +86,17 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
 }
 
 auto static getLineEnding(QIODevice &stream) -> QString {
+#if defined(WIN32)
+    auto ending = QString::fromLatin1("\r\n");
+#else
+    auto ending = QString::fromLatin1("\n");
+#endif
+
     if (stream.atEnd()) {
-        return {};
+        return ending;
     }
 
     auto pos = stream.pos();
-    auto ending = QString{};
     while (!stream.atEnd()) {
         QChar ch = stream.read(1).at(0);
         if (ch == '\r' || ch == '\n') {
