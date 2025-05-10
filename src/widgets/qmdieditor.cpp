@@ -46,6 +46,12 @@
 
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
+#if defined(WIN32)
+#define PLATFORM_LINE_ENDING "\r\n"
+#else
+#define PLATFORM_LINE_ENDING "\n"
+#endif
+
 auto static is_running_under_gnome() -> bool {
     const auto desktop_session = std::getenv("DESKTOP_SESSION");
     const auto xdg_current_desktop = std::getenv("XDG_CURRENT_DESKTOP");
@@ -85,12 +91,8 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
     return {};
 }
 
-auto static getLineEnding(QIODevice &stream) -> QString {
-#if defined(WIN32)
-    auto ending = QString::fromLatin1("\r\n");
-#else
-    auto ending = QString::fromLatin1("\n");
-#endif
+auto static getLineEnding(QIODevice &stream, const QString &defaultLineEnding) -> QString {
+    auto ending = defaultLineEnding;
 
     if (stream.atEnd()) {
         return ending;
@@ -405,11 +407,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->textEditor->setMouseTracking(true);
     this->textEditor->viewport()->installEventFilter(this);
 
-#if defined(WIN32)
-    originalLineEnding = "\r\n";
-#else
-    originalLineEnding = "\n";
-#endif
+    originalLineEnding = PLATFORM_LINE_ENDING;
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -1114,7 +1112,7 @@ void qmdiEditor::loadContent() {
 
     QElapsedTimer timer;
     timer.start();
-    this->originalLineEnding = getLineEnding(file);
+    this->originalLineEnding = getLineEnding(file, originalLineEnding);
     auto textStream = QTextStream(&file);
     textStream.seek(0);
 
