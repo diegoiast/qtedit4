@@ -229,7 +229,8 @@ auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
 }
 
 auto removeAnsiEscapeCodes(const QString &input) -> QString {
-    static const QRegularExpression ansiRegex(R"(\x1B\[[0-9;]*[A-Za-z])");
+    static const QRegularExpression ansiRegex(
+        R"((\x1B\[[0-9;?]*[ -/]*[@-~])|(\x1B\]8;[^\x07\x1B]*[\x07\x1B\\]))");
     auto result = input;
     return result.replace(ansiRegex, "");
 }
