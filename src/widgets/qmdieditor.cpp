@@ -92,12 +92,11 @@ auto static getCorrespondingFile(const QString &fileName) -> QString {
 }
 
 auto static getLineEnding(QIODevice &stream, const QString &defaultLineEnding) -> QString {
-    auto ending = defaultLineEnding;
-
     if (stream.atEnd()) {
-        return ending;
+        return defaultLineEnding;
     }
 
+    auto ending = QString{};
     auto pos = stream.pos();
     while (!stream.atEnd()) {
         QChar ch = stream.read(1).at(0);
