@@ -1070,8 +1070,18 @@ auto ProjectManagerPlugin::saveAllDocuments() -> bool {
 auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     auto cursor = this->outputPanel->commandOuput->textCursor();
     auto lineNumber = cursor.blockNumber();
-    auto plaintext = removeAnsiEscapeCodes(line);
-    appendAnsiHtml(this->outputPanel->commandOuput, line);
+
+    // see https://github.com/diegoiast/qtedit4/issues/88
+    // Ninja likes printing "\r" to clear line. Lets not deal with that
+    auto fixedAnsi = line;
+#if 1
+    if (fixedAnsi.size() > 0 && fixedAnsi[0] == QChar('\r')) {
+        fixedAnsi[0] = QChar('\n');
+    }
+#endif
+
+    auto plaintext = removeAnsiEscapeCodes(fixedAnsi);
+    appendAnsiHtml(this->outputPanel->commandOuput, fixedAnsi);
     this->projectIssues->processLine(plaintext, lineNumber, this->getCurrentConfig()->sourceDir);
 }
 
