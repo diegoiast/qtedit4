@@ -15,6 +15,8 @@
 #include <unistd.h>
 #endif
 
+class PipeStream;
+
 class LspClientImpl {
   public:
     using CompletionCallback = std::function<void(const std::vector<lsp::CompletionItem> &)>;
@@ -67,4 +69,7 @@ class LspClientImpl {
     int m_clangdStdIn = -1;
     int m_clangdStdOut = -1;
 #endif
+
+    std::unique_ptr<PipeStream> m_clangdStdInStream;
+    std::unique_ptr<PipeStream> m_clangdStdOutStream;
 };

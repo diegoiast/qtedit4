@@ -1,3 +1,4 @@
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
@@ -130,36 +131,48 @@ void LspClientImpl::startClangdWin32(const std::wstring &clangdPath) {
 void LspClientImpl::startClangdPosix() {
     int stdinPipe[2], stdoutPipe[2];
     if (pipe(stdinPipe) == -1 || pipe(stdoutPipe) == -1) {
-        throw std::runtime_error("Failed to create pipes");
+        throw std::runtime_error("Failed to create pipes: " + std::string(strerror(errno)));
     }
 
     m_clangdPid = fork();
     if (m_clangdPid == -1) {
-        throw std::runtime_error("Failed to fork clangd process");
+        throw std::runtime_error("Failed to fork clangd process: " + std::string(strerror(errno)));
     } else if (m_clangdPid == 0) {
-        // Child process
-        dup2(stdinPipe[0], STDIN_FILENO);
-        dup2(stdoutPipe[1], STDOUT_FILENO);
-        dup2(stdoutPipe[1], STDERR_FILENO);
+        if (dup2(stdinPipe[0], STDIN_FILENO) == -1) {
+            perror("dup2 stdinPipe[0]");
+            exit(EXIT_FAILURE);
+        }
+        if (dup2(stdoutPipe[1], STDOUT_FILENO) == -1) {
+            perror("dup2 stdoutPipe[1]");
+            exit(EXIT_FAILURE);
+        }
+        if (dup2(stdoutPipe[1], STDERR_FILENO) == -1) {
+            perror("dup2 stdoutPipe[1] (stderr)");
+            exit(EXIT_FAILURE);
+        }
 
         close(stdinPipe[0]);
         close(stdinPipe[1]);
         close(stdoutPipe[0]);
         close(stdoutPipe[1]);
 
-        execlp("clangd", "clangd", (char *)NULL);
-        exit(1);
+        char *lspserver = (char *)"/usr/bin/clangd";
+        char *args[] = {lspserver, nullptr};
+        execv(lspserver, args);
+
+        perror("execv clangd");
+        exit(EXIT_FAILURE);
     }
 
-    // Parent process
-    close(stdinPipe[0]);
-    close(stdoutPipe[1]);
+    close(stdinPipe[0]);  // Parent doesn't read from stdin
+    close(stdoutPipe[1]); // Parent doesn't write to stdout pipe
+
     m_clangdStdIn = stdinPipe[1];
     m_clangdStdOut = stdoutPipe[0];
 
-    auto clangdStdInStream = PipeStream(m_clangdStdIn);
-    auto clangdStdOutStream = PipeStream(m_clangdStdOut);
-    m_connection = std::make_unique<lsp::Connection>(clangdStdInStream, clangdStdOutStream);
+    m_clangdStdInStream = std::make_unique<PipeStream>(m_clangdStdIn);
+    m_clangdStdOutStream = std::make_unique<PipeStream>(m_clangdStdOut);
+    m_connection = std::make_unique<lsp::Connection>(*m_clangdStdInStream, *m_clangdStdOutStream);
 }
 #endif
 
