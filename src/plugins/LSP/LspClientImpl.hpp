@@ -1,5 +1,6 @@
 #pragma once
 
+#include <atomic>
 #include <functional>
 #include <memory>
 #include <string>
@@ -39,6 +40,8 @@ class LspClientImpl {
 
     void requestCompletion(int line, int column);
 
+    void runLoop();
+
   private:
     void startClangd();
     void stopClangd();
@@ -72,4 +75,6 @@ class LspClientImpl {
 
     std::unique_ptr<PipeStream> m_clangdStdInStream;
     std::unique_ptr<PipeStream> m_clangdStdOutStream;
+    std::thread m_workerThread;
+    std::atomic_bool m_running{false};
 };

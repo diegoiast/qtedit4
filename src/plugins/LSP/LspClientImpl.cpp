@@ -1,3 +1,4 @@
+#include <QSocketNotifier>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -8,8 +9,6 @@
 #include <signal.h>
 #include <sys/wait.h>
 #endif
-
-// #include <lsp/io/standardio.h>
 
 #include "LspClientImpl.hpp"
 
@@ -45,6 +44,8 @@ void LspClientImpl::startClangd() {
     startClangdPosix();
 #endif
     m_messageHandler = std::make_unique<lsp::MessageHandler>(*m_connection);
+    m_running = true;
+    m_workerThread = std::thread(&LspClientImpl::runLoop, this);
 }
 
 class PipeStream : public std::iostream {
@@ -189,48 +190,49 @@ void LspClientImpl::stopClangd() {
     close(m_clangdStdIn);
     close(m_clangdStdOut);
 #endif
+
+    m_running = false;
+    // Send shutdown/exit message if needed here
+    if (m_workerThread.joinable()) {
+        m_workerThread.join();
+    }
+}
+
+void LspClientImpl::runLoop() {
+    while (m_running) {
+        m_messageHandler->processIncomingMessages();
+    }
 }
 
 void LspClientImpl::initializeLspServer() {
-#if 0
-    auto &dispatcher = m_messageHandler->messageDispatcher();
-
-    auto initializeParams = lsp::requests::Initialize::Params{};
-    initializeParams.rootUri = "file://" + m_documentRoot;
-    initializeParams.capabilities = {};
-    dispatcher.sendRequest<lsp::requests::Initialize>(
-        std::move(initializeParams),
-        [](const lsp::requests::Initialize::Result &&result) {
-            // TODO
-        },
-        [](const lsp::Error &error) {
-            // TODO
-        });
-    dispatcher.sendRequest<lsp::requests::TextDocument_Diagnostic>(
-        lsp::requests::TextDocument_Diagnostic::Params{/* parameters */},
-        [](lsp::requests::TextDocument_Diagnostic::Result &&result) {
-            //...
-        },
-        [](const lsp::Error &error) {
-            //...
-        });
-#endif
     auto initializeParams = lsp::requests::Initialize::Params{};
     initializeParams.rootUri = "file://" + m_documentRoot;
     initializeParams.capabilities = {};
 
-    auto [id, result] =
-        m_messageHandler->sendRequest<lsp::requests::Initialize>(std::move(initializeParams));
-
+    auto id = m_messageHandler->sendRequest<lsp::requests::Initialize>(
+        lsp::requests::Initialize::Params{/* parameters */},
+        [](lsp::requests::Initialize::Result &&result) {
+            std::cout << "Server initialized successfully\n";
+            if (result.capabilities.textDocumentSync.has_value()) {
+                std::cout << "Text document sync supported\n";
+            }
+            if (result.capabilities.completionProvider.has_value()) {
+                std::cout << "Completion provider supported\n";
+            }
+            if (result.capabilities.hoverProvider.has_value()) {
+                std::cout << "Hover provider supported\n";
+            }
+        },
+        [](const lsp::Error &error) {
+            std::cerr << "Failed to get response from LSP server: " << error.what() << std::endl;
+        });
     if (auto strPtr = std::get_if<lsp::json::String>(&id)) {
-        std::cout << "String ID: " << *strPtr << "\n";
+        std::cout << "lsp::requests::Initialize - String ID: " << *strPtr << "\n";
     } else if (auto intPtr = std::get_if<lsp::json::Integer>(&id)) {
-        std::cout << "Integer ID: " << *intPtr << "\n";
+        std::cout << "lsp::requests::Initialize - Integer ID: " << *intPtr << "\n";
     } else if (std::holds_alternative<lsp::json::Null>(id)) {
-        std::cout << "ID is null\n";
+        std::cout << "lsp::requests::Initialize - ID is null\n";
     }
-    // std::cerr << result.result;
-
 #if 0
     auto [id, result] = m_messageHandler->sendRequest<lsp::requests::TextDocument_Diagnostic>(
         lsp::requests::TextDocument_Diagnostic::Params{/* parameters */});
