@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     auto iconsPath = "/../share/icons";
 #endif
 
-    // On bare bones Linux installs, Windows or OSX, we might not have a freedesktop
+    // On bare-bones Linux installs, Windows or OSX, we might not have a freedesktop
     // icons thus - we use our bundled icons.
     if (needsIcons) {
         auto base = QDir(QCoreApplication::applicationDirPath() + iconsPath).absolutePath();
