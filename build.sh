@@ -3,8 +3,8 @@
 set -x
 set -e
 
-QT_VERSION="6.8.3"
-APP_VERSION="0.0.9"
+QT_VERSION="6.9.0"
+APP_VERSION="0.0.10-alpha1"
 
 
 NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
