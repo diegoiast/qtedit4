@@ -125,6 +125,32 @@ def reformat_json(json_file):
 
     print(f"Reformatted {json_file}")
 
+def update_build_bat(build_bat_path, qt_version):
+    if not qt_version:
+        return
+    with open(build_bat_path, 'rb') as f:
+        content = f.read().decode('utf-8')
+        line_ending = detect_line_ending(content)
+        lines = content.splitlines()
+
+    new_lines = []
+    for line in lines:
+        if line.strip().startswith('SET PATH='):
+            # Replace any Qt path like c:\Qt\6.8.0\...
+            new_line = re.sub(
+                r'(c:\\Qt\\)([\d\.]+)(\\[^;\\]+)',
+                rf'\g<1>{qt_version}\g<3>',
+                line
+            )
+            new_lines.append(new_line)
+        else:
+            new_lines.append(line)
+
+    new_content = line_ending.join(new_lines) + line_ending
+    with open(build_bat_path, 'wb') as f:
+        f.write(new_content.encode('utf-8'))
+    print(f"Updated Qt version in {build_bat_path}")
+
 def update_build_sh(build_sh_path, app_version=None, qt_version=None):
     with open(build_sh_path, 'rb') as f:
         content = f.read().decode('utf-8')
@@ -153,6 +179,7 @@ def main():
     parser.add_argument('--cpp', default='src/main.cpp', help='Path to main.cpp file')
     parser.add_argument('--json', default='updates.json', help='Path to updates.json file')
     parser.add_argument('--build-sh', default='build.sh', help='Path to build.sh file')
+    parser.add_argument('--build-bat', default='build.bat', help='Path to build.bat file')
     args = parser.parse_args()
 
     iss_file = args.iss
@@ -177,9 +204,10 @@ def main():
     print_versions('Updated Versions', iss_file, cpp_file, json_file)
 
     update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
+    update_build_bat(args.build_bat, qt_version=args.qt_version)
 
     if args.git:
-        git_add([iss_file, cpp_file, json_file, args.build_sh])
+        git_add([iss_file, cpp_file, json_file, args.build_sh, args.build_bat])
 
 if __name__ == "__main__":
     main()
