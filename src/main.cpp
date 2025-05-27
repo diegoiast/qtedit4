@@ -16,6 +16,7 @@
 #include "pluginmanager.h"
 #include "plugins/CTags/CTagsPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
+#include "plugins/SplitTabsPlugin/SplitTabsPlugin.hpp"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/help/help_plg.h"
 #include "plugins/hexviewer/hexviewer_plg.h"
@@ -69,39 +70,13 @@ int main(int argc, char *argv[]) {
     auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
 
-#if defined(USE_SPLIT)
-    auto split = new qmdiSplitTab;
-    auto splitAction = new QAction("Split tabs", split);
-    split->setButtonProvider(new DefaultButtonsProvider);
-    splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
-    QObject::connect(splitAction, &QAction::triggered, splitAction, [split, textEditorPlugin]() {
-        split->splitHorizontally();
-        textEditorPlugin->fileNew();
-    });
-    auto moveSplitAction = new QAction("Move editor to new split", split);
-    moveSplitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Backslash));
-    QObject::connect(moveSplitAction, &QAction::triggered, moveSplitAction, [split]() {
-        // TODO - this action should be disabled. I need expose the event of tabs modifies
-        //        to 3rd parties, and not keep it an internal event.
-        if (split->getWigetsCountInCurrentSplit() < 2) {
-            return;
-        }
-        auto w = split->getCurrentWidget();
-        split->moveTabToNewSplit(w);
-    });
-    QObject::connect(split, &qmdiSplitTab::newClientAdded, &pluginManager,
-                     &PluginManager::newClientAdded);
-
-    pluginManager.removeBuiltinActions();
-    pluginManager.menus["Se&ttings"]->addAction(splitAction);
-    pluginManager.menus["Se&ttings"]->addAction(moveSplitAction);
-    pluginManager.replaceMdiServer(split);
-    pluginManager.addBuiltinActions();
-    pluginManager.updateGUI();
-#endif
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
+
+#if defined(USE_SPLIT)
+    pluginManager.addPlugin(new SplitTabsPlugin(textEditorPlugin));
+#endif
     pluginManager.addPlugin(textEditorPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
@@ -115,25 +90,7 @@ int main(int argc, char *argv[]) {
     pluginManager.restoreSettings();
     pluginManager.show();
 
-#if defined(USE_SPLIT)
-    pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
-                          [&pluginManager, textEditorPlugin, split](QObject *s) {
-                              auto tab = qobject_cast<QTabWidget *>(s->parent());
-                              auto index = split->findSplitIndex(tab);
-                              if (!tab || index < 0) {
-                                  textEditorPlugin->fileNew();
-                                  return;
-                              }
-
-                              // we know where exactly to put this
-                              auto client = textEditorPlugin->fileNewEditor();
-                              auto editor = dynamic_cast<QWidget *>(client);
-                              split->addTabToSplit(index, editor, client->mdiClientName,
-                                                   client->mdiClientFileName());
-                              client->mdiServer = pluginManager.getMdiServer();
-                              editor->setFocus();
-                          });
-#else
+#if !defined(USE_SPLIT)
     pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
                           [textEditorPlugin]() { textEditorPlugin->fileNew(); });
 #endif
