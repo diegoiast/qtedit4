@@ -42,8 +42,22 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     QTimer::singleShot(0, splitter, [this]() { splitHorizontally(); });
 }
 
-void SplitTabWidget::addTab(QWidget *widget, const QString &label) {
-    addTabToCurrentSplit(widget, label);
+void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString &tooltip) {
+    if (!savedSplitCount.empty()) {
+        auto currentTabIndex = findSplitIndex(currentTabWidget);
+        auto widgetsInCurrentTab = currentTabWidget->count();
+        auto maxWidgetsInCurrentTab = savedSplitCount[currentTabIndex];
+
+        if (widgetsInCurrentTab >= maxWidgetsInCurrentTab) {
+
+            if (currentTabIndex + 1 == savedSplitCount.count()) {
+                savedSplitCount.clear();
+            } else {
+                splitHorizontally();
+            }
+        }
+    }
+    addTabToCurrentSplit(widget, label, tooltip);
 }
 
 void SplitTabWidget::splitHorizontally() {
@@ -259,6 +273,20 @@ void SplitTabWidget::movePrevTab() {
     currentTabWidget->setFocus(Qt::TabFocusReason);
     currentTabWidget->setCurrentIndex(widgetIndex);
     currentTabWidget->widget(widgetIndex)->setFocus();
+}
+
+QList<int> SplitTabWidget::getSplitInternalCount() const {
+    auto l = QList<int>();
+    for (auto i = 0; i < splitter->count(); i++) {
+        auto w = splitter->widget(i);
+        auto t = qobject_cast<QTabWidget *>(w);
+        if (t) {
+            l.push_back(t->count());
+        } else {
+            l.push_back(0);
+        }
+    }
+    return l;
 }
 
 void SplitTabWidget::setButtonProvider(ButtonsProvider *newProvider) {

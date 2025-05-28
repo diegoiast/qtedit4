@@ -1,3 +1,4 @@
+#include <QSettings>
 #include <iplugin.h>
 #include <pluginmanager.h>
 
@@ -5,6 +6,25 @@
 #include "plugins/texteditor/texteditor_plg.h"
 #include "widgets/SplitTabWidget.h"
 #include "widgets/qmdiSplitTab.h"
+
+static void SaveList(QSettings &settings, const QList<int> &list, const QString &name) {
+    auto strList = QStringList();
+    for (auto val : list) {
+        strList.append(QString::number(val));
+    }
+    settings.setValue(name, strList);
+}
+
+static QList<int> LoadList(QSettings &settings, const QString &name) {
+    auto result = QList<int>();
+    auto strList = settings.value(name).toStringList();
+    for (auto &str : strList) {
+        auto ok = false;
+        auto number = str.toInt(&ok);
+        result.append(ok ? number : 0);
+    }
+    return result;
+}
 
 SplitTabsPlugin::SplitTabsPlugin(TextEditorPlugin *p) : IPlugin() {
     name = tr("Split tabs support");
@@ -14,14 +34,31 @@ SplitTabsPlugin::SplitTabsPlugin(TextEditorPlugin *p) : IPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
+    config.pluginName = "SplitTabsPlugin";
     textEditorPlugin = p;
 }
 
 SplitTabsPlugin::~SplitTabsPlugin() {}
 
-void SplitTabsPlugin::loadConfig(QSettings &settings) {}
+void SplitTabsPlugin::loadConfig(QSettings &settings) {
+    IPlugin::loadConfig(settings);
 
-void SplitTabsPlugin::saveConfig(QSettings &settings) {}
+    settings.beginGroup(config.pluginName);
+    savedSplitInternalSizes = LoadList(settings, Config::SplitSizesKey);
+    split->savedSplitCount = LoadList(settings, Config::SplitCountKey);
+    settings.endGroup();
+}
+
+void SplitTabsPlugin::saveConfig(QSettings &settings) {
+    IPlugin::saveConfig(settings);
+
+    settings.beginGroup(config.pluginName);
+    auto a = this->split->getSplitSizes();
+    auto b = this->split->getSplitInternalCount();
+    SaveList(settings, a, Config::SplitSizesKey);
+    SaveList(settings, b, Config::SplitCountKey);
+    settings.endGroup();
+}
 
 void SplitTabsPlugin::on_client_merged(qmdiHost *host) {
     IPlugin::on_client_merged(host);

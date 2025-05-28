@@ -19,6 +19,7 @@ class SplitTabsPlugin : public IPlugin {
 
     struct Config {
         CONFIG_DEFINE(SplitSizes, QString)
+        CONFIG_DEFINE(SplitCount, QString)
         qmdiPluginConfig *config;
     };
     Config &getConfig();
@@ -35,4 +36,5 @@ class SplitTabsPlugin : public IPlugin {
   private:
     TextEditorPlugin *textEditorPlugin = nullptr;
     qmdiSplitTab *split = nullptr;
+    QList<int> savedSplitInternalSizes;
 };

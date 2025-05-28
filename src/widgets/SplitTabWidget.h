@@ -34,7 +34,7 @@ class SplitTabWidget : public QWidget {
   public:
     explicit SplitTabWidget(QWidget *parent = nullptr);
 
-    void addTab(QWidget *widget, const QString &label);
+    void addTab(QWidget *widget, const QString &label, const QString &tooltip = {});
     void splitHorizontally();
     void closeCurrentSplit();
     void closeSplitWithTabWidget(QTabWidget *tab);
@@ -46,6 +46,8 @@ class SplitTabWidget : public QWidget {
     void closeCurrentTab();
     void moveNextTab();
     void movePrevTab();
+    inline QList<int> getSplitSizes() const { return splitter->sizes(); }
+    QList<int> getSplitInternalCount() const;
 
     void setButtonProvider(ButtonsProvider *newProvider);
     inline ButtonsProvider *getButtonProvider() const { return buttonsProvider; }
@@ -65,4 +67,7 @@ class SplitTabWidget : public QWidget {
     ButtonsProvider *buttonsProvider = nullptr;
     void updateCurrentTabWidget(QTabWidget *newCurrent);
     void equalizeWidths();
+
+  public:
+    QList<int> savedSplitCount;
 };
