@@ -70,4 +70,5 @@ class SplitTabWidget : public QWidget {
 
   public:
     QList<int> savedSplitCount;
+    QList<int> savedSplitInternalSizes;
 };

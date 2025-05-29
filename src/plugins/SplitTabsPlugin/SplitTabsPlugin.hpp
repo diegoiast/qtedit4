@@ -36,5 +36,4 @@ class SplitTabsPlugin : public IPlugin {
   private:
     TextEditorPlugin *textEditorPlugin = nullptr;
     qmdiSplitTab *split = nullptr;
-    QList<int> savedSplitInternalSizes;
 };

@@ -44,7 +44,7 @@ void SplitTabsPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
 
     settings.beginGroup(config.pluginName);
-    savedSplitInternalSizes = LoadList(settings, Config::SplitSizesKey);
+    split->savedSplitInternalSizes = LoadList(settings, Config::SplitSizesKey);
     split->savedSplitCount = LoadList(settings, Config::SplitCountKey);
     settings.endGroup();
 }
