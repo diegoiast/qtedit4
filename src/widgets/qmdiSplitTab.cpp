@@ -74,7 +74,6 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     auto index = getCurrentClientIndex();
     mdiHost->updateGUI(m);
     mdiSelected(client, index);
-    splitter->installEventFilter(this);
 }
 
 bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
