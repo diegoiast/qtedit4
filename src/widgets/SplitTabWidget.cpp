@@ -37,27 +37,38 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
 
     layout->addWidget(splitter);
     layout->setContentsMargins(0, 0, 0, 0);
+    splitter->installEventFilter(this);
 
     // Whty a timer? without this - event listener does not work, and menus don't work
     QTimer::singleShot(0, splitter, [this]() { splitHorizontally(); });
 }
 
 void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString &tooltip) {
+    addTabToCurrentSplit(widget, label, tooltip);
+
     if (!savedSplitCount.empty()) {
+        auto splitsCount = splitter->count();
         auto currentTabIndex = findSplitIndex(currentTabWidget);
+
+        if (currentTabIndex >= savedSplitCount.size() ||
+            currentTabIndex >= savedSplitInternalSizes.size()) {
+            savedSplitCount.clear();
+            savedSplitInternalSizes.clear();
+        }
+
         auto widgetsInCurrentTab = currentTabWidget->count();
         auto maxWidgetsInCurrentTab = savedSplitCount[currentTabIndex];
 
-        if (widgetsInCurrentTab >= maxWidgetsInCurrentTab) {
-
-            if (currentTabIndex + 1 == savedSplitCount.count()) {
-                savedSplitCount.clear();
+        if (widgetsInCurrentTab == maxWidgetsInCurrentTab) {
+            if (splitsCount != savedSplitCount.size()) {
+              splitHorizontally();
             } else {
-                splitHorizontally();
+              splitter->setSizes(savedSplitInternalSizes);
+              savedSplitCount.clear();
+              savedSplitInternalSizes.clear();
             }
         }
     }
-    addTabToCurrentSplit(widget, label, tooltip);
 }
 
 void SplitTabWidget::splitHorizontally() {
