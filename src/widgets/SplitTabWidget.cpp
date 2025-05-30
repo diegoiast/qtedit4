@@ -41,6 +41,24 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
 
     // Whty a timer? without this - event listener does not work, and menus don't work
     QTimer::singleShot(0, splitter, [this]() { splitHorizontally(); });
+
+    connect(qApp, &QApplication::focusChanged, this, [this](QWidget *, QWidget *now) mutable {
+        if (!now || !this->isAncestorOf(now)) {
+            return;
+        }
+
+        auto w = now;
+        while (w) {
+            if (auto *tab = qobject_cast<QTabWidget *>(w)) {
+                if (tab != currentTabWidget) {
+                    currentTabWidget = tab;
+                    onTabFocusChanged(tab, true);
+                }
+                break;
+            }
+            w = w->parentWidget();
+        }
+    });
 }
 
 void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString &tooltip) {
@@ -61,11 +79,11 @@ void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString
 
         if (widgetsInCurrentTab == maxWidgetsInCurrentTab) {
             if (splitsCount != savedSplitCount.size()) {
-              splitHorizontally();
+                splitHorizontally();
             } else {
-              splitter->setSizes(savedSplitInternalSizes);
-              savedSplitCount.clear();
-              savedSplitInternalSizes.clear();
+                splitter->setSizes(savedSplitInternalSizes);
+                savedSplitCount.clear();
+                savedSplitInternalSizes.clear();
             }
         }
     }
@@ -229,14 +247,13 @@ bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
                                 closeCurrentSplit();
                             }
                         }
-                        break;
+                        return false;
                     case QEvent::ShowToParent:
                         onTabFocusChanged(widget, true);
-                        break;
+                        return false;
                     default:
                         break;
                     }
-                    return false;
                 }
             }
         }
