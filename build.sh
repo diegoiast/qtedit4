@@ -4,7 +4,7 @@ set -x
 set -e
 
 QT_VERSION="6.9.0"
-APP_VERSION="0.0.10-rc1"
+APP_VERSION="0.0.10"
 
 
 NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
