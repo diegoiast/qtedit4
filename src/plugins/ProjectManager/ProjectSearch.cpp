@@ -173,6 +173,13 @@ ProjectSearch::~ProjectSearch() { delete ui; }
 
 void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
 
+const QString ProjectSearch::getSearchPath() {
+    auto sss = ui->pathEdit->path();
+    return sss;
+}
+
+void ProjectSearch::setSearchPath(const QString &s) { ui->pathEdit->setText(s); }
+
 const QString ProjectSearch::getSearchPattern() { return ui->searchFor->text(); }
 
 void ProjectSearch::setSearchPattern(const QString &s) { ui->searchFor->setText(s); }
@@ -192,6 +199,7 @@ void ProjectSearch::updateProjectList() {
         auto p = model->getConfig(i);
         ui->sourceCombo->addItem(p->name);
     }
+    emit ui->pathEdit->pathChanged(ui->pathEdit->path());
 }
 
 void ProjectSearch::searchButton_clicked() {

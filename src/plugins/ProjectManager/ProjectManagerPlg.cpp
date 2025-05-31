@@ -315,6 +315,12 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
                                      .setDefaultValue("")
                                      .setUserEditable(false)
                                      .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchPathKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 void ProjectManagerPlugin::showAbout() {
@@ -645,6 +651,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
 
+    searchPanelUI->setSearchPath(getConfig().getSearchPath());
     searchPanelUI->setSearchPattern(getConfig().getSearchPattern());
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
@@ -701,6 +708,7 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     getConfig().setSearchPattern(searchPanelUI->getSearchPattern());
     getConfig().setSearchInclude(searchPanelUI->getSearchInclude());
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
+    getConfig().setSearchPath(searchPanelUI->getSearchPath());
     IPlugin::saveConfig(settings);
 }
 
@@ -925,8 +933,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (usingPty && masterFd >= 0) {
         runProcess.setProcessChannelMode(QProcess::MergedChannels);
         auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(&runProcess, &QProcess::finished, notifier,
-                [notifier, masterFd]() { delete notifier; });
+        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
         connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
             char buffer[4096];
             auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);

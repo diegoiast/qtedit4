@@ -50,6 +50,7 @@ class ProjectManagerPlugin : public IPlugin {
         CONFIG_DEFINE(SelectedDirectory, QString);
         CONFIG_DEFINE(FilterShow, QString);
         CONFIG_DEFINE(FilterOut, QString);
+        CONFIG_DEFINE(SearchPath, QString);
         CONFIG_DEFINE(SearchPattern, QString);
         CONFIG_DEFINE(SearchInclude, QString);
         CONFIG_DEFINE(SearchExclude, QString);

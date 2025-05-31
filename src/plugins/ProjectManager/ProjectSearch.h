@@ -22,6 +22,8 @@ class ProjectSearch : public QWidget {
     ~ProjectSearch();
     auto setFocusOnSearch() -> void;
 
+    auto getSearchPath() -> const QString;
+    auto setSearchPath(const QString &) -> void;
     auto getSearchPattern() -> const QString;
     auto setSearchPattern(const QString &) -> void;
     auto getSearchInclude() -> const QString;
