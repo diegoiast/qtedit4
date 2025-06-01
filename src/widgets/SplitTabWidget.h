@@ -5,14 +5,36 @@
 
 #include <QChildEvent>
 #include <QSplitter>
+#include <QTabBar>
+#include <QTabWidget>
 #include <QWidget>
 
 class QTabWidget;
 class SplitTabWidget;
 
-class ButtonsProvider {
+class DraggableTabBar : public QTabBar {
+    Q_OBJECT
+
   public:
-    virtual QWidget *requestButton(bool first, int tabSize, SplitTabWidget *split) = 0;
+    DraggableTabBar(QWidget *parent = nullptr);
+
+  protected:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+
+  private:
+    QPoint dragStartPos;
+};
+
+class DraggableTabWidget : public QTabWidget {
+    Q_OBJECT
+  public:
+    DraggableTabWidget(QWidget *parent = nullptr);
+
+  protected:
+    // void mousePressEvent(QMouseEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
 };
 
 class SplitterWithWidgetAdded : public QSplitter {
@@ -26,6 +48,13 @@ class SplitterWithWidgetAdded : public QSplitter {
 
   protected:
     void childEvent(QChildEvent *event) override;
+};
+
+// Implementation
+
+class ButtonsProvider {
+  public:
+    virtual QWidget *requestButton(bool first, int tabSize, SplitTabWidget *split) = 0;
 };
 
 class SplitTabWidget : public QWidget {

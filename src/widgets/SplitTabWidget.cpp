@@ -3,13 +3,114 @@
 
 #include "SplitTabWidget.h"
 #include <QApplication>
+#include <QDrag>
+#include <QDragEnterEvent>
 #include <QEvent>
 #include <QHBoxLayout>
+#include <QIODevice>
+#include <QMimeData>
+#include <QPainter>
 #include <QSplitter>
 #include <QStackedWidget>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTimer>
+
+DraggableTabBar::DraggableTabBar(QWidget *parent) : QTabBar(parent) {}
+
+void DraggableTabBar::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        dragStartPos = event->pos();
+    }
+    QTabBar::mousePressEvent(event);
+}
+
+void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
+    if (!(event->buttons() & Qt::LeftButton)) {
+        return;
+    }
+    if ((event->pos() - dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
+        return;
+    }
+
+    auto index = tabAt(dragStartPos);
+    if (index < 0) {
+        return;
+    }
+
+    auto tabWidget = qobject_cast<DraggableTabWidget *>(parentWidget());
+    if (!tabWidget) {
+        return;
+    }
+
+    auto page = tabWidget->widget(index);
+    if (!page) {
+        return;
+    }
+
+    auto drag = new QDrag(this);
+    auto mimeData = new QMimeData;
+
+    auto pixmap = QPixmap(100, 24);
+    auto painter = QPainter(&pixmap);
+    auto ptrData = QByteArray();
+    auto stream = QDataStream(&ptrData, QIODevice::WriteOnly);
+
+    stream << (quintptr)page << (quintptr)tabWidget;
+    mimeData->setData("application/x-qplaintextedit-widget", ptrData);
+    drag->setMimeData(mimeData);
+
+    pixmap.fill(Qt::white);
+    painter.setPen(Qt::black);
+    painter.drawText(pixmap.rect(), Qt::AlignCenter, tabText(index));
+    painter.end();
+    drag->setPixmap(pixmap);
+    drag->setHotSpot(QPoint(pixmap.width() / 2, pixmap.height() / 2));
+    drag->exec(Qt::MoveAction);
+}
+
+DraggableTabWidget::DraggableTabWidget(QWidget *parent) : QTabWidget(parent) {
+    setAcceptDrops(true);
+    setTabBar(new DraggableTabBar(this));
+    tabBar()->setAcceptDrops(false);
+}
+
+void DraggableTabWidget::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
+        event->acceptProposedAction();
+    }
+}
+
+void DraggableTabWidget::dropEvent(QDropEvent *event) {
+    if (!event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
+        return;
+    }
+
+    auto ptrData = event->mimeData()->data("application/x-qplaintextedit-widget");
+    auto stream = QDataStream(&ptrData, QIODevice::ReadOnly);
+    auto ptrVal = quintptr{0};
+
+    stream >> ptrVal;
+    auto widget = reinterpret_cast<QWidget *>(ptrVal);
+    if (!widget) {
+        qDebug() << "Drop rejected: null widget pointer.";
+        return;
+    }
+
+    if (widget->parent() == this) {
+        return;
+    }
+
+    auto oldTabWidget = qobject_cast<DraggableTabWidget *>(widget->parent()->parent());
+    if (oldTabWidget) {
+        auto index = oldTabWidget->indexOf(widget);
+        auto label = oldTabWidget->tabText(index);
+        oldTabWidget->removeTab(index);
+        addTab(widget, label);
+        setCurrentWidget(widget);
+    }
+    event->acceptProposedAction();
+}
 
 SplitterWithWidgetAdded::SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent)
     : QSplitter(orientation, parent) {}
@@ -91,7 +192,7 @@ void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString
 
 void SplitTabWidget::splitHorizontally() {
     auto currentIndex = splitter->indexOf(currentTabWidget);
-    auto newTabWidget = new QTabWidget(this);
+    auto newTabWidget = new DraggableTabWidget(this);
     newTabWidget->setDocumentMode(true);
     newTabWidget->setMovable(true);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
