@@ -75,6 +75,11 @@ DraggableTabWidget::DraggableTabWidget(QWidget *parent) : QTabWidget(parent) {
     tabBar()->setAcceptDrops(false);
 }
 
+void DraggableTabWidget::tabRemoved(int index) {
+    QTabWidget::tabRemoved(index);
+    emit tabWidgetRemoved();
+}
+
 void DraggableTabWidget::dragEnterEvent(QDragEnterEvent *event) {
     if (event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
         event->acceptProposedAction();
@@ -108,8 +113,8 @@ void DraggableTabWidget::dropEvent(QDropEvent *event) {
         oldTabWidget->removeTab(index);
         addTab(widget, label);
         setCurrentWidget(widget);
+        event->acceptProposedAction();
     }
-    event->acceptProposedAction();
 }
 
 SplitterWithWidgetAdded::SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent)
@@ -129,7 +134,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     : QWidget(parent), splitter(new SplitterWithWidgetAdded(Qt::Horizontal, this)) {
     auto layout = new QHBoxLayout(this);
     connect(splitter, &SplitterWithWidgetAdded::widgetAdded, this, [this](QWidget *w) {
-        auto tab = qobject_cast<QTabWidget *>(w);
+        auto tab = qobject_cast<DraggableTabWidget *>(w);
         if (tab) {
             auto count = splitter->count();
             onNewSplitCreated(tab, count);
@@ -196,6 +201,12 @@ void SplitTabWidget::splitHorizontally() {
     newTabWidget->setDocumentMode(true);
     newTabWidget->setMovable(true);
     newTabWidget->setObjectName(QString("QTabWidget#%1").arg(splitter->count()));
+    connect(newTabWidget, &DraggableTabWidget::tabWidgetRemoved, this, [this, newTabWidget]() {
+        if (newTabWidget->count() == 0 && closeSplitWhenEmpty) {
+            closeSplitWithTabWidget(newTabWidget);
+        }
+    });
+
     splitter->insertWidget(currentIndex + 1, newTabWidget);
     updateCurrentTabWidget(newTabWidget);
     equalizeWidths();
@@ -320,43 +331,10 @@ void SplitTabWidget::equalizeWidths() {
 }
 
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
-    if (event->type() == QEvent::ShowToParent || event->type() == QEvent::HideToParent ||
-        event->type() == QEvent::ChildRemoved) {
-
-        // How can we detect that the widget is inside a QTabWidget?
-        // Internally the QTabWidget has a QTabBar and a QStackedWidget.
-        // When you request to add a new tab, internally you are adding a new widget
-        // to the stacked widget (and also adding its name to the tab bar). So,
-        // checking if the parent of a widget is a QTabWiget will always fail.
-        // Theoretically - this is an internal implementation of Qt, but QtWidgets
-        // is "done" meaning this will not change.
+    if (event->type() == QEvent::ShowToParent) {
         auto widget = qobject_cast<QWidget *>(watched);
-        auto parent = qobject_cast<QStackedWidget *>(watched->parent());
-        if (widget && parent) {
-            auto tabWidget = qobject_cast<QTabWidget *>(parent->parentWidget());
-            if (tabWidget) {
-                // Only close the split if it's a ChildRemoved event and we're down to 1 tab
-                auto index = splitter->indexOf(tabWidget);
-                if (index != -1) {
-                    updateCurrentTabWidget(tabWidget);
-                    switch (event->type()) {
-                    // case QEvent::ChildRemoved:
-                    case QEvent::HideToParent:
-                        onTabFocusChanged(widget, false);
-                        if (currentTabWidget->count() == 1) {
-                            if (closeSplitWhenEmpty) {
-                                closeCurrentSplit();
-                            }
-                        }
-                        return false;
-                    case QEvent::ShowToParent:
-                        onTabFocusChanged(widget, true);
-                        return false;
-                    default:
-                        break;
-                    }
-                }
-            }
+        if (widget) {
+            onTabFocusChanged(widget, true);
         }
     }
     return QWidget::eventFilter(watched, event);

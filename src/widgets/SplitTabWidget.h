@@ -31,10 +31,14 @@ class DraggableTabWidget : public QTabWidget {
   public:
     DraggableTabWidget(QWidget *parent = nullptr);
 
+  signals:
+    void tabWidgetRemoved();
+
   protected:
     // void mousePressEvent(QMouseEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
+    void tabRemoved(int index) override;
 };
 
 class SplitterWithWidgetAdded : public QSplitter {
