@@ -44,8 +44,25 @@ void SplitTabsPlugin::loadConfig(QSettings &settings) {
     IPlugin::loadConfig(settings);
 
     settings.beginGroup(config.pluginName);
-    split->savedSplitInternalSizes = LoadList(settings, Config::SplitSizesKey);
-    split->savedSplitCount = LoadList(settings, Config::SplitCountKey);
+    auto savedSplitInternalSizes = LoadList(settings, Config::SplitSizesKey);
+    auto savedSplitCount = LoadList(settings, Config::SplitCountKey);
+
+    if (savedSplitInternalSizes.size() != savedSplitCount.size()) {
+        qDebug() << "SplitTabsPlugin: sizes does not match split count, not splits will be used";
+        savedSplitInternalSizes.clear();
+        savedSplitCount.clear();
+    } else if (savedSplitCount.contains(0)) {
+        qDebug() << "SplitTabsPlugin: split count contains 0, not splits will be used";
+        savedSplitInternalSizes.clear();
+        savedSplitCount.clear();
+    } else if (savedSplitInternalSizes.contains(0)) {
+        qDebug() << "SplitTabsPlugin: split sizes contains 0, not splits will be used";
+        savedSplitInternalSizes.clear();
+        savedSplitCount.clear();
+    }
+
+    split->savedSplitInternalSizes = savedSplitInternalSizes;
+    split->savedSplitCount = savedSplitCount;
     settings.endGroup();
 }
 
