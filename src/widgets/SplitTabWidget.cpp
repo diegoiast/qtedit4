@@ -45,6 +45,17 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
         return;
     }
 
+    // Check if we're still within the tab widget's bounds
+    auto globalPos = event->globalPosition().toPoint();
+    auto tabWidgetRect = tabWidget->rect();
+    tabWidgetRect.translate(tabWidget->mapToGlobal(QPoint(0, 0)));
+    
+    if (tabWidgetRect.contains(globalPos)) {
+        // Still within the tab widget, let QTabBar handle the move
+        QTabBar::mouseMoveEvent(event);
+        return;
+    }
+
     auto page = tabWidget->widget(index);
     if (!page) {
         return;
