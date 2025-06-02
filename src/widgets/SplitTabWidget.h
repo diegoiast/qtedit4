@@ -34,6 +34,7 @@ class DraggableTabBar : public QTabBar {
   public:
     explicit DraggableTabBar(QWidget *parent = nullptr);
     void dropEvent(QDropEvent *event) override;
+    void setDragAndDropEnabled(bool enabled) { dragAndDropEnabled = enabled; }
 
   protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -45,6 +46,7 @@ class DraggableTabBar : public QTabBar {
   private:
     QPoint dragStartPos;
     DropIndicatorWidget *dropIndicator;
+    bool dragAndDropEnabled = false;
 };
 
 class DraggableTabWidget : public QTabWidget {
@@ -107,6 +109,7 @@ class SplitTabWidget : public QWidget {
     inline ButtonsProvider *getButtonProvider() const { return buttonsProvider; }
     QWidget *getCurrentWidget();
     int getWigetsCountInCurrentSplit() const;
+    inline int getSplitCount() const { return splitter->count(); }
 
     virtual void onTabFocusChanged(QWidget *widget, bool focused);
     virtual void onNewSplitCreated(QTabWidget *tabWidget, int count);
@@ -121,6 +124,9 @@ class SplitTabWidget : public QWidget {
     ButtonsProvider *buttonsProvider = nullptr;
     void updateCurrentTabWidget(QTabWidget *newCurrent);
     void equalizeWidths();
+
+  private slots:
+    void onSplitCountMaybeChanged();
 
   public:
     QList<int> savedSplitCount;

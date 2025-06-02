@@ -17,6 +17,7 @@
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTimer>
+#include <QDebug>
 
 DropIndicatorWidget::DropIndicatorWidget(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -63,6 +64,12 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
 
     auto tabWidget = qobject_cast<DraggableTabWidget *>(parentWidget());
     if (!tabWidget) {
+        return;
+    }
+
+    // If drag and drop is disabled, just do regular tab reordering
+    if (!dragAndDropEnabled) {
+        QTabBar::mouseMoveEvent(event);
         return;
     }
 
@@ -275,6 +282,9 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
         if (tab) {
             auto count = splitter->count();
             onNewSplitCreated(tab, count);
+            QTimer::singleShot(0, this, [this]() {
+                onSplitCountMaybeChanged();
+            });
         }
     });
 
@@ -374,6 +384,11 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
 
     updateCurrentTabWidget(newTab);
     equalizeWidths();
+
+    // Defer the split count check to after the event loop processes the deletion
+    QTimer::singleShot(0, this, [this]() {
+        onSplitCountMaybeChanged();
+    });
 }
 
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
@@ -564,5 +579,18 @@ void SplitTabWidget::onNewSplitCreated(QTabWidget *tabWidget, int count) {
         auto right = buttonsProvider->requestButton(false, count, this);
         tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
         tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+    }
+}
+
+void SplitTabWidget::onSplitCountMaybeChanged() {
+    auto enableDragAndDrop = splitter->count() > 1;
+    for (int i = 0; i < splitter->count(); ++i) {
+        auto tabWidget = qobject_cast<DraggableTabWidget *>(splitter->widget(i));
+        if (tabWidget) {
+            auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar());
+            if (tabBar) {
+                tabBar->setDragAndDropEnabled(enableDragAndDrop);
+            }
+        }
     }
 }
