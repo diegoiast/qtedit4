@@ -12,6 +12,8 @@
 #include <QPainter>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QStyle>
+#include <QStyleOptionTab>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTimer>
@@ -51,19 +53,38 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
     auto drag = new QDrag(this);
     auto mimeData = new QMimeData;
 
-    auto pixmap = QPixmap(100, 24);
+    auto style = tabWidget->style();
+    auto option = QStyleOptionTab();
+    option.initFrom(tabWidget);
+    option.state = QStyle::State_Selected;
+    option.text = tabText(index);
+    option.shape = tabWidget->tabBar()->shape();
+    option.position = QStyleOptionTab::OnlyOneTab;
+    option.selectedPosition = QStyleOptionTab::NotAdjacent;
+    option.cornerWidgets = QStyleOptionTab::NoCornerWidgets;
+
+    auto metrics = QFontMetrics(tabWidget->font());
+    auto textWidth = metrics.horizontalAdvance(tabText(index));
+    auto tabWidth = textWidth + 10;
+    auto tabHeight = metrics.height() + 10;
+    auto pixmap = QPixmap(tabWidth, tabHeight);
     auto painter = QPainter(&pixmap);
+
+    pixmap.fill(Qt::transparent);
+    painter.setRenderHint(QPainter::Antialiasing);
+    option.rect = pixmap.rect();
+    style->drawControl(QStyle::CE_TabBarTab, &option, &painter, tabWidget);
+
+    painter.setPen(option.palette.color(QPalette::WindowText));
+    painter.drawText(pixmap.rect(), Qt::AlignCenter, tabText(index));
+    painter.end();
+
     auto ptrData = QByteArray();
     auto stream = QDataStream(&ptrData, QIODevice::WriteOnly);
-
     stream << (quintptr)page << (quintptr)tabWidget;
     mimeData->setData("application/x-qplaintextedit-widget", ptrData);
     drag->setMimeData(mimeData);
 
-    pixmap.fill(Qt::white);
-    painter.setPen(Qt::black);
-    painter.drawText(pixmap.rect(), Qt::AlignCenter, tabText(index));
-    painter.end();
     drag->setPixmap(pixmap);
     drag->setHotSpot(QPoint(pixmap.width() / 2, pixmap.height() / 2));
     drag->exec(Qt::MoveAction);
