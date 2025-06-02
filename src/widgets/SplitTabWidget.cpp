@@ -18,7 +18,36 @@
 #include <QTabWidget>
 #include <QTimer>
 
-DraggableTabBar::DraggableTabBar(QWidget *parent) : QTabBar(parent) {}
+DropIndicatorWidget::DropIndicatorWidget(QWidget *parent) : QWidget(parent) {
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    setAttribute(Qt::WA_TranslucentBackground);
+    hide();
+}
+
+void DropIndicatorWidget::showAt(const QRect &rect, bool after) {
+    auto lineWidth = 4;
+    auto height = rect.height();
+    auto x = after ? rect.right() - lineWidth / 2 : rect.left() - lineWidth / 2;
+    m_after = after;
+
+    setGeometry(x, rect.top(), lineWidth, height);
+    show();
+    raise();
+    update();
+}
+
+void DropIndicatorWidget::paintEvent(QPaintEvent *) {
+    QPainter p(this);
+    QColor color = palette().color(QPalette::Highlight);
+    color.setAlpha(200);
+    p.fillRect(rect(), color);
+}
+
+DraggableTabBar::DraggableTabBar(QWidget *parent) : QTabBar(parent) {
+    setAcceptDrops(true);
+    dropIndicator = new DropIndicatorWidget(this);
+    dropIndicator->setFixedHeight(height());
+}
 
 void DraggableTabBar::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
@@ -31,7 +60,9 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
     if (!(event->buttons() & Qt::LeftButton)) {
         return;
     }
-    if ((event->pos() - dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
+
+    auto tabWidget = qobject_cast<DraggableTabWidget *>(parentWidget());
+    if (!tabWidget) {
         return;
     }
 
@@ -40,18 +71,7 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
         return;
     }
 
-    auto tabWidget = qobject_cast<DraggableTabWidget *>(parentWidget());
-    if (!tabWidget) {
-        return;
-    }
-
-    // Check if we're still within the tab widget's bounds
-    auto globalPos = event->globalPosition().toPoint();
-    auto tabWidgetRect = tabWidget->rect();
-    tabWidgetRect.translate(tabWidget->mapToGlobal(QPoint(0, 0)));
-    
-    if (tabWidgetRect.contains(globalPos)) {
-        // Still within the tab widget, let QTabBar handle the move
+    if ((event->pos() - dragStartPos).manhattanLength() < QApplication::startDragDistance()) {
         QTabBar::mouseMoveEvent(event);
         return;
     }
@@ -101,10 +121,58 @@ void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
     drag->exec(Qt::MoveAction);
 }
 
+void DraggableTabBar::dragEnterEvent(QDragEnterEvent *event) {
+    if (event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
+        event->acceptProposedAction();
+    }
+}
+
+void DraggableTabBar::dragMoveEvent(QDragMoveEvent *event) {
+    if (!event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
+        return;
+    }
+
+    auto dropPos = event->position().toPoint();
+    auto newIndex = tabAt(dropPos);
+    
+    if (newIndex >= 0) {
+        QRect rect = tabRect(newIndex);
+        bool after = dropPos.x() > rect.center().x();
+        dropIndicator->showAt(rect, after);
+    } else {
+        QRect rect = tabRect(count() - 1);
+        dropIndicator->showAt(rect, true);
+    }
+    
+    event->acceptProposedAction();
+}
+
+void DraggableTabBar::dragLeaveEvent(QDragLeaveEvent *event) {
+    dropIndicator->hide();
+    QTabBar::dragLeaveEvent(event);
+}
+
+void DraggableTabBar::dropEvent(QDropEvent *event) {
+    if (!event->mimeData()->hasFormat("application/x-qplaintextedit-widget")) {
+        return;
+    }
+
+    auto tabWidget = qobject_cast<DraggableTabWidget *>(parentWidget());
+    if (!tabWidget) {
+        return;
+    }
+
+    // Forward the drop event to the tab widget
+    QDropEvent newEvent(event->position(), event->dropAction(), event->mimeData(), event->buttons(), event->modifiers());
+    tabWidget->dropEvent(&newEvent);
+    
+    dropIndicator->hide();
+}
+
 DraggableTabWidget::DraggableTabWidget(QWidget *parent) : QTabWidget(parent) {
     setAcceptDrops(true);
     setTabBar(new DraggableTabBar(this));
-    tabBar()->setAcceptDrops(false);
+    tabBar()->setAcceptDrops(true);
 }
 
 void DraggableTabWidget::tabRemoved(int index) {
@@ -130,23 +198,60 @@ void DraggableTabWidget::dropEvent(QDropEvent *event) {
     stream >> ptrVal;
     auto widget = reinterpret_cast<QWidget *>(ptrVal);
     if (!widget) {
-        qDebug() << "Drop rejected: null widget pointer.";
-        return;
-    }
-
-    if (widget->parent() == this) {
+        qDebug() << "DraggableTabWidget: drop rejected: null widget pointer.";
         return;
     }
 
     auto oldTabWidget = qobject_cast<DraggableTabWidget *>(widget->parent()->parent());
-    if (oldTabWidget) {
-        auto index = oldTabWidget->indexOf(widget);
-        auto label = oldTabWidget->tabText(index);
-        oldTabWidget->removeTab(index);
-        addTab(widget, label);
-        setCurrentWidget(widget);
-        event->acceptProposedAction();
+    if (!oldTabWidget) {
+        return;
     }
+
+    if (oldTabWidget == this) {
+        auto oldIndex = indexOf(widget);
+        auto dropPos = event->position().toPoint();
+        auto newIndex = tabBar()->tabAt(dropPos);
+        
+        if (newIndex >= 0) {
+            auto tabRect = tabBar()->tabRect(newIndex);
+            if (dropPos.x() > tabRect.center().x()) {
+                newIndex++;
+            }
+            if (newIndex != oldIndex && newIndex != oldIndex + 1) {
+                auto label = tabText(oldIndex);
+                auto movedWidget = this->widget(oldIndex);
+                removeTab(oldIndex);
+                insertTab(newIndex > oldIndex ? newIndex - 1 : newIndex, movedWidget, label);
+                setCurrentWidget(movedWidget);
+            }
+        } else {
+            auto label = tabText(oldIndex);
+            auto movedWidget = this->widget(oldIndex);
+            removeTab(oldIndex);
+            addTab(movedWidget, label);
+            setCurrentWidget(widget);
+        }
+        event->acceptProposedAction();
+        return;
+    }
+
+    auto index = oldTabWidget->indexOf(widget);
+    auto label = oldTabWidget->tabText(index);
+    auto dropPos = event->position().toPoint();
+    auto insertIndex = tabBar()->tabAt(dropPos);
+    oldTabWidget->removeTab(index);
+    if (insertIndex >= 0) {
+        auto tabRect = tabBar()->tabRect(insertIndex);
+        if (dropPos.x() > tabRect.center().x()) {
+            insertIndex++;
+        }
+    } else {
+        insertIndex = count();
+    }
+
+    insertTab(insertIndex, widget, label);
+    setCurrentWidget(widget);
+    event->acceptProposedAction();
 }
 
 SplitterWithWidgetAdded::SplitterWithWidgetAdded(Qt::Orientation orientation, QWidget *parent)

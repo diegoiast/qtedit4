@@ -8,28 +8,50 @@
 #include <QTabBar>
 #include <QTabWidget>
 #include <QWidget>
+#include <QPainter>
+#include <QPen>
 
 class QTabWidget;
 class SplitTabWidget;
+
+class DropIndicatorWidget : public QWidget {
+    Q_OBJECT
+public:
+  explicit DropIndicatorWidget(QWidget *parent = nullptr);
+  void showAt(const QRect &rect, bool after);
+
+protected:
+  void paintEvent(QPaintEvent *) override;
+
+private:
+    QRect m_rect;
+    bool m_after = false;
+};
 
 class DraggableTabBar : public QTabBar {
     Q_OBJECT
 
   public:
-    DraggableTabBar(QWidget *parent = nullptr);
+    explicit DraggableTabBar(QWidget *parent = nullptr);
+    void dropEvent(QDropEvent *event) override;
 
   protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    void dragLeaveEvent(QDragLeaveEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
 
   private:
     QPoint dragStartPos;
+    DropIndicatorWidget *dropIndicator;
 };
 
 class DraggableTabWidget : public QTabWidget {
     Q_OBJECT
   public:
-    DraggableTabWidget(QWidget *parent = nullptr);
+    explicit DraggableTabWidget(QWidget *parent = nullptr);
+    void dropEvent(QDropEvent *event) override;
 
   signals:
     void tabWidgetRemoved();
@@ -37,7 +59,6 @@ class DraggableTabWidget : public QTabWidget {
   protected:
     // void mousePressEvent(QMouseEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
-    void dropEvent(QDropEvent *event) override;
     void tabRemoved(int index) override;
 };
 
