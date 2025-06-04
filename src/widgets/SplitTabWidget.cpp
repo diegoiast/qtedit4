@@ -305,7 +305,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
             if (auto *tab = qobject_cast<QTabWidget *>(w)) {
                 if (tab != currentTabWidget) {
                     currentTabWidget = tab;
-                    onTabFocusChanged(tab, true);
+                    onTabFocusChanged(tab->currentWidget(), true);
                 }
                 break;
             }
@@ -360,7 +360,7 @@ void SplitTabWidget::splitHorizontally() {
 }
 
 void SplitTabWidget::closeCurrentSplit() {
-    // We wlaways keep at last a single tab. Why? since it may contain a menu for the app.
+    // We alaways keep at last a single tab. Why? since it may contain a menu for the app.
     if (splitter->count() <= 1) {
         onTabFocusChanged(nullptr, true);
         return;
@@ -485,8 +485,19 @@ void SplitTabWidget::equalizeWidths() {
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
     if (event->type() == QEvent::ShowToParent) {
         auto widget = qobject_cast<QWidget *>(watched);
+        qDebug() << "event filter" << watched;
         if (widget) {
-            onTabFocusChanged(widget, true);
+            // Find the tab widget that contains this widget
+            auto parent = widget->parentWidget();
+            while (parent) {
+                if (auto tabWidget = qobject_cast<QTabWidget *>(parent)) {
+                    if (tabWidget == currentTabWidget && tabWidget->currentWidget()) {
+                        onTabFocusChanged(tabWidget->currentWidget(), true);
+                    }
+                    break;
+                }
+                parent = parent->parentWidget();
+            }
         }
     }
     return QWidget::eventFilter(watched, event);
@@ -568,6 +579,13 @@ int SplitTabWidget::getWigetsCountInCurrentSplit() const {
 }
 
 void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
+    auto tab = qobject_cast<QTabWidget *>(widget);
+    if (tab) {
+        if (focused && tab->currentWidget()) {
+            tab->currentWidget()->setFocus();
+            onTabFocusChanged(tab->currentWidget(), true);
+        }
+    }  
     if (widget && focused) {
         widget->setFocus();
     }
@@ -584,7 +602,7 @@ void SplitTabWidget::onNewSplitCreated(QTabWidget *tabWidget, int count) {
 
 void SplitTabWidget::onSplitCountMaybeChanged() {
     auto enableDragAndDrop = splitter->count() > 1;
-    for (int i = 0; i < splitter->count(); ++i) {
+    for (auto i = 0; i < splitter->count(); ++i) {
         auto tabWidget = qobject_cast<DraggableTabWidget *>(splitter->widget(i));
         if (tabWidget) {
             auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar());
