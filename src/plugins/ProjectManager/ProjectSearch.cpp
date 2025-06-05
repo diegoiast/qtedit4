@@ -275,6 +275,7 @@ void ProjectSearch::searchButton_clicked() {
         QTimer::singleShot(0, this, [this, originalText]() {
             ui->searchButton->setText(originalText);
             ui->progressIndicator->stop();
+            running = false;
         });
     });
 }
