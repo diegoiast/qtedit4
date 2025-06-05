@@ -36,12 +36,16 @@ class DraggableTabBar : public QTabBar {
     void dropEvent(QDropEvent *event) override;
     void setDragAndDropEnabled(bool enabled) { dragAndDropEnabled = enabled; }
 
+  signals:
+    void emptyAreaDoubleClicked(const QPoint &pos);
+
   protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void dragMoveEvent(QDragMoveEvent *event) override;
     void dragLeaveEvent(QDragLeaveEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
   private:
     QPoint dragStartPos;
@@ -115,6 +119,9 @@ class SplitTabWidget : public QWidget {
     virtual void onNewSplitCreated(QTabWidget *tabWidget, int count);
 
     bool closeSplitWhenEmpty = true;
+
+  signals:
+    void emptyAreaDoubleClicked(QTabWidget *tabWidget, const QPoint &pos);
 
   protected:
     bool eventFilter(QObject *watched, QEvent *event) override;

@@ -57,6 +57,14 @@ void DraggableTabBar::mousePressEvent(QMouseEvent *event) {
     QTabBar::mousePressEvent(event);
 }
 
+void DraggableTabBar::mouseDoubleClickEvent(QMouseEvent *event) {
+    auto index = tabAt(event->pos());
+    if (index < 0) {
+        emit emptyAreaDoubleClicked(event->pos());
+    }
+    QTabBar::mouseDoubleClickEvent(event);
+}
+
 void DraggableTabBar::mouseMoveEvent(QMouseEvent *event) {
     if (!(event->buttons() & Qt::LeftButton)) {
         return;
@@ -597,6 +605,13 @@ void SplitTabWidget::onNewSplitCreated(QTabWidget *tabWidget, int count) {
         auto right = buttonsProvider->requestButton(false, count, this);
         tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
         tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+    }
+
+    if (auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar())) {
+        connect(tabBar, &DraggableTabBar::emptyAreaDoubleClicked, this,
+                [this, tabWidget](const QPoint &pos) {
+                    emit emptyAreaDoubleClicked(tabWidget, pos);
+                });
     }
 }
 

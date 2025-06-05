@@ -13,6 +13,7 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
 
   public:
     // SplitTabWidget
+    qmdiSplitTab(QWidget *parent = nullptr);
     virtual void onTabFocusChanged(QWidget *widget, bool focused) override;
     virtual bool eventFilter(QObject *obj, QEvent *event) override;
     virtual void onNewSplitCreated(QTabWidget *tabWidget, int count) override;

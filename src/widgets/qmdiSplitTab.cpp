@@ -309,3 +309,13 @@ int qmdiSplitTab::computeLeading(QTabWidget *w) {
     }
     return leadingIndex;
 }
+
+qmdiSplitTab::qmdiSplitTab(QWidget *parent) : SplitTabWidget(parent) {
+    connect(this, &SplitTabWidget::emptyAreaDoubleClicked, this,
+            [this](QTabWidget *tabWidget, const QPoint &) {
+                auto manager = dynamic_cast<PluginManager *>(this->parent());
+                if (manager) {
+                    emit manager->newFileRequested(tabWidget->tabBar());
+                }
+            });
+}
