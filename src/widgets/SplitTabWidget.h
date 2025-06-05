@@ -4,26 +4,26 @@
 #pragma once
 
 #include <QChildEvent>
+#include <QPainter>
+#include <QPen>
 #include <QSplitter>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QWidget>
-#include <QPainter>
-#include <QPen>
 
 class QTabWidget;
 class SplitTabWidget;
 
 class DropIndicatorWidget : public QWidget {
     Q_OBJECT
-public:
-  explicit DropIndicatorWidget(QWidget *parent = nullptr);
-  void showAt(const QRect &rect, bool after);
+  public:
+    explicit DropIndicatorWidget(QWidget *parent = nullptr);
+    void showAt(const QRect &rect, bool after);
 
-protected:
-  void paintEvent(QPaintEvent *) override;
+  protected:
+    void paintEvent(QPaintEvent *) override;
 
-private:
+  private:
     QRect m_rect;
     bool m_after = false;
 };

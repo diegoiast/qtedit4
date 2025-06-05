@@ -3,6 +3,7 @@
 
 #include "SplitTabWidget.h"
 #include <QApplication>
+#include <QDebug>
 #include <QDrag>
 #include <QDragEnterEvent>
 #include <QEvent>
@@ -17,7 +18,6 @@
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTimer>
-#include <QDebug>
 
 DropIndicatorWidget::DropIndicatorWidget(QWidget *parent) : QWidget(parent) {
     setAttribute(Qt::WA_TransparentForMouseEvents);
@@ -149,7 +149,7 @@ void DraggableTabBar::dragMoveEvent(QDragMoveEvent *event) {
 
     auto dropPos = event->position().toPoint();
     auto newIndex = tabAt(dropPos);
-    
+
     if (newIndex >= 0) {
         QRect rect = tabRect(newIndex);
         bool after = dropPos.x() > rect.center().x();
@@ -158,7 +158,7 @@ void DraggableTabBar::dragMoveEvent(QDragMoveEvent *event) {
         QRect rect = tabRect(count() - 1);
         dropIndicator->showAt(rect, true);
     }
-    
+
     event->acceptProposedAction();
 }
 
@@ -178,9 +178,10 @@ void DraggableTabBar::dropEvent(QDropEvent *event) {
     }
 
     // Forward the drop event to the tab widget
-    QDropEvent newEvent(event->position(), event->dropAction(), event->mimeData(), event->buttons(), event->modifiers());
+    QDropEvent newEvent(event->position(), event->dropAction(), event->mimeData(), event->buttons(),
+                        event->modifiers());
     tabWidget->dropEvent(&newEvent);
-    
+
     dropIndicator->hide();
 }
 
@@ -226,7 +227,7 @@ void DraggableTabWidget::dropEvent(QDropEvent *event) {
         auto oldIndex = indexOf(widget);
         auto dropPos = event->position().toPoint();
         auto newIndex = tabBar()->tabAt(dropPos);
-        
+
         if (newIndex >= 0) {
             auto tabRect = tabBar()->tabRect(newIndex);
             if (dropPos.x() > tabRect.center().x()) {
@@ -290,9 +291,7 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
         if (tab) {
             auto count = splitter->count();
             onNewSplitCreated(tab, count);
-            QTimer::singleShot(0, this, [this]() {
-                onSplitCountMaybeChanged();
-            });
+            QTimer::singleShot(0, this, [this]() { onSplitCountMaybeChanged(); });
         }
     });
 
@@ -394,9 +393,7 @@ void SplitTabWidget::closeSplitWithTabWidget(QTabWidget *tab) {
     equalizeWidths();
 
     // Defer the split count check to after the event loop processes the deletion
-    QTimer::singleShot(0, this, [this]() {
-        onSplitCountMaybeChanged();
-    });
+    QTimer::singleShot(0, this, [this]() { onSplitCountMaybeChanged(); });
 }
 
 void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
@@ -593,7 +590,7 @@ void SplitTabWidget::onTabFocusChanged(QWidget *widget, bool focused) {
             tab->currentWidget()->setFocus();
             onTabFocusChanged(tab->currentWidget(), true);
         }
-    }  
+    }
     if (widget && focused) {
         widget->setFocus();
     }
@@ -608,10 +605,9 @@ void SplitTabWidget::onNewSplitCreated(QTabWidget *tabWidget, int count) {
     }
 
     if (auto tabBar = qobject_cast<DraggableTabBar *>(tabWidget->tabBar())) {
-        connect(tabBar, &DraggableTabBar::emptyAreaDoubleClicked, this,
-                [this, tabWidget](const QPoint &pos) {
-                    emit emptyAreaDoubleClicked(tabWidget, pos);
-                });
+        connect(
+            tabBar, &DraggableTabBar::emptyAreaDoubleClicked, this,
+            [this, tabWidget](const QPoint &pos) { emit emptyAreaDoubleClicked(tabWidget, pos); });
     }
 }
 
