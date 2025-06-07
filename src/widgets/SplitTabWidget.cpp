@@ -490,7 +490,6 @@ void SplitTabWidget::equalizeWidths() {
 bool SplitTabWidget::eventFilter(QObject *watched, QEvent *event) {
     if (event->type() == QEvent::ShowToParent) {
         auto widget = qobject_cast<QWidget *>(watched);
-        qDebug() << "event filter" << watched;
         if (widget) {
             // Find the tab widget that contains this widget
             auto parent = widget->parentWidget();
