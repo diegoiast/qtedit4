@@ -633,9 +633,9 @@ void qmdiEditor::setupActions() {
     connect(actionSaveAs, &QAction::triggered, this, &qmdiEditor::doSaveAs);
     connect(actionUndo, &QAction::triggered, textEditor, &QPlainTextEdit::undo);
     connect(actionRedo, &QAction::triggered, textEditor, &QPlainTextEdit::redo);
-    connect(actionCopy, &QAction::triggered, textEditor, &QPlainTextEdit::copy);
-    connect(actionCut, &QAction::triggered, textEditor, &QPlainTextEdit::cut);
-    connect(actionPaste, &QAction::triggered, textEditor, &QPlainTextEdit::paste);
+    connect(actionCopy, &QAction::triggered, textEditor, &Qutepart::Qutepart::multipleCursorCopy);
+    connect(actionCut, &QAction::triggered, textEditor, &Qutepart::Qutepart::multipleCursorCut);
+    connect(actionPaste, &QAction::triggered, textEditor, &Qutepart::Qutepart::multipleCursorPaste);
     connect(actionFind, &QAction::triggered, operationsWidget, &TextOperationsWidget::showSearch);
     connect(actionFindNext, &QAction::triggered, operationsWidget,
             &TextOperationsWidget::searchNext);
