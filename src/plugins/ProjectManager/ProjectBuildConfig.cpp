@@ -5,6 +5,8 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QProcess>
+#include <QDir>
 
 bool ExecutableInfo::operator==(const ExecutableInfo &other) const {
     /* clang-format off */
@@ -166,12 +168,104 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     return value;
 }
 
+auto findMesonExecutables(const QString &directory, const QString &buildDir)
+    -> QHash<QString, QString> {
+    auto fullBuildPath = directory + QDir::separator() + buildDir;
+    auto process = QProcess();
+    process.start("meson", QStringList() << "introspect" << fullBuildPath << "--targets");
+    process.waitForFinished();
+
+    auto output = process.readAllStandardOutput();
+    if (output.isEmpty()) {
+        qCritical() << "No output from meson introspect.";
+        return {};
+    }
+
+    auto parseError = QJsonParseError();
+    auto doc = QJsonDocument::fromJson(output, &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        qCritical() << "Failed to parse JSON:" << parseError.errorString();
+        return {};
+    }
+
+    auto targets = doc.array();
+    auto result = QHash<QString, QString>();
+    for (auto value : targets) {
+        QJsonObject obj = value.toObject();
+        if (obj["type"].toString() == "executable") {
+            auto name = obj["name"].toString();
+            auto filenames = obj["filename"].toArray();
+            if (!filenames.isEmpty()) {
+                auto fullPath = filenames.first().toString();
+                auto relativeToDir = QDir(directory).relativeFilePath(fullPath);
+                result.insert(name, relativeToDir);
+            }
+        }
+    }
+    return result;
+}
+
+std::shared_ptr<ProjectBuildConfig>
+ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
+    auto gomodFileName = directory + "/" + "meson.build";
+    auto di = QFileInfo(directory);
+    auto fi = QFileInfo(gomodFileName);
+    if (!fi.isReadable()) {
+        return {};
+    }
+
+    auto value = std::make_shared<ProjectBuildConfig>();
+    value->name = di.baseName();
+    value->sourceDir = directory;
+    value->hideFilter = ".git;.vscode;";
+    value->buildDir = "mbuild"; // meson build?
+
+    {
+        auto executables = findMesonExecutables(directory, value->buildDir);
+        for (auto it = executables.constBegin(); it != executables.constEnd(); ++it) {
+            auto name = it.key();
+            auto path = it.value();
+            auto e = ExecutableInfo();
+            e.name = name;
+            e.runDirectory = "${source_directory}";
+            e.executables["windows"] = path + ".exe";
+            e.executables["linux"] = path;
+            value->executables.push_back(e);
+        }
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "meson setup";
+        t.runDirectory = "${source_directory}";
+        t.command = "meson setup ${build_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "meson build";
+        t.runDirectory = "${source_directory}";
+        t.command = "meson compile -C ${build_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "meson tests";
+        t.runDirectory = "${source_directory}";
+        t.command = "meson test  -C ${build_directory}";
+        value->tasksInfo.push_back(t);
+    }
+    return value;
+}
+
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
     auto configFileName = directory + QDir::separator() + "qtedit4.json";
     auto config = buildFromFile(configFileName);
     if (!config) {
         config = tryGuessFromCMake(directory);
+    }
+    if (!config) {
+        config = tryGuessFromMeson(directory);
     }
     if (!config) {
         config = tryGuessFromCargo(directory);
