@@ -6,7 +6,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
-#include <QDir>
 
 bool ExecutableInfo::operator==(const ExecutableInfo &other) const {
     /* clang-format off */
