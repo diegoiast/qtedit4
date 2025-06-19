@@ -152,9 +152,9 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
-    auto gomodFileName = directory + "/" + "meson.build";
+    auto mesonBuildFile = directory + "/" + "meson.build";
     auto di = QFileInfo(directory);
-    auto fi = QFileInfo(gomodFileName);
+    auto fi = QFileInfo(mesonBuildFile);
     if (!fi.isReadable()) {
         return {};
     }
@@ -164,7 +164,7 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
     value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;";
-    value->buildDir = "mbuild"; // meson build?
+    value->buildDir = directory + "/mbuild"; // meson build?
 
     {
         auto t = TaskInfo();
@@ -361,7 +361,7 @@ auto ProjectBuildConfig::updateBinariesGo() -> void {
 auto ProjectBuildConfig::updateBinariesMeson() -> void {
     auto findMesonExecutables = [](const QString &directory,
                                    const QString &buildDir) -> QHash<QString, QString> {
-        auto fullBuildPath = directory + QDir::separator() + buildDir;
+        auto fullBuildPath = buildDir;
         auto process = QProcess();
         process.start("meson", QStringList() << "introspect" << fullBuildPath << "--targets");
         process.waitForFinished();
