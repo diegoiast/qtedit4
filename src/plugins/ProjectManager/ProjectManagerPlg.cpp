@@ -451,8 +451,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
             auto project =
                 process->property("runningProject").value<std::shared_ptr<ProjectBuildConfig>>();
-            auto buildDirectory = process->property("buildDirectory").toString();
-            auto sourceDirectory = process->property("sourceDirectory").toString();
+            auto buildDirectory = process->property(GlobalArguments::BuildDirectory).toString();
+            auto sourceDirectory = process->property(GlobalArguments::SourceDirectory).toString();
             auto projectName = QString{};
             {
                 auto d = QDir(sourceDirectory);
@@ -989,8 +989,8 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
     runProcess.setProperty("runningProject", QVariant::fromValue(project));
     runProcess.setProperty("workingDirectory", QVariant::fromValue(workingDirectory));
-    runProcess.setProperty("buildDirectory", QVariant::fromValue(buildDirectory));
-    runProcess.setProperty("sourceDirectory", QVariant::fromValue(sourceDirectory));
+    runProcess.setProperty(GlobalArguments::BuildDirectory, QVariant::fromValue(buildDirectory));
+    runProcess.setProperty(GlobalArguments::SourceDirectory, QVariant::fromValue(sourceDirectory));
 
     runProcess.start();
     if (!runProcess.waitForStarted()) {
