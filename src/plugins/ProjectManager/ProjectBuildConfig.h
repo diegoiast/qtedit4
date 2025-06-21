@@ -57,5 +57,8 @@ struct ProjectBuildConfig {
     auto saveToFile(const QString &jsonFileName) -> void;
     auto findIndexOfTask(const QString &taskName) -> int;
     auto findIndexOfExecutable(const QString &executableName) -> int;
+    auto getConfigDictionary() const -> const QHash<QString, QString>;
+    auto expand(const QString &var) -> QString;
+
     bool operator==(const ProjectBuildConfig &other) const;
 };
