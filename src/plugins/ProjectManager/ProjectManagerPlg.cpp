@@ -68,28 +68,6 @@ static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
 #endif
 }
 
-static auto expand(const QString &input, const QHash<QString, QString> &hashTable) -> QString {
-    static auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
-    auto output = input;
-    auto depth = 0;
-    auto maxDepth = 10;
-
-    while (depth < maxDepth) {
-        auto it = regex.globalMatch(output);
-        if (!it.hasNext()) {
-            break;
-        }
-        while (it.hasNext()) {
-            auto match = it.next();
-            auto key = match.captured(1);
-            auto replacement = hashTable.value(key, "");
-            output.replace(match.captured(0), replacement);
-        }
-        depth++;
-    }
-    return output;
-}
-
 static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
     KitDetector::deleteOldKitFiles(directoryPath);
 
@@ -685,8 +663,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
                 configWatcher.addPath(config->fileName);
             }
 
-            auto hash = getConfigDictionary(config);
-            auto buildDirectory = QDir::toNativeSeparators(expand(config->buildDir, hash));
+            auto buildDirectory = QDir::toNativeSeparators(config->expand(config->buildDir));
             // clang-format off
             getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
                 {GlobalArguments::ProjectName, config->name},
@@ -758,16 +735,6 @@ std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() con
     return projectModel->getConfig(currentIndex);
 }
 
-const QHash<QString, QString>
-ProjectManagerPlugin::getConfigDictionary(std::shared_ptr<ProjectBuildConfig> project) const {
-    auto dictionary = QHash<QString, QString>();
-    if (project) {
-        dictionary["source_directory"] = QDir::toNativeSeparators(project->sourceDir);
-        dictionary["build_directory"] = QDir::toNativeSeparators(project->buildDir);
-    }
-    return dictionary;
-}
-
 const KitDefinition *ProjectManagerPlugin::getCurrentKit() const {
     auto currentIndex = gui->kitComboBox->currentIndex();
     if (currentIndex < 0) {
@@ -798,9 +765,8 @@ void ProjectManagerPlugin::addProject_clicked() {
         configWatcher.addPath(buildConfig->fileName);
     }
 
-    auto hash = getConfigDictionary(buildConfig);
-    auto buildDirectory = expand(buildConfig->buildDir, hash);
-    auto sourceDirectory = expand(buildConfig->sourceDir, hash);
+    auto buildDirectory = buildConfig->expand(buildConfig->buildDir);
+    auto sourceDirectory = buildConfig->expand(buildConfig->sourceDir);
 
     // clang-format off
     getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
@@ -855,9 +821,8 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filterOutFiles->setEnabled(false);
     } else {
         auto project = getCurrentConfig();
-        auto dictionary = getConfigDictionary(project);
-        auto s1 = expand(buildConfig->displayFilter, dictionary);
-        auto s2 = expand(buildConfig->hideFilter, dictionary);
+        auto s1 = buildConfig->expand(buildConfig->displayFilter);
+        auto s2 = buildConfig->expand(buildConfig->hideFilter);
         this->gui->filterFiles->setEnabled(true);
         this->gui->filterFiles->setText(s1);
         this->gui->filterOutFiles->setEnabled(true);
@@ -883,16 +848,15 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     }
 
     auto project = getCurrentConfig();
-    auto hash = getConfigDictionary(project);
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
-    auto currentTask = expand(executablePath, hash);
+    auto currentTask = project->expand(executablePath);
     auto [command, interpreter] = getCommandInterpreter(currentTask);
 
     auto workingDirectory = info->runDirectory;
     if (workingDirectory.isEmpty()) {
         workingDirectory = project->buildDir;
     }
-    workingDirectory = expand(workingDirectory, hash);
+    workingDirectory = project->expand(workingDirectory);
     outputPanel->commandOuput->clear();
     appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
     appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(currentTask));
@@ -913,11 +877,10 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto hash = getConfigDictionary(project);
-    auto taskCommand = expand(task->command, hash);
-    auto workingDirectory = expand(task->runDirectory, hash);
-    auto buildDirectory = expand(project->buildDir, hash);
-    auto sourceDirectory = expand(project->sourceDir, hash);
+    auto taskCommand = project->expand(task->command);
+    auto workingDirectory = project->expand(task->runDirectory);
+    auto buildDirectory = project->expand(project->buildDir);
+    auto sourceDirectory = project->expand(project->sourceDir);
 
     if (workingDirectory.isEmpty()) {
         workingDirectory = buildDirectory;
@@ -1034,8 +997,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
         return;
     }
 
-    auto hash = getConfigDictionary(project);
-    auto projectBuildDir = QDir::toNativeSeparators(expand(project->buildDir, hash));
+    auto projectBuildDir = QDir::toNativeSeparators(project->expand(project->buildDir));
     QMessageBox msgBox;
     msgBox.setIcon(QMessageBox::Question);
     msgBox.setText(tr("This will delete <b>%1</b> (%2). Do you want to proceed?")
@@ -1288,9 +1250,8 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         // User chose "Load the project"
         projectModel->addConfig(project);
         searchPanelUI->updateProjectList();
-        auto hash = getConfigDictionary(project);
-        auto buildDirectory = expand(project->buildDir, hash);
-        auto sourceDirectory = expand(project->sourceDir, hash);
+        auto buildDirectory = project->expand(project->buildDir);
+        auto sourceDirectory = project->expand(project->sourceDir);
 
         getManager()->saveSettings();
         // clang-format off
