@@ -1,11 +1,54 @@
 #include "ProjectBuildConfig.h"
 
+#include <QDebug>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QProcess>
+#include <QString>
+
+// Returns map: executable target name -> full path to executable binary
+QHash<QString, QString> getExecutablesFromCMakeFileAPI(const QString &buildDir) {
+    QHash<QString, QString> executables;
+
+    auto replyDir = QDir(buildDir + "/.cmake/api/v1/reply");
+    if (!replyDir.exists()) {
+        qWarning() << "Reply directory does not exist:" << replyDir.path();
+        return executables;
+    }
+
+    auto files = replyDir.entryList({"target-*.json"}, QDir::Files);
+    for (const auto &fileName : files) {
+        QFile file(replyDir.filePath(fileName));
+        if (!file.open(QIODevice::ReadOnly)) {
+            qWarning() << "Failed to open target file:" << fileName;
+            continue;
+        }
+
+        auto doc = QJsonDocument::fromJson(file.readAll());
+        auto obj = doc.object();
+
+        if (obj["type"].toString() != "EXECUTABLE") {
+            continue;
+        }
+
+        auto artifacts = obj["artifacts"].toArray();
+        if (artifacts.isEmpty()) {
+            continue;
+        }
+
+        auto name = obj["name"].toString();
+        auto path = artifacts[0].toObject()["path"].toString();
+
+        executables.insert(name, path);
+    }
+
+    return executables;
+}
 
 bool ExecutableInfo::operator==(const ExecutableInfo &other) const {
     /* clang-format off */
@@ -45,14 +88,28 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 
     {
         auto t = TaskInfo();
-        t.name = "CMake configure)";
-        t.command = "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug";
+        t.name = "CMake (configure/Debug)";
+        // clang-format off
+        t.command = "mkdir -p ${build_directory}/.cmake/api/v1/query/ && "
+                    "touch  ${build_directory}/.cmake/api/v1/query/codemodel-v2 && "
+                    "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug --graphviz=${build_directory}/graph.dot";
+        // clang-format on
         t.runDirectory = "${source_directory}";
+        t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
     {
         auto t = TaskInfo();
-        t.name = "Build (parallel)";
+        t.name = "CMake (configure/Release)";
+        t.command = "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Release "
+                    "--graphviz=${build_directory}/graph.dot";
+        t.runDirectory = "${source_directory}";
+        t.isBuild = true;
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "CMake Build (parallel)";
         t.command = "cmake --build ${build_directory} --parallel";
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
@@ -60,7 +117,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     }
     {
         auto t = TaskInfo();
-        t.name = "Build (single thread)";
+        t.name = "CMake Build (single thread)";
         t.command = "cmake --build ${build_directory}";
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
@@ -328,7 +385,7 @@ auto ProjectBuildConfig::updateBinaries() -> void {
 }
 
 auto ProjectBuildConfig::updateBinariesCMake() -> void {
-    // TODO - we should query for available binaries after configure.
+#if 0    
     auto di = QFileInfo(this->sourceDir);
     auto e = ExecutableInfo();
     e.name = di.fileName();
@@ -336,6 +393,20 @@ auto ProjectBuildConfig::updateBinariesCMake() -> void {
     e.executables["windows"] = "${build_directory}/bin/" + e.name + ".exe";
     e.executables["linux"] = "${build_directory}/bin/" + e.name;
     this->executables.push_back(e);
+#else
+    this->executables.clear();
+    auto buildDir = expand(this->buildDir);
+    auto binaries = getExecutablesFromCMakeFileAPI(buildDir);
+    for (const auto &[key, value] : binaries.asKeyValueRange()) {
+        // qDebug() << "updateBinariesCMake2 => Key:" << key << "Value:" << value;
+        auto e = ExecutableInfo();
+        e.name = value;
+        e.runDirectory = "${build_directory}";
+        e.executables["windows"] = "${build_directory}/" + value;
+        e.executables["linux"] = "${build_directory}/" + value;
+        this->executables.push_back(e);
+    }
+#endif
 }
 
 auto ProjectBuildConfig::updateBinariesCargo() -> void {
@@ -478,6 +549,36 @@ auto ProjectBuildConfig::findIndexOfExecutable(const QString &executableName) ->
         }
     }
     return -1;
+}
+
+auto ProjectBuildConfig::getConfigDictionary() const -> const QHash<QString, QString> {
+    auto dictionary = QHash<QString, QString>();
+    dictionary["source_directory"] = QDir::toNativeSeparators(sourceDir);
+    dictionary["build_directory"] = QDir::toNativeSeparators(buildDir);
+    return dictionary;
+}
+
+auto ProjectBuildConfig::expand(const QString &input) -> QString {
+    static auto regex = QRegularExpression(R"(\$\{([a-zA-Z0-9_]+)\})");
+    auto output = input;
+    auto depth = 0;
+    auto maxDepth = 10;
+    auto hashTable = getConfigDictionary();
+
+    while (depth < maxDepth) {
+        auto it = regex.globalMatch(output);
+        if (!it.hasNext()) {
+            break;
+        }
+        while (it.hasNext()) {
+            auto match = it.next();
+            auto key = match.captured(1);
+            auto replacement = hashTable.value(key, "");
+            output.replace(match.captured(0), replacement);
+        }
+        depth++;
+    }
+    return output;
 }
 
 bool ProjectBuildConfig::operator==(const ProjectBuildConfig &other) const {
