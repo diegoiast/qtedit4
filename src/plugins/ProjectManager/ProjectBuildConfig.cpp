@@ -11,40 +11,100 @@
 #include <QProcess>
 #include <QString>
 
-// Returns map: executable target name -> full path to executable binary
-QHash<QString, QString> getExecutablesFromCMakeFileAPI(const QString &buildDir) {
-    QHash<QString, QString> executables;
+using StringHash = QHash<QString, QString>;
+using StringPair = QPair<QString, QString>;
 
+// Returns map: executable target name -> full path to executable binary
+auto getExecutableFromTargetFile(const QString &filePath) -> std::optional<StringPair> {
+    auto file = QFile(filePath);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "getExecutableFromTargetFile: Failed to open target file:" << filePath;
+        return std::nullopt;
+    }
+
+    auto doc = QJsonDocument::fromJson(file.readAll());
+    auto obj = doc.object();
+    if (obj["type"].toString() != "EXECUTABLE") {
+        return std::nullopt;
+    }
+
+    auto artifacts = obj["artifacts"].toArray();
+    if (artifacts.isEmpty()) {
+        return std::nullopt;
+    }
+    auto name = obj["name"].toString();
+    auto path = artifacts[0].toObject()["path"].toString();
+    return StringPair{name, path};
+}
+
+auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
+    auto executables = StringHash();
     auto replyDir = QDir(buildDir + "/.cmake/api/v1/reply");
     if (!replyDir.exists()) {
-        qWarning() << "Reply directory does not exist:" << replyDir.path();
+        qWarning() << "getExecutablesFromCMakeFileAPI: Reply directory does not exist:"
+                   << replyDir.path();
         return executables;
     }
 
-    auto files = replyDir.entryList({"target-*.json"}, QDir::Files);
-    for (const auto &fileName : files) {
-        QFile file(replyDir.filePath(fileName));
-        if (!file.open(QIODevice::ReadOnly)) {
-            qWarning() << "Failed to open target file:" << fileName;
+    auto indexFiles = replyDir.entryList({"index-*.json"}, QDir::Files);
+    if (indexFiles.isEmpty()) {
+        qWarning() << "getExecutablesFromCMakeFileAPI: No index file found";
+        return executables;
+    }
+
+    auto indexFilePath = replyDir.filePath(indexFiles.first());
+    auto indexFile = QFile(indexFilePath);
+    if (!indexFile.open(QIODevice::ReadOnly)) {
+        qWarning() << "getExecutablesFromCMakeFileAPI: Failed to open index file:" << indexFilePath;
+        return executables;
+    }
+
+    auto indexDoc = QJsonDocument::fromJson(indexFile.readAll());
+    auto indexObj = indexDoc.object();
+    auto objects = indexObj["objects"].toArray();
+
+    auto codemodelFile = QString();
+    for (const auto &entry : objects) {
+        auto obj = entry.toObject();
+        if (obj["kind"].toString() == "codemodel") {
+            codemodelFile = obj["jsonFile"].toString();
+            break;
+        }
+    }
+
+    if (codemodelFile.isEmpty()) {
+        qWarning() << "getExecutablesFromCMakeFileAPI: No codemodel found in index file";
+        return executables;
+    }
+
+    auto codemodelPath = replyDir.filePath(codemodelFile);
+    auto codemodel = QFile(codemodelPath);
+    if (!codemodel.open(QIODevice::ReadOnly)) {
+        qWarning() << "getExecutablesFromCMakeFileAPI: Failed to open codemodel file:"
+                   << codemodelPath;
+        return executables;
+    }
+
+    auto codeDoc = QJsonDocument::fromJson(codemodel.readAll());
+    auto codeObj = codeDoc.object();
+    auto configurations = codeObj["configurations"].toArray();
+    if (configurations.isEmpty()) {
+        qWarning() << "getExecutablesFromCMakeFileAPI: No configurations in codemodel";
+        return executables;
+    }
+
+    auto targets = configurations[0].toObject()["targets"].toArray();
+    for (auto const &target : targets) {
+        auto targetFile = target.toObject()["jsonFile"].toString();
+        if (targetFile.isEmpty()) {
             continue;
         }
 
-        auto doc = QJsonDocument::fromJson(file.readAll());
-        auto obj = doc.object();
-
-        if (obj["type"].toString() != "EXECUTABLE") {
-            continue;
+        auto targetFilePath = replyDir.filePath(targetFile);
+        auto result = getExecutableFromTargetFile(targetFilePath);
+        if (result.has_value()) {
+            executables.insert(result->first, result->second);
         }
-
-        auto artifacts = obj["artifacts"].toArray();
-        if (artifacts.isEmpty()) {
-            continue;
-        }
-
-        auto name = obj["name"].toString();
-        auto path = artifacts[0].toObject()["path"].toString();
-
-        executables.insert(name, path);
     }
 
     return executables;
