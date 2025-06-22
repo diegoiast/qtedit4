@@ -110,6 +110,74 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     return executables;
 }
 
+auto cargoListBinUnits(const QString &directoryPath, bool /*recursive*/ = true) -> StringHash {
+    auto fileMap = StringHash{};
+    auto process = QProcess{};
+    process.setProgram("cargo");
+    process.setArguments({"metadata", "--format-version=1", "--no-deps"});
+    process.setWorkingDirectory(directoryPath);
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    process.start();
+    if (!process.waitForFinished(10000)) {
+        qWarning() << "cargoListBinUnits: cargo metadata timed out or failed";
+        return fileMap;
+    }
+
+    auto output = process.readAllStandardOutput();
+    if (output.isEmpty()) {
+        qWarning() << "cargoListBinUnits: cargo metadata output is empty";
+        return fileMap;
+    }
+
+    auto jsonDoc = QJsonDocument::fromJson(output);
+    if (jsonDoc.isNull() || !jsonDoc.isObject()) {
+        qWarning() << "cargoListBinUnits: Failed to parse cargo metadata JSON";
+        return fileMap;
+    }
+
+    auto rootObj = jsonDoc.object();
+    auto targetDirStr = rootObj.value("target_directory").toString();
+    if (targetDirStr.isEmpty()) {
+        qWarning() << "cargoListBinUnits: target_directory missing";
+        return fileMap;
+    }
+
+    auto targetDir = QDir(targetDirStr);
+    auto packages = rootObj.value("packages").toArray();
+    for (const auto &packageVal : packages) {
+        if (!packageVal.isObject()) {
+            continue;
+        }
+
+        auto packageObj = packageVal.toObject();
+        auto targets = packageObj.value("targets").toArray();
+
+        for (const auto &targetVal : targets) {
+            if (!targetVal.isObject()) {
+                continue;
+            }
+
+            auto targetObj = targetVal.toObject();
+            auto kindArray = targetObj.value("kind").toArray();
+            bool isBin = std::any_of(kindArray.constBegin(), kindArray.constEnd(),
+                                     [](const auto &val) { return val.toString() == "bin"; });
+            if (!isBin) {
+                continue;
+            }
+
+            auto targetName = targetObj.value("name").toString();
+#ifdef Q_OS_WIN
+            auto exeName = targetName + ".exe";
+#else
+            auto exeName = targetName;
+#endif
+            auto exePath = targetDir.filePath(QDir("debug").filePath(exeName));
+            fileMap.insert(targetName, exePath);
+        }
+    }
+    return fileMap;
+}
+
 bool ExecutableInfo::operator==(const ExecutableInfo &other) const {
     /* clang-format off */
     return
@@ -445,20 +513,10 @@ auto ProjectBuildConfig::updateBinaries() -> void {
 }
 
 auto ProjectBuildConfig::updateBinariesCMake() -> void {
-#if 0    
-    auto di = QFileInfo(this->sourceDir);
-    auto e = ExecutableInfo();
-    e.name = di.fileName();
-    e.runDirectory = "${build_directory}";
-    e.executables["windows"] = "${build_directory}/bin/" + e.name + ".exe";
-    e.executables["linux"] = "${build_directory}/bin/" + e.name;
-    this->executables.push_back(e);
-#else
     this->executables.clear();
     auto buildDir = expand(this->buildDir);
     auto binaries = getExecutablesFromCMakeFileAPI(buildDir);
     for (const auto &[key, value] : binaries.asKeyValueRange()) {
-        // qDebug() << "updateBinariesCMake2 => Key:" << key << "Value:" << value;
         auto e = ExecutableInfo();
         e.name = value;
         e.runDirectory = "${build_directory}";
@@ -466,17 +524,27 @@ auto ProjectBuildConfig::updateBinariesCMake() -> void {
         e.executables["linux"] = "${build_directory}/" + value;
         this->executables.push_back(e);
     }
-#endif
 }
 
 auto ProjectBuildConfig::updateBinariesCargo() -> void {
     auto e = ExecutableInfo();
+    this->executables.clear();
+
+#if 0
     e.name = "cargo run";
     e.runDirectory = "${source_directory}";
     e.executables["windows"] = "cargo run";
     e.executables["linux"] = "cargo run";
-    this->executables.clear();
     this->executables.push_back(e);
+#endif
+    auto binaries = cargoListBinUnits(this->sourceDir);
+    for (const auto &[key, value] : binaries.asKeyValueRange()) {
+        e.name = key;
+        e.runDirectory = "${source_directory}";
+        e.executables["windows"] = value;
+        e.executables["linux"] = value;
+        this->executables.push_back(e);
+    }
 }
 
 auto ProjectBuildConfig::updateBinariesGo() -> void {
