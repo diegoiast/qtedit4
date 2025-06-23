@@ -583,6 +583,10 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     gui->kitComboBox->setModel(kitsModel);
     connect(gui->kitComboBox, &QComboBox::activated, gui->kitComboBox, [this](int newIndex) {
+        if (kitsModel->rowCount() <= newIndex) {
+            qDebug() << "kitComboBox: No kits found, or wrong kit definted.";
+            return;
+        }
         auto kit = kitsModel->getKit(newIndex);
         auto tooltip = QString("%1\n%2").arg(QString::fromStdString(kit.name),
                                              QString::fromStdString(kit.filePath));
