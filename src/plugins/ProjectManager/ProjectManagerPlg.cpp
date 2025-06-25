@@ -877,13 +877,15 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto platform = QString("linux");  // Default to linux
-#if defined(_WIN32)
-    platform = "windows";
-#endif
+    auto platform = PLATFORM_CURRENT;
+
+    if (!task->commands.contains(platform)) {
+        qWarning() << "do_runTask: No commands found for platform" << platform;
+        return;
+    }
     auto commands = task->commands.value(platform);
     if (commands.isEmpty()) {
-        qWarning() << "No commands found for platform" << platform;
+        qWarning() << "do_runTask: Command is invalid" << platform;
         return;
     }
     auto taskCommand = commands.join("; ");  // Join commands with semicolon for shell execution

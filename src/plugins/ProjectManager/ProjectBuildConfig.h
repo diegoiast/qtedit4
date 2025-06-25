@@ -3,6 +3,15 @@
 #include <QHash>
 #include <QString>
 
+auto constexpr PLATFORM_LINUX = "linux";
+auto constexpr PLATFORM_WINDOWS = "windows";
+
+#if defined(_WIN32)
+auto constexpr PLATFORM_CURRENT = "windows";
+#elif defined(linux)
+auto constexpr PLATFORM_CURRENT = "linux";
+#endif
+
 struct ExecutableInfo {
     QString name;
     QString runDirectory;
