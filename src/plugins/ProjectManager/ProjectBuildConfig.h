@@ -10,6 +10,8 @@ auto constexpr PLATFORM_WINDOWS = "windows";
 auto constexpr PLATFORM_CURRENT = "windows";
 #elif defined(linux)
 auto constexpr PLATFORM_CURRENT = "linux";
+#elif defined(__APPLE__)
+auto constexpr PLATFORM_CURRENT = "osx";
 #endif
 
 struct ExecutableInfo {
