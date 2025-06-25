@@ -191,7 +191,7 @@ bool TaskInfo::operator==(const TaskInfo &other) const {
     /* clang-format off */
     return
         this->name == other.name &&
-        this->command == other.command &&
+        this->commands == other.commands &&
         this->isBuild == other.isBuild &&
         this->runDirectory == other.runDirectory;
     /* clang-format on */
@@ -212,33 +212,55 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;.vs;build;dist";
-    value->buildDir = "${source_directory}/build";
+    value->buildDir = QDir(directory).absolutePath() + QDir::separator() + "build";
 
+    // Debug configuration
     {
         auto t = TaskInfo();
         t.name = "CMake (configure/Debug)";
-        // clang-format off
-        t.command = "mkdir -p ${build_directory}/.cmake/api/v1/query/ && "
-                    "touch  ${build_directory}/.cmake/api/v1/query/codemodel-v2 && "
-                    "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug --graphviz=${build_directory}/graph.dot";
-        // clang-format on
+        t.commands.insert("linux", {
+            "mkdir -p ${build_directory}/.cmake/api/v1/query/",
+            "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+            "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug --graphviz=${build_directory}/graph.dot"
+        });
+        t.commands.insert("windows", {
+            "mkdir -p ${build_directory}/.cmake/api/v1/query/",
+            "type nul > ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+            "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug --graphviz=${build_directory}/graph.dot"
+        });
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
+
+    // Release configuration
     {
         auto t = TaskInfo();
         t.name = "CMake (configure/Release)";
-        t.command = "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Release "
-                    "--graphviz=${build_directory}/graph.dot";
+        t.commands.insert("linux", {
+            "mkdir -p ${build_directory}/.cmake/api/v1/query/",
+            "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+            "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Release --graphviz=${build_directory}/graph.dot"
+        });
+        t.commands.insert("windows", {
+            "mkdir -p ${build_directory}/.cmake/api/v1/query/",
+            "type nul > ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+            "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Release --graphviz=${build_directory}/graph.dot"
+        });
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
+
+    // Build commands
+    auto cmakeBuildParallel = "cmake --build ${build_directory} --parallel";
+    auto cmakeBuildSingle = "cmake --build ${build_directory}";
+
     {
         auto t = TaskInfo();
         t.name = "CMake Build (parallel)";
-        t.command = "cmake --build ${build_directory} --parallel";
+        t.commands.insert("linux", {cmakeBuildParallel});
+        t.commands.insert("windows", {cmakeBuildParallel});
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
@@ -246,11 +268,13 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     {
         auto t = TaskInfo();
         t.name = "CMake Build (single thread)";
-        t.command = "cmake --build ${build_directory}";
+        t.commands.insert("linux", {cmakeBuildSingle});
+        t.commands.insert("windows", {cmakeBuildSingle});
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
+
     value->updateBinariesCMake();
     return value;
 }
@@ -272,11 +296,16 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     value->hideFilter = ".git;.vscode;target";
     value->buildDir = directory + "/target";
 
+    auto cargoBuild = "cargo build";
+    auto cargoBuildRelease = "cargo build --release";
+    auto cargoUpdate = "cargo update";
+
     {
         auto t = TaskInfo();
         t.name = "cargo build";
         t.runDirectory = "${source_directory}";
-        t.command = "cargo build";
+        t.commands.insert("linux", {cargoBuild});
+        t.commands.insert("windows", {cargoBuild});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -284,7 +313,8 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         auto t = TaskInfo();
         t.name = "cargo build (release)";
         t.runDirectory = "${source_directory}";
-        t.command = "cargo build --release";
+        t.commands.insert("linux", {cargoBuildRelease});
+        t.commands.insert("windows", {cargoBuildRelease});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -292,7 +322,8 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         auto t = TaskInfo();
         t.name = "cargo update";
         t.runDirectory = "${source_directory}";
-        t.command = "cargo update";
+        t.commands.insert("linux", {cargoUpdate});
+        t.commands.insert("windows", {cargoUpdate});
         value->tasksInfo.push_back(t);
     }
     value->updateBinariesCargo();
@@ -317,18 +348,23 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     value->hideFilter = ".git;.vscode;";
     value->buildDir = "";
 
+    auto goBuild = "go build";
+    auto goFix = "go fix";
+
     {
         auto t = TaskInfo();
         t.name = "go build";
         t.runDirectory = "${source_directory}";
-        t.command = "go build";
+        t.commands.insert("linux", {goBuild});
+        t.commands.insert("windows", {goBuild});
         value->tasksInfo.push_back(t);
     }
     {
         auto t = TaskInfo();
         t.name = "go fix";
         t.runDirectory = "${source_directory}";
-        t.command = "go fix";
+        t.commands.insert("linux", {goFix});
+        t.commands.insert("windows", {goFix});
         value->tasksInfo.push_back(t);
     }
     value->updateBinariesGo();
@@ -351,11 +387,16 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
     value->hideFilter = ".git;.vscode;";
     value->buildDir = directory + "/mbuild"; // meson build?
 
+    auto mesonSetup = "meson setup ${build_directory}";
+    auto mesonBuild = "meson compile -C ${build_directory}";
+    auto mesonTest = "meson test -C ${build_directory}";
+
     {
         auto t = TaskInfo();
         t.name = "meson setup";
         t.runDirectory = "${source_directory}";
-        t.command = "meson setup ${build_directory}";
+        t.commands.insert("linux", {mesonSetup});
+        t.commands.insert("windows", {mesonSetup});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -363,7 +404,8 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
         auto t = TaskInfo();
         t.name = "meson build";
         t.runDirectory = "${source_directory}";
-        t.command = "meson compile -C ${build_directory}";
+        t.commands.insert("linux", {mesonBuild});
+        t.commands.insert("windows", {mesonBuild});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -371,7 +413,8 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
         auto t = TaskInfo();
         t.name = "meson tests";
         t.runDirectory = "${source_directory}";
-        t.command = "meson test  -C ${build_directory}";
+        t.commands.insert("linux", {mesonTest});
+        t.commands.insert("windows", {mesonTest});
         value->tasksInfo.push_back(t);
     }
     value->updateBinariesMeson();
@@ -443,7 +486,15 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 auto obj = vv.toObject();
                 TaskInfo taskInfo;
                 taskInfo.name = obj["name"].toString();
-                taskInfo.command = obj["command"].toString();
+                auto commandsObj = obj["commands"].toObject();
+                for (auto it = commandsObj.begin(); it != commandsObj.end(); ++it) {
+                    auto commandsArray = it.value().toArray();
+                    QStringList commands;
+                    for (const auto &cmd : commandsArray) {
+                        commands.append(cmd.toString());
+                    }
+                    taskInfo.commands.insert(it.key(), commands);
+                };
                 taskInfo.runDirectory = obj["runDirectory"].toString();
                 taskInfo.isBuild = obj["isBuild"].toBool(false);
                 info.push_back(taskInfo);
@@ -639,7 +690,15 @@ auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
     for (const auto &task : std::as_const(tasksInfo)) {
         auto taskObj = QJsonObject();
         taskObj["name"] = task.name;
-        taskObj["command"] = task.command;
+        auto commandsObj = QJsonObject();
+        for (auto it = task.commands.constBegin(); it != task.commands.constEnd(); ++it) {
+            auto commandsArray = QJsonArray();
+            for (const auto &cmd : it.value()) {
+                commandsArray.append(cmd);
+            }
+            commandsObj[it.key()] = commandsArray;
+        }
+        taskObj["commands"] = commandsObj;
         taskObj["runDirectory"] = task.runDirectory;
         taskObj["isBuild"] = task.isBuild;
 

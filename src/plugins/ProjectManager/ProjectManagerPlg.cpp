@@ -877,7 +877,17 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     auto kit = getCurrentKit();
     auto project = getCurrentConfig();
-    auto taskCommand = project->expand(task->command);
+    auto platform = QString("linux");  // Default to linux
+#if defined(_WIN32)
+    platform = "windows";
+#endif
+    auto commands = task->commands.value(platform);
+    if (commands.isEmpty()) {
+        qWarning() << "No commands found for platform" << platform;
+        return;
+    }
+    auto taskCommand = commands.join("; ");  // Join commands with semicolon for shell execution
+    taskCommand = project->expand(taskCommand);
     auto workingDirectory = project->expand(task->runDirectory);
     auto buildDirectory = project->expand(project->buildDir);
     auto sourceDirectory = project->expand(project->sourceDir);
@@ -924,6 +934,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         // run the taskCommand directly in the native shell
         auto [command, interpreter] = getCommandInterpreter(taskCommand);
         appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
+        appendAnsiHtml(outputPanel->commandOuput, "Commands: " + taskCommand + "\n");
 
         runProcess.setWorkingDirectory(workingDirectory);
         runProcess.setProgram(interpreter);
@@ -1082,7 +1093,12 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             }
         }
         auto taskName = buildConfig->tasksInfo[taskIndex].name;
-        auto taskCommand = buildConfig->tasksInfo[taskIndex].command;
+        auto platform = QString("linux");  // Default to linux
+#if defined(_WIN32)
+        platform = "windows";
+#endif
+        auto commands = buildConfig->tasksInfo[taskIndex].commands.value(platform);
+        auto taskCommand = commands.isEmpty() ? "" : commands.first();
         selectedTaskIndex = taskIndex;
         this->gui->taskButton->setEnabled(true);
         this->gui->taskButton->setText(taskName);
@@ -1116,7 +1132,12 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto taskName = buildConfig->tasksInfo[index].name;
-                auto taskCommand = buildConfig->tasksInfo[index].command;
+                auto platform = QString("linux");  // Default to linux
+#if defined(_WIN32)
+                platform = "windows";
+#endif
+                auto commands = buildConfig->tasksInfo[index].commands.value(platform);
+                auto taskCommand = commands.isEmpty() ? "" : commands.first();
 
                 buildConfig->activeTaskName = taskName;
                 this->gui->taskButton->setEnabled(true);
