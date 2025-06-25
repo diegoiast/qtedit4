@@ -94,7 +94,7 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     }
 
     auto targets = configurations[0].toObject()["targets"].toArray();
-    for (auto const &target : targets) {
+    for (auto const &target : std::as_const(targets)) {
         auto targetFile = target.toObject()["jsonFile"].toString();
         if (targetFile.isEmpty()) {
             continue;
@@ -257,22 +257,22 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;.vs;cbuild;dist";
-    value->buildDir = "${source_directory}/cbuild";
+    value->buildDir = QString("${source_directory}%1cbuild").arg(QDir::separator());
 
     // Debug configuration
     {
         auto t = TaskInfo();
         t.name = "CMake (configure/Debug)";
-        t.commands.insert(PLATFORM_LINUX,
-                          {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
-                           "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
-                           "cmake -S ${source_directory} -B ${build_directory} "
-                           "-DCMAKE_BUILD_TYPE=Debug"});
-        t.commands.insert(PLATFORM_WINDOWS,
-                          {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
-                           "type nul > ${build_directory}/.cmake/api/v1/query/codemodel-v2",
-                           "cmake -S ${source_directory} -B ${build_directory} "
-                           "-DCMAKE_BUILD_TYPE=Debug"});
+        t.commands.insert(
+            PLATFORM_LINUX,
+            {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
+             "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+             "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug"});
+        t.commands.insert(
+            PLATFORM_WINDOWS,
+            {"mkdir ${build_directory}\\.cmake\\api\\v1\\query\\  >nul 2>nul",
+             "type nul > ${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2",
+             "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug"});
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
@@ -288,8 +288,8 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
                            "cmake -S ${source_directory} -B ${build_directory} "
                            "-DCMAKE_BUILD_TYPE=Release"});
         t.commands.insert(PLATFORM_WINDOWS,
-                          {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
-                           "type nul > ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+                          {"mkdir -p ${build_directory}\\.cmake\\api\\v1\\query\\",
+                           "type nul > ${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2",
                            "cmake -S ${source_directory} -B ${build_directory} "
                            "-DCMAKE_BUILD_TYPE=Release"});
         t.runDirectory = "${source_directory}";
@@ -326,7 +326,7 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
 
 auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
-    auto cargoFileName = directory + "/" + "Cargo.toml";
+    auto cargoFileName = directory + QDir::separator() + "Cargo.toml";
     auto di = QFileInfo(directory);
     auto fi = QFileInfo(cargoFileName);
     if (!fi.isReadable()) {
@@ -339,7 +339,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;target";
-    value->buildDir = "${source_directory}/target";
+    value->buildDir = QString("${source_directory}%1target").arg(QDir::separator());
 
     auto cargoBuild = "cargo build";
     auto cargoBuildRelease = "cargo build --release";
@@ -378,7 +378,7 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
 
 auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
     -> std::shared_ptr<ProjectBuildConfig> {
-    auto gomodFileName = directory + "/" + "go.mod";
+    auto gomodFileName = directory + QDir::separator() + "go.mod";
     auto di = QFileInfo(directory);
     auto fi = QFileInfo(gomodFileName);
     if (!fi.isReadable()) {
@@ -418,7 +418,7 @@ auto ProjectBuildConfig::tryGuessFromGo(const QString &directory)
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
-    auto mesonBuildFile = directory + "/" + "meson.build";
+    auto mesonBuildFile = directory + QDir::separator() + "meson.build";
     auto di = QFileInfo(directory);
     auto fi = QFileInfo(mesonBuildFile);
     if (!fi.isReadable()) {
@@ -430,7 +430,8 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &directory) {
     value->name = di.baseName();
     value->sourceDir = directory;
     value->hideFilter = ".git;.vscode;";
-    value->buildDir = "${source_directory}/mbuild"; // meson build?
+    // meson build?
+    value->buildDir = QString("${source_directory}%1mbuild").arg(QDir::separator());
 
     auto mesonSetup = "meson setup ${build_directory}";
     auto mesonBuild = "meson compile -C ${build_directory}";
@@ -632,7 +633,7 @@ auto ProjectBuildConfig::updateBinariesCMake() -> void {
         e.name = value;
         e.runDirectory = "${build_directory}";
         e.executables[PLATFORM_LINUX] = "${build_directory}/" + value;
-        e.executables[PLATFORM_WINDOWS] = "${build_directory}/" + value;
+        e.executables[PLATFORM_WINDOWS] = "${build_directory}\\" + value;
         this->executables.push_back(e);
     }
 }

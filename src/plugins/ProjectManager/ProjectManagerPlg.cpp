@@ -888,7 +888,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         qWarning() << "do_runTask: Command is invalid" << platform;
         return;
     }
-    auto taskCommand = commands.join("; ");  // Join commands with semicolon for shell execution
+
+    // Join commands with semicolon for shell execution: this works for batch and bash!
+    auto taskCommand = commands.join("&& ");
     taskCommand = project->expand(taskCommand);
     auto workingDirectory = project->expand(task->runDirectory);
     auto buildDirectory = project->expand(project->buildDir);
