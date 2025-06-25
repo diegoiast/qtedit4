@@ -1097,7 +1097,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             }
         }
         auto taskName = buildConfig->tasksInfo[taskIndex].name;
-        auto platform = QString("linux");  // Default to linux
+        auto platform = QString("linux"); // Default to linux
 #if defined(_WIN32)
         platform = "windows";
 #endif
@@ -1136,7 +1136,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto taskName = buildConfig->tasksInfo[index].name;
-                auto platform = QString("linux");  // Default to linux
+                auto platform = QString("linux"); // Default to linux
 #if defined(_WIN32)
                 platform = "windows";
 #endif

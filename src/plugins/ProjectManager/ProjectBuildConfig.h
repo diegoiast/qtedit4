@@ -24,7 +24,7 @@ struct ExecutableInfo {
 
 struct TaskInfo {
     QString name;
-    QHash<QString, QStringList> commands;  // key: platform, value: list of commands
+    QHash<QString, QStringList> commands; // key: platform, value: list of commands
     QString runDirectory;
     bool isBuild = false;
 
