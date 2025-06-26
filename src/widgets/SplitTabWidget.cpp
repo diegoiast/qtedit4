@@ -324,6 +324,8 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
 void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString &tooltip) {
     addTabToCurrentSplit(widget, label, tooltip);
 
+    // This code deals with pre-loading. You can configure a the pre-state of the split tab
+    // and then when adding new tabs, the widget will split as requested.
     if (!savedSplitCount.empty()) {
         auto splitsCount = splitter->count();
         auto currentTabIndex = findSplitIndex(currentTabWidget);
@@ -466,6 +468,12 @@ void SplitTabWidget::closeCurrentTab() {
 
 void SplitTabWidget::updateCurrentTabWidget(QTabWidget *newCurrent) {
     if (currentTabWidget == newCurrent) {
+        return;
+    }
+    if (newCurrent->parentWidget() != splitter) {
+        qDebug()
+            << "updateCurrentTabWidget passing wrong parent, will not update current tab, parent="
+            << newCurrent->parentWidget();
         return;
     }
     currentTabWidget = newCurrent;

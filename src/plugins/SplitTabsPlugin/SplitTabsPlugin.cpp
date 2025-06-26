@@ -108,23 +108,6 @@ void SplitTabsPlugin::on_client_merged(qmdiHost *host) {
     manager->replaceMdiServer(split);
     manager->addBuiltinActions();
     manager->updateGUI();
-
-    connect(manager, &PluginManager::newFileRequested, [this](QObject *s) {
-        auto manager = getManager();
-        auto tab = qobject_cast<QTabWidget *>(s->parent());
-        auto index = split->findSplitIndex(tab);
-        if (!tab || index < 0) {
-            // textEditorPlugin->fileNew();
-            return;
-        }
-
-        // we know where exactly to put this
-        auto client = textEditorPlugin->fileNewEditor();
-        auto editor = dynamic_cast<QWidget *>(client);
-        split->addTabToSplit(index, editor, client->mdiClientName, client->mdiClientFileName());
-        client->mdiServer = manager->getMdiServer();
-        editor->setFocus();
-    });
 }
 
 void SplitTabsPlugin::on_client_unmerged(qmdiHost *) {}

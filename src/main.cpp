@@ -90,10 +90,8 @@ int main(int argc, char *argv[]) {
     pluginManager.restoreSettings();
     pluginManager.show();
 
-#if !defined(USE_SPLIT)
     pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
                           [textEditorPlugin]() { textEditorPlugin->fileNew(); });
-#endif
 
     pluginManager.openFiles(parser.positionalArguments());
     return app.exec();

@@ -120,6 +120,8 @@ class SplitTabWidget : public QWidget {
 
     bool closeSplitWhenEmpty = true;
 
+    void updateCurrentTabWidget(QTabWidget *newCurrent);
+
   signals:
     void emptyAreaDoubleClicked(QTabWidget *tabWidget, const QPoint &pos);
 
@@ -129,7 +131,6 @@ class SplitTabWidget : public QWidget {
     SplitterWithWidgetAdded *splitter = nullptr;
     QTabWidget *currentTabWidget = nullptr;
     ButtonsProvider *buttonsProvider = nullptr;
-    void updateCurrentTabWidget(QTabWidget *newCurrent);
     void equalizeWidths();
 
   private slots:

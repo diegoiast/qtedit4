@@ -25,7 +25,11 @@ QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTa
         addNewMdiClient->setAutoRaise(true);
         addNewMdiClient->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
         QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient,
-                         [manager, addNewMdiClient]() {
+                         [manager, addNewMdiClient, split]() {
+                             auto tab = qobject_cast<QTabWidget *>(addNewMdiClient->parentWidget());
+                             if (tab) {
+                                 split->updateCurrentTabWidget(tab);
+                             }
                              if (manager) {
                                  emit manager->newFileRequested(addNewMdiClient);
                              }
@@ -142,8 +146,7 @@ void qmdiSplitTab::addClient(qmdiClient *client) {
     auto w = dynamic_cast<QWidget *>(client);
 
     if (w == nullptr) {
-        qDebug("%s %s %d: warning trying to add a qmdiClient which does not derive "
-               "QWidget",
+        qDebug("%s %s %d: warning trying to add a qmdiClient which does not derive QWidget",
                __FILE__, __FUNCTION__, __LINE__);
         return;
     }
