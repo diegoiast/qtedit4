@@ -53,6 +53,9 @@
 #endif
 
 auto static is_running_under_gnome() -> bool {
+#if defined(WIN32)
+    return false;
+#else
     const auto desktop_session = std::getenv("DESKTOP_SESSION");
     const auto xdg_current_desktop = std::getenv("XDG_CURRENT_DESKTOP");
     if (desktop_session && std::string(desktop_session).find("gnome") != std::string::npos) {
@@ -63,6 +66,7 @@ auto static is_running_under_gnome() -> bool {
         return true;
     }
     return false;
+#endif
 }
 
 auto static getCorrespondingFile(const QString &fileName) -> QString {
