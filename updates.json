@@ -8,9 +8,9 @@
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.10",
-            "latest-version": "0.0.10",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.10/qtedit4-qt6.9.0-v0.0.10-x86_64.exe",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.11-alpha1",
+            "latest-version": "0.0.11-alpha1",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.11-alpha1/qtedit4-qt6.9.1-v0.0.11-alpha1-x86_64.exe",
             "changelog": "CTags support, color builds",
             "mandatory": true
         },
@@ -22,9 +22,9 @@
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.10",
-            "latest-version": "0.0.10",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.10/qtedit4-qt6.9.0-v0.0.10-x86_64.AppImage",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.11-alpha1",
+            "latest-version": "0.0.11-alpha1",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.11-alpha1/qtedit4-qt6.9.1-v0.0.11-alpha1-x86_64.AppImage",
             "changelog": "Various UI/UX changes",
             "mandatory": true
         }
