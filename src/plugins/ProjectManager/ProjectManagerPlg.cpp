@@ -93,7 +93,8 @@ static auto getCommandInterpreter(const QString &externalCommand)
     return {command, interpreter};
 }
 
-static auto setupPty(QProcess &process, int &masterFd) -> bool {
+[[maybe_unused]]
+auto static setupPty(QProcess &process, int &masterFd) -> bool {
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
     masterFd = posix_openpt(O_RDWR | O_NOCTTY);
     if (masterFd < 0) {
@@ -858,6 +859,35 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(currentTask));
     outputDock->raise();
     outputDock->show();
+
+#if defined(USE_TTY_FOR_TASKS)
+    auto usingPty = false;
+    auto masterFd = -1;
+    usingPty = setupPty(runProcess, masterFd);
+    if (usingPty && masterFd >= 0) {
+        runProcess.setProcessChannelMode(QProcess::MergedChannels);
+        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
+        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
+        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
+            char buffer[4096];
+            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
+            if (bytesRead > 0) {
+                buffer[bytesRead] = '\0';
+                auto data = QByteArray(buffer, bytesRead);
+                auto lines = QString::fromUtf8(data);
+                processBuildOutput(lines);
+            }
+        });
+        
+        // Set environment variables for pty
+        auto env = QProcessEnvironment::systemEnvironment();
+        env.insert("TERM", "xterm-256color");
+        env.insert("FORCE_COLOR", "1");
+        env.insert("CLICOLOR_FORCE", "1");
+        runProcess.setProcessEnvironment(env);
+    }
+#endif
+
     runProcess.setWorkingDirectory(workingDirectory);
     runProcess.start(interpreter, command);
     if (!runProcess.waitForStarted()) {
