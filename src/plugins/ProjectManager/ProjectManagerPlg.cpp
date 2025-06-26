@@ -358,7 +358,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                     QDesktopServices::openUrl(link);
                     return;
                 }
-                auto fileName = QFileInfo(link.toLocalFile()).filePath();
+
+                auto fi = QFileInfo(link.toLocalFile());
+                auto fileName = fi.filePath();
+
+                if (fi.isRelative()) {
+                    auto project = getCurrentConfig();
+                    auto buildDir = project->expand(project->buildDir);
+                    fileName = buildDir + QDir::separator() + fileName;
+                }
                 auto row = -1;
                 auto col = -1;
                 auto fragment = link.fragment();
