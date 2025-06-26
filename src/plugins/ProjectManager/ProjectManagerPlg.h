@@ -74,8 +74,6 @@ class ProjectManagerPlugin : public IPlugin {
     bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
-    const QHash<QString, QString>
-    getConfigDictionary(std::shared_ptr<ProjectBuildConfig> project) const;
     const KitDefinition *getCurrentKit() const;
 
   public slots:
