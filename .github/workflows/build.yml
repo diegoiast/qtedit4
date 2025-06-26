@@ -68,18 +68,22 @@ jobs:
           python-version: "3.11"
       - name: Install cmake-format
         run: pip3 install cmake-format
+      - name: Set up Clang 19.1.7
+        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'clang'
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: 19.1.7
+          platform: x64
       - name: Install missing packages (linux)
         if: matrix.config.os == 'ubuntu-22.04'
-        run: |
-          sudo apt install libcups2-dev
+        run: sudo apt install libcups2-dev
       - name: Setup MSVC (Windows)
         if: ${{ matrix.config.cxx == 'cl' }}
         uses: ilammy/msvc-dev-cmd@v1
       - name: Configure
         working-directory: ${{ github.workspace }}
         id: runcmake
-        run: |
-          cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+        run: cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
       - name: Build
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
