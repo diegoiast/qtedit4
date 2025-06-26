@@ -58,14 +58,10 @@ static auto str(QProcess::ExitStatus e) -> QString {
 }
 
 static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
-#if defined(__linux__)
-    return files["linux"];
-#elif defined(_WIN32)
-    return files["windows"];
-#else
-    qDebug("Warning - unsupported platform, cannot find executable");
-    return {};
-#endif
+    if (!files.contains(PLATFORM_CURRENT)) {
+        qDebug("Warning - unsupported platform, cannot find executable");
+    }
+    return files[PLATFORM_CURRENT];
 }
 
 static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
@@ -1097,10 +1093,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             }
         }
         auto taskName = buildConfig->tasksInfo[taskIndex].name;
-        auto platform = QString("linux"); // Default to linux
-#if defined(_WIN32)
-        platform = "windows";
-#endif
+        auto platform = PLATFORM_CURRENT;
         auto commands = buildConfig->tasksInfo[taskIndex].commands.value(platform);
         auto taskCommand = commands.isEmpty() ? "" : commands.first();
         selectedTaskIndex = taskIndex;
@@ -1136,10 +1129,7 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
                 auto index = actions.indexOf(action);
                 auto taskName = buildConfig->tasksInfo[index].name;
-                auto platform = QString("linux"); // Default to linux
-#if defined(_WIN32)
-                platform = "windows";
-#endif
+                auto platform = PLATFORM_CURRENT;
                 auto commands = buildConfig->tasksInfo[index].commands.value(platform);
                 auto taskCommand = commands.isEmpty() ? "" : commands.first();
 
