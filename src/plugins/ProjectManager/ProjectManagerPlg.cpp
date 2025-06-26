@@ -878,7 +878,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
                 processBuildOutput(lines);
             }
         });
-        
+
         // Set environment variables for pty
         auto env = QProcessEnvironment::systemEnvironment();
         env.insert("TERM", "xterm-256color");
