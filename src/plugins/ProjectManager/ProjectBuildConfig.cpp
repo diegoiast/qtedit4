@@ -619,7 +619,7 @@ auto ProjectBuildConfig::updateBinaries() -> void {
     case ProjectType::meson:
         updateBinariesMeson();
         break;
-    case ProjectType::unkown:
+    case ProjectType::unknown:
         break;
     }
 }
