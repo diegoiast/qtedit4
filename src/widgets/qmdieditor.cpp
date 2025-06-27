@@ -360,6 +360,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     textOperationsMenu->addAction(actionLowerCase);
     textOperationsMenu->addAction(actionChangeCase);
     textOperationsMenu->addAction(textEditor->joinLinesAction());
+    textOperationsMenu->addAction(textEditor->duplicateSelectionAction());
+    textOperationsMenu->addAction(textEditor->deleteLineAction());
     textOperationsMenu->addAction(textEditor->moveLineUpAction());
     textOperationsMenu->addAction(textEditor->moveLineDownAction());
     textOperationsMenu->addAction(textEditor->toggleCommentAction());
