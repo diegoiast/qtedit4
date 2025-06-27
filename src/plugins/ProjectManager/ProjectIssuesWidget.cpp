@@ -258,11 +258,11 @@ auto static setEditorStatus(qmdiEditor *editor, const CompileStatus &status) {
 }
 
 void ProjectIssuesWidget::processLine(const QString &rawLines, int lineNumber,
-                                      const QString &sourceDir) {
+                                      const QString &sourceDir, const QString &buildDir) {
     auto lines = rawLines.split("\n");
     for (auto const &line : std::as_const(lines)) {
         lineNumber += 1;
-        outputDetector.processLine(line, sourceDir);
+        outputDetector.processLine(line, sourceDir, buildDir);
         auto items = outputDetector.foundStatus();
         for (auto &item : items) {
             item.lineNumber = lineNumber;

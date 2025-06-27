@@ -59,7 +59,8 @@ class ProjectIssuesWidget : public QWidget {
     explicit ProjectIssuesWidget(PluginManager *parent = nullptr);
     ~ProjectIssuesWidget();
 
-    void processLine(const QString &line, int lineNumber, const QString &sourceDir);
+    void processLine(const QString &line, int lineNumber, const QString &sourceDir,
+                     const QString &buildDir);
     inline void clearAllIssues() { model->clearAll(); }
 
   protected:

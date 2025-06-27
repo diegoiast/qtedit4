@@ -21,7 +21,8 @@ class OutputDetector {
   public:
     virtual ~OutputDetector() = default;
 
-    virtual bool processLine(const QString &line, const QString &sourceDir) = 0;
+    virtual bool processLine(const QString &line, const QString &sourceDir,
+                             const QString &buildDir) = 0;
 
     // Returns the collected compile status and resets the list
     virtual QList<CompileStatus> foundStatus() = 0;
@@ -33,7 +34,8 @@ class GeneralDetector : public OutputDetector {
   public:
     GeneralDetector() = default;
     ~GeneralDetector() override;
-    virtual bool processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir,
+                             const QString &buildDir) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
@@ -49,14 +51,18 @@ class GccOutputDetector : public OutputDetector {
     GccOutputDetector() = default;
     ~GccOutputDetector() override = default;
 
-    virtual bool processLine(const QString &lin, const QString &sourceDir) override;
+    virtual bool processLine(const QString &lin, const QString &sourceDir,
+                             const QString &buildDir) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
   private:
     // GCC output pattern for errors and warnings: file:line:column: message
-    QRegularExpression regionPattern =
-        QRegularExpression(R"(([a-zA-Z]:\\[^:]+|\S+):(\d+):(\d+):\s+(.+):\s+(.+))");
+    // QRegularExpression regionPattern =
+    // QRegularExpression(R"(([a-zA-Z]:\\[^:]+|\S+):(\d+):(\d+):\s+(.+):\s+(.+))");
+
+    QRegularExpression regionPattern = QRegularExpression(
+        R"(((?:[a-zA-Z]:\\|/|\.\.?/)?(?:[^:\s\\/]+[/\\])*[^:\s\\/]+\.\w+):(\d+):(\d+):\s+(.+):\s+(.+))");
 
     QList<CompileStatus> m_compileStatuses;
     CompileStatus currentStatus = {};
@@ -64,7 +70,8 @@ class GccOutputDetector : public OutputDetector {
 
 class ClOutputDetector : public OutputDetector {
   public:
-    virtual bool processLine(const QString &line, const QString &sourceDir);
+    virtual bool processLine(const QString &line, const QString &sourceDir,
+                             const QString &buildDir);
     virtual QList<CompileStatus> foundStatus();
     virtual void endOfOutput();
 
@@ -77,7 +84,8 @@ class CargoOutputDetector : public OutputDetector {
     CargoOutputDetector() = default;
     ~CargoOutputDetector() override = default;
 
-    virtual bool processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir,
+                             const QString &buildDir) override;
     virtual QList<CompileStatus> foundStatus() override;
     virtual void endOfOutput() override;
 
@@ -95,7 +103,8 @@ class GoLangOutputDetector : public OutputDetector {
   public:
     GoLangOutputDetector() = default;
     ~GoLangOutputDetector() override = default;
-    virtual bool processLine(const QString &line, const QString &sourceDir) override;
+    virtual bool processLine(const QString &line, const QString &sourceDir,
+                             const QString &buildDir) override;
     virtual void endOfOutput() override;
     virtual QList<CompileStatus> foundStatus() override;
 

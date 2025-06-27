@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 
-bool GccOutputDetector::processLine(const QString &line, const QString &) {
+bool GccOutputDetector::processLine(const QString &line, const QString &, const QString &buildDir) {
     auto match = regionPattern.match(line);
     if (match.hasMatch()) {
         if (!currentStatus.message.isEmpty()) {
@@ -13,13 +13,17 @@ bool GccOutputDetector::processLine(const QString &line, const QString &) {
         // gcc errors/warnings start at  line 1, we start and line 0
         auto fileName = match.captured(1);
         // gcc clang use full file names, Go, will also match - but uses relative file names
-        if (!fileName.startsWith("./")) {
+        if (!fileName.startsWith("./") || !fileName.startsWith(".\\") ||
+            fileName.startsWith("../") || fileName.startsWith("..\\")) {
             auto lineNmber = match.captured(2).toInt() - 1;
             auto columnNumber = match.captured(3).toInt() - 1;
             auto type = match.captured(4);
             auto message = match.captured(5);
 
             auto fi = QFileInfo(fileName);
+            if (fi.isRelative()) {
+                fileName = QDir::cleanPath(buildDir + QDir::separator() + fileName);
+            }
             auto displayName = fi.fileName();
             if (!displayName.isEmpty()) {
                 currentStatus =
@@ -64,9 +68,10 @@ void GccOutputDetector::endOfOutput() {
 
 GeneralDetector::~GeneralDetector() { qDeleteAll(detectors); }
 
-bool GeneralDetector::processLine(const QString &line, const QString &sourceDir) {
+bool GeneralDetector::processLine(const QString &line, const QString &sourceDir,
+                                  const QString &buildDir) {
     for (auto detector : detectors) {
-        if (detector->processLine(line, sourceDir)) {
+        if (detector->processLine(line, sourceDir, buildDir)) {
             return true;
         }
     }
@@ -95,7 +100,7 @@ void GeneralDetector::remove(OutputDetector *detector) {
     }
 }
 
-bool ClOutputDetector::processLine(const QString &line, const QString &) {
+bool ClOutputDetector::processLine(const QString &line, const QString &, const QString &) {
     static QRegularExpression clPattern(
         R"(([a-zA-Z]:\\[^:]+|\S+)\((\d+),(\d+)\):\s+(\w+)\s+(\w+):\s+(.+))");
 
@@ -129,7 +134,8 @@ void ClOutputDetector::endOfOutput() {
     // nothing
 }
 
-bool CargoOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+bool CargoOutputDetector::processLine(const QString &line, const QString &sourceDir,
+                                      const QString &) {
     static QRegularExpression errorPattern(R"(^error: (.+))");
     static QRegularExpression locationPattern(R"(^\s*-->\s*([^:]+):(\d+):(\d+))");
     static QRegularExpression contextPattern(R"(^\s*\|\s*\d+\s*\|\s*(.*))");
@@ -187,7 +193,8 @@ void CargoOutputDetector::endOfOutput() {
     accumulatedMessage.clear();
 }
 
-bool GoLangOutputDetector::processLine(const QString &line, const QString &sourceDir) {
+bool GoLangOutputDetector::processLine(const QString &line, const QString &sourceDir,
+                                       const QString &) {
     auto static errorPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*(.*))");
     auto static warningPattern = QRegularExpression(R"(^(.+):(\d+):(\d+):\s*warning:\s*(.*))");
     auto errorMatch = errorPattern.match(line);

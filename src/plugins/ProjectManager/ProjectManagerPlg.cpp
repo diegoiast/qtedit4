@@ -1108,8 +1108,11 @@ auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
 #endif
 
     auto plaintext = removeAnsiEscapeCodes(fixedAnsi);
+    auto project = this->getCurrentConfig();
     appendAnsiHtml(this->outputPanel->commandOuput, fixedAnsi);
-    this->projectIssues->processLine(plaintext, lineNumber, this->getCurrentConfig()->sourceDir);
+    auto sourceDir = project->sourceDir;
+    auto buildDir = project->expand(project->buildDir);
+    this->projectIssues->processLine(plaintext, lineNumber, sourceDir, buildDir);
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
