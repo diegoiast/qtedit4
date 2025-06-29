@@ -679,14 +679,15 @@ auto ProjectBuildConfig::updateBinariesMeson() -> void {
 
         auto output = process.readAllStandardOutput();
         if (output.isEmpty()) {
-            qCritical() << "No output from meson introspect.";
+            qCritical() << "updateBinariesMeson: No output from meson introspect.";
             return {};
         }
 
         auto parseError = QJsonParseError();
         auto doc = QJsonDocument::fromJson(output, &parseError);
         if (parseError.error != QJsonParseError::NoError) {
-            qCritical() << "Failed to parse JSON:" << parseError.errorString();
+            qCritical() << "updateBinariesMeson: Failed to parse JSON:" << parseError.errorString()
+                        << output << " builddir:" << buildDir;
             return {};
         }
 
@@ -707,7 +708,9 @@ auto ProjectBuildConfig::updateBinariesMeson() -> void {
         return result;
     };
 
-    auto executables = findMesonExecutables(this->sourceDir, this->buildDir);
+    auto sourceDir = expand(this->sourceDir);
+    auto buildDir = expand(this->buildDir);
+    auto executables = findMesonExecutables(sourceDir, buildDir);
     this->executables.clear();
     for (auto it = executables.constBegin(); it != executables.constEnd(); ++it) {
         auto name = it.key();
