@@ -846,175 +846,127 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
     updateExecutablesUI(buildConfig);
 }
 
-void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
+void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QString &commandString,
+                                      const QProcessEnvironment &env, const QString &displayCommand,
+                                      const QVariantMap &extraProperties) {
     if (runProcess.processId() != 0) {
         runProcess.kill();
         return;
-    }
-
-    auto project = getCurrentConfig();
-    auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
-    auto currentTask = project->expand(executablePath);
-    auto [command, interpreter] = getCommandInterpreter(currentTask);
-
-    auto workingDirectory = info->runDirectory;
-    if (workingDirectory.isEmpty()) {
-        workingDirectory = project->buildDir;
-    }
-    workingDirectory = project->expand(workingDirectory);
-    outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
-    appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(currentTask));
-    outputDock->raise();
-    outputDock->show();
-
-#if defined(USE_TTY_FOR_TASKS)
-    auto usingPty = false;
-    auto masterFd = -1;
-    usingPty = setupPty(runProcess, masterFd);
-    if (usingPty && masterFd >= 0) {
-        runProcess.setProcessChannelMode(QProcess::MergedChannels);
-        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
-        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
-            char buffer[4096];
-            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
-            if (bytesRead > 0) {
-                buffer[bytesRead] = '\0';
-                auto data = QByteArray(buffer, bytesRead);
-                auto lines = QString::fromUtf8(data);
-                processBuildOutput(lines);
-            }
-        });
-
-        // Set environment variables for pty
-        auto env = QProcessEnvironment::systemEnvironment();
-        env.insert("TERM", "xterm-256color");
-        env.insert("FORCE_COLOR", "1");
-        env.insert("CLICOLOR_FORCE", "1");
-        runProcess.setProcessEnvironment(env);
-    }
-#endif
-
-    runProcess.setWorkingDirectory(workingDirectory);
-    runProcess.start(interpreter, command);
-    if (!runProcess.waitForStarted()) {
-        qWarning() << "Process failed to start";
-    }
-}
-
-void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
-    if (runProcess.processId() != 0) {
-        runProcess.kill();
-        return;
-    }
-
-    auto kit = getCurrentKit();
-    auto project = getCurrentConfig();
-    auto platform = PLATFORM_CURRENT;
-
-    if (!task->commands.contains(platform)) {
-        qWarning() << "do_runTask: No commands found for platform" << platform;
-        return;
-    }
-    auto commands = task->commands.value(platform);
-    if (commands.isEmpty()) {
-        qWarning() << "do_runTask: Command is invalid" << platform;
-        return;
-    }
-
-    // Join commands with semicolon for shell execution: this works for batch and bash!
-    auto taskCommand = commands.join("&& ");
-    taskCommand = project->expand(taskCommand);
-    auto workingDirectory = project->expand(task->runDirectory);
-    auto buildDirectory = project->expand(project->buildDir);
-    auto sourceDirectory = project->expand(project->sourceDir);
-
-    if (workingDirectory.isEmpty()) {
-        workingDirectory = buildDirectory;
-    }
-    workingDirectory = QDir::toNativeSeparators(workingDirectory);
-    buildDirectory = QDir::toNativeSeparators(buildDirectory);
-    sourceDirectory = QDir::toNativeSeparators(sourceDirectory);
-
-    outputDock->raise();
-    outputDock->show();
-    outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory + "\n");
-
-    auto env = QProcessEnvironment::systemEnvironment();
-    env.insert("FORCE_COLOR", "1");
-    env.insert("CLICOLOR_FORCE", "1");
-
-#if defined(USE_TTY_FOR_TASKS)
-    auto usingPty = false;
-    auto masterFd = -1;
-    usingPty = setupPty(runProcess, masterFd);
-    if (usingPty && masterFd >= 0) {
-        runProcess.setProcessChannelMode(QProcess::MergedChannels);
-        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
-        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
-            char buffer[4096];
-            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
-            if (bytesRead > 0) {
-                buffer[bytesRead] = '\0';
-                auto data = QByteArray(buffer, bytesRead);
-                auto lines = QString::fromUtf8(data);
-                processBuildOutput(lines);
-            }
-        });
-        env.insert("TERM", "xterm-256color");
-    }
-#endif
-
-    if (!kit) {
-        // run the taskCommand directly in the native shell
-        auto [command, interpreter] = getCommandInterpreter(taskCommand);
-        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
-        appendAnsiHtml(outputPanel->commandOuput, "Commands: " + taskCommand + "\n");
-
-        runProcess.setWorkingDirectory(workingDirectory);
-        runProcess.setProgram(interpreter);
-        runProcess.setArguments(command);
-    } else {
-        // ask the active kit, to run the task
-        env.insert("run_directory", workingDirectory);
-        env.insert("build_directory", buildDirectory);
-        env.insert("source_directory", sourceDirectory);
-        env.insert("task", taskCommand);
-        runProcess.setProgram(QString::fromStdString(kit->filePath));
     }
 
     runProcess.setWorkingDirectory(workingDirectory);
     runProcess.setProcessEnvironment(env);
 
-    auto manager = getManager();
-    auto count = manager->visibleTabs();
-    for (auto i = size_t(0); i < count; i++) {
-        auto client = manager->getMdiClient(i);
-        if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
-            editor->removeMetaData();
-        }
-    }
+    outputPanel->commandOuput->clear();
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
+    appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(displayCommand));
+    outputDock->raise();
+    outputDock->show();
 
-    runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
-    runProcess.setProperty("runningProject", QVariant::fromValue(project));
-    runProcess.setProperty("workingDirectory", QVariant::fromValue(workingDirectory));
-    runProcess.setProperty(GlobalArguments::BuildDirectory, QVariant::fromValue(buildDirectory));
-    runProcess.setProperty(GlobalArguments::SourceDirectory, QVariant::fromValue(sourceDirectory));
+#if defined(USE_TTY_FOR_TASKS)
+    auto usingPty = false;
+    auto masterFd = -1;
+    usingPty = setupPty(runProcess, masterFd);
+    if (usingPty && masterFd >= 0) {
+        runProcess.setProcessChannelMode(QProcess::MergedChannels);
+        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
+        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
+        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
+            char buffer[4096];
+            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
+            if (bytesRead > 0) {
+                buffer[bytesRead] = '\0';
+                auto data = QByteArray(buffer, bytesRead);
+                auto lines = QString::fromUtf8(data);
+                processBuildOutput(lines);
+            }
+        });
+    }
+#endif
+
+    // Set any extra properties
+    for (auto it = extraProperties.begin(); it != extraProperties.end(); ++it) {
+        runProcess.setProperty(it.key().toUtf8().data(), it.value());
+    }
+    auto [command, interpreter] = getCommandInterpreter(commandString);
+    runProcess.setProgram(interpreter);
+    runProcess.setArguments(command);
 
     runProcess.start();
     if (!runProcess.waitForStarted()) {
-        if (kit) {
-            auto msg = QString("Failed to run kit %1, with task:\n%2\n")
-                           .arg(QString::fromStdString(kit->filePath), taskCommand);
-            appendAnsiHtml(outputPanel->commandOuput, msg);
-        } else {
-            appendAnsiHtml(outputPanel->commandOuput, "Process failed to start\n" + taskCommand);
-        }
         qWarning() << "Process failed to start";
+        appendAnsiHtml(outputPanel->commandOuput, "Process failed to start\n" + displayCommand);
     }
+}
+
+void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
+    auto project = getCurrentConfig();
+    QString executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
+    QString currentTask = project->expand(executablePath);
+    auto [command, interpreter] = getCommandInterpreter(currentTask);
+
+    QString workingDirectory = info->runDirectory;
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = project->buildDir;
+    }
+    workingDirectory = QDir::toNativeSeparators(project->expand(workingDirectory));
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#if defined(USE_TTY_FOR_TASKS)
+    env.insert("TERM", "xterm-256color");
+    env.insert("FORCE_COLOR", "1");
+    env.insert("CLICOLOR_FORCE", "1");
+#endif
+
+    QVariantMap props;
+    props["runningProject"] = QVariant::fromValue(project);
+
+    runCommand(workingDirectory, currentTask, env, currentTask, props);
+}
+
+void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
+    auto project = getCurrentConfig();
+    auto platform = PLATFORM_CURRENT;
+
+    if (!task->commands.contains(platform) || task->commands.value(platform).isEmpty()) {
+        qWarning() << "do_runTask: Invalid or missing commands for platform" << platform;
+        return;
+    }
+
+    QString taskCommand = project->expand(task->commands.value(platform).join("&& "));
+    QString workingDirectory = project->expand(task->runDirectory);
+    if (workingDirectory.isEmpty()) {
+        workingDirectory = project->buildDir;
+    }
+    workingDirectory = QDir::toNativeSeparators(workingDirectory);
+
+    QProcessEnvironment env = QProcessEnvironment::systemEnvironment();
+#if defined(USE_TTY_FOR_TASKS)
+    env.insert("TERM", "xterm-256color");
+    env.insert("FORCE_COLOR", "1");
+    env.insert("CLICOLOR_FORCE", "1");
+#endif
+
+    QString buildDir = QDir::toNativeSeparators(project->expand(project->buildDir));
+    QString sourceDir = QDir::toNativeSeparators(project->expand(project->sourceDir));
+
+    QVariantMap props;
+    props["runningTask"] = QVariant::fromValue(reinterpret_cast<quintptr>(task));
+    props["runningProject"] = QVariant::fromValue(project);
+    props["workingDirectory"] = QVariant::fromValue(workingDirectory);
+    props[GlobalArguments::BuildDirectory] = buildDir;
+    props[GlobalArguments::SourceDirectory] = sourceDir;
+
+    // Clear editor metadata
+    if (auto manager = getManager(); manager) {
+        for (size_t i = 0; i < manager->visibleTabs(); ++i) {
+            if (auto editor = dynamic_cast<qmdiEditor *>(manager->getMdiClient(i))) {
+                editor->removeMetaData();
+            }
+        }
+    }
+
+    runCommand(workingDirectory, taskCommand, env, taskCommand, props);
 }
 
 void ProjectManagerPlugin::runButton_clicked() {
