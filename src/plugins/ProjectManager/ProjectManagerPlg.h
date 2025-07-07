@@ -82,8 +82,10 @@ class ProjectManagerPlugin : public IPlugin {
     void removeProject_clicked();
     void newProjectSelected(int index);
 
-    void runCommand(const QString &workingDirectory, const QString &commandString,
-                    const QProcessEnvironment &env, const QString &displayCommand,
+    void runCommand(const QString &workingDirectory,
+                    const QString &programOrCommand,
+                    const QStringList &arguments,
+                    const QProcessEnvironment &env,
                     const QVariantMap &extraProperties);
     void do_runExecutable(const ExecutableInfo *info);
     void do_runTask(const TaskInfo *task);
