@@ -144,8 +144,8 @@ CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
     return foundTags;
 }
 
-void CTagsLoader::setCTagsBinary(const std::string &ctagsBinary) {
-    this->ctagsBinary = ctagsBinary;
+void CTagsLoader::setCTagsBinary(const std::string &newCtagsBinary) {
+    this->ctagsBinary = newCtagsBinary;
 }
 
 void CTagsLoader::clear() { tags.clear(); }

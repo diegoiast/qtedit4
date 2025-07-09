@@ -75,8 +75,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto getCommandInterpreter(const QString &externalCommand)
-    -> std::tuple<QString, QStringList> {
+static auto
+getCommandInterpreter(const QString &externalCommand) -> std::tuple<QString, QStringList> {
     QString interpreter;
     QStringList command;
 
@@ -678,10 +678,10 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
             // clang-format on
 
             auto selectedDirectory = getConfig().getSelectedDirectory();
-            auto index = projectModel->findConfigDirIndex(selectedDirectory);
-            if (index >= 0) {
-                gui->projectComboBox->setCurrentIndex(index);
-                newProjectSelected(index);
+            auto i = projectModel->findConfigDirIndex(selectedDirectory);
+            if (i >= 0) {
+                gui->projectComboBox->setCurrentIndex(i);
+                newProjectSelected(i);
             }
             gui->projectComboBox->blockSignals(false);
             searchPanelUI->updateProjectList();
@@ -792,8 +792,8 @@ void ProjectManagerPlugin::removeProject_clicked() {
     if (index < 0) {
         return;
     }
-    auto config = projectModel->getConfig(index);
-    auto path = config->fileName;
+    auto projectConfig = projectModel->getConfig(index);
+    auto path = projectConfig->fileName;
     projectModel->removeConfig(index);
     searchPanelUI->updateProjectList();
     configWatcher.removePath(path);
@@ -801,9 +801,9 @@ void ProjectManagerPlugin::removeProject_clicked() {
 
     // clang-format off
     getManager()->handleCommand(GlobalCommands::ProjectRemoved, {
-        {GlobalArguments::ProjectName, config->name },
-        {GlobalArguments::SourceDirectory, config->sourceDir },
-        {GlobalArguments::BuildDirectory, config->buildDir },
+        {GlobalArguments::ProjectName, projectConfig->name },
+        {GlobalArguments::SourceDirectory, projectConfig->sourceDir },
+        {GlobalArguments::BuildDirectory, projectConfig->buildDir },
         }
     );
     // clang-format on

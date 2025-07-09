@@ -110,8 +110,8 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     return executables;
 }
 
-auto static cargoListBinUnits(const QString &directoryPath, bool /*recursive*/ = true)
-    -> StringHash {
+auto static cargoListBinUnits(const QString &directoryPath,
+                              bool /*recursive*/ = true) -> StringHash {
     auto fileMap = StringHash{};
     auto process = QProcess{};
     process.setProgram("cargo");
@@ -210,12 +210,12 @@ auto static parsePlatformCommands(const QJsonObject &commandsObj, TaskInfo &task
 auto static savePlatformCommands(const QHash<QString, QStringList> &commands,
                                  QJsonObject &commandsObj) -> auto {
     for (auto it = commands.constBegin(); it != commands.constEnd(); ++it) {
-        auto commands = it.value();
-        if (commands.size() == 1) {
-            commandsObj[it.key()] = commands.first();
+        auto commandsList = it.value();
+        if (commandsList.size() == 1) {
+            commandsObj[it.key()] = commandsList.first();
         } else {
             auto commandsArray = QJsonArray();
-            for (const auto &cmd : commands) {
+            for (const auto &cmd : commandsList) {
                 commandsArray.append(cmd);
             }
             commandsObj[it.key()] = commandsArray;
@@ -626,8 +626,8 @@ auto ProjectBuildConfig::updateBinaries() -> void {
 
 auto ProjectBuildConfig::updateBinariesCMake() -> void {
     this->executables.clear();
-    auto buildDir = expand(this->buildDir);
-    auto binaries = getExecutablesFromCMakeFileAPI(buildDir);
+    auto effectiveBuildDir = expand(this->buildDir);
+    auto binaries = getExecutablesFromCMakeFileAPI(effectiveBuildDir);
     for (const auto &[key, value] : binaries.asKeyValueRange()) {
         auto e = ExecutableInfo();
         e.name = value;
@@ -708,15 +708,15 @@ auto ProjectBuildConfig::updateBinariesMeson() -> void {
         return result;
     };
 
-    auto sourceDir = expand(this->sourceDir);
-    auto buildDir = expand(this->buildDir);
-    auto executables = findMesonExecutables(sourceDir, buildDir);
+    auto effectiveSourceDir = expand(this->sourceDir);
+    auto effectiveBuildDir = expand(this->buildDir);
+    auto mesonExecutables = findMesonExecutables(effectiveSourceDir, effectiveBuildDir);
     this->executables.clear();
-    for (auto it = executables.constBegin(); it != executables.constEnd(); ++it) {
-        auto name = it.key();
+    for (auto it = mesonExecutables.constBegin(); it != mesonExecutables.constEnd(); ++it) {
+        auto n = it.key();
         auto path = it.value();
         auto e = ExecutableInfo();
-        e.name = name;
+        e.name = n;
         e.runDirectory = "${source_directory}";
         e.executables[PLATFORM_LINUX] = path;
         e.executables[PLATFORM_WINDOWS] = path + ".exe";
