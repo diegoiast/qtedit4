@@ -846,107 +846,135 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
     updateExecutablesUI(buildConfig);
 }
 
-void ProjectManagerPlugin::runCommand(const QString &workingDirectory,
-                                      const QString &programOrCommand,
+void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QString &program,
                                       const QStringList &arguments,
-                                      const QProcessEnvironment &customEnv,
-                                      const QVariantMap &extraProperties) {
+                                      const QProcessEnvironment &customEnv) {
     if (runProcess.processId() != 0) {
         runProcess.kill();
         return;
     }
 
-    // Merge system environment with custom environment
-    auto env = QProcessEnvironment::systemEnvironment();
-    for (auto &key : customEnv.keys()) {
-        env.insert(key, customEnv.value(key));
+    auto env = customEnv;
+#if defined(USE_TTY_FOR_TASKS)
+    auto usingPty = false;
+    auto masterFd = -1;
+    usingPty = setupPty(runProcess, masterFd);
+    if (usingPty && masterFd >= 0) {
+        runProcess.setProcessChannelMode(QProcess::MergedChannels);
+        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
+        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
+        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
+            char buffer[4096];
+            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
+            if (bytesRead > 0) {
+                buffer[bytesRead] = '\0';
+                QString lines = QString::fromUtf8(buffer, bytesRead);
+                processBuildOutput(lines);
+            }
+        });
     }
+    env.insert("FORCE_COLOR", "1");
+    env.insert("CLICOLOR_FORCE", "1");
+    env.insert("TERM", "xterm-256color");
+#endif
 
-    outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
-    if (programOrCommand.isEmpty()) {
-        // Shell mode: arguments[0] is the shell command string
-        auto shellCommand = arguments.isEmpty() ? QString() : arguments.first();
-        appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(shellCommand));
-        auto [interpreter, command] = getCommandInterpreter(shellCommand);
-        runProcess.setProgram(interpreter);
-        runProcess.setArguments(command);
-    } else {
-        // Direct executable mode
-        appendAnsiHtml(outputPanel->commandOuput, QString("\n%1 %2\n")
-            .arg(programOrCommand, arguments.join(" ")));
-        runProcess.setProgram(programOrCommand);
-        runProcess.setArguments(arguments);
-    }
     runProcess.setWorkingDirectory(workingDirectory);
     runProcess.setProcessEnvironment(env);
-    for (auto it = extraProperties.begin(); it != extraProperties.end(); ++it) {
-        runProcess.setProperty(it.key().toUtf8().data(), it.value());
-    }
+    runProcess.setProgram(program);
+    runProcess.setArguments(arguments);
 
     runProcess.start();
     if (!runProcess.waitForStarted()) {
-        auto msg = "Process failed to start";
-        qWarning() << "runCommand: " << msg;
-        appendAnsiHtml(outputPanel->commandOuput, QString(msg) + "\n" +
-            (programOrCommand.isEmpty() ? arguments.value(0) : programOrCommand) + "\n");
+        processBuildOutput("Process failed to start\n");
+        qWarning() << "Process failed to start";
     }
 }
 
 void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
     auto project = getCurrentConfig();
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
-    auto expandedExecutable = project->expand(executablePath);
-    auto workingDirectory = info->runDirectory;
-    if (workingDirectory.isEmpty()) {
-        workingDirectory = project->buildDir;
-    }
-    workingDirectory = QDir::toNativeSeparators(project->expand(workingDirectory));
+    auto workingDirectory = info->runDirectory.isEmpty() ? project->buildDir : info->runDirectory;
+    executablePath = project->expand(executablePath);
 
-    auto env = QProcessEnvironment();
-    auto props = QVariantMap();
-    props["runningProject"] = QVariant::fromValue(project);
-    // TODO: If you want to support arguments from UI, parse and pass them here:
-    QStringList arguments; // Currently empty, can be extended to support user args
-    runCommand(workingDirectory, expandedExecutable, arguments, env, props);
+    workingDirectory = project->expand(workingDirectory);
+    outputPanel->commandOuput->clear();
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
+    appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(executablePath));
+    outputDock->raise();
+    outputDock->show();
+
+    auto env = QProcessEnvironment::systemEnvironment();
+    auto arguments = QStringList();
+    auto useKitForRunning = !true;
+
+    if (useKitForRunning) {
+        auto kit = getCurrentKit();
+        auto buildDirectory = project->expand(project->buildDir);
+        auto sourceDirectory = project->expand(project->sourceDir);
+        auto taskCommand = project->expand(executablePath);
+        env.insert("run_directory", workingDirectory);
+        env.insert("build_directory", buildDirectory);
+        env.insert("source_directory", sourceDirectory);
+        env.insert("task", taskCommand);
+        executablePath = QString::fromStdString(kit->filePath);
+    }
+
+    runCommand(workingDirectory, executablePath, arguments, env);
 }
 
 void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
+    auto kit = getCurrentKit();
     auto project = getCurrentConfig();
     auto platform = PLATFORM_CURRENT;
 
     if (!task->commands.contains(platform) || task->commands.value(platform).isEmpty()) {
-        qWarning() << "do_runTask: Invalid or missing commands for platform" << platform;
+        qWarning() << "do_runTask: No valid commands for platform" << platform;
         return;
     }
 
-    auto taskCommand = project->expand(task->commands.value(platform).join("&& "));
+    auto commands = task->commands.value(platform);
+    auto taskCommand = project->expand(commands.join(" && echo 1 && "));
     auto workingDirectory = project->expand(task->runDirectory);
+    auto buildDirectory = project->expand(project->buildDir);
+    auto sourceDirectory = project->expand(project->sourceDir);
+
     if (workingDirectory.isEmpty()) {
-        workingDirectory = project->buildDir;
+        workingDirectory = buildDirectory;
     }
     workingDirectory = QDir::toNativeSeparators(workingDirectory);
 
-    auto buildDir = QDir::toNativeSeparators(project->expand(project->buildDir));
-    auto sourceDir = QDir::toNativeSeparators(project->expand(project->sourceDir));
-    auto env = QProcessEnvironment();
-    auto props = QVariantMap();
-    props["runningTask"] = QVariant::fromValue(reinterpret_cast<quintptr>(task));
-    props["runningProject"] = QVariant::fromValue(project);
-    props["workingDirectory"] = QVariant::fromValue(workingDirectory);
-    props[GlobalArguments::BuildDirectory] = buildDir;
-    props[GlobalArguments::SourceDirectory] = sourceDir;
+    outputDock->raise();
+    outputDock->show();
+    outputPanel->commandOuput->clear();
+    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory + "\n");
 
-    if (auto manager = getManager(); manager) {
-        for (size_t i = 0; i < manager->visibleTabs(); ++i) {
-            if (auto editor = dynamic_cast<qmdiEditor *>(manager->getMdiClient(i))) {
-                editor->removeMetaData();
-            }
-        }
+    auto env = QProcessEnvironment::systemEnvironment();
+    auto program = QString();
+    auto arguments = QStringList();
+
+    if (!kit) {
+        auto [interpreter, command] = getCommandInterpreter(taskCommand);
+        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
+        appendAnsiHtml(outputPanel->commandOuput, "Commands: " + taskCommand + "\n");
+        program = interpreter;
+        arguments = command;
+    } else {
+        // NOTE: these are environment variables se
+        env.insert("run_directory", workingDirectory);
+        env.insert("build_directory", buildDirectory);
+        env.insert("source_directory", sourceDirectory);
+        env.insert("task", taskCommand);
+        program = QString::fromStdString(kit->filePath);
+        arguments = {};
     }
 
-    // For shell: programOrCommand is empty, arguments[0] is the shell command
-    runCommand(workingDirectory, "", {taskCommand}, env, props);
+    runProcess.setProperty("runningTask", QVariant::fromValue(reinterpret_cast<quintptr>(task)));
+    runProcess.setProperty("runningProject", QVariant::fromValue(project));
+    runProcess.setProperty("workingDirectory", QVariant::fromValue(workingDirectory));
+    runProcess.setProperty(GlobalArguments::BuildDirectory, QVariant::fromValue(buildDirectory));
+    runProcess.setProperty(GlobalArguments::SourceDirectory, QVariant::fromValue(sourceDirectory));
+
+    runCommand(workingDirectory, program, arguments, env);
 }
 
 void ProjectManagerPlugin::runButton_clicked() {
