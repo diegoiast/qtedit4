@@ -66,7 +66,7 @@ echo "Working directory is: ${run_directory}"
 )";
 constexpr auto SCRIPT_SUFFIX_UNIX = R"(# execute task
 cd ${run_directory}
-${task}
+eval "${task}"
 )";
 
 constexpr auto SCRIPT_EXTENSION_WIN32 = ".bat";
@@ -436,9 +436,17 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
             extraPath.comment = "# qt installation";
             extraPath.command = "export QTDIR=%1\n";
             extraPath.command += "export QT_DIR=%1\n";
-            extraPath.command += "export QT6_DIR=%1\n";
+            extraPath.command += "export QT6_DIR=%1\n\n";
             extraPath.command += "# lets add qt to the path\n";
-            extraPath.command += "export PATH=\"$QT6_DIR;$PATH\"\n";
+            extraPath.command += "export PATH=\"$QT6_DIR;$PATH\"\n\n";
+
+            extraPath.command += "# lets add qt to the LDD path\n";
+            extraPath.command += "UNAME=\"$(uname)\"\n";
+            extraPath.command += "if [ \"$UNAME\" = \"Darwin\" ]; then\n";
+            extraPath.command += "  export DYLD_LIBRARY_PATH=\"$QT6_DIR/lib:$DYLD_LIBRARY_PATH\"\n";
+            extraPath.command += "elif [ \"$UNAME\" = \"Linux\" ]; then\n";
+            extraPath.command += "  export LD_LIBRARY_PATH=\"$QT6_DIR/lib:$LD_LIBRARY_PATH\"\n";
+            extraPath.command += "fi\n";
         } else {
             extraPath.comment = "@REM qt installation";
             extraPath.command = "SET QTDIR=%1\n";
