@@ -75,8 +75,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto
-getCommandInterpreter(const QString &externalCommand) -> std::tuple<QString, QStringList> {
+static auto getCommandInterpreter(const QString &externalCommand)
+    -> std::tuple<QString, QStringList> {
     QString interpreter;
     QStringList command;
 
@@ -905,7 +905,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
 
     auto env = QProcessEnvironment::systemEnvironment();
     auto arguments = QStringList();
-    auto useKitForRunning = !true;
+    auto useKitForRunning = true;
 
     if (useKitForRunning) {
         auto kit = getCurrentKit();
