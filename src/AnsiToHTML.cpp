@@ -69,10 +69,185 @@ auto appendAscii(QTextEdit *edit, const QString &ansiText) -> void {
     }
 }
 
-auto appendAnsiHtml(QTextEdit *edit, const QString &ansiText) -> void {
-    auto html = ansiToHtml(ansiText, true);
+void applyAnsiCodeToFormat(QTextCharFormat &fmt, const QString &codeStr) {
+    const int code = codeStr.toInt();
+
+    const auto &fgMap = defaultFgColorMap();
+    const auto &bgMap = defaultBgColorMap();
+
+    // Reset
+    if (code == 0) {
+        fmt = QTextCharFormat();
+        return;
+    }
+
+    // Text style attributes
+    switch (code) {
+    case 1:
+        fmt.setFontWeight(QFont::Bold);
+        break;
+    case 2:
+        fmt.setFontWeight(QFont::Normal);
+        break; // Faint fallback
+    case 3:
+        fmt.setFontItalic(true);
+        break;
+    case 4:
+        fmt.setFontUnderline(true);
+        break;
+    case 9:
+        fmt.setFontStrikeOut(true);
+        break;
+
+    case 22:
+        fmt.setFontWeight(QFont::Normal);
+        break;
+    case 23:
+        fmt.setFontItalic(false);
+        break;
+    case 24:
+        fmt.setFontUnderline(false);
+        break;
+    case 29:
+        fmt.setFontStrikeOut(false);
+        break;
+    }
+
+    // Foreground color
+    if (fgMap.contains(code)) {
+        fmt.setForeground(QColor(fgMap.value(code)));
+    }
+
+    // Background color
+    if (bgMap.contains(code)) {
+        fmt.setBackground(QColor(bgMap.value(code)));
+    }
+}
+
+void insertLinkifiedText(QTextCursor &cursor, const QString &text,
+                         const QTextCharFormat &baseFormat, bool linkifyFiles) {
+    static QRegularExpression urlRegex(R"((https?|file)://[^\s<>()]+)");
+    static QRegularExpression pathRegex(
+        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
+
+    auto lastPos = 0;
+    auto view = QStringView{text};
+
+    // First match URLs and paths
+    auto matchIter = urlRegex.globalMatch(text);
+    if (linkifyFiles) {
+        matchIter = pathRegex.globalMatch(text);
+    }
+
+    while (matchIter.hasNext()) {
+        const auto match = matchIter.next();
+        auto start = match.capturedStart();
+        auto end = match.capturedEnd();
+        auto full = match.captured(0);
+
+        // Insert plain text before match
+        if (start > lastPos) {
+            cursor.insertText(view.sliced(lastPos, start - lastPos).toString(), baseFormat);
+        }
+
+        QTextCharFormat linkFmt = baseFormat;
+        QUrl linkUrl;
+
+        if (match.captured(0).startsWith("http") || match.captured(0).startsWith("file")) {
+            linkUrl = QUrl(full);
+        } else {
+            auto filePart = match.captured(1);
+            auto line = match.captured(3).mid(1);
+            auto column = match.captured(4).mid(1);
+            QString fragment;
+            if (!line.isEmpty()) {
+                fragment += line;
+            }
+            if (!column.isEmpty()) {
+                fragment += "," + column;
+            }
+            QString filePath = filePart;
+            filePath.replace("\\", "/");
+            linkUrl = QUrl::fromLocalFile(filePath);
+            if (!fragment.isEmpty()) {
+                linkUrl.setFragment(fragment);
+            }
+        }
+
+        linkFmt.setAnchor(true);
+        linkFmt.setAnchorHref(linkUrl.toString());
+        linkFmt.setForeground(QBrush(Qt::blue));
+        linkFmt.setFontUnderline(true);
+
+        cursor.insertText(full, linkFmt);
+        lastPos = end;
+    }
+
+    if (lastPos < text.length()) {
+        cursor.insertText(view.sliced(lastPos).toString(), baseFormat);
+    }
+}
+
+void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
+    auto cursor = edit->textCursor();
+    cursor.movePosition(QTextCursor::End);
+
+    static QRegularExpression ansiRegex("\x1b\\[([0-9;]*)m");
+    static QRegularExpression removeRegex("\x1b\\[K");
+    static QRegularExpression urlRegex(R"((https?|file)://[^\s<>()]+)");
+    static QRegularExpression pathRegex(
+        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
+
+    auto cleanedText = ansiText;
+    cleanedText.remove(removeRegex);
+    auto view = QStringView{cleanedText};
+
+    auto matchIter = ansiRegex.globalMatch(cleanedText);
+    auto lastPos = 0;
+    auto fmt = QTextCharFormat{};
+    auto codes = QStringList{};
+    auto start = 0;
+    auto linkifyFiles = true;
+
+    while (matchIter.hasNext()) {
+        const auto match = matchIter.next();
+        codes = match.captured(1).split(';');
+        start = match.capturedStart();
+
+        if (start > lastPos) {
+            auto chunk = view.sliced(lastPos, start - lastPos).toString();
+            insertLinkifiedText(cursor, chunk, fmt, linkifyFiles);
+        }
+
+        if (codes.isEmpty() || codes.contains("0")) {
+            fmt = QTextCharFormat(); // Reset
+        } else {
+            for (const auto &code : codes) {
+                applyAnsiCodeToFormat(fmt, code);
+            }
+        }
+
+        lastPos = match.capturedEnd();
+    }
+
+    // Remaining text after last ANSI code
+    if (lastPos < view.length()) {
+        insertLinkifiedText(cursor, view.sliced(lastPos).toString(), fmt, linkifyFiles);
+    }
+
+    edit->setTextCursor(cursor);
+    edit->ensureCursorVisible();
+}
+
+auto appendAnsiHtml2(QTextEdit *edit, const QString &ansiText) -> void {
     edit->moveCursor(QTextCursor::End);
-    edit->insertHtml(html);
+
+#if 1
+    auto html = ansiToHtml(ansiText, true);
+    edit->insertHtml(ansiText);
+#else
+    edit->insertPlainText(ansiText);
+#endif
     edit->moveCursor(QTextCursor::End);
     edit->ensureCursorVisible();
 }
