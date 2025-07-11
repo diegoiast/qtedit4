@@ -451,9 +451,11 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
             extraPath.comment = "@REM qt installation";
             extraPath.command = "SET QTDIR=%1\n";
             extraPath.command += "SET QT_DIR=%1\n";
-            extraPath.command += "SET QT6_DIR=%1\n";
+            extraPath.command += "SET QT6_DIR=%1\n\n";
+            // Note that on windows, the DLLs are in the bin directory, so we need to add
+            // that directory to the path, unlike unix - which needs LD_LIBRARY_PATH
             extraPath.command += "@REM lets add qt to the path\n";
-            extraPath.command += "SET PATH=%QT6_DIR%;%PATH%\n";
+            extraPath.command += "SET PATH=%QT6_DIR%\\bin;%PATH%\n";
         }
         replaceAll(extraPath.command, "%1", dir);
         replaceAll(extraPath.comment, "%1", dir);

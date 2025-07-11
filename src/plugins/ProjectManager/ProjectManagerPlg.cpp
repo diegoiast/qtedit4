@@ -933,7 +933,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     }
 
     auto commands = task->commands.value(platform);
-    auto taskCommand = project->expand(commands.join(" && echo 1 && "));
+    auto taskCommand = project->expand(commands.join(" && "));
     auto workingDirectory = project->expand(task->runDirectory);
     auto buildDirectory = project->expand(project->buildDir);
     auto sourceDirectory = project->expand(project->sourceDir);
@@ -942,6 +942,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         workingDirectory = buildDirectory;
     }
     workingDirectory = QDir::toNativeSeparators(workingDirectory);
+    sourceDirectory = QDir::toNativeSeparators(sourceDirectory);
 
     outputDock->raise();
     outputDock->show();
