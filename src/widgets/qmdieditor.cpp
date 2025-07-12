@@ -955,38 +955,41 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
 }
 
 bool qmdiEditor::saveFile(const QString &newFileName) {
-    QStringList sl = fileSystemWatcher->directories();
+    auto sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
     }
 
-    bool modificationsEnabledState = getModificationsLookupEnabled();
+    auto modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
-    QFile file(newFileName);
+    auto file = QFile(newFileName);
     if (!file.open(QIODevice::WriteOnly)) {
         return false;
     }
 
     auto textStream = QTextStream(&file);
-    auto block = textEditor->document()->begin();
-    QTextCursor cursor(textEditor->document());
-    while (block.isValid()) {
-        QString s = block.text();
+    auto cursor = QTextCursor(textEditor->document());
+    auto op = Qutepart::AtomicEditOperation(textEditor);
+    auto doc = textEditor->document();
+    for (auto block = doc->begin(); block != doc->end();) {
+        auto currentText = block.text();
 
         if (trimSpacesOnSave) {
-            s = s.trimmed();
-            cursor.setPosition(block.position());
-            cursor.select(QTextCursor::BlockUnderCursor);
-            cursor.insertText(s);
+            currentText = currentText.trimmed();
+            if (currentText != block.text()) {
+                 cursor.setPosition(block.position());
+                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                 cursor.insertText(currentText);
+                 block = cursor.block();
+            }
         }
 
-        textStream << s;
+        textStream << currentText;
         block = block.next();
-
         if (block.isValid()) {
             switch (this->endLineStyle) {
             case UnixEndLine:
