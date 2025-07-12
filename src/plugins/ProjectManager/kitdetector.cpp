@@ -435,10 +435,10 @@ auto findQtVersions(bool unix_target, std::vector<ExtraPath> &detectedQt,
         if (unix_target) {
             extraPath.comment = "# qt installation";
             extraPath.command = "export QTDIR=%1\n";
-            extraPath.command += "export QT_DIR=%1\n";
-            extraPath.command += "export QT6_DIR=%1\n\n";
+            extraPath.command += "export QT_DIR=$QTDIR\n";
+            extraPath.command += "export QT6_DIR=$QTDIR\n\n";
             extraPath.command += "# lets add qt to the path\n";
-            extraPath.command += "export PATH=\"$QT6_DIR;$PATH\"\n\n";
+            extraPath.command += "export PATH=$QTDIR/bin:$PATH\n\n";
 
             extraPath.command += "# lets add qt to the LDD path\n";
             extraPath.command += "UNAME=\"$(uname)\"\n";
