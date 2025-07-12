@@ -981,10 +981,10 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
         if (trimSpacesOnSave) {
             currentText = currentText.trimmed();
             if (currentText != block.text()) {
-                 cursor.setPosition(block.position());
-                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-                 cursor.insertText(currentText);
-                 block = cursor.block();
+                cursor.setPosition(block.position());
+                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                cursor.insertText(currentText);
+                block = cursor.block();
             }
         }
 
