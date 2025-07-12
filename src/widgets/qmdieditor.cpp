@@ -979,7 +979,8 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
         auto currentText = block.text();
 
         if (trimSpacesOnSave) {
-            currentText = currentText.trimmed();
+            auto static RE = QRegularExpression("\\s+$");
+            currentText.remove(RE);
             if (currentText != block.text()) {
                 cursor.setPosition(block.position());
                 cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
