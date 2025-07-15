@@ -1,7 +1,7 @@
 // SPD-license: MIT
 // Diego Iastrubni diegoiast@gmail.com
 
-#include "LoadingWidget.h"
+#include "LoadingWidget.hpp"
 #include <QStyle>
 
 LoadingWidget::LoadingWidget(QWidget *parent) : QWidget(parent) {

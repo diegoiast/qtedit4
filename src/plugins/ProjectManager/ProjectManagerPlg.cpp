@@ -11,6 +11,7 @@
 #include <QSettings>
 #include <QSocketNotifier>
 #include <QStandardPaths>
+#include <QStringListModel>
 #include <QTimer>
 
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
@@ -223,8 +224,6 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     autoEnabled = true;
     alwaysEnabled = true;
 
-    directoryModel = nullptr;
-
     config.pluginName = tr("Project manager");
     config.description = tr("Add support for building using CMake/Cargo/Go");
     config.configItems.push_back(
@@ -312,10 +311,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->setupUi(w);
     gui->addDirectory->setIcon(QIcon::fromTheme("list-add"));
     gui->removeDirectory->setIcon(QIcon::fromTheme("list-remove"));
-    gui->filterFiles->setClearButtonEnabled(true);
-    gui->filterFiles->setPlaceholderText(tr("files to show"));
-    gui->filterOutFiles->setClearButtonEnabled(true);
-    gui->filterOutFiles->setPlaceholderText(tr("files to hide"));
 
     connect(gui->runButton, &QAbstractButton::clicked, this,
             &ProjectManagerPlugin::runButton_clicked);
@@ -327,8 +322,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             &ProjectManagerPlugin::addProject_clicked);
     connect(gui->removeDirectory, &QAbstractButton::clicked, this,
             &ProjectManagerPlugin::removeProject_clicked);
-    connect(gui->filesView, &QAbstractItemView::clicked, this,
-            &ProjectManagerPlugin::onItemClicked);
+    connect(gui->filesList, &FilesList::fileSelected, this, &ProjectManagerPlugin::onItemClicked);
 
     connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
             &ProjectManagerPlugin::newProjectSelected);
@@ -476,26 +470,6 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
             &ProjectManagerPlugin::projectFile_modified);
     connect(gui->cleanButton, &QToolButton::clicked, this,
             [this]() { this->outputPanel->commandOuput->clear(); });
-    directoryModel = new DirectoryModel(this);
-    filesFilterModel = new FilterOutProxyModel(this);
-    filesFilterModel->setSourceModel(directoryModel);
-    filesFilterModel->sort(0);
-    gui->filesView->setModel(filesFilterModel);
-    connect(gui->filterFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
-        filesFilterModel->setFilterWildcards(newText);
-        auto config = this->getCurrentConfig();
-        if (config) {
-            config->displayFilter = newText;
-        }
-    });
-    connect(gui->filterOutFiles, &QLineEdit::textChanged, this, [this](const QString &newText) {
-        filesFilterModel->setFilterOutWildcard(newText);
-        auto config = this->getCurrentConfig();
-        if (config) {
-            config->hideFilter = newText;
-        }
-    });
-
     auto menu = new QMenu(getManager());
     auto rescanKits = new QAction(tr("Rescan kits"), menu);
     auto recreateKits = new QAction(tr("Recreate kits"), menu);
@@ -627,17 +601,21 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         if (commandPalette->isVisible()) {
             commandPalette->hide();
         } else {
-            commandPalette->setDataModel(filesFilterModel);
+            auto model = new QStringListModel(commandPalette);
+            model->setStringList(gui->filesList->currentFilteredFiles());
+            commandPalette->setDataModel(model);
             commandPalette->clearText();
             commandPalette->show();
         }
     });
 
-    connect(commandPalette, &CommandPalette::didChooseItem, this,
-            [this](const QModelIndex index, const QAbstractItemModel *model) {
-                auto fname = model->data(index, Qt::UserRole).toString();
-                this->getManager()->openFile(fname);
-            });
+    connect(commandPalette, &CommandPalette::didChooseItem, this, 
+                    [this](const QModelIndex index, const QAbstractItemModel *model) {
+        auto fname = model->data(index, Qt::UserRole).toString();
+        auto dirName = gui->filesList->getDir();
+        this->getManager()->openFile(dirName + fname);
+        commandPalette->setDataModel(nullptr);
+    });
 }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
@@ -748,14 +726,12 @@ const KitDefinition *ProjectManagerPlugin::getCurrentKit() const {
     return &kitsModel->getKit(currentIndex);
 }
 
-void ProjectManagerPlugin::onItemClicked(const QModelIndex &index) {
-    auto i = filesFilterModel->mapToSource(index);
-    auto s = directoryModel->getItem(i.row());
-    getManager()->openFile(s);
+void ProjectManagerPlugin::onItemClicked(const QString &fileName) {
+    getManager()->openFile(fileName);
 }
 
 void ProjectManagerPlugin::addProject_clicked() {
-    QString dirName = QFileDialog::getExistingDirectory(gui->filesView, tr("Add directory"));
+    QString dirName = QFileDialog::getExistingDirectory(gui->filesList, tr("Add directory"));
     if (dirName.isEmpty()) {
         return;
     }
@@ -810,37 +786,27 @@ void ProjectManagerPlugin::removeProject_clicked() {
 }
 
 void ProjectManagerPlugin::newProjectSelected(int index) {
-    // TODO - on startup this is called 2 times. I am unsure why yet.
-    //        so this works around it. Its not the best solution.
-    static auto lastProjectSelected = std::shared_ptr<ProjectBuildConfig>();
     auto buildConfig = std::shared_ptr<ProjectBuildConfig>();
     if (index >= 0) {
         buildConfig = projectModel->getConfig(index);
     }
 
     if (!buildConfig) {
-        this->directoryModel->removeAllDirs();
-        this->gui->filterFiles->clear();
-        this->gui->filterFiles->setEnabled(false);
-        this->gui->filterOutFiles->clear();
-        this->gui->filterOutFiles->setEnabled(false);
+        this->gui->filesList->clear();
+        this->gui->filesList->setShowList({});
+        this->gui->filesList->setExcludeList({});
+        this->gui->filesList->setShowListEnabled(false);
+        this->gui->filesList->setExcludeListEnabled(false);
     } else {
         auto project = getCurrentConfig();
         auto s1 = buildConfig->expand(buildConfig->displayFilter);
         auto s2 = buildConfig->expand(buildConfig->hideFilter);
-        this->gui->filterFiles->setEnabled(true);
-        this->gui->filterFiles->setText(s1);
-        this->gui->filterOutFiles->setEnabled(true);
-        this->gui->filterOutFiles->setText(s2);
-        if (lastProjectSelected != buildConfig) {
-            this->gui->loadingWidget->start();
-            this->directoryModel->removeAllDirs();
-            this->directoryModel->addDirectory(buildConfig->sourceDir);
-            connect(directoryModel, &DirectoryModel::didFinishLoading, this,
-                    [this]() { this->gui->loadingWidget->stop(); });
-        }
+        this->gui->filesList->setShowList(s1);
+        this->gui->filesList->setExcludeList(s2);
+        this->gui->filesList->setShowListEnabled(true);
+        this->gui->filesList->setExcludeListEnabled(true);
+        this->gui->filesList->setDir(buildConfig->sourceDir);
     }
-    lastProjectSelected = buildConfig;
 
     updateTasksUI(buildConfig);
     updateExecutablesUI(buildConfig);

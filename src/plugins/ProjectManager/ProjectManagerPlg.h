@@ -77,7 +77,7 @@ class ProjectManagerPlugin : public IPlugin {
     const KitDefinition *getCurrentKit() const;
 
   public slots:
-    void onItemClicked(const QModelIndex &index);
+    void onItemClicked(const QString &fileName);
     void addProject_clicked();
     void removeProject_clicked();
     void newProjectSelected(int index);
@@ -114,8 +114,6 @@ class ProjectManagerPlugin : public IPlugin {
 
     KitDefinitionModel *kitsModel = nullptr;
     ProjectBuildModel *projectModel = nullptr;
-    DirectoryModel *directoryModel = nullptr;
-    FilterOutProxyModel *filesFilterModel = nullptr;
     CommandPalette *commandPalette = nullptr;
     ProjectSearch *searchPanelUI = nullptr;
 

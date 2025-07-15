@@ -14,9 +14,6 @@
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <property name="spacing">
-    <number>0</number>
-   </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
@@ -70,22 +67,6 @@
       </widget>
      </item>
     </layout>
-   </item>
-   <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Policy::Maximum</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>9</height>
-      </size>
-     </property>
-    </spacer>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -208,57 +189,12 @@
     </layout>
    </item>
    <item>
-    <widget class="QListView" name="filesView">
-     <property name="frameShape">
-      <enum>QFrame::Shape::NoFrame</enum>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="LoadingWidget" name="loadingWidget" native="true"/>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="filterFiles">
-     <property name="toolTip">
-      <string>Show only this files/directories</string>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="placeholderText">
-      <string>Files to show</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Orientation::Vertical</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Policy::Maximum</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>9</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="filterOutFiles">
-     <property name="toolTip">
-      <string>Files/directories to hide</string>
-     </property>
-     <property name="placeholderText">
-      <string>Files to hide</string>
+    <widget class="FilesList" name="filesList" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
     </widget>
    </item>
@@ -266,9 +202,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>LoadingWidget</class>
+   <class>FilesList</class>
    <extends>QWidget</extends>
-   <header>widgets/LoadingWidget.h</header>
+   <header>widgets/FilesList.hpp</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

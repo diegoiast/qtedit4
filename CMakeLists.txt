@@ -74,7 +74,7 @@ set(qtedit4_sources
     src/widgets/xmltreemodel.cpp
     src/widgets/xmltreemodel.h
     src/widgets/LoadingWidget.cpp
-    src/widgets/LoadingWidget.h
+    src/widgets/LoadingWidget.hpp
     src/widgets/qmdiSplitTab.cpp  
     src/widgets/qmdiSplitTab.h  
     src/widgets/qmdieditor.cpp
@@ -83,6 +83,9 @@ set(qtedit4_sources
     src/widgets/SplitTabWidget.h
     src/widgets/qmdiSplitTab.cpp
     src/widgets/qmdiSplitTab.h
+    src/widgets/FilesList.cpp
+    src/widgets/FilesList.hpp
+    
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp
