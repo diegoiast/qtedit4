@@ -13,11 +13,53 @@
 #include <qmdihost.h>
 
 #include "AnsiToHTML.hpp"
-#include "GenericItems.h"
 #include "ProjectBuildConfig.h"
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
 #include "ui_ProjectSearchGUI.h"
+
+bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList) {
+    if (!badList.isEmpty()) {
+        auto list = badList.split(";");
+        for (const auto &rule : std::as_const(list)) {
+            if (rule.length() < 3) {
+                continue;
+            }
+            auto clean_rule = rule.trimmed();
+            if (clean_rule.isEmpty()) {
+                continue;
+            }
+            auto options = QRegularExpression::UnanchoredWildcardConversion;
+            auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            auto regex = QRegularExpression(pattern);
+            auto matches = regex.match(fileName).hasMatch();
+            if (matches) {
+                return false;
+            }
+        }
+    }
+
+    bool filterMatchFound = true;
+    if (!goodList.isEmpty()) {
+        filterMatchFound = false;
+        auto list = goodList.split(";");
+        for (const auto &rule : std::as_const(list)) {
+            auto clean_rule = rule.trimmed();
+            if (clean_rule.isEmpty()) {
+                continue;
+            }
+            auto options = QRegularExpression::UnanchoredWildcardConversion;
+            auto pattern = QRegularExpression::wildcardToRegularExpression(rule, options);
+            auto regex = QRegularExpression(pattern);
+            auto matches = regex.match(fileName).hasMatch();
+            if (matches) {
+                filterMatchFound = true;
+                break;
+            }
+        }
+    }
+    return filterMatchFound;
+}
 
 void searchTextFile(std::ifstream &file, const std::string &searchString,
                     std::function<void(const std::string &, size_t)> callback) {

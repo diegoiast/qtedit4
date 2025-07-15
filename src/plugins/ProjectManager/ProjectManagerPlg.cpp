@@ -33,7 +33,6 @@
 #include <qmditabwidget.h>
 
 #include "AnsiToHTML.hpp"
-#include "GenericItems.h"
 #include "GlobalCommands.hpp"
 #include "ProjectBuildConfig.h"
 #include "ProjectIssuesWidget.h"

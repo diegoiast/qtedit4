@@ -99,8 +99,6 @@ set(qtedit4_sources
     src/plugins/ProjectManager/BuildRunOutput.ui
     src/plugins/ProjectManager/CompilerOutputDecoders.cpp
     src/plugins/ProjectManager/CompilerOutputDecoders.h 
-    src/plugins/ProjectManager/GenericItems.cpp
-    src/plugins/ProjectManager/GenericItems.h
     src/plugins/ProjectManager/kitdefinitions.h
     src/plugins/ProjectManager/kitdefinitions.cpp
     src/plugins/ProjectManager/kitdefinitionmodel.h
