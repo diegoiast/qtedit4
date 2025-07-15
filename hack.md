@@ -112,9 +112,7 @@ is not covered by this document.
 Install the following packages:
 
 ```
-sudo apt install python3-pip build-essential \ 
-     libcups2-dev \
-     clang clang-tools ninja cmake ccache mold
+sudo apt install python3-pip build-essential libcups2-dev clang clang-tools ninja-build cmake ccache mold
 ```
 
 ### Fedora
@@ -141,14 +139,18 @@ or using your distro packages.
 >
 > You are not forced to build on the command line, you can use your IDE, but it
 > will require some setup. Documentation is always welcomed.
+>
+> While this document mentions Qt 6.9.1, it is recommended to download the latest
+> version avialable. See https://doc.qt.io/qt-6/qt-releases.html for more details.
 
 From the command line (when installing Qt, `-m all` means install all modules
 this might not be needed for this process - but this is a good thing to have,
 execute the following code:
 
+
 ``` bash
-pip install aqt-install
-aqt install-qt linux desktop 6.8.1 -m all -O ~/qt
+pip install aqtinstall
+aqt install-qt linux desktop 6.9.1 -m all -O ~/qt
 aqt install-tool linux desktop tools_qtcreator_gui -O ~/qt
 ```
 Alternativelly - you can use the Qt Online installer (its easier on Windows).
@@ -288,7 +290,8 @@ Examples:
     1. The text editor plugin will create a QutePart editor, and will open the 
        file. The arguments `x` and `y` note the cursor position. You can ignore 
        the `z` argument for now.
-1. If you open a `*.img` file - the hex viewer plugin will win with score of 5.     it will open `QHexView` (see the 3rd parties in the CMakeLists.txt).
+1. If you open a `*.img` file - the hex viewer plugin will win with score of 5. 
+   it will open `QHexView` (see the 3rd parties in the CMakeLists.txt).
 1. If you open a `*.jpg` file
     1. Hex plugin will return 2
     1. Text plugin will return 1
