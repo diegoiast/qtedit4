@@ -611,7 +611,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     connect(commandPalette, &CommandPalette::didChooseItem, this, 
                     [this](const QModelIndex index, const QAbstractItemModel *model) {
-        auto fname = model->data(index, Qt::UserRole).toString();
+        auto fname = model->data(index, Qt::DisplayRole).toString();
         auto dirName = gui->filesList->getDir();
         this->getManager()->openFile(dirName + fname);
         commandPalette->setDataModel(nullptr);
