@@ -73,7 +73,7 @@ To build on Windows, you will need to install:
 > components can used for building.
 >
 > You can optionally use the standalone/original CMake setup, or use MSVC 
-> to build. That is what the CD/CI does.
+> to build. That is what the CD/CI does. I test both scenarions regularly.
 >
 > The command line git utilites also work perfectly.
 
@@ -81,22 +81,24 @@ Steps:
 
 1. Using Github desktop - clone the repo.
 1. Open QtCreator, and choose the `CMakeLists.txt` of this project.
-    1. Press `Control+R`, and wait 5-10 minutes (initial configuration will download lots
-   of source, and it will build it locally).
-    1. If things do not compile, it generally means Kits problem. See https://doc.qt.io/qtcreator/creator-preferences-kits.html
+    1. Press `Control+R`, and wait 5-10 minutes (initial configuration will
+       download lots of source, and it will build it locally).
+    1. If things do not compile, it generally means a Kits problem.
+    See https://doc.qt.io/qtcreator/creator-preferences-kits.html
 1. If you use Visual Studio, choose from the main window "Open a local folder".
     1. Visual studio should detect that this is a CMake folder, and start configuring.
     1. Build as usual (press F5).
 
 ### Creating/debugging the installer
+
 If you want to debug the installer:
 1. Execute once, the `build.bat` once. 
     1. If it fails to run:
     1. From Windows terminal, `cd c:\user\epiccoder\Documents\QtEdit4`
     1. Run nanually `call build.bat` . Try to understand what went wrong,
        usually, this means some path inside the batch file is wrong. 
-2. From the start menu find *Inno Setup Compiler*. When it starts, 
-   point it to `setup_script.iss` inside the qtedit4 clone.
+2. From the Windows Start menu find *Inno Setup Compiler* and urn it. When it
+   starts, point it to `setup_script.iss` inside the qtedit4 clone.
 3. Press F9, to compile the installer and execute it.
 
 
@@ -112,7 +114,7 @@ is not covered by this document.
 Install the following packages:
 
 ```
-sudo apt install python3-pip build-essential libcups2-dev clang clang-tools ninja-build cmake ccache mold
+sudo apt install python3-pip python3-pipx build-essential libcups2-dev clang clang-tools ninja-build cmake ccache mold
 ```
 
 ### Fedora
@@ -125,6 +127,14 @@ sudo dnf install python3-devel python3-pip \
     clang clang-tools-extra ninja cmake ccache mold
 ```
 
+### Arch
+
+Install the following packages:
+
+```
+sudo pacman -S python-pip python-pipx base-devel libcups clang clang-tools-extra ninja cmake ccache mold
+```
+
 ### Shared install 
 
 > **Note**: in this setup, we install Qt using [aqt](https://github.com/miurahr/aqtinstall)
@@ -132,7 +142,8 @@ for installing Qt. You can use the official online installer (which I find slow)
 or using your distro packages.
 >
 > This setup seems to work for me under Fedora (gnome default
-> installation) and Debina (which I use Plasma).
+> installation) and Debian (which I use Plasma). I tested this under Manjaro
+> Linux (so, basically arch...) with greate success.
 >
 > You may ignore this step, and install Qt6 from your repos, and you can also
 > use VSCode to compile. 
@@ -142,6 +153,8 @@ or using your distro packages.
 >
 > While this document mentions Qt 6.9.1, it is recommended to download the latest
 > version avialable. See https://doc.qt.io/qt-6/qt-releases.html for more details.
+>
+> Under modern ditros (Debian, and Arch) `pip` will faill. Use instead `pipx`.
 
 From the command line (when installing Qt, `-m all` means install all modules
 this might not be needed for this process - but this is a good thing to have,
@@ -185,7 +198,14 @@ Notes:
 
 If you want to create the AppImage (note that it does a full rebuild):
 ```
-./build.sh
+time ./build.sh
+```
+
+On my T14s, with i5-10210U, the whole build taks takes about 3 minutes, without
+ccache (which is recommended, and will speed up the second build):
+
+```
+./build.sh  1023.52s user 39.31s system 556% cpu 3:10.93 total
 ```
 
 You might need to modify it to work on your system (on Fedora, the path for
@@ -197,13 +217,26 @@ subject, as this is script is really very intimate with your system
 in the script, the output may slightly vary). Just `chmod` that file and 
 you can execute it.
 
+I found that under some systems, the Qt plugin of AppImage, will fail with erros
+similar to this:
+
+```
+ERROR: Strip call failed: /tmp/.mount_linuxdAMaGia/usr/bin/strip: dist/ubuntu-gcc/usr/lib/libXau.so.6: unknown type [0x13] section `.relr.dyn'
+```
+
+The solution is to run:
+```
+NO_STRIP=true ./build.sh
+```
+
 ## Building on macOS
 
 **TODO**. Get Qt, and build. macOS is not supported yet, due to missing hardware.
 It is compiled as part of the CICD, but no packages are created.
 
 In theory, you should follow the same path as on Linux. However, as I don't own
-an Mac, I cannot fully test this. 
+an Mac, I cannot fully test this. CI/CD is testing builds, but as I don't own
+a suitable machine, I cannot test how the application looks, feels nor runs.
 
 ## Modifying 3rd parties
 
@@ -222,6 +255,10 @@ ideally make a PR to the original project.
    `git push github` to publish your modifications.
 1. You shuld also modify the main `CMakeLists.txt` for the app, to use your repo
    until upstream takes your patch.
+
+Alternativelly, there is a script called `get-code.sh` which will pull all cmake
+dependencies into `lib`. You then need to run cmake with QTEDIT4_WORK_OFFLINE
+defined. Now, you will see the 3rd party sources in lib, as normal git repos.
 
 ## Coding standards
 
