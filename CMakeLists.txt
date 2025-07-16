@@ -33,7 +33,7 @@ else()
     CPMAddPackage("gh:diegoiast/command-palette-widget#main")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
-    CPMAddPackage("gh:alex-spataru/QSimpleUpdater#911727370d90001077f93ea94545099e197400a0")
+    CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")
     CPMAddPackage("gh:Dax89/QHexView#5fe6d9851ecfae0acf26d1659ee3cb579d03202f")
     
     download_breeze_icons(6.4.0)
