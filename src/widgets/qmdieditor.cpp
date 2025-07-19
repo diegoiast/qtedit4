@@ -599,8 +599,6 @@ void qmdiEditor::setupActions() {
     actionChangeCase->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actionToggleHeader->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
-    connect(textEditor, &QPlainTextEdit::copyAvailable, actionCopy, &QAction::setEnabled);
-    connect(textEditor, &QPlainTextEdit::copyAvailable, actionCut, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updateClientName);
