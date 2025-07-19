@@ -114,7 +114,7 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     layout->addWidget(showEdit);
     layout->addWidget(excludeEdit);
 
-    connect(list, &QListWidget::itemClicked, this, [=](auto *it) {
+    connect(list, &QListWidget::itemClicked, this, [this](auto *it) {
         auto fileName = this->directory + QDir::separator() + it->text();
         fileName = QDir::toNativeSeparators(fileName);
         emit fileSelected(fileName);
@@ -150,17 +150,17 @@ void FilesList::setDir(const QString &dir) {
     auto *worker = new FileScannerWorker;
     worker->moveToThread(thread);
     worker->setRootDir(dir);
-    connect(worker, &FileScannerWorker::filesChunkFound, this, [=](const QStringList &chunk) {
+    connect(worker, &FileScannerWorker::filesChunkFound, this, [=, this](const QStringList &chunk) {
         QMetaObject::invokeMethod(
             this,
-            [=]() {
+            [=, this]() {
                 filesList.append(chunk);
                 loadingWidget->setToolTip(QString(tr("Total %1 files")).arg(filesList.size()));
                 updateList(chunk, false);
             },
             Qt::QueuedConnection);
     });
-    connect(worker, &FileScannerWorker::finished, this, [=](qint64 ms) {
+    connect(worker, &FileScannerWorker::finished, this, [=, this](qint64 ms) {
         qDebug() << "Scan finished in" << ms << "ms";
         worker->deleteLater();
         thread->quit();
