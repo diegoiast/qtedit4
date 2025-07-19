@@ -888,8 +888,6 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
 }
 
 void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
-    auto kit = getCurrentKit();
-    auto project = getCurrentConfig();
     auto platform = PLATFORM_CURRENT;
 
     if (!task->commands.contains(platform) || task->commands.value(platform).isEmpty()) {
@@ -897,7 +895,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
         return;
     }
 
+    auto kit = getCurrentKit();
     auto commands = task->commands.value(platform);
+    auto project = getCurrentConfig();
     auto taskCommand = project->expand(commands.join(" && "));
     auto workingDirectory = project->expand(task->runDirectory);
     auto buildDirectory = project->expand(project->buildDir);
@@ -960,6 +960,14 @@ void ProjectManagerPlugin::runTask_clicked() {
     if (getConfig().getSaveBeforeTask()) {
         if (!saveAllDocuments()) {
             return;
+        }
+    }
+    auto manager = getManager();
+    auto count = manager->visibleTabs();
+    for (auto i = size_t(0); i < count; i++) {
+        auto client = manager->getMdiClient(i);
+        if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+            editor->removeMetaData();
         }
     }
     this->projectIssues->clearAllIssues();
