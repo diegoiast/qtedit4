@@ -132,26 +132,23 @@ void insertLinkifiedText(QTextCursor &cursor, const QString &text,
 
     auto lastPos = 0;
     auto view = QStringView{text};
-
-    // First match URLs and paths
     auto matchIter = urlRegex.globalMatch(text);
     if (linkifyFiles) {
         matchIter = pathRegex.globalMatch(text);
     }
 
     while (matchIter.hasNext()) {
-        const auto match = matchIter.next();
+        auto match = matchIter.next();
         auto start = match.capturedStart();
         auto end = match.capturedEnd();
         auto full = match.captured(0);
 
-        // Insert plain text before match
         if (start > lastPos) {
             cursor.insertText(view.sliced(lastPos, start - lastPos).toString(), baseFormat);
         }
 
-        QTextCharFormat linkFmt = baseFormat;
-        QUrl linkUrl;
+        auto linkFmt = baseFormat;
+        auto linkUrl = QUrl();
 
         if (match.captured(0).startsWith("http") || match.captured(0).startsWith("file")) {
             linkUrl = QUrl(full);
@@ -210,7 +207,7 @@ void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
     auto linkifyFiles = true;
 
     while (matchIter.hasNext()) {
-        const auto match = matchIter.next();
+        auto match = matchIter.next();
         codes = match.captured(1).split(';');
         start = match.capturedStart();
 
@@ -219,10 +216,10 @@ void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
             insertLinkifiedText(cursor, chunk, fmt, linkifyFiles);
         }
 
-        if (codes.isEmpty() || codes.contains("0")) {
+        if (codes.isEmpty() || codes.contains('0')) {
             fmt = QTextCharFormat(); // Reset
         } else {
-            for (const auto &code : codes) {
+            for (const auto &code : std::as_const(codes)) {
                 applyAnsiCodeToFormat(fmt, code);
             }
         }
@@ -230,7 +227,6 @@ void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
         lastPos = match.capturedEnd();
     }
 
-    // Remaining text after last ANSI code
     if (lastPos < view.length()) {
         insertLinkifiedText(cursor, view.sliced(lastPos).toString(), fmt, linkifyFiles);
     }
