@@ -797,7 +797,6 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
         this->gui->filesList->setShowListEnabled(false);
         this->gui->filesList->setExcludeListEnabled(false);
     } else {
-        auto project = getCurrentConfig();
         auto s1 = buildConfig->expand(buildConfig->displayFilter);
         auto s2 = buildConfig->expand(buildConfig->hideFilter);
         this->gui->filesList->setShowList(s1);
