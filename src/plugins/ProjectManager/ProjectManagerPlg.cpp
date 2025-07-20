@@ -75,8 +75,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto getCommandInterpreter(const QString &externalCommand)
-    -> std::tuple<QString, QStringList> {
+static auto
+getCommandInterpreter(const QString &externalCommand) -> std::tuple<QString, QStringList> {
     QString interpreter;
     QStringList command;
 
@@ -891,7 +891,9 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     auto platform = PLATFORM_CURRENT;
 
     if (!task->commands.contains(platform) || task->commands.value(platform).isEmpty()) {
-        qWarning() << "do_runTask: No valid commands for platform" << platform;
+        auto msg = QString("do_runTask: No valid commands for platform ") + platform;
+        qWarning() << msg;
+        appendAnsiHtml(outputPanel->commandOuput, msg + "\n");
         return;
     }
 
