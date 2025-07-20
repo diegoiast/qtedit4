@@ -547,30 +547,48 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildConfig::buildFromFile(const QStr
                 auto obj = vv.toObject();
                 TaskInfo taskInfo;
                 taskInfo.name = obj["name"].toString();
-                auto commandsObj = obj["commands"].toObject();
-                if (commandsObj.size() == 1) {
-                    auto value = commandsObj.begin().value();
-                    if (value.isString()) {
-                        // Single command for all platforms
-                        auto cmd = QStringList(value.toString());
-                        taskInfo.commands.insert(PLATFORM_LINUX, cmd);
-                        taskInfo.commands.insert(PLATFORM_WINDOWS, cmd);
-                    } else if (value.isArray()) {
-                        // Multiple commands for all platforms
-                        auto commands = QStringList();
-                        for (auto const &cmd : value.toArray()) {
-                            commands.append(cmd.toString());
+                auto value = obj["commands"];
+
+                if (value.isString()) {
+                    auto cmd = QStringList(value.toString());
+                    taskInfo.commands.insert(PLATFORM_LINUX, cmd);
+                    taskInfo.commands.insert(PLATFORM_WINDOWS, cmd);
+
+                } else if (value.isArray()) {
+                    auto cmdList = QStringList();
+                    for (auto const &cmd : value.toArray()) {
+                        cmdList << cmd.toString();
+                    }
+                    taskInfo.commands.insert(PLATFORM_LINUX, cmdList);
+                    taskInfo.commands.insert(PLATFORM_WINDOWS, cmdList);
+
+                } else if (value.isObject()) {
+                    auto commandsObj = value.toObject();
+
+                    if (commandsObj.size() == 1) {
+                        auto innerVal = commandsObj.begin().value();
+                        if (innerVal.isString()) {
+                            auto cmd = QStringList(innerVal.toString());
+                            taskInfo.commands.insert(PLATFORM_LINUX, cmd);
+                            taskInfo.commands.insert(PLATFORM_WINDOWS, cmd);
+                        } else if (innerVal.isArray()) {
+                            QStringList cmdList;
+                            for (auto const &cmd : innerVal.toArray()) {
+                                cmdList << cmd.toString();
+                            }
+                            taskInfo.commands.insert(PLATFORM_LINUX, cmdList);
+                            taskInfo.commands.insert(PLATFORM_WINDOWS, cmdList);
+                        } else {
+                            parsePlatformCommands(commandsObj, taskInfo);
                         }
-                        taskInfo.commands.insert(PLATFORM_LINUX, commands);
-                        taskInfo.commands.insert(PLATFORM_WINDOWS, commands);
                     } else {
-                        // Different commands per platform
                         parsePlatformCommands(commandsObj, taskInfo);
                     }
+
                 } else {
-                    // Different commands per platform
-                    parsePlatformCommands(commandsObj, taskInfo);
+                    qWarning() << "Invalid 'commands' format.";
                 }
+
                 taskInfo.runDirectory = obj["runDirectory"].toString();
                 taskInfo.isBuild = obj["isBuild"].toBool(false);
                 info.push_back(taskInfo);
