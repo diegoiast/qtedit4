@@ -110,8 +110,7 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     return executables;
 }
 
-auto static cargoListBinUnits(const QString &directoryPath, bool /*recursive*/ = true)
-    -> StringHash {
+auto static cargoListBinUnits(const QString &directoryPath) -> StringHash {
     auto fileMap = StringHash{};
     auto process = QProcess{};
     process.setProgram("cargo");
@@ -269,11 +268,22 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
             {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
              "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
              "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug"});
+
+        // Why not running the commands directly on this shell instead of spawning a new one?
+        // Great question! This is because commands may fail, and I don't want them to kill the
+        // build system, and I cannot use "| rem" easily.
+        // Note also the clang format thingie, the lines are too long and then are separated
+        // which makes reading the command very hard.
+
+        // clang-format off
         t.commands.insert(
-            PLATFORM_WINDOWS,
-            {"mkdir ${build_directory}\\.cmake\\api\\v1\\query\\  >nul 2>nul",
-             "type nul > ${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2",
-             "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Debug"});
+            PLATFORM_WINDOWS, {
+                "cmd /c \"mkdir \"${build_directory}\\.cmake\\api\\v1\\query\" >nul 2>nul || rem\"",
+                "cmd /c \"type nul > \"${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2\" || rem\"",
+                "cmake -S \"${source_directory}\" -B \"${build_directory}\" -DCMAKE_BUILD_TYPE=Debug"
+            });
+        // clang-format on
+
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
@@ -283,16 +293,20 @@ auto ProjectBuildConfig::tryGuessFromCMake(const QString &directory)
     {
         auto t = TaskInfo();
         t.name = "CMake (configure/Release)";
-        t.commands.insert(PLATFORM_LINUX,
-                          {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
-                           "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
-                           "cmake -S ${source_directory} -B ${build_directory} "
-                           "-DCMAKE_BUILD_TYPE=Release"});
-        t.commands.insert(PLATFORM_WINDOWS,
-                          {"mkdir -p ${build_directory}\\.cmake\\api\\v1\\query\\",
-                           "type nul > ${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2",
-                           "cmake -S ${source_directory} -B ${build_directory} "
-                           "-DCMAKE_BUILD_TYPE=Release"});
+        t.commands.insert(
+            PLATFORM_LINUX,
+            {"mkdir -p ${build_directory}/.cmake/api/v1/query/",
+             "touch ${build_directory}/.cmake/api/v1/query/codemodel-v2",
+             "cmake -S ${source_directory} -B ${build_directory} -DCMAKE_BUILD_TYPE=Release"});
+
+        // clang-format off
+        t.commands.insert(
+            PLATFORM_WINDOWS, {
+                "cmd /c \"mkdir \"${build_directory}\\.cmake\\api\\v1\\query\" >nul 2>nul || rem\"",
+                "cmd /c \"type nul > \"${build_directory}\\.cmake\\api\\v1\\query\\codemodel-v2\" || rem\"",
+                "cmake -S \"${source_directory}\" -B \"${build_directory}\" -DCMAKE_BUILD_TYPE=Release"
+            });
+        // clang-format on
         t.runDirectory = "${source_directory}";
         t.isBuild = true;
         value->tasksInfo.push_back(t);
