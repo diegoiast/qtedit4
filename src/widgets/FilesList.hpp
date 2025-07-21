@@ -16,18 +16,21 @@ class FileScannerWorker : public QObject {
   public:
     explicit FileScannerWorker(QObject *parent = nullptr);
     void setRootDir(const QString &dir);
+    const QString &getRootDir() { return rootDir; }
 
   public slots:
     void start();
+    void requestStop() { shouldStop = true; }
+    bool requestedStop() const { return shouldStop; }
 
   signals:
-
     void filesChunkFound(const QStringList &chunk);
     void finished(qint64 elapsedMs);
 
   private:
     void scanDir(const QString &rootPath);
     QString rootDir;
+    bool shouldStop = false;
 };
 
 class FilesList : public QWidget {
@@ -64,7 +67,8 @@ class FilesList : public QWidget {
     QString directory;
     QStringList filesList;
 
-    QThread *filterThread = nullptr;
+    FileScannerWorker *worker = nullptr;
+    QThread *scanThread = nullptr;
     FileFilterWorker *filterWorker = nullptr;
     QTimer *updateTimer = nullptr;
 };

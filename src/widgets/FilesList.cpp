@@ -57,6 +57,8 @@ void FileScannerWorker::setRootDir(const QString &dir) { rootDir = dir; }
 void FileScannerWorker::start() {
     QElapsedTimer timer;
     timer.start();
+    shouldStop = false;
+    qDebug() << "Scan started" << getRootDir();
     scanDir(rootDir);
     emit finished(timer.elapsed());
 }
@@ -73,6 +75,10 @@ void FileScannerWorker::scanDir(const QString &rootPath) {
         auto entries = dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 
         for (auto const &fi : entries) {
+            if (shouldStop) {
+                qDebug() << "Requested to abort" << rootPath;
+                return;
+            }
             if (fi.isDir()) {
                 queue.enqueue(normalizeFilePath(fi.absoluteFilePath()));
             } else {
@@ -143,13 +149,20 @@ void FilesList::setShowList(const QString &filter) {
 }
 
 void FilesList::setDir(const QString &dir) {
+    auto dd = normalizeDirPath(dir);
+    if (dd == directory) {
+        return;
+    }
     clear();
     directory = normalizeDirPath(dir);
 
-    auto *thread = new QThread;
-    auto *worker = new FileScannerWorker;
-    worker->moveToThread(thread);
-    worker->setRootDir(dir);
+    if (worker) {
+        worker->requestStop();
+    }
+    scanThread = new QThread;
+    worker = new FileScannerWorker;
+    worker->moveToThread(scanThread);
+    worker->setRootDir(directory);
     connect(worker, &FileScannerWorker::filesChunkFound, this, [=, this](const QStringList &chunk) {
         QMetaObject::invokeMethod(
             this,
@@ -161,14 +174,19 @@ void FilesList::setDir(const QString &dir) {
             Qt::QueuedConnection);
     });
     connect(worker, &FileScannerWorker::finished, this, [=, this](qint64 ms) {
-        qDebug() << "Scan finished in" << ms << "ms";
-        worker->deleteLater();
-        thread->quit();
-        loadingWidget->stop();
+        auto w = qobject_cast<FileScannerWorker *>(sender());
+        auto msg = w->requestedStop() ? "Scan aborted after" : "Scan finished in";
+        qDebug() << msg << ms << "ms, " << w->getRootDir();
+        w->deleteLater();
+        if (w == worker) {
+            worker = nullptr;
+            scanThread->quit();
+            loadingWidget->stop();
+        }
     });
-    connect(thread, &QThread::started, worker, &FileScannerWorker::start);
-    connect(thread, &QThread::finished, thread, &QObject::deleteLater);
-    thread->start();
+    connect(scanThread, &QThread::started, worker, &FileScannerWorker::start);
+    connect(scanThread, &QThread::finished, scanThread, &QObject::deleteLater);
+    scanThread->start();
     loadingWidget->start();
     loadingWidget->setToolTip({});
 }
