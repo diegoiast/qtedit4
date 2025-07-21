@@ -75,8 +75,8 @@ static auto regenerateKits(const std::filesystem::path &directoryPath) -> void {
                                   KitDetector::platformUnix);
 }
 
-static auto getCommandInterpreter(const QString &externalCommand)
-    -> std::tuple<QString, QStringList> {
+static auto
+getCommandInterpreter(const QString &externalCommand) -> std::tuple<QString, QStringList> {
     QString interpreter;
     QStringList command;
 
@@ -227,6 +227,14 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     config.description = tr("Add support for building using CMake/Cargo/Go");
     config.configItems.push_back(
         qmdiConfigItem::Builder()
+            .setDisplayName(tr("Black console"))
+            .setDescription(tr("Should the console background be black, or default"))
+            .setKey(Config::BlackConsoleKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(false)
+            .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
             .setDisplayName(tr("Save before running tasks (build, config etc)"))
             .setDescription(tr("If checked, files are saved before running any task"))
             .setKey(Config::SaveBeforeTaskKey)
@@ -331,7 +339,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     issuesDock =
         manager->createNewPanel(Panels::South, "projectissues", tr("Issues"), projectIssues);
 
-    auto *w2 = new QWidget;
+    auto w2 = new QWidget;
+    auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel = new Ui::BuildRunOutput;
     outputPanel->setupUi(w2);
     outputDock = manager->createNewPanel(Panels::South, "buildoutput", tr("Output"), w2);
@@ -339,12 +348,23 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->commandOuput->viewport()->setCursor(Qt::CursorShape::IBeamCursor);
     outputPanel->commandOuput->setOpenExternalLinks(false);
     outputPanel->commandOuput->setOpenLinks(false);
-
-    auto font = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     outputPanel->commandOuput->setFont(font);
     outputPanel->commandOuput->setAcceptRichText(true);
     outputPanel->commandOuput->viewport()->setCursor(Qt::CursorShape::IBeamCursor);
     outputPanel->commandOuput->setLineWrapMode(QTextEdit::NoWrap);
+    outputPanel->commandOuput->clear();
+
+    QTimer::singleShot(0, [this]() {
+        // why in a timer? because at this step, if we set the palette, the widget
+        // will get inserted "soon" and its palette will change anyway.
+        if (getConfig().getBlackConsole()) {
+            auto p = outputPanel->commandOuput->palette();
+            p.setColor(QPalette::Base, Qt::black);
+            p.setColor(QPalette::Text, QColor(192, 192, 192));
+            outputPanel->commandOuput->setPalette(p);
+        }
+    });
+
     connect(outputPanel->commandOuput, &QTextBrowser::anchorClicked, outputPanel->commandOuput,
             [this](const QUrl &link) {
                 if (!link.isLocalFile()) {
@@ -615,6 +635,17 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 this->getManager()->openFile(dirName + fname);
                 commandPalette->setDataModel(nullptr);
             });
+}
+
+void ProjectManagerPlugin::configurationHasBeenModified() {
+    IPlugin::configurationHasBeenModified();
+
+    auto p = outputDock->palette();
+    if (getConfig().getBlackConsole()) {
+        p.setColor(QPalette::Base, Qt::black);
+        p.setColor(QPalette::Text, QColor(192, 192, 192));
+    }
+    outputPanel->commandOuput->setPalette(p);
 }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {

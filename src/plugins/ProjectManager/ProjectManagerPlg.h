@@ -45,6 +45,7 @@ class ProjectManagerPlugin : public IPlugin {
 
     struct Config {
         CONFIG_DEFINE(SaveBeforeTask, bool);
+        CONFIG_DEFINE(BlackConsole, bool);
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
         CONFIG_DEFINE(SelectedDirectory, QString);
@@ -67,6 +68,7 @@ class ProjectManagerPlugin : public IPlugin {
 
     virtual void showAbout() override;
     virtual void on_client_merged(qmdiHost *host) override;
+    virtual void configurationHasBeenModified() override;
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
