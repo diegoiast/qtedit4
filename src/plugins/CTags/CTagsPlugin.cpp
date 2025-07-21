@@ -11,6 +11,7 @@
 #include <QNetworkReply>
 #include <QProcess>
 #include <QStandardPaths>
+#include <QThread>
 
 // FIXME: this is an ugly workaround. This is private API for Qt, and
 //        might break. I thing this is stable enough for now.
@@ -301,7 +302,24 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
     auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
     auto ctags = projects[nativeSourceDir];
     ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
-    ctags->loadFile(ctagsFile.toStdString());
+
+    auto thread = new QThread;
+    auto worker = new QObject;
+    worker->moveToThread(thread);
+    connect(thread, &QThread::started, worker, [=, this]() {
+        ctags->loadFile(ctagsFile.toStdString());
+        QMetaObject::invokeMethod(
+            this,
+            [projectName, this]() {
+                qDebug() << "CTags loading finished for project:" << projectName;
+                emit tagsLoaded(projectName);
+            },
+            Qt::QueuedConnection);
+        thread->quit();
+    });
+    connect(thread, &QThread::finished, worker, &QObject::deleteLater);
+    connect(thread, &QThread::finished, thread, &QThread::deleteLater);
+    thread->start();
 }
 
 void CTagsPlugin::projectRemoved(const QString &projectName, const QString &sourceDir,

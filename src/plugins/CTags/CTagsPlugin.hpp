@@ -16,6 +16,7 @@
 class CTagsLoader;
 
 class CTagsPlugin : public IPlugin {
+    Q_OBJECT
 
     struct Config {
         CONFIG_DEFINE(CTagsBinary, QString)
@@ -40,6 +41,9 @@ class CTagsPlugin : public IPlugin {
 
     void extractArchive(const QString &archivePath, const QString &extractDir,
                         qmdiConfigDialog *dialog, const QString &downloadTextOriginal);
+
+  signals:
+    void tagsLoaded(const QString &directory);
 
   protected:
     void newProjectAdded(const QString &projectName, const QString &sourceDir,
