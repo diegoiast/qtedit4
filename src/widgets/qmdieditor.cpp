@@ -688,7 +688,7 @@ void qmdiEditor::setModificationsLookupEnabled(bool value) {
     }
 }
 
-void  qmdiEditor::setEditorFont(const QFont &newFont) {
+void qmdiEditor::setEditorFont(const QFont &newFont) {
     textEditor->setFont(newFont);
     operationsWidget->setTextFont(newFont);
 }

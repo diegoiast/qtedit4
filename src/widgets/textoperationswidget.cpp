@@ -272,7 +272,6 @@ void TextOperationsWidget::setTextCursor(QTextCursor cursor) {
     }
 }
 
-
 QTextDocument *TextOperationsWidget::getTextDocument() {
     if (auto textEdit = qobject_cast<QTextEdit *>(editor)) {
         return textEdit->document();
