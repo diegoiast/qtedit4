@@ -904,14 +904,16 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
 
     if (useKitForRunning) {
         auto kit = getCurrentKit();
-        auto buildDirectory = project->expand(project->buildDir);
-        auto sourceDirectory = project->expand(project->sourceDir);
-        auto taskCommand = project->expand(executablePath);
-        env.insert("run_directory", workingDirectory);
-        env.insert("build_directory", buildDirectory);
-        env.insert("source_directory", sourceDirectory);
-        env.insert("task", taskCommand);
-        executablePath = QString::fromStdString(kit->filePath);
+        if (kit) {
+            auto buildDirectory = project->expand(project->buildDir);
+            auto sourceDirectory = project->expand(project->sourceDir);
+            auto taskCommand = project->expand(executablePath);
+            env.insert("run_directory", workingDirectory);
+            env.insert("build_directory", buildDirectory);
+            env.insert("source_directory", sourceDirectory);
+            env.insert("task", taskCommand);
+            executablePath = QString::fromStdString(kit->filePath);
+        }
     }
 
     runCommand(workingDirectory, executablePath, arguments, env);
