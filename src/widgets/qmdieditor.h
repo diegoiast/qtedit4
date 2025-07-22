@@ -54,7 +54,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setupActions();
     inline bool getModificationsLookupEnabled() const { return fileModifications; }
     void setModificationsLookupEnabled(bool);
-    inline void setEditorFont(QFont newFont) { textEditor->setFont(newFont); }
+    void setEditorFont(const QFont &newFont);
     inline const Qutepart::Theme *getEditorTheme() { return textEditor->getTheme(); }
     inline void setEditorTheme(const Qutepart::Theme *theme) { textEditor->setTheme(theme); }
     void setEditorHighlighter(QString id);

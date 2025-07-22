@@ -688,6 +688,11 @@ void qmdiEditor::setModificationsLookupEnabled(bool value) {
     }
 }
 
+void  qmdiEditor::setEditorFont(const QFont &newFont) {
+    textEditor->setFont(newFont);
+    operationsWidget->setTextFont(newFont);
+}
+
 void qmdiEditor::setEditorHighlighter(QString id) {
     if (this->syntaxLangID == id) {
         return;

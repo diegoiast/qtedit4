@@ -28,7 +28,6 @@ class SharedHistoryModel;
 
 class TextOperationsWidget : public QStackedWidget {
     Q_OBJECT
-    friend class QsvTextEdit;
 
   public:
     TextOperationsWidget(QWidget *parent, QWidget *editor);
@@ -43,6 +42,7 @@ class TextOperationsWidget : public QStackedWidget {
     QTextCursor getTextCursor();
     void setTextCursor(QTextCursor c);
     QTextDocument *getTextDocument();
+    void setTextFont(const QFont &newFont);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;

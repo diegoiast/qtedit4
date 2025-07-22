@@ -255,41 +255,37 @@ QFlags<QTextDocument::FindFlag> TextOperationsWidget::getReplaceFlags() {
 
 QTextCursor TextOperationsWidget::getTextCursor() {
     auto cursor = QTextCursor();
-    auto t = qobject_cast<QTextEdit *>(editor);
-    if (t) {
-        cursor = t->textCursor();
-    } else {
-        auto pt = qobject_cast<QPlainTextEdit *>(editor);
-        if (pt) {
-            cursor = pt->textCursor();
-        }
+    if (auto textEdit = qobject_cast<QTextEdit *>(editor)) {
+        cursor = textEdit->textCursor();
+    } else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(editor)) {
+        cursor = plainTextEdit->textCursor();
     }
+
     return cursor;
 }
 
-void TextOperationsWidget::setTextCursor(QTextCursor c) {
-    auto t = qobject_cast<QTextEdit *>(editor);
-    if (t) {
-        t->setTextCursor(c);
-    } else {
-        auto pt = qobject_cast<QPlainTextEdit *>(editor);
-        if (pt) {
-            pt->setTextCursor(c);
-        }
+void TextOperationsWidget::setTextCursor(QTextCursor cursor) {
+    if (auto textEdit = qobject_cast<QTextEdit *>(editor)) {
+        textEdit->setTextCursor(cursor);
+    } else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(editor)) {
+        plainTextEdit->setTextCursor(cursor);
     }
 }
 
+
 QTextDocument *TextOperationsWidget::getTextDocument() {
-    auto t = qobject_cast<QTextEdit *>(editor);
-    if (t) {
-        return t->document();
-    } else {
-        auto pt = qobject_cast<QPlainTextEdit *>(editor);
-        if (pt) {
-            return pt->document();
-        }
+    if (auto textEdit = qobject_cast<QTextEdit *>(editor)) {
+        return textEdit->document();
+    } else if (auto plainTextEdit = qobject_cast<QPlainTextEdit *>(editor)) {
+        return plainTextEdit->document();
     }
     return {};
+}
+
+void TextOperationsWidget::setTextFont(const QFont &newFont) {
+    searchFormUi->searchText->setFont(newFont);
+    replaceFormUi->searchText->setFont(newFont);
+    replaceFormUi->replaceText->setFont(newFont);
 }
 
 QSize TextOperationsWidget::sizeHint() const {
