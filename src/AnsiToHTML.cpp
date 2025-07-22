@@ -88,7 +88,7 @@ void applyAnsiCodeToFormat(QTextCharFormat &fmt, const QString &codeStr) {
         break;
     case 2:
         fmt.setFontWeight(QFont::Normal);
-        break; // Faint fallback
+        break;
     case 3:
         fmt.setFontItalic(true);
         break;
@@ -185,15 +185,12 @@ void insertLinkifiedText(QTextCursor &cursor, const QString &text,
     }
 }
 
-void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
+void appendAnsiText(QTextEdit *edit, const QString &ansiText) {
     auto cursor = edit->textCursor();
     cursor.movePosition(QTextCursor::End);
 
     static QRegularExpression ansiRegex("\x1b\\[([0-9;]*)m");
     static QRegularExpression removeRegex("\x1b\\[K");
-    static QRegularExpression urlRegex(R"((https?|file)://[^\s<>()]+)");
-    static QRegularExpression pathRegex(
-        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
 
     auto cleanedText = ansiText;
     cleanedText.remove(removeRegex);
@@ -233,170 +230,6 @@ void appendAnsiHtml(QTextEdit *edit, const QString &ansiText) {
 
     edit->setTextCursor(cursor);
     edit->ensureCursorVisible();
-}
-
-auto appendAnsiHtml2(QTextEdit *edit, const QString &ansiText) -> void {
-    edit->moveCursor(QTextCursor::End);
-
-#if 1
-    auto html = ansiToHtml(ansiText, true);
-    edit->insertHtml(ansiText);
-#else
-    edit->insertPlainText(ansiText);
-#endif
-    edit->moveCursor(QTextCursor::End);
-    edit->ensureCursorVisible();
-}
-
-auto static isInsideAnchor(const QString &html, int pos) -> bool {
-    auto open = html.lastIndexOf("<a ", pos, Qt::CaseInsensitive);
-    auto close = html.lastIndexOf("</a>", pos, Qt::CaseInsensitive);
-    return open != -1 && (close == -1 || open > close);
-};
-
-auto linkifyFileNames(const QString &html) -> QString {
-    auto pathRegex = QRegularExpression(
-        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
-
-    auto result = QString{};
-    auto lastPos = 0;
-    auto it = pathRegex.globalMatch(html);
-
-    while (it.hasNext()) {
-        auto match = it.next();
-        auto start = match.capturedStart();
-        auto end = match.capturedEnd();
-        auto fullMatch = match.captured(0);
-        auto filePart = match.captured(1);
-        auto line = match.captured(3).mid(1);
-        auto column = match.captured(4).mid(1);
-        auto insideAnchor = isInsideAnchor(html, start);
-
-        result += html.mid(lastPos, start - lastPos);
-        if (insideAnchor) {
-            result += fullMatch;
-        } else {
-            auto fragment = QString{};
-            auto urlPath = filePart;
-            // Convert backslashes to slashes for file:// URLs
-            urlPath.replace("\\", "/");
-            auto fileUrl = QUrl::fromLocalFile(urlPath);
-
-            if (!line.isEmpty()) {
-                fragment += line;
-            }
-            if (!column.isEmpty()) {
-                if (!fragment.isEmpty()) {
-                    fragment += ",";
-                }
-                fragment += column;
-            }
-            if (!fragment.isEmpty()) {
-                fileUrl.setFragment(fragment);
-            }
-            auto link =
-                QString("<a href=\"%1\">%2</a>").arg(fileUrl.toString(), fullMatch.toHtmlEscaped());
-            result += link;
-        }
-        lastPos = end;
-    }
-    result += html.mid(lastPos);
-    return result;
-}
-
-QString linkifyUrls(const QString &html) {
-    static const QRegularExpression urlRegex(
-        R"((([a-z][a-z0-9+\-.]*://[^\s<>"']+)|www\.[^\s<>"']+))",
-        QRegularExpression::CaseInsensitiveOption);
-
-    auto output = QString{};
-    auto lastPos = 0;
-    auto matchIter = urlRegex.globalMatch(html);
-    while (matchIter.hasNext()) {
-        auto match = matchIter.next();
-        auto start = match.capturedStart();
-        auto end = match.capturedEnd();
-
-        if (isInsideAnchor(html, start)) {
-            continue;
-        }
-        output += html.mid(lastPos, start - lastPos);
-        auto url = match.captured(0);
-        // Only prepend http:// if the url starts with www.
-        auto href = url.startsWith("www.", Qt::CaseInsensitive) ? "http://" + url : url;
-        output += "<a href=\"" + href.toHtmlEscaped() + "\">" + url.toHtmlEscaped() + "</a>";
-        lastPos = end;
-    }
-    output += html.mid(lastPos);
-    return output;
-}
-
-auto ansiToHtml(const QString &ansiText, bool linkifyFiles) -> QString {
-    static auto ansiRegex = QRegularExpression("\x1b\\[([0-9;]*)m");
-    static auto removeRegex = QRegularExpression("\x1b\\[K");
-
-    auto htmlText = ansiText;
-    htmlText.replace("&", "&amp;");
-    htmlText.replace("<", "&lt;");
-    htmlText.replace(">", "&gt;");
-    htmlText.replace(" ", "&nbsp;");
-    htmlText.replace("\n", "<br>\n");
-
-    htmlText.remove(removeRegex);
-
-    auto ansiToCss = QMap<QString, QString>{
-        {"30", "black"},        {"31", "red"},        {"32", "green"},      {"33", "yellow"},
-        {"34", "blue"},         {"35", "magenta"},    {"36", "cyan"},       {"37", "white"},
-        {"90", "gray"},         {"91", "lightcoral"}, {"92", "lightgreen"}, {"93", "khaki"},
-        {"94", "lightskyblue"}, {"95", "violet"},     {"96", "lightcyan"},  {"97", "whitesmoke"},
-    };
-
-    auto lastPos = 0;
-    auto it = ansiRegex.globalMatch(htmlText);
-    QStringList openTags;
-    QString result;
-
-    while (it.hasNext()) {
-        auto match = it.next();
-        auto codes = match.captured(1).split(';');
-        auto isReset = (codes.isEmpty() || codes.contains("0"));
-
-        result += htmlText.mid(lastPos, match.capturedStart() - lastPos);
-        if (isReset) {
-            while (!openTags.isEmpty()) {
-                result += openTags.takeLast();
-            }
-        } else {
-            auto style = QString{};
-            for (auto const &code : std::as_const(codes)) {
-                if (ansiToCss.contains(code)) {
-                    style += QString("color:%1;").arg(ansiToCss.value(code));
-                } else if (code == "1") {
-                    style += "font-weight:bold;";
-                }
-                // Add more style handlers here if needed
-            }
-            if (!style.isEmpty()) {
-                result += QString("<span style=\"%1\">").arg(style);
-                openTags.append("</span>");
-            }
-        }
-
-        lastPos = match.capturedEnd();
-    }
-
-    result += htmlText.mid(lastPos);
-    while (!openTags.isEmpty()) {
-        result += openTags.takeLast();
-    }
-
-    result = linkifyUrls(result);
-
-    if (linkifyFiles) {
-        result = linkifyFileNames(result);
-    }
-
-    return result + "</br>";
 }
 
 auto removeAnsiEscapeCodes(const QString &input) -> QString {

@@ -436,7 +436,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         &runProcess, &QProcess::finished, this,
         [this](int exitCode, QProcess::ExitStatus exitStatus) {
             auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
-            appendAnsiHtml(outputPanel->commandOuput, output);
+            appendAnsiText(outputPanel->commandOuput, output);
             getManager()->showPanels(Qt::BottomDockWidgetArea);
             outputDock->raise();
             outputDock->show();
@@ -481,7 +481,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         });
     connect(&runProcess, &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
         auto output = QString("\n[error: code=%1]").arg((int)error);
-        appendAnsiHtml(outputPanel->commandOuput, output);
+        appendAnsiText(outputPanel->commandOuput, output);
         qWarning() << "Process error occurred:" << error;
         qWarning() << "Error string:" << runProcess.errorString();
     });
@@ -893,8 +893,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
 
     workingDirectory = project->expand(workingDirectory);
     outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
-    appendAnsiHtml(outputPanel->commandOuput, QString("\n%1\n").arg(executablePath));
+    appendAnsiText(outputPanel->commandOuput, "cd " + QDir::toNativeSeparators(workingDirectory));
+    appendAnsiText(outputPanel->commandOuput, QString("\n%1\n").arg(executablePath));
     outputDock->raise();
     outputDock->show();
 
@@ -925,7 +925,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     if (!task->commands.contains(platform) || task->commands.value(platform).isEmpty()) {
         auto msg = QString("do_runTask: No valid commands for platform ") + platform;
         qWarning() << msg;
-        appendAnsiHtml(outputPanel->commandOuput, msg + "\n");
+        appendAnsiText(outputPanel->commandOuput, msg + "\n");
         return;
     }
 
@@ -946,7 +946,7 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     outputDock->raise();
     outputDock->show();
     outputPanel->commandOuput->clear();
-    appendAnsiHtml(outputPanel->commandOuput, "cd " + workingDirectory + "\n");
+    appendAnsiText(outputPanel->commandOuput, "cd " + workingDirectory + "\n");
 
     auto env = QProcessEnvironment::systemEnvironment();
     auto program = QString();
@@ -954,8 +954,8 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
 
     if (!kit) {
         auto [interpreter, command] = getCommandInterpreter(taskCommand);
-        appendAnsiHtml(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
-        appendAnsiHtml(outputPanel->commandOuput, "Commands: " + taskCommand + "\n");
+        appendAnsiText(outputPanel->commandOuput, interpreter + " " + command.join(" ") + "\n");
+        appendAnsiText(outputPanel->commandOuput, "Commands: " + taskCommand + "\n");
         program = interpreter;
         arguments = command;
     } else {
@@ -1077,7 +1077,7 @@ auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
 
     auto plaintext = removeAnsiEscapeCodes(fixedAnsi);
     auto project = this->getCurrentConfig();
-    appendAnsiHtml(this->outputPanel->commandOuput, fixedAnsi);
+    appendAnsiText(this->outputPanel->commandOuput, fixedAnsi);
     auto sourceDir = project->sourceDir;
     auto buildDir = project->expand(project->buildDir);
     this->projectIssues->processLine(plaintext, lineNumber, sourceDir, buildDir);
