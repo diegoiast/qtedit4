@@ -281,14 +281,33 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     auto layout2 = new QHBoxLayout(toolbar);
     auto layout = new QVBoxLayout(this);
 
-    // Set up completion callback
-    textEditor->setCompletionCallback([this](const QString &prefix) {
+    // Set up async completion callback
+    textEditor->setCompletionCallback([this](const QString &prefix, std::function<void(QSet<QString>)> done) {
         if (prefix.length() < 2) {
-            return QSet<QString>();
+            done(QSet<QString>());
+            return;
         }
-        auto c = this->getTagCompletions(prefix);
-        return c;
+        this->getTagCompletionsAsync(prefix, done);
     });
+void qmdiEditor::getTagCompletionsAsync(const QString &prefix, std::function<void(QSet<QString>)> callback) {
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    if (!pluginManager) {
+        callback({});
+        return;
+    }
+    pluginManager->requestCompletionsAsync(prefix, mdiClientFileName(), [callback](const QVariant &tagsVar) {
+        QSet<QString> completions;
+        auto tags = tagsVar.toList();
+        for (const QVariant &item : tags) {
+            auto tag = item.toHash();
+            auto name = tag[GlobalArguments::Name].toString();
+            if (!name.isEmpty()) {
+                completions.insert(name);
+            }
+        }
+        callback(completions);
+    });
+}
 
     operationsWidget->hide();
     setupActions();

@@ -1,3 +1,14 @@
+#include <QtConcurrent>
+void ProjectManagerPlugin::requestCompletionsAsync(const QString &prefix, const QString &fileName, std::function<void(const QVariant &)> callback) {
+    QtConcurrent::run([this, prefix, fileName, callback]() {
+        QVariant result = this->handleCommand(GlobalCommands::VariableInfo, {
+            {GlobalArguments::RequestedSymbol, prefix },
+            {GlobalArguments::FileName, fileName },
+            {GlobalArguments::ExactMatch, false },
+        })["tags"];
+        QMetaObject::invokeMethod(qApp, [callback, result]() { callback(result); }, Qt::QueuedConnection);
+    });
+}
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDockWidget>

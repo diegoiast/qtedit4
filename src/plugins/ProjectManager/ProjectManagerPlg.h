@@ -1,3 +1,4 @@
+    void requestCompletionsAsync(const QString &prefix, const QString &fileName, std::function<void(const QVariant &)> callback);
 #pragma once
 
 #include "iplugin.h"
