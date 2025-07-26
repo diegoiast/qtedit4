@@ -674,7 +674,7 @@ auto ProjectBuildConfig::updateBinariesCargo() -> void {
     auto e = ExecutableInfo();
     this->executables.clear();
 
-#if 0
+#if 1
     e.name = "cargo run";
     e.runDirectory = "${source_directory}";
     e.executables[PLATFORM_LINUX] = "cargo run";
