@@ -1041,11 +1041,15 @@ void ProjectManagerPlugin::clearProject_clicked() {
 void ProjectManagerPlugin::projectFile_modified(const QString &path) {
     auto onDiskConfig = ProjectBuildConfig::buildFromFile(path);
     auto inMemoryConfig = projectModel->findConfigFile(path);
-    if (*onDiskConfig == *inMemoryConfig) {
-        qDebug("Config file modified, content similar ignoring - %s", path.toStdString().data());
-        return;
+
+    if (onDiskConfig) {
+        if (*onDiskConfig == *inMemoryConfig) {
+            qDebug("Config file modified, content similar ignoring - %s",
+                   path.toStdString().data());
+            return;
+        }
+        *inMemoryConfig = *onDiskConfig;
     }
-    *inMemoryConfig = *onDiskConfig;
     newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
