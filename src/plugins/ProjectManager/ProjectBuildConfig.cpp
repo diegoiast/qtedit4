@@ -358,7 +358,6 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     auto cargoBuild = "cargo build";
     auto cargoBuildRelease = "cargo build --release";
     auto cargoUpdate = "cargo update";
-
     {
         auto t = TaskInfo();
         t.name = "cargo build";
@@ -375,6 +374,14 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.commands.insert(PLATFORM_LINUX, {cargoBuildRelease});
         t.commands.insert(PLATFORM_WINDOWS, {cargoBuildRelease});
         t.isBuild = true;
+        value->tasksInfo.push_back(t);
+    }
+    {
+        auto t = TaskInfo();
+        t.name = "cargo clean";
+        t.runDirectory = "${source_directory}";
+        t.commands.insert(PLATFORM_LINUX, {cargoUpdate});
+        t.commands.insert(PLATFORM_WINDOWS, {cargoUpdate});
         value->tasksInfo.push_back(t);
     }
     {
