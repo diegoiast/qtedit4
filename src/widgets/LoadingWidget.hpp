@@ -36,7 +36,6 @@ class LoadingWidget : public QWidget {
     int durationMS = 2000;
     int lineHeight = 5;
     int lineWidth = 40;
-    QColor lineColor;
     qreal position = 0;
     qreal velocity = 1.0;
 };
