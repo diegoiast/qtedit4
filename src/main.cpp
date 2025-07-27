@@ -59,6 +59,28 @@ int main(int argc, char *argv[]) {
         qDebug() << "No icons found, using our own. Icons search path" << paths;
     }
 
+#if 1
+    auto tintBackgroundColor = QColor::fromRgb(0x44aa44);
+    auto tintTextColor = Qt::white;
+
+    auto lighterColor = tintBackgroundColor.lighter(150).name();
+    auto baseColor = tintBackgroundColor.name();
+    auto dockStyle = QString("QDockWidget::title {"
+                             "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                             "stop:0 %1, "
+                             "stop:1 %2);"
+                             "color: white;"
+                             "font-weight: bold;"
+                             "}")
+                         .arg(baseColor, lighterColor);
+    qApp->setStyleSheet(dockStyle);
+
+    auto pal = qApp->palette();
+    pal.setColor(QPalette::Highlight, tintBackgroundColor);
+    pal.setColor(QPalette::HighlightedText, tintTextColor);
+    qApp->setPalette(pal);
+#endif
+
     QCommandLineParser parser;
     parser.addHelpOption();
     parser.addPositionalArgument(app.tr("files"), app.tr("Files to open."), "[files...]");
