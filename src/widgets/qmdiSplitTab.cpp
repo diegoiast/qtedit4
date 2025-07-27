@@ -98,7 +98,10 @@ void DecoratedMenu::paintEvent(QPaintEvent *event) {
 
 QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
     Q_UNUSED(tabIndex);
-    if (tabIndex == 0) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
+    auto isMinimizedMode = manager->isInMinimizedMode();
+
+    if (isMinimizedMode && tabIndex == 0) {
         return getFirstTabButtons(first, split);
     }
     return getNonFirstTabButtons(first, split);
@@ -231,6 +234,36 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     auto index = getCurrentClientIndex();
     mdiHost->updateGUI(m);
     mdiSelected(client, index);
+
+    // TODO - rebuild app menu
+}
+
+bool qmdiSplitTab::event(QEvent *ev) {
+    if (ev->type() == QEvent::ParentChange) {
+        // when minimized mode changes, modify buttons for each tab
+        auto manager = dynamic_cast<PluginManager *>(parentWidget());
+        if (manager) {
+            connect(manager, &PluginManager::minimizedModeChanged, this, [this]() {
+                if (!buttonsProvider) {
+                    qDebug() << "No buttons provider";
+                    return;
+                }
+                for (auto i = 0; i < splitter->count(); ++i) {
+                    if (auto tabWidget = qobject_cast<DraggableTabWidget *>(splitter->widget(i))) {
+                        auto left = buttonsProvider->requestButton(true, i, this);
+                        auto right = buttonsProvider->requestButton(false, i, this);
+                        left->setParent(tabWidget);
+                        right->setParent(tabWidget);
+                        left->show();
+                        right->show();
+                        tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
+                        tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+                    }
+                }
+            });
+        }
+    }
+    return QWidget::event(ev);
 }
 
 bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
@@ -519,17 +552,16 @@ QTabWidget *qmdiSplitTab::tabWidgetFromIndex(int globalIndex, int &localIndex) c
 DecoratedButton::DecoratedButton(const QString &text, QWidget *parent)
     : QPushButton(parent), hovering(false), pressed(false) {
     setCursor(Qt::PointingHandCursor);
-    setText(text); // We'll draw the text manually based on the button's current text
+    setText(text);
 }
 
 QSize DecoratedButton::minimumSizeHint() const {
-    // Get font metrics for the current text
-    QFontMetrics fm(font());
-    int textWidth = fm.horizontalAdvance(text()) + 10; // Add padding to the text width
-    int textHeight = fm.height();
+    auto fm = QFontMetrics(font());
+    auto textWidth = fm.horizontalAdvance(text()) + 10;
+    auto textHeight = fm.height();
 
-    // Button height should accommodate the text height + padding
-    return QSize(qMax(120, textWidth), qMax(40, textHeight + 10)); // Minimum 120x40
+    // Minimum 120x40
+    return QSize(qMax(120, textWidth), qMax(40, textHeight + 10));
 }
 
 void DecoratedButton::enterEvent(QEnterEvent *event) {
