@@ -19,26 +19,12 @@
 #include "SplitTabWidget.h"
 #include "qmdiserver.h"
 
-class CustomMenuButton : public QPushButton {
-    Q_OBJECT
-
-  public:
-    explicit CustomMenuButton(const QString &text, QWidget *parent = nullptr);
-    QSize minimumSizeHint() const override;
-
-  protected:
-    bool hovering;
-    bool pressed;
-    virtual void enterEvent(QEnterEvent *event) override;
-    virtual void leaveEvent(QEvent *event) override;
-    virtual void mousePressEvent(QMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
-    virtual void paintEvent(QPaintEvent *event) override;
-};
-
 class DefaultButtonsProvider : public ButtonsProvider {
   public:
     virtual QWidget *requestButton(bool first, int tabIndex, SplitTabWidget *split);
+
+    QWidget *getFirstTabButtons(bool first, SplitTabWidget *split);
+    QWidget *getNonFirstTabButtons(bool first, SplitTabWidget *split);
 };
 
 class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
