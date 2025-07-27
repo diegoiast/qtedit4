@@ -6,18 +6,23 @@
 
 // SPDX-License-Identifier: MIT
 
+#include <QApplication>
+#include <QColor>
 #include <QEvent>
 #include <QFontMetrics>
 #include <QGraphicsDropShadowEffect>
 #include <QLinearGradient>
 #include <QMainWindow>
+#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPushButton>
 #include <QSize>
 #include <QSplitter>
-#include <QTabBar>
+#include <QString>
+#include <QStyle>
+#include <QStyleOptionMenuItem>
 #include <QTabWidget>
 #include <QToolButton>
 
@@ -32,39 +37,152 @@
 // button click brings a menu to close.
 #define CLOSABLE_TABS 0
 
+class DecoratedButton : public QPushButton {
+  public:
+    explicit DecoratedButton(const QString &text, QWidget *parent = nullptr);
+    QSize minimumSizeHint() const override;
+
+  protected:
+    bool hovering;
+    bool pressed;
+    virtual void enterEvent(QEnterEvent *event) override;
+    virtual void leaveEvent(QEvent *event) override;
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void paintEvent(QPaintEvent *event) override;
+};
+
+class DecoratedMenu : public QMenu {
+
+  public:
+    explicit DecoratedMenu(const QColor &sidebarColor, const QString &sidebarText,
+                           QWidget *parent = nullptr);
+
+  protected:
+    void paintEvent(QPaintEvent *event) override;
+
+  private:
+    QColor m_sidebarColor;
+    QString m_sidebarText;
+    int m_sidebarWidth;
+};
+
+DecoratedMenu::DecoratedMenu(const QColor &sidebarColor, const QString &sidebarText,
+                             QWidget *parent)
+    : QMenu(parent), m_sidebarColor(sidebarColor), m_sidebarText(sidebarText) {
+    m_sidebarWidth = style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this);
+}
+
+void DecoratedMenu::paintEvent(QPaintEvent *event) {
+    QMenu::paintEvent(event);
+
+    auto p = QPainter(this);
+    auto sidebarRect = QRect(0, 0, m_sidebarWidth, height());
+    auto grad = QLinearGradient(sidebarRect.topLeft(), sidebarRect.bottomLeft());
+    grad.setColorAt(0, m_sidebarColor);
+    grad.setColorAt(1, m_sidebarColor.lighter(150));
+
+    p.fillRect(sidebarRect, grad);
+    p.save();
+    p.translate(sidebarRect.center());
+    p.rotate(-90);
+    auto rotatedRect = QRect(-sidebarRect.height() / 2, -sidebarRect.width() / 2,
+                             sidebarRect.height(), sidebarRect.width());
+
+    p.setFont(QFont("Segoe UI", 12));
+    p.setPen(Qt::darkGray);
+    p.translate(-1, +1);
+    p.drawText(rotatedRect, Qt::AlignCenter, m_sidebarText);
+    p.translate(+2, -2);
+    p.setPen(Qt::white);
+    p.drawText(rotatedRect, Qt::AlignCenter, m_sidebarText);
+    p.restore();
+}
+
 QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
     Q_UNUSED(tabIndex);
+    if (tabIndex == 0) {
+        return getFirstTabButtons(first, split);
+    }
+    return getNonFirstTabButtons(first, split);
+}
+
+QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *split) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
-        auto addbutton = new QToolButton(split);
-        addbutton->setAutoRaise(true);
-        addbutton->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
-        QObject::connect(addbutton, &QAbstractButton::clicked, addbutton, [addbutton, split]() {
-            auto manager = dynamic_cast<PluginManager *>(split->parent());
-            auto tab = qobject_cast<QTabWidget *>(addbutton->parentWidget());
-            if (tab) {
-                split->updateCurrentTabWidget(tab);
-            }
-            if (manager) {
-                emit manager->newFileRequested(addbutton);
-            }
-        });
-        return addbutton;
+#if 0
+        auto addNewMdiClient = new CustomMenuButton(QApplication::applicationName(), split);
+#else
+        auto appMenuButton = new QToolButton(split);
+        appMenuButton->setIcon(QApplication::windowIcon());
+        appMenuButton->setIcon(QIcon(":qtedit4.ico"));
+        appMenuButton->setText(QApplication::applicationName());
+        appMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+        appMenuButton->setPopupMode(QToolButton::InstantPopup);
+        appMenuButton->setAutoRaise(true);
+#endif
+
+#if 0
+        auto popup = new QMenu(manager);
+#else
+        auto popup = new DecoratedMenu(QColor(0x44ee44), QApplication::applicationName(), manager);
+#endif
+        auto menu = manager->menus.updatePopMenu(popup);
+        appMenuButton->setMenu(menu);
+        appMenuButton->setShortcut(Qt::Key_Alt + Qt::Key_M);
+
+        auto appMenuAction = new QAction(manager);
+        appMenuAction->setShortcut(QKeySequence(Qt::ALT | Qt::Key_M));
+        appMenuAction->setShortcutContext(Qt::ApplicationShortcut);
+        QObject::connect(appMenuAction, &QAction::triggered,
+                         [appMenuButton] { appMenuButton->showMenu(); });
+        manager->addAction(appMenuAction);
+        appMenuButton->setToolTip(
+            manager->tr("Application menu, %1").arg(appMenuAction->shortcut().toString()));
+        // appMenuButton->setToolTip(appMenu->shortcut().toString());
+
+        return appMenuButton;
     }
 
-#if !CLOSABLE_TABS
-    auto closeButton = new QToolButton(split);
-    closeButton->setAutoRaise(true);
-    closeButton->setIcon(QIcon::fromTheme("document-close"));
-    QObject::connect(closeButton, &QAbstractButton::clicked, closeButton, [closeButton, split]() {
-        auto manager = dynamic_cast<PluginManager *>(split->parent());
-        auto tab = qobject_cast<QTabWidget *>(closeButton->parentWidget());
-        if (tab) {
-            split->updateCurrentTabWidget(tab);
-        }
-        manager->closeClient();
-    });
-    return closeButton;
+#if not CLOSABLE_TABS
+    auto tabCloseBtn = new QToolButton(split);
+    tabCloseBtn->setAutoRaise(true);
+    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
+    return tabCloseBtn;
+#else
+    return nullptr;
+#endif
+}
+
+QWidget *DefaultButtonsProvider::getNonFirstTabButtons(bool first, SplitTabWidget *split) {
+    auto manager = dynamic_cast<PluginManager *>(split->parent());
+
+    if (first) {
+        auto tabNewBtn = new QToolButton(split);
+        tabNewBtn->setAutoRaise(true);
+        tabNewBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
+        tabNewBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
+        QObject::connect(tabNewBtn, &QAbstractButton::clicked, tabNewBtn,
+                         [manager, tabNewBtn, split]() {
+                             auto tab = qobject_cast<QTabWidget *>(tabNewBtn->parentWidget());
+                             if (tab) {
+                                 split->updateCurrentTabWidget(tab);
+                             }
+                             if (manager) {
+                                 emit manager->newFileRequested(tabNewBtn);
+                             }
+                         });
+        return tabNewBtn;
+    }
+
+#if not CLOSABLE_TABS
+    auto tabCloseBtn = new QToolButton(split);
+    tabCloseBtn->setAutoRaise(true);
+    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
+    return tabCloseBtn;
 #else
     return nullptr;
 #endif
@@ -395,13 +513,13 @@ QTabWidget *qmdiSplitTab::tabWidgetFromIndex(int globalIndex, int &localIndex) c
     return nullptr;
 }
 
-CustomMenuButton::CustomMenuButton(const QString &text, QWidget *parent)
+DecoratedButton::DecoratedButton(const QString &text, QWidget *parent)
     : QPushButton(parent), hovering(false), pressed(false) {
     setCursor(Qt::PointingHandCursor);
     setText(text); // We'll draw the text manually based on the button's current text
 }
 
-QSize CustomMenuButton::minimumSizeHint() const {
+QSize DecoratedButton::minimumSizeHint() const {
     // Get font metrics for the current text
     QFontMetrics fm(font());
     int textWidth = fm.horizontalAdvance(text()) + 10; // Add padding to the text width
@@ -411,19 +529,19 @@ QSize CustomMenuButton::minimumSizeHint() const {
     return QSize(qMax(120, textWidth), qMax(40, textHeight + 10)); // Minimum 120x40
 }
 
-void CustomMenuButton::enterEvent(QEnterEvent *event) {
+void DecoratedButton::enterEvent(QEnterEvent *event) {
     hovering = true;
     update();
     QPushButton::enterEvent(event);
 }
 
-void CustomMenuButton::leaveEvent(QEvent *event) {
+void DecoratedButton::leaveEvent(QEvent *event) {
     hovering = false;
     update();
     QPushButton::leaveEvent(event);
 }
 
-void CustomMenuButton::mousePressEvent(QMouseEvent *event) {
+void DecoratedButton::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         pressed = true;
         update();
@@ -431,7 +549,7 @@ void CustomMenuButton::mousePressEvent(QMouseEvent *event) {
     QPushButton::mousePressEvent(event);
 }
 
-void CustomMenuButton::mouseReleaseEvent(QMouseEvent *event) {
+void DecoratedButton::mouseReleaseEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         pressed = false;
         update();
@@ -439,13 +557,13 @@ void CustomMenuButton::mouseReleaseEvent(QMouseEvent *event) {
     QPushButton::mouseReleaseEvent(event);
 }
 
-void CustomMenuButton::paintEvent(QPaintEvent *event) {
+void DecoratedButton::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
     // --- Background Gradient ---
-    QColor startColor = QColor("#41cd52");
-    QColor endColor = QColor("#41cd52");
+    QColor startColor = QColor("#44ee44");
+    QColor endColor = startColor.lighter();
 
     if (pressed) {
         startColor = startColor.darker(140); // 40% darker
@@ -496,7 +614,7 @@ void CustomMenuButton::paintEvent(QPaintEvent *event) {
 
     // --- Text (from QPushButton) ---
     painter.setPen(Qt::white);
-    QFont font("Arial", 14);
+    QFont font("Arial", 10);
     painter.setFont(font);
     QRect textRect(32, 0, width() - 32, height());
     painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, text());
