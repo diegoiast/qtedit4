@@ -118,6 +118,13 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
         appMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         appMenuButton->setPopupMode(QToolButton::InstantPopup);
         appMenuButton->setAutoRaise(true);
+        auto appHighlightColor = qApp->palette().color(QPalette::Highlight);
+        QString highlightedStyle = QString("QToolButton { background-color: transparent; }"
+                                           "QToolButton:hover { background-color: %1; }"
+                                           "QToolButton:pressed { background-color: %1; }")
+                                       .arg(appHighlightColor.name());
+        appMenuButton->setStyleSheet(highlightedStyle);
+
 #endif
 
 #if 0
