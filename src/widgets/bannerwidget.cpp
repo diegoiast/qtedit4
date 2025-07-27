@@ -80,34 +80,31 @@ void BannerWidget::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
 
-    // Animated background gradient with green shades
-    QLinearGradient gradient(0, 0, width(), height());
-
-    // Use HSV color space with green hue range (around 120 degrees)
-    qreal baseHue = 120.0 / 360.0; // Green base hue
-    qreal hueVariation = 0.1;      // Smaller variation for subtle green changes
-
-    QColor color1 = QColor::fromHsvF(baseHue + m_backgroundProgress * hueVariation,
-                                     0.6, // Slightly lower saturation
-                                     0.7  // Brightness
-    );
-
-    QColor color2 = QColor::fromHsvF(baseHue - m_backgroundProgress * hueVariation,
-                                     0.6, // Slightly lower saturation
-                                     0.6  // Slightly lower brightness
-    );
+    float h, s, v, a;
+    auto baseColor = palette().color(QPalette::Highlight);
+    auto hueVariation = 0.1f;
+    baseColor.getHsvF(&h, &s, &v, &a);
+    auto color1 = QColor::fromHsvF(std::clamp(h + m_backgroundProgress * hueVariation, 0.0, 1.0),
+                                   s * 0.7, std::min(v * 1.0, 1.0), a);
+    auto color2 = QColor::fromHsvF(std::clamp(h - m_backgroundProgress * hueVariation, 0.0, 1.0),
+                                   s * 0.7, std::max(v * 0.85, 0.0), a);
+    auto gradient = QLinearGradient(0, 0, width(), height());
+    auto font = QFont("Arial", 24, QFont::Bold);
+    auto linePen = QPen(Qt::white);
 
     gradient.setColorAt(0, color1);
-    gradient.setColorAt(1, color2);
+    gradient.setColorAt(1, color2);    
     painter.fillRect(rect(), gradient);
-    // Text
-    painter.setPen(QColor(255, 255, 255, 230));
-    QFont font("Arial", 24, QFont::Bold);
     painter.setFont(font);
+
+    painter.setPen(QColor(0, 0, 0, 0));
+    painter.translate(-1, -1);
     painter.drawText(rect(), Qt::AlignCenter, m_text);
 
-    // Animated lines
-    QPen linePen(Qt::white);
+    painter.setPen(QColor(255, 255, 255, 230));
+    painter.translate(+2, +2);
+    painter.drawText(rect(), Qt::AlignCenter, m_text);
+
     linePen.setWidth(3);
     linePen.setCapStyle(Qt::RoundCap);
     painter.setPen(linePen);

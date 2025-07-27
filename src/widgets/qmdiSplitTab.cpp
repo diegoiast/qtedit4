@@ -55,21 +55,18 @@ class DecoratedButton : public QPushButton {
 class DecoratedMenu : public QMenu {
 
   public:
-    explicit DecoratedMenu(const QColor &sidebarColor, const QString &sidebarText,
-                           QWidget *parent = nullptr);
+    explicit DecoratedMenu(const QString &sidebarText, QWidget *parent = nullptr);
 
   protected:
     void paintEvent(QPaintEvent *event) override;
 
   private:
-    QColor m_sidebarColor;
     QString m_sidebarText;
     int m_sidebarWidth;
 };
 
-DecoratedMenu::DecoratedMenu(const QColor &sidebarColor, const QString &sidebarText,
-                             QWidget *parent)
-    : QMenu(parent), m_sidebarColor(sidebarColor), m_sidebarText(sidebarText) {
+DecoratedMenu::DecoratedMenu(const QString &sidebarText, QWidget *parent)
+    : QMenu(parent), m_sidebarText(sidebarText) {
     m_sidebarWidth = style()->pixelMetric(QStyle::PM_SmallIconSize, nullptr, this);
 }
 
@@ -79,8 +76,9 @@ void DecoratedMenu::paintEvent(QPaintEvent *event) {
     auto p = QPainter(this);
     auto sidebarRect = QRect(0, 0, m_sidebarWidth, height());
     auto grad = QLinearGradient(sidebarRect.topLeft(), sidebarRect.bottomLeft());
-    grad.setColorAt(0, m_sidebarColor);
-    grad.setColorAt(1, m_sidebarColor.lighter(150));
+    auto sidebarColor = palette().color(QPalette::Highlight);
+    grad.setColorAt(0, sidebarColor);
+    grad.setColorAt(1, sidebarColor.lighter(150));
 
     p.fillRect(sidebarRect, grad);
     p.save();
@@ -89,7 +87,6 @@ void DecoratedMenu::paintEvent(QPaintEvent *event) {
     auto rotatedRect = QRect(-sidebarRect.height() / 2, -sidebarRect.width() / 2,
                              sidebarRect.height(), sidebarRect.width());
 
-    p.setFont(QFont("Segoe UI", 12));
     p.setPen(Qt::darkGray);
     p.translate(-1, +1);
     p.drawText(rotatedRect, Qt::AlignCenter, m_sidebarText);
@@ -112,7 +109,7 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
 
     if (first) {
 #if 0
-        auto addNewMdiClient = new CustomMenuButton(QApplication::applicationName(), split);
+        auto appMenuButton = new DecoratedButton(QApplication::applicationName(), split);
 #else
         auto appMenuButton = new QToolButton(split);
         appMenuButton->setIcon(QApplication::windowIcon());
@@ -126,14 +123,13 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
 #if 0
         auto popup = new QMenu(manager);
 #else
-        auto popup = new DecoratedMenu(QColor(0x44ee44), QApplication::applicationName(), manager);
+        auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
 #endif
         auto menu = manager->menus.updatePopMenu(popup);
         appMenuButton->setMenu(menu);
-        appMenuButton->setShortcut(Qt::Key_Alt + Qt::Key_M);
 
         auto appMenuAction = new QAction(manager);
-        appMenuAction->setShortcut(QKeySequence(Qt::ALT | Qt::Key_M));
+        appMenuAction->setShortcuts({Qt::ALT | Qt::Key_M, Qt::ALT | Qt::Key_Atilde});
         appMenuAction->setShortcutContext(Qt::ApplicationShortcut);
         QObject::connect(appMenuAction, &QAction::triggered,
                          [appMenuButton] { appMenuButton->showMenu(); });
