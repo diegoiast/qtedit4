@@ -130,23 +130,24 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
 
 #endif
 
-#if 0
-        auto popup = new QMenu(manager);
-#else
         auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
-#endif
         auto menu = manager->menus.updatePopMenu(popup);
         appMenuButton->setMenu(menu);
 
-        auto appMenuAction = new QAction(manager);
+        delete appMenuAction;
+        appMenuAction = new QAction(menu);
         appMenuAction->setShortcuts({Qt::ALT | Qt::Key_M, Qt::ALT | Qt::Key_Atilde});
         appMenuAction->setShortcutContext(Qt::ApplicationShortcut);
-        QObject::connect(appMenuAction, &QAction::triggered,
-                         [appMenuButton] { appMenuButton->showMenu(); });
+        QObject::connect(appMenuAction, &QAction::triggered, [appMenuButton] {
+            if (appMenuButton->menu()->isVisible()) {
+                appMenuButton->menu()->close();
+            } else {
+                appMenuButton->showMenu();
+            }
+        });
         manager->addAction(appMenuAction);
         appMenuButton->setToolTip(
             manager->tr("Application menu, %1").arg(appMenuAction->shortcut().toString()));
-        // appMenuButton->setToolTip(appMenu->shortcut().toString());
 
         return appMenuButton;
     }
@@ -166,6 +167,9 @@ QWidget *DefaultButtonsProvider::getNonFirstTabButtons(bool first, SplitTabWidge
     auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
+        delete appMenuAction;
+        appMenuAction = nullptr;
+
         auto tabNewBtn = new QToolButton(split);
         tabNewBtn->setAutoRaise(true);
         tabNewBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));

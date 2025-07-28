@@ -25,6 +25,9 @@ class DefaultButtonsProvider : public ButtonsProvider {
 
     QWidget *getFirstTabButtons(bool first, SplitTabWidget *split);
     QWidget *getNonFirstTabButtons(bool first, SplitTabWidget *split);
+
+  private:
+    QAction *appMenuAction = nullptr;
 };
 
 class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
