@@ -53,7 +53,6 @@ class DecoratedButton : public QPushButton {
 };
 
 class DecoratedMenu : public QMenu {
-
   public:
     explicit DecoratedMenu(const QString &sidebarText, QWidget *parent = nullptr);
 
@@ -247,7 +246,8 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
 
     if (auto firstTab = qobject_cast<QTabWidget *>(splitter->widget(0))) {
         if (auto button = qobject_cast<QToolButton *>(firstTab->cornerWidget(Qt::TopLeftCorner))) {
-            auto menu = mdiHost->menus.updatePopMenu(nullptr);
+            auto menu = new DecoratedMenu(QApplication::applicationName(), this);
+            mdiHost->menus.updatePopMenu(menu);
             button->setMenu(menu);
         };
     }
@@ -276,7 +276,9 @@ bool qmdiSplitTab::event(QEvent *ev) {
                         if (i == 0) {
                             // TODO - rebuild app menu - this is not working
                             if (auto button = qobject_cast<QToolButton *>(left)) {
-                                auto menu = mdiHost->menus.updatePopMenu(nullptr);
+                                auto menu =
+                                    new DecoratedMenu(QApplication::applicationName(), this);
+                                mdiHost->menus.updatePopMenu(menu);
                                 button->setMenu(menu);
                             };
                         }
