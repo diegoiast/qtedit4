@@ -222,6 +222,11 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
         return;
     }
 
+    // We need to force merging menus, otherwise (un)mergeClient() will be / a nop. We will restore
+    // original value when calling updateGUI, so the menus will be visible.
+    auto mm = mdiHost->updateMenusAndToolBars;
+    mdiHost->updateMenusAndToolBars = true;
+
     auto client = dynamic_cast<qmdiClient *>(activeWidget);
     if (client) {
         mdiHost->unmergeClient(client);
@@ -236,10 +241,16 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
 
     auto m = dynamic_cast<QMainWindow *>(mdiHost);
     auto index = getCurrentClientIndex();
+    mdiHost->updateMenusAndToolBars = mm;
     mdiHost->updateGUI(m);
     mdiSelected(client, index);
 
-    // TODO - rebuild app menu
+    if (auto firstTab = qobject_cast<QTabWidget *>(splitter->widget(0))) {
+        if (auto button = qobject_cast<QToolButton *>(firstTab->cornerWidget(Qt::TopLeftCorner))) {
+            auto menu = mdiHost->menus.updatePopMenu(nullptr);
+            button->setMenu(menu);
+        };
+    }
 }
 
 bool qmdiSplitTab::event(QEvent *ev) {
@@ -262,6 +273,13 @@ bool qmdiSplitTab::event(QEvent *ev) {
                         right->show();
                         tabWidget->setCornerWidget(left, Qt::TopLeftCorner);
                         tabWidget->setCornerWidget(right, Qt::TopRightCorner);
+                        if (i == 0) {
+                            // TODO - rebuild app menu - this is not working
+                            if (auto button = qobject_cast<QToolButton *>(left)) {
+                                auto menu = mdiHost->menus.updatePopMenu(nullptr);
+                                button->setMenu(menu);
+                            };
+                        }
                     }
                 }
             });
