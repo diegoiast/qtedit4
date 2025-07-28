@@ -60,9 +60,11 @@ int main(int argc, char *argv[]) {
     }
 
 #if 1
-    auto tintColor = QColor::fromRgb(0x44aa44);
-    auto lighterColor = tintColor.lighter(150).name(); // lighter color as hex string
-    auto baseColor = tintColor.name();                 // base color as hex string
+    auto tintBackgroundColor = QColor::fromRgb(0x44aa44);
+    auto tintTextColor = Qt::white;
+
+    auto lighterColor = tintBackgroundColor.lighter(150).name();
+    auto baseColor = tintBackgroundColor.name();
     auto dockStyle = QString("QDockWidget::title {"
                              "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
                              "stop:0 %1, "
@@ -72,12 +74,12 @@ int main(int argc, char *argv[]) {
                              "}")
                          .arg(baseColor, lighterColor);
     qApp->setStyleSheet(dockStyle);
-#endif
 
     auto pal = qApp->palette();
-    pal.setColor(QPalette::Highlight, tintColor);
-    pal.setColor(QPalette::HighlightedText, Qt::white);
+    pal.setColor(QPalette::Highlight, tintBackgroundColor);
+    pal.setColor(QPalette::HighlightedText, tintTextColor);
     qApp->setPalette(pal);
+#endif
 
     QCommandLineParser parser;
     parser.addHelpOption();
