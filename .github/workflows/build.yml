@@ -1,5 +1,4 @@
 name: Build and create packages
-
 on:
   push:
     branches:
@@ -10,7 +9,6 @@ on:
   pull_request:
     branches:
       - main
-
 jobs:
   build-cmake:
     name: Build ${{ matrix.config.name }} Qt ${{ matrix.qt_version }}
@@ -39,19 +37,23 @@ jobs:
             os: ubuntu-22.04
             cc: "clang"
             cxx: "clang++"
-          - name: "macOS"
-            build_dir: "macos"
+          - name: "macOS Intel (x86_64)"
+            build_dir: "macos-x86_64"
             os: macos-latest
             cc: "clang"
             cxx: "clang++"
-
+            cmake_arch_args: "-DCMAKE_OSX_ARCHITECTURES=x86_64" #
+          - name: "macOS Apple Silicon (arm64)" # Added for ARM64 build
+            build_dir: "macos-arm64"
+            os: macos-latest
+            cc: "clang"
+            cxx: "clang++"
+            cmake_arch_args: "-DCMAKE_OSX_ARCHITECTURES=arm64"
         qt_version:
           - "6.9.1"
-
         include:
           - generators: "Ninja"
           - build_type: "Release"
-
     steps:
       - uses: actions/checkout@v4
       - uses: lukka/get-cmake@latest
@@ -83,7 +85,7 @@ jobs:
       - name: Configure
         working-directory: ${{ github.workspace }}
         id: runcmake
-        run: cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+        run: cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} ${{ matrix.config.cmake_arch_args }}
       - name: Build
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
@@ -94,7 +96,6 @@ jobs:
         id: runcmakeinstall
         run: |
           cmake --install "build/${{ matrix.config.build_dir }}" --prefix="dist/${{ matrix.config.build_dir }}/usr"
-
       - name: Set version tag or commit SHA
         id: version
         run: |
@@ -104,7 +105,6 @@ jobs:
             echo "version=${GITHUB_SHA::7}" >> $GITHUB_ENV
           fi
         shell: bash
-
       - name: Create TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
@@ -112,7 +112,6 @@ jobs:
           ln -s ../${{ matrix.config.build_dir }}/usr/ "dist/qtedit4/qtedit4-${{ matrix.config.build_dir }}-${{ env.version }}"
           tar -czhf "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz" -C "dist/qtedit4/" .
         shell: bash
-
       - name: Create AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         run: |
@@ -120,78 +119,62 @@ jobs:
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
-
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
-
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
-
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           wget --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
-
           chmod +x linuxdeploy*.AppImage
-
           ./linuxdeploy-x86_64.AppImage --appdir "dist/${{ matrix.config.build_dir }}" --plugin qt --output appimage
-
       - name: Upload AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
           path: build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
-
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz
           path: "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz"
-
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
           windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
-
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
         with:
           path: "setup_script.iss"
           options: /O+
-
       - name: Rename and upload setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
           copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
         shell: cmd
-
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
           name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
           path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
-
       - name: macdeployqt (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
           # First, find where the actual binary was installed
           echo "Looking for qtedit4 binary:"
           find "dist/${{ matrix.config.build_dir }}" -name "qtedit4" -type f
-
           # Check if we have an app bundle or just a binary
           if [ -d "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" ]; then
             echo "Found existing app bundle"
             APP_PATH="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
           else
-            echo "Creating app bundle structure"
             APP_PATH="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
             mkdir -p "$APP_PATH/Contents/MacOS"
             mkdir -p "$APP_PATH/Contents/Resources"
             mkdir -p "$APP_PATH/Contents/Frameworks"
             mkdir -p "$APP_PATH/Contents/PlugIns"
-
-            # Copy the binary to the app bundle
             if [ -f "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4" ]; then
               cp "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4" "$APP_PATH/Contents/MacOS/"
               chmod +x "$APP_PATH/Contents/MacOS/qtedit4"
@@ -200,35 +183,18 @@ jobs:
               echo "ERROR: Could not find qtedit4 binary!"
               exit 1
             fi
-
-            # Create Info.plist
-            echo '<?xml version="1.0" encoding="UTF-8"?>' > "$APP_PATH/Contents/Info.plist"
-            echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> "$APP_PATH/Contents/Info.plist"
-            echo '<plist version="1.0">' >> "$APP_PATH/Contents/Info.plist"
-            echo '<dict>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundleExecutable</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>qtedit4</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundleIdentifier</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>com.qtedit4.app</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundleName</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>QTEdit4</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundleVersion</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>1.0</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundleShortVersionString</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>1.0</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <key>CFBundlePackageType</key>' >> "$APP_PATH/Contents/Info.plist"
-            echo '    <string>APPL</string>' >> "$APP_PATH/Contents/Info.plist"
-            echo '</dict>' >> "$APP_PATH/Contents/Info.plist"
-            echo '</plist>' >> "$APP_PATH/Contents/Info.plist"
+            if [ -f "Info.plist" ]; then
+              cp "Info.plist" "$APP_PATH/Contents/Info.plist"
+              echo "Copied Info.plist to app bundle"
+            else
+              echo "ERROR: Info.plist not found in the repository root!"
+              exit 1
+            fi
           fi
-
-          # Copy resources to the app bundle
           if [ -d "resources" ]; then
             cp -r resources/* "$APP_PATH/Contents/Resources/"
             echo "Copied resources to app bundle"
           fi
-
-          # Copy icon theme to the app bundle (similar to Windows/Linux)
           if [ -d "share/icons" ]; then
             mkdir -p "$APP_PATH/Contents/Resources/share/icons"
             cp -r share/icons/* "$APP_PATH/Contents/Resources/share/icons/"
@@ -240,16 +206,8 @@ jobs:
           else
             echo "Warning: No icon theme found in share/icons or ../share/icons"
           fi
-
-          # Verify binary is in place
-          echo "Checking for binary in app bundle:"
           ls -la "$APP_PATH/Contents/MacOS/"
-
-          # Run macdeployqt
-          echo "Running macdeployqt..."
           macdeployqt "$APP_PATH" -verbose=2 -always-overwrite
-
-          # Verify Qt frameworks were bundled
           echo "App bundle contents after macdeployqt:"
           ls -la "$APP_PATH/Contents/"
           if [ -d "$APP_PATH/Contents/Frameworks" ]; then
@@ -258,39 +216,21 @@ jobs:
           else
             echo "WARNING: No Frameworks directory found!"
           fi
-
-          # Check app bundle size
-          echo "Final app bundle size:"
-          du -sh "$APP_PATH"
-
       - name: Create ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
           cd "dist/${{ matrix.config.build_dir }}/usr/bin"
-          zip -r "../../../../qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app
+          zip -r "../../../../qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app # Updated filename
         shell: bash
-
       - name: Create DMG (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
-          # Install create-dmg if not available
           brew install create-dmg
-
-          # Verify app bundle size before DMG creation
-          echo "Final app bundle size before DMG creation:"
           du -sh "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
-
-          # Create a temporary directory for DMG contents
           mkdir -p dmg_temp
           cp -r "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" dmg_temp/
-
-          # Verify copied app size
-          echo "App size in DMG temp directory:"
-          du -sh dmg_temp/qtedit4.app
-
-          # Create the DMG with larger initial size
           create-dmg \
-            --volname "QTEdit4" \
+            --volname "qtedit4" \
             --volicon "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Resources/qtedit4.icns" \
             --window-pos 200 120 \
             --window-size 600 300 \
@@ -300,34 +240,24 @@ jobs:
             --app-drop-link 425 120 \
             --disk-image-size 500 \
             --skip-jenkins \
-            "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" \
+            "qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" \
             "dmg_temp/" || true
-
-          # Fallback: create simple DMG if create-dmg fails, with larger size
-          if [ ! -f "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" ]; then
+          if [ ! -f "qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" ]; then
             echo "create-dmg failed, using hdiutil fallback..."
-            hdiutil create -volname "QTEdit4" -srcfolder dmg_temp -ov -format UDZO -fs HFS+ -size 500m "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
+            hdiutil create -volname "qtedit4" -srcfolder dmg_temp -ov -format UDZO -fs HFS+ -size 500m "qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
           fi
-
-          # Verify final DMG size
-          echo "Final DMG size:"
-          ls -lh "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
-
       - name: Upload ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip
-          path: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip
-
+          name: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip
+          path: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip
       - name: Upload DMG (macOS)
         if: matrix.config.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
-          path: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
-
-
+          name: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
+          path: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
   create-release:
     name : Draft GitHub Release
     needs : build-cmake
