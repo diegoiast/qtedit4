@@ -172,6 +172,26 @@ jobs:
           name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
           path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
 
+      - name: Run macdeployqt (macOS)
+        if: matrix.config.os == 'macos-latest'
+        run: |
+          APP_PATH="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
+          echo "Running macdeployqt on $APP_PATH"
+          macdeployqt "$APP_PATH" -verbose=2
+        shell: bash
+      - name: Create ZIP archive (macOS)
+        if: matrix.config.os == 'macos-latest'
+        run: |
+          cd "dist/${{ matrix.config.build_dir }}/usr/bin"
+          zip -r "../../../../qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app
+        shell: bash
+      - name: Upload ZIP archive (macOS)
+        if: matrix.config.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip
+          path: dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip
+
   create-release:
     name : Draft GitHub Release 
     needs : build-cmake 
