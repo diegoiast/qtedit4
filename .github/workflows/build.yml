@@ -228,6 +228,19 @@ jobs:
             echo "Copied resources to app bundle"
           fi
 
+          # Copy icon theme to the app bundle (similar to Windows/Linux)
+          if [ -d "share/icons" ]; then
+            mkdir -p "$APP_PATH/Contents/Resources/share/icons"
+            cp -r share/icons/* "$APP_PATH/Contents/Resources/share/icons/"
+            echo "Copied icon theme to app bundle"
+          elif [ -d "../share/icons" ]; then
+            mkdir -p "$APP_PATH/Contents/Resources/share/icons"
+            cp -r ../share/icons/* "$APP_PATH/Contents/Resources/share/icons/"
+            echo "Copied icon theme to app bundle from ../share/icons"
+          else
+            echo "Warning: No icon theme found in share/icons or ../share/icons"
+          fi
+
           # Verify binary is in place
           echo "Checking for binary in app bundle:"
           ls -la "$APP_PATH/Contents/MacOS/"
@@ -254,7 +267,7 @@ jobs:
         if: matrix.config.os == 'macos-latest'
         run: |
           cd "dist/${{ matrix.config.build_dir }}/usr/bin"
-          zip -r "../../../../qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app
+          zip -r "../../../../qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app
         shell: bash
 
       - name: Create DMG (macOS)
@@ -287,32 +300,32 @@ jobs:
             --app-drop-link 425 120 \
             --disk-image-size 500 \
             --skip-jenkins \
-            "qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" \
+            "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" \
             "dmg_temp/" || true
 
           # Fallback: create simple DMG if create-dmg fails, with larger size
-          if [ ! -f "qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" ]; then
+          if [ ! -f "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" ]; then
             echo "create-dmg failed, using hdiutil fallback..."
-            hdiutil create -volname "QTEdit4" -srcfolder dmg_temp -ov -format UDZO -fs HFS+ -size 500m "qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
+            hdiutil create -volname "QTEdit4" -srcfolder dmg_temp -ov -format UDZO -fs HFS+ -size 500m "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
           fi
 
           # Verify final DMG size
           echo "Final DMG size:"
-          ls -lh "qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
+          ls -lh "qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
 
       - name: Upload ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.zip
-          path: qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.zip
+          name: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip
+          path: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.zip
 
       - name: Upload DMG (macOS)
         if: matrix.config.os == 'macos-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
-          path: qtedit4-macos-100-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
+          name: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
+          path: qtedit4-macos-101-qt${{ matrix.qt_version }}-${{ env.version }}.dmg
 
 
   create-release:
