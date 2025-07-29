@@ -42,8 +42,8 @@ jobs:
             os: macos-latest
             cc: "clang"
             cxx: "clang++"
-            cmake_arch_args: "-DCMAKE_OSX_ARCHITECTURES=x86_64" #
-          - name: "macOS Apple Silicon (arm64)" # Added for ARM64 build
+            cmake_arch_args: "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+          - name: "macOS Apple Silicon (arm64)"
             build_dir: "macos-arm64"
             os: macos-latest
             cc: "clang"
@@ -162,10 +162,7 @@ jobs:
       - name: macdeployqt (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
-          # First, find where the actual binary was installed
-          echo "Looking for qtedit4 binary:"
           find "dist/${{ matrix.config.build_dir }}" -name "qtedit4" -type f
-          # Check if we have an app bundle or just a binary
           if [ -d "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" ]; then
             echo "Found existing app bundle"
             APP_PATH="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
@@ -175,6 +172,7 @@ jobs:
             mkdir -p "$APP_PATH/Contents/Resources"
             mkdir -p "$APP_PATH/Contents/Frameworks"
             mkdir -p "$APP_PATH/Contents/PlugIns"
+
             if [ -f "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4" ]; then
               cp "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4" "$APP_PATH/Contents/MacOS/"
               chmod +x "$APP_PATH/Contents/MacOS/qtedit4"
@@ -195,38 +193,24 @@ jobs:
             cp -r resources/* "$APP_PATH/Contents/Resources/"
             echo "Copied resources to app bundle"
           fi
-          if [ -d "share/icons" ]; then
+          if [ -d "dist/${{ matrix.config.build_dir }}/usr/share/icons" ]; then
             mkdir -p "$APP_PATH/Contents/Resources/share/icons"
-            cp -r share/icons/* "$APP_PATH/Contents/Resources/share/icons/"
-            echo "Copied icon theme to app bundle"
-          elif [ -d "../share/icons" ]; then
-            mkdir -p "$APP_PATH/Contents/Resources/share/icons"
-            cp -r ../share/icons/* "$APP_PATH/Contents/Resources/share/icons/"
-            echo "Copied icon theme to app bundle from ../share/icons"
+            cp -r "dist/${{ matrix.config.build_dir }}/usr/share/icons/"* "$APP_PATH/Contents/Resources/share/icons/"
+            echo "Copied icon theme to app bundle from installed directory"
           else
-            echo "Warning: No icon theme found in share/icons or ../share/icons"
+            echo "Warning: No icon theme found in dist/${{ matrix.config.build_dir }}/usr/share/icons"
           fi
-          ls -la "$APP_PATH/Contents/MacOS/"
           macdeployqt "$APP_PATH" -verbose=2 -always-overwrite
-          echo "App bundle contents after macdeployqt:"
-          ls -la "$APP_PATH/Contents/"
-          if [ -d "$APP_PATH/Contents/Frameworks" ]; then
-            echo "Bundled Qt Frameworks:"
-            ls -la "$APP_PATH/Contents/Frameworks/"
-          else
-            echo "WARNING: No Frameworks directory found!"
-          fi
       - name: Create ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
           cd "dist/${{ matrix.config.build_dir }}/usr/bin"
-          zip -r "../../../../qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app # Updated filename
+          zip -r "../../../../qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.zip" qtedit4.app
         shell: bash
       - name: Create DMG (macOS)
         if: matrix.config.os == 'macos-latest'
         run: |
           brew install create-dmg
-          du -sh "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
           mkdir -p dmg_temp
           cp -r "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" dmg_temp/
           create-dmg \
