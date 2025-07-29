@@ -177,6 +177,7 @@ jobs:
         run: |
           APP_PATH="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
           echo "Running macdeployqt on $APP_PATH"
+          find dist
           macdeployqt "$APP_PATH" -verbose=2
         shell: bash
       - name: Create ZIP archive (macOS)
