@@ -39,6 +39,9 @@ int main(int argc, char *argv[]) {
     app.setStyle("windowsvista");
     auto needsIcons = true;
     auto iconsPath = "/share/icons";
+#elif defined(__APPLE__)
+    auto needsIcons = true;
+    auto iconsPath = "/../Resources/share/icons";
 #else
     auto needsIcons = QIcon::fromTheme(QIcon::ThemeIcon::GoNext).isNull();
     auto iconsPath = "/../share/icons";

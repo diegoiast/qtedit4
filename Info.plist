@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>t
+    <key>CFBundleExecutable</key>
+    <string>qtedit4</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.qtedit4.app</string>
+    <key>CFBundleName</key>
+    <string>qtedit4 - text editor</string>
+    <key>CFBundleVersion</key>
+    <string>0.0.12-alpha1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>0.0.12-alpha1</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+</dict>
+</plist>
