@@ -178,14 +178,37 @@ jobs:
           # Create the app bundle structure if needed
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/MacOS"
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Resources"
+          mkdir -p "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Frameworks"
+          mkdir -p "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/PlugIns"
 
           # Copy resources to the app bundle (assuming resources are in a resources directory)
           if [ -d "resources" ]; then
             cp -r resources/* "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Resources/"
           fi
 
-          # Run macdeployqt to bundle Qt libraries and frameworks
-          macdeployqt "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" -verbose=2
+          # Check app bundle before deployment
+          echo "App bundle contents before macdeployqt:"
+          ls -la "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/"
+
+          # Run macdeployqt with more comprehensive options
+          macdeployqt "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" \
+            -verbose=2 \
+            -always-overwrite \
+            -appstore-compliant \
+            -libpath="${QT_ROOT_DIR}/lib" \
+            -executable="dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/MacOS/qtedit4"
+
+          # Verify Qt frameworks were bundled
+          echo "App bundle contents after macdeployqt:"
+          ls -la "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/"
+          if [ -d "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Frameworks" ]; then
+            echo "Bundled Qt Frameworks:"
+            ls -la "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Frameworks/"
+          fi
+
+          # Check app bundle size
+          echo "App bundle size:"
+          du -sh "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
 
       - name: Create ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
@@ -200,11 +223,19 @@ jobs:
           # Install create-dmg if not available
           brew install create-dmg
 
+          # Verify app bundle size before DMG creation
+          echo "Final app bundle size before DMG creation:"
+          du -sh "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app"
+
           # Create a temporary directory for DMG contents
           mkdir -p dmg_temp
           cp -r "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app" dmg_temp/
 
-          # Create the DMG
+          # Verify copied app size
+          echo "App size in DMG temp directory:"
+          du -sh dmg_temp/qtedit4.app
+
+          # Create the DMG with larger initial size
           create-dmg \
             --volname "QTEdit4" \
             --volicon "dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.app/Contents/Resources/qtedit4.icns" \
@@ -214,14 +245,20 @@ jobs:
             --icon "qtedit4.app" 175 120 \
             --hide-extension "qtedit4.app" \
             --app-drop-link 425 120 \
+            --disk-image-size 500 \
             --skip-jenkins \
             "qtedit4-macos-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" \
             "dmg_temp/" || true
 
-          # Fallback: create simple DMG if create-dmg fails
+          # Fallback: create simple DMG if create-dmg fails, with larger size
           if [ ! -f "qtedit4-macos-qt${{ matrix.qt_version }}-${{ env.version }}.dmg" ]; then
-            hdiutil create -volname "QTEdit4" -srcfolder dmg_temp -ov -format UDZO "qtedit4-macos-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
+            echo "create-dmg failed, using hdiutil fallback..."
+            hdiutil create -volname "QTEdit4" -srcfolder dmg_temp -ov -format UDZO -fs HFS+ -size 500m "qtedit4-macos-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
           fi
+
+          # Verify final DMG size
+          echo "Final DMG size:"
+          ls -lh "qtedit4-macos-qt${{ matrix.qt_version }}-${{ env.version }}.dmg"
 
       - name: Upload ZIP archive (macOS)
         if: matrix.config.os == 'macos-latest'
