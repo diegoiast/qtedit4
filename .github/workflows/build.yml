@@ -202,26 +202,24 @@ jobs:
             fi
 
             # Create Info.plist
-            cat > "$APP_PATH/Contents/Info.plist" << EOF
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>CFBundleExecutable</key>
-    <string>qtedit4</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.qtedit4.app</string>
-    <key>CFBundleName</key>
-    <string>QTEdit4</string>
-    <key>CFBundleVersion</key>
-    <string>1.0</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
-    <key>CFBundlePackageType</key>
-    <string>APPL</string>
-</dict>
-</plist>
-EOF
+            echo '<?xml version="1.0" encoding="UTF-8"?>' > "$APP_PATH/Contents/Info.plist"
+            echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> "$APP_PATH/Contents/Info.plist"
+            echo '<plist version="1.0">' >> "$APP_PATH/Contents/Info.plist"
+            echo '<dict>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundleExecutable</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>qtedit4</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundleIdentifier</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>com.qtedit4.app</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundleName</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>QTEdit4</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundleVersion</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>1.0</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundleShortVersionString</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>1.0</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <key>CFBundlePackageType</key>' >> "$APP_PATH/Contents/Info.plist"
+            echo '    <string>APPL</string>' >> "$APP_PATH/Contents/Info.plist"
+            echo '</dict>' >> "$APP_PATH/Contents/Info.plist"
+            echo '</plist>' >> "$APP_PATH/Contents/Info.plist"
           fi
 
           # Copy resources to the app bundle
