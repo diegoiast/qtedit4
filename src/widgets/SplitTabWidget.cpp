@@ -334,6 +334,7 @@ void SplitTabWidget::addTab(QWidget *widget, const QString &label, const QString
             currentTabIndex >= savedSplitInternalSizes.size()) {
             savedSplitCount.clear();
             savedSplitInternalSizes.clear();
+            return;
         }
 
         auto widgetsInCurrentTab = currentTabWidget->count();
