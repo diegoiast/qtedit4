@@ -1,37 +1,37 @@
 {
     "updates": {
         "windows": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.11",
-            "latest-version": "0.0.11",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12",
+            "latest-version": "0.0.12",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.11/qtedit4-qt6.9.1-v0.0.11-x86_64.exe",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12/qtedit4-qt6.9.1-v0.0.12-x86_64.exe",
             "changelog":
-                "Move tabs between splits, meson support, multiple cursors, reset to defaults settings",
+                "Move selected lines, cmake configure fixes, copy/cut current line, line trimming works, loading project speedup, run environment",
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12-alpha1",
-            "latest-version": "0.0.12-alpha1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12",
+            "latest-version": "0.0.12",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12-alpha1/qtedit4-qt6.9.1-v0.0.12-alpha1-x86_64.exe",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12/qtedit4-qt6.9.1-v0.0.12-x86_64.exe",
             "changelog":
                 "Move selected lines, cmake configure fixes, copy/cut current line, line trimming works, loading project speedup, run environment",
             "mandatory": true
         },
         "linux": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.11",
-            "latest-version": "0.0.11",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12",
+            "latest-version": "0.0.12",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.11/qtedit4-qt6.9.1-v0.0.11-x86_64.AppImage",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12/qtedit4-qt6.9.1-v0.0.12-x86_64.AppImage",
             "changelog":
-                "Move tabs between splits, meson support, multiple cursors, reset to defaults settings",
+                "Move selected lines, cmake configure fixes, copy/cut current line, line trimming works, loading project speedup, run environment",
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12-alpha1",
-            "latest-version": "0.0.12-alpha1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.12",
+            "latest-version": "0.0.12",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12-alpha1/qtedit4-qt6.9.1-v0.0.12-alpha1-x86_64.AppImage",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.12/qtedit4-qt6.9.1-v0.0.12-x86_64.AppImage",
             "changelog":
                 "Move selected lines, cmake configure fixes, copy/cut current line, line trimming works, loading project speedup, run environment",
             "mandatory": true

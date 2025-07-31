@@ -4,7 +4,7 @@ set -x
 set -e
 
 QT_VERSION="6.9.1"
-APP_VERSION="0.0.12-alpha1"
+APP_VERSION="0.0.12"
 
 NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
 QTDIR="$HOME/qt/${QT_VERSION}/gcc_64"
