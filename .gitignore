@@ -6,3 +6,5 @@ CMakeLists.txt.user
 .vs/
 .cache/
 lib/*
+linuxdeploy-plugin-qt-x86_64.AppImage
+linuxdeploy-x86_64.AppImage
