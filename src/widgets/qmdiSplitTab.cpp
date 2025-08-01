@@ -19,31 +19,37 @@
 
 QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTabWidget *split) {
     Q_UNUSED(tabIndex);
-    auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
-        auto addNewMdiClient = new QToolButton(split);
-        addNewMdiClient->setAutoRaise(true);
-        addNewMdiClient->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
-        QObject::connect(addNewMdiClient, &QAbstractButton::clicked, addNewMdiClient,
-                         [manager, addNewMdiClient, split]() {
-                             auto tab = qobject_cast<QTabWidget *>(addNewMdiClient->parentWidget());
-                             if (tab) {
-                                 split->updateCurrentTabWidget(tab);
-                             }
-                             if (manager) {
-                                 emit manager->newFileRequested(addNewMdiClient);
-                             }
-                         });
-        return addNewMdiClient;
+        auto addbutton = new QToolButton(split);
+        addbutton->setAutoRaise(true);
+        addbutton->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew));
+        QObject::connect(addbutton, &QAbstractButton::clicked, addbutton, [addbutton, split]() {
+            auto manager = dynamic_cast<PluginManager *>(split->parent());
+            auto tab = qobject_cast<QTabWidget *>(addbutton->parentWidget());
+            if (tab) {
+                split->updateCurrentTabWidget(tab);
+            }
+            if (manager) {
+                emit manager->newFileRequested(addbutton);
+            }
+        });
+        return addbutton;
     }
 
 #if !CLOSABLE_TABS
-    auto tabCloseBtn = new QToolButton(split);
-    tabCloseBtn->setAutoRaise(true);
-    tabCloseBtn->setIcon(QIcon::fromTheme("document-close"));
-    QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
-    return tabCloseBtn;
+    auto closeButton = new QToolButton(split);
+    closeButton->setAutoRaise(true);
+    closeButton->setIcon(QIcon::fromTheme("document-close"));
+    QObject::connect(closeButton, &QAbstractButton::clicked, closeButton, [closeButton, split]() {
+        auto manager = dynamic_cast<PluginManager *>(split->parent());
+        auto tab = qobject_cast<QTabWidget *>(closeButton->parentWidget());
+        if (tab) {
+            split->updateCurrentTabWidget(tab);
+        }
+        manager->closeClient();
+    });
+    return closeButton;
 #else
     return nullptr;
 #endif
