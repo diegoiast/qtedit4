@@ -11,7 +11,6 @@
 #include <QIcon>
 #include <QStandardPaths>
 #include <QToolButton>
-#include <widgets/qmdiSplitTab.h>
 
 #include "pluginmanager.h"
 #include "plugins/CTags/CTagsPlugin.hpp"

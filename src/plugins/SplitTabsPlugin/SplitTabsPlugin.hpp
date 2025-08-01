@@ -1,7 +1,6 @@
 #pragma once
 
 #include "iplugin.h"
-#include "widgets/qmdiSplitTab.h"
 
 /**
  * \file SplitTabsPlugin.hpp

@@ -26,6 +26,7 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     virtual qmdiClient *getCurrentClient() const override;
     virtual int getCurrentClientIndex() const override;
     virtual void setCurrentClientIndex(int i) override;
+    virtual void moveClient(int oldPosition, int newPosition) override;
     virtual void updateClientName(const qmdiClient *client) override;
 
   signals:
@@ -37,5 +38,6 @@ class qmdiSplitTab : public SplitTabWidget, public qmdiServer {
     void on_rightMouse_pressed(int, QPoint);
     int computeLeading(QTabWidget *);
 
+    QTabWidget *tabWidgetFromIndex(int globalIndex, int &localIndex) const;
     QWidget *activeWidget = nullptr;
 };

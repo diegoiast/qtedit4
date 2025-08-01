@@ -55,6 +55,16 @@ QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTa
 #endif
 }
 
+qmdiSplitTab::qmdiSplitTab(QWidget *parent) : SplitTabWidget(parent) {
+    connect(this, &SplitTabWidget::emptyAreaDoubleClicked, this,
+            [this](QTabWidget *tabWidget, const QPoint &) {
+                auto manager = dynamic_cast<PluginManager *>(this->parent());
+                if (manager) {
+                    emit manager->newFileRequested(tabWidget->tabBar());
+                }
+            });
+}
+
 void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     SplitTabWidget::onTabFocusChanged(widget, focused);
 
@@ -190,21 +200,10 @@ int qmdiSplitTab::getClientsCount() const {
 }
 
 qmdiClient *qmdiSplitTab::getClient(int i) const {
-    if (i < 0) {
-        return nullptr;
-    }
-    auto currentIndex = 0;
-    for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
-        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
-        if (!tabWidget) {
-            continue;
-        }
-        for (auto innerIndex = 0; innerIndex < tabWidget->count(); innerIndex++) {
-            if (currentIndex == i) {
-                return dynamic_cast<qmdiClient *>(tabWidget->widget(innerIndex));
-            }
-            currentIndex++;
-        }
+    auto localIndex = -1;
+    auto tabWidget = tabWidgetFromIndex(i, localIndex);
+    if (tabWidget && localIndex >= 0) {
+        return dynamic_cast<qmdiClient *>(tabWidget->widget(localIndex));
     }
     return nullptr;
 }
@@ -267,6 +266,51 @@ void qmdiSplitTab::setCurrentClientIndex(int i) {
     }
 }
 
+void qmdiSplitTab::moveClient(int oldPosition, int newPosition) {
+    if (oldPosition == newPosition || oldPosition < 0 || newPosition < 0) {
+        qDebug() << "qmdiSplitTab::moveClient Invalid old/new position";
+        return;
+    }
+
+    auto oldLocalIndex = -1;
+    auto oldTabWidget = tabWidgetFromIndex(oldPosition, oldLocalIndex);
+    if (!oldTabWidget || oldLocalIndex < 0) {
+        qDebug() << "qmdiSplitTab::moveClient Old tab/position not found";
+        return;
+    }
+
+    auto newLocalIndex = -1;
+    auto newTabWidget = tabWidgetFromIndex(newPosition, newLocalIndex);
+    if (!newTabWidget || newLocalIndex < 0) {
+        qDebug() << "qmdiSplitTab::moveClient New tab/position not found";
+        return;
+    }
+
+    if (oldTabWidget == newTabWidget) {
+        newTabWidget->tabBar()->moveTab(oldLocalIndex, newLocalIndex);
+        newTabWidget->setCurrentIndex(newLocalIndex);
+        return;
+    }
+
+    if (oldPosition > newPosition) {
+        ++newLocalIndex;
+    }
+
+    auto widget = oldTabWidget->widget(oldLocalIndex);
+    if (!widget) {
+        qDebug() << "qmdiSplitTab::moveClient Widget not found at oldLocalIndex";
+        return;
+    }
+
+    auto text = oldTabWidget->tabText(oldLocalIndex);
+    auto tooltip = oldTabWidget->tabToolTip(oldLocalIndex);
+    oldTabWidget->removeTab(oldLocalIndex);
+    newTabWidget->insertTab(newLocalIndex, widget, text);
+    newTabWidget->setTabToolTip(newLocalIndex, tooltip);
+    newTabWidget->setCurrentIndex(newLocalIndex);
+    updateCurrentTabWidget(newTabWidget);
+}
+
 void qmdiSplitTab::updateClientName(const qmdiClient *client) {
     for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
         auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
@@ -316,12 +360,22 @@ int qmdiSplitTab::computeLeading(QTabWidget *w) {
     return leadingIndex;
 }
 
-qmdiSplitTab::qmdiSplitTab(QWidget *parent) : SplitTabWidget(parent) {
-    connect(this, &SplitTabWidget::emptyAreaDoubleClicked, this,
-            [this](QTabWidget *tabWidget, const QPoint &) {
-                auto manager = dynamic_cast<PluginManager *>(this->parent());
-                if (manager) {
-                    emit manager->newFileRequested(tabWidget->tabBar());
-                }
-            });
+QTabWidget *qmdiSplitTab::tabWidgetFromIndex(int globalIndex, int &localIndex) const {
+    auto currentIndex = 0;
+    for (auto i = 0; i < splitter->count(); ++i) {
+        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(i));
+        if (!tabWidget) {
+            continue;
+        }
+
+        auto count = tabWidget->count();
+        if (globalIndex < currentIndex + count) {
+            localIndex = globalIndex - currentIndex;
+            return tabWidget;
+        }
+        currentIndex += count;
+    }
+
+    localIndex = -1;
+    return nullptr;
 }
