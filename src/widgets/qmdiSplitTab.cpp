@@ -12,6 +12,7 @@
 
 #include "widgets/qmdiSplitTab.h"
 
+// Should we have a close button on each tab? or at the sides of the widget? On the widget
 // This is not default, as close button on each tab takes space. Mid button click exists, right
 // button click brings a menu to close.
 #define CLOSABLE_TABS 0
@@ -37,10 +38,10 @@ QWidget *DefaultButtonsProvider::requestButton(bool first, int tabIndex, SplitTa
         return addNewMdiClient;
     }
 
-#if CLOSABLE_TABS
+#if !CLOSABLE_TABS
     auto tabCloseBtn = new QToolButton(split);
     tabCloseBtn->setAutoRaise(true);
-    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    tabCloseBtn->setIcon(QIcon::fromTheme("document-close"));
     QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
     return tabCloseBtn;
 #else
@@ -108,19 +109,15 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
     case Qt::LeftButton:
         return QObject::eventFilter(obj, event);
         break;
-
     case Qt::RightButton:
         on_rightMouse_pressed(clickedItem, parentPosition);
         break;
-
     case Qt::MiddleButton:
         on_middleMouse_pressed(clickedItem, parentPosition);
         break;
-
     default:
         return QObject::eventFilter(obj, event);
     }
-
     return true;
 }
 
