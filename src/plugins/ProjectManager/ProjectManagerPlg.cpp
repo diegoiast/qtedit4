@@ -1049,13 +1049,21 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
             return;
         }
         *inMemoryConfig = *onDiskConfig;
+    } else {
+        if (inMemoryConfig) {
+            const auto sourceDir = inMemoryConfig->sourceDir;
+            configWatcher.removePath(path);
+            auto reScannedConfig = ProjectBuildConfig::buildFromDirectory(sourceDir);
+            *inMemoryConfig = *reScannedConfig;
+        } else {
+            qDebug() << "Config file" << path << "modified/deleted, but was not tracked in memory.";
+        }
     }
     newProjectSelected(gui->projectComboBox->currentIndex());
 
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
 }
-
 auto ProjectManagerPlugin::saveAllDocuments() -> bool {
     for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
         auto c = mdiServer->getClient(i);
