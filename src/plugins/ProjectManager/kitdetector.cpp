@@ -10,6 +10,7 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+#include <set>
 
 #if defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__linux__)
 #include <pwd.h>
@@ -335,36 +336,60 @@ static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> 
 auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
                               const std::string &path_env, const std::string &cc_name,
                               const std::string &cxx_name, bool unix_target) -> void {
-    for (auto version = 4; version < 20; version++) {
-        auto cc = cc_name + "-" + std::to_string(version) + BINARY_EXT;
-        auto ss = std::stringstream(path_env);
-        auto dir = std::string();
+    std::set<std::string> real_compiler_paths;
 
-        findCommandInPath(cc, [version, &cc, &detected, &cxx_name, unix_target](auto full_path) {
+           // First detect postfixed compilers
+    for (int version = 4; version < 20; version++) {
+        auto cc = cc_name + "-" + std::to_string(version) + BINARY_EXT;
+
+        findCommandInPath(cc, [&, version](const std::filesystem::path &full_path) {
             if (isCompilerAlreadyFound(detected, full_path.string())) {
                 return;
             }
 
-            auto extraPath = KitDetector::ExtraPath();
-            auto cxx = cxx_name + "-" + std::to_string(version);
-            if (unix_target) {
-                extraPath.name = cc;
-                extraPath.compiler_path = full_path.string();
-                extraPath.comment = "# detected " + full_path.string();
-                extraPath.command += "export CC=" + cc;
-                extraPath.command += "\n";
-                extraPath.command += "export CXX=" + cxx;
-            } else {
-                extraPath.name = cc;
-                extraPath.compiler_path = full_path.string();
-                extraPath.comment = "@rem detected " + full_path.string();
-                extraPath.command += "SET CC=" + cc;
-                extraPath.command += "\n";
-                extraPath.command += "SET CXX=" + cxx;
+            std::error_code ec;
+            auto resolved = std::filesystem::canonical(full_path, ec);
+            if (!ec) {
+                real_compiler_paths.insert(resolved.string());
             }
+
+            KitDetector::ExtraPath extraPath;
+            auto cxx = cxx_name + "-" + std::to_string(version);
+            extraPath.name = cc;
+            extraPath.compiler_path = full_path.string();
+            extraPath.comment = unix_target ? "# detected " + full_path.string()
+                                            : "@rem detected " + full_path.string();
+            extraPath.command += unix_target
+                                     ? "export CC=" + cc + "\nexport CXX=" + cxx
+                                     : "SET CC=" + cc + "\nSET CXX=" + cxx;
             detected.push_back(extraPath);
         });
     }
+
+           // Now detect non-suffixed compiler only if not redundant
+    auto cc = cc_name + BINARY_EXT;
+    findCommandInPath(cc, [&](const std::filesystem::path &full_path) {
+        std::error_code ec;
+        auto resolved = std::filesystem::canonical(full_path, ec);
+        if (!ec && real_compiler_paths.contains(resolved.string())) {
+            return; // skip: already found postfixed version via symlink
+        }
+
+        if (isCompilerAlreadyFound(detected, full_path.string())) {
+            return;
+        }
+
+        KitDetector::ExtraPath extraPath;
+        auto cxx = cxx_name + BINARY_EXT;
+        extraPath.name = cc;
+        extraPath.compiler_path = full_path.string();
+        extraPath.comment = unix_target ? "# detected " + full_path.string()
+                                        : "@rem detected " + full_path.string();
+        extraPath.command += unix_target
+                                 ? "export CC=" + cc + "\nexport CXX=" + cxx
+                                 : "SET CC=" + cc + "\nSET CXX=" + cxx;
+        detected.push_back(extraPath);
+    });
 }
 
 auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
