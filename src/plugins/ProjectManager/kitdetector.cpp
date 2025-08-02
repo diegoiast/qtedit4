@@ -9,8 +9,8 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
-#include <sstream>
 #include <set>
+#include <sstream>
 
 #if defined(__APPLE__) || defined(__MACH__) || defined(__unix__) || defined(__linux__)
 #include <pwd.h>
@@ -338,7 +338,7 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
                               const std::string &cxx_name, bool unix_target) -> void {
     std::set<std::string> real_compiler_paths;
 
-           // First detect postfixed compilers
+    // First detect postfixed compilers
     for (int version = 4; version < 20; version++) {
         auto cc = cc_name + "-" + std::to_string(version) + BINARY_EXT;
 
@@ -359,14 +359,13 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
             extraPath.compiler_path = full_path.string();
             extraPath.comment = unix_target ? "# detected " + full_path.string()
                                             : "@rem detected " + full_path.string();
-            extraPath.command += unix_target
-                                     ? "export CC=" + cc + "\nexport CXX=" + cxx
-                                     : "SET CC=" + cc + "\nSET CXX=" + cxx;
+            extraPath.command += unix_target ? "export CC=" + cc + "\nexport CXX=" + cxx
+                                             : "SET CC=" + cc + "\nSET CXX=" + cxx;
             detected.push_back(extraPath);
         });
     }
 
-           // Now detect non-suffixed compiler only if not redundant
+    // Now detect non-suffixed compiler only if not redundant
     auto cc = cc_name + BINARY_EXT;
     findCommandInPath(cc, [&](const std::filesystem::path &full_path) {
         std::error_code ec;
@@ -385,9 +384,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
         extraPath.compiler_path = full_path.string();
         extraPath.comment = unix_target ? "# detected " + full_path.string()
                                         : "@rem detected " + full_path.string();
-        extraPath.command += unix_target
-                                 ? "export CC=" + cc + "\nexport CXX=" + cxx
-                                 : "SET CC=" + cc + "\nSET CXX=" + cxx;
+        extraPath.command += unix_target ? "export CC=" + cc + "\nexport CXX=" + cxx
+                                         : "SET CC=" + cc + "\nSET CXX=" + cxx;
         detected.push_back(extraPath);
     });
 }
