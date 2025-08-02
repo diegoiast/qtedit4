@@ -133,7 +133,7 @@ if (WIN32)
 else()
     add_executable(qtedit4 ${qtedit4_sources})
 endif()
-
+set_property(TARGET qtedit4 PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
