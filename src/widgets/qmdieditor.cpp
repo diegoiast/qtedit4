@@ -2,9 +2,10 @@
  * \file qmdieditor.cpp
  * \brief Implementation of the qmdiEditor
  * \author Diego Iastrubni diegoiast@gmail.com
- * License GPL 2008
  * \see Qutepart qmdiClient
  */
+
+// SPDX-License-Identifier: MIT
 
 #include <QActionGroup>
 #include <QClipboard>

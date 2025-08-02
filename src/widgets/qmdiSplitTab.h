@@ -1,3 +1,11 @@
+/**
+ * \file qmdiSplitTab.h
+ * \brief Definition of qmdi enabled split tav
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include "SplitTabWidget.h"

@@ -1,7 +1,12 @@
-#pragma once
+/**
+ * \file LoadingWidget.hpp
+ * \brief Definition of a loading widget
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
 
-// SPD-license: MIT
-// Diego Iastrubni diegoiast@gmail.com
+// SPDX-License-Identifier: MIT
+
+#pragma once
 
 #include <QElapsedTimer>
 #include <QPainter>

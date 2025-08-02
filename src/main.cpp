@@ -1,9 +1,10 @@
 /**
  * \file main.cpp
- * \brief Entry point of application - QtEdit4
+ * \brief Entry point of application - qtedit4
  * \author Diego Iastrubni diegoiast@gmail.com
- * License GPL 2008
  */
+
+// SPDX-License-Identifier: GPL-2.0-or-later
 
 #include <QApplication>
 #include <QCommandLineParser>

@@ -441,7 +441,7 @@ void HelpPlugin::actionAbout_triggered() {
             tr("<h2>%1 %2</h2>"
                "<p>A versatile text editor</p>"
                "<p>Home page: <a href='%3'>%3</a></p>"
-               "<p>Licensed under the GNU General Public License v2 (GPLv2)</p>"
+               "<p>Licensed under the GNU General Public License v2 (GPLv2) or later</p>"
                "<p>This project uses <a href='https://www.qt.io/'>Qt6</a>, and the following "
                "libraries:</p>"
                "<ul>"
@@ -455,7 +455,7 @@ void HelpPlugin::actionAbout_triggered() {
                "<li><a "
                "href='https://github.com/alex-spataru/QSimpleUpdater'>QSimpleUpdater</a></li>"
                "</ul>"
-               "<p>Copyright © 2024 <a href='mailto:diegoiast@gmail.com'>Diego Iastrubni</a> </p>"))
+               "<p>Copyright © 2025 <a href='mailto:diegoiast@gmail.com'>Diego Iastrubni</a> </p>"))
             .arg(appName, version, "https://github.com/diegoiast/qtedit4");
 
     auto aboutBox = QMessageBox(getManager());

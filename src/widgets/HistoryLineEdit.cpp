@@ -1,3 +1,11 @@
+/**
+ * \file HistoryLineEdit.cpp
+ * \brief Definition of a line editing with history
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #include "HistoryLineEdit.h"
 
 #include <QStringListModel>

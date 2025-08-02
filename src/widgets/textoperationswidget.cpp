@@ -1,9 +1,10 @@
 /**
  * \file qsvtextoperationswidget.cpp
- * \brief implementation widget for searchWidget,replace,gotoline in a QTextEdit
+ * \brief implementation widget for searchWidget, replace, gotoline in a QTextEdit
  * \author Diego Iastrubni diegoiast@gmail.com
- * License LGPLv2 2024
  */
+
+// SPDX-License-Identifier: MIT
 
 #include "textoperationswidget.h"
 #include "ui_gotolineform.h"

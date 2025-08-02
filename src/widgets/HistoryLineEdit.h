@@ -1,3 +1,11 @@
+/**
+ * \file HistoryLineEdit.h
+ * \brief Definition of a line editing with history
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <QCompleter>

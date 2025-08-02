@@ -1,3 +1,11 @@
+/**
+ * \file xmltreemodel.h
+ * \brief Definition of a model to an XML to treeview
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <QAbstractItemModel>

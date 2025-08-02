@@ -1,3 +1,11 @@
+/**
+ * \file FileList.hpp
+ * \brief Definition of a flat file lister
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <QStringList>

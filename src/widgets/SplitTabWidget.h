@@ -1,5 +1,10 @@
+/**
+ * \file SplitTabWidget.h
+ * \brief Definition of the split tab widget
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
 // SPDX-License-Identifier: MIT
-// Copyright (c) 2025 Diego Iastrubni
 
 #pragma once
 

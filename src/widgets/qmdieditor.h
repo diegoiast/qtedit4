@@ -2,8 +2,9 @@
  * \file qmdieditor
  * \brief Definition of the main editor for the IDE
  * \author Diego Iastrubni diegoiast@gmail.com
- * License GPL 2008
  */
+
+// SPDX-License-Identifier: MIT
 
 #pragma once
 

@@ -1,3 +1,11 @@
+/**
+ * \file GlobalCommands.hpp
+ * \brief Definitions for commands constants
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 namespace GlobalCommands {

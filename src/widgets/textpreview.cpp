@@ -1,3 +1,11 @@
+/**
+ * \file textpreview.cpp
+ * \brief Definition of a a preview widget
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #include "textpreview.h"
 #include "xmltreemodel.h"
 
@@ -31,7 +39,6 @@ auto TextPreview::previewText(const QString &filename, const QString &str, Previ
     case Markdown: {
         auto scrollBar = markdownPreview->verticalScrollBar();
         auto scrollPosition = scrollBar->value();
-
         setCurrentIndex(0);
         markdownPreview->setSource(filename, QTextDocument::MarkdownResource);
         markdownPreview->setMarkdown(str);

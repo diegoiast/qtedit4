@@ -1,5 +1,10 @@
-// SPD-license: MIT
-// Diego Iastrubni diegoiast@gmail.com
+/**
+ * \file LoadingWidget.cpp
+ * \brief Implementation of a loading widget
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
 
 #include "LoadingWidget.hpp"
 #include <QStyle>
@@ -61,7 +66,7 @@ void LoadingWidget::paintEvent(QPaintEvent *event) {
     painter.setRenderHint(QPainter::Antialiasing);
 
     auto yPos = (height() - lineHeight) / 2.0;
-    QRectF lineRect(position, yPos, lineWidth, lineHeight);
+    auto lineRect = QRectF(position, yPos, lineWidth, lineHeight);
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(lineColor);

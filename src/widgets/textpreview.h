@@ -1,3 +1,11 @@
+/**
+ * \file textpreview.h
+ * \brief Definition of a preview widget
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #pragma once
 
 #include <QAbstractItemModel>

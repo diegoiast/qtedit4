@@ -1,3 +1,11 @@
+/**
+ * \file FileList.cpp
+ * \brief Imeplementation of a flat file lister
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #include "FilesList.hpp"
 #include "LoadingWidget.hpp"
 

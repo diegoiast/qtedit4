@@ -1,3 +1,11 @@
+/**
+ * \file qmdiSplitTab.cpp
+ * \brief Definition of qmdi enabled split tav
+ * \author Diego Iastrubni diegoiast@gmail.com
+ */
+
+// SPDX-License-Identifier: MIT
+
 #include <QEvent>
 #include <QMainWindow>
 #include <QMouseEvent>

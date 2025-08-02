@@ -1,9 +1,10 @@
 /**
  * \file qsvtextoperationswidget.cpp
- * \brief definition of widget for search,replace,gotoline in a QTextEdit
+ * \brief definition of widget for search, replace, gotoline in a QTextEdit
  * \author Diego Iastrubni diegoiast@gmail.com
- * License LGPLv2 2024
  */
+
+// SPDX-License-Identifier: MIT
 
 #pragma once
 
