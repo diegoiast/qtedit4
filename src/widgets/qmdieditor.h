@@ -61,6 +61,9 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void setEditorHighlighter(QString id);
     inline void setEditorMarkWord(bool b) { textEditor->setMarkCurrentWord(b); }
 
+    bool isLocalToolbarVisible() const;
+    void setLocalToolbarVisible(bool state) const;
+
     void setPreviewEnabled(bool enabled);
     void setPreviewVisible(bool enabled);
     bool isPreviewRequested();
@@ -200,6 +203,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QComboBox *comboChangeHighlighter = nullptr;
     QToolButton *buttonChangeIndenter = nullptr;
     QPushButton *previewButton = nullptr;
+    QWidget *toolbar = nullptr;
     TextPreview *textPreview;
 
     QAction *actionSave = nullptr;

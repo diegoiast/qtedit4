@@ -43,6 +43,13 @@ TextEditorPlugin::TextEditorPlugin() {
     config.pluginName = tr("Text editor");
     config.description = tr("Default text editor, based on QutePart");
     config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Show toolbar"))
+                                     .setDescription(tr("Show a toolbar above the text editor"))
+                                     .setKey(Config::ShowToolbarKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Trim spaces"))
                                      .setDescription(tr("Remove spaces from end of lines, on save"))
                                      .setKey(Config::TrimSpacesKey)
@@ -447,6 +454,7 @@ void TextEditorPlugin::applySettings(qmdiEditor *editor) {
     auto newFont = QFont();
     newFont.fromString(getConfig().getFont());
 
+    editor->setLocalToolbarVisible(getConfig().getShowToolbar());
     editor->setDrawAnyWhitespace(getConfig().getShowWhite());
     editor->setDrawIndentations(getConfig().getShowIndentations());
     editor->setBracketHighlightingEnabled(getConfig().getHighlightBrackets());

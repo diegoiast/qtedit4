@@ -21,6 +21,7 @@ class SharedHistoryModel;
 
 class TextEditorPlugin : public IPlugin {
     struct Config {
+        CONFIG_DEFINE(ShowToolbar, bool)
         CONFIG_DEFINE(TrimSpaces, bool)
         CONFIG_DEFINE(SmartHome, bool)
         CONFIG_DEFINE(WrapLines, bool)

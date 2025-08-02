@@ -278,7 +278,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     operationsWidget = new TextOperationsWidget(this, textEditor);
     mdiClientName = tr("NO NAME");
     fileSystemWatcher = new QFileSystemWatcher(this);
-    auto toolbar = new QWidget(this);
+    toolbar = new QWidget(this);
     auto layout2 = new QHBoxLayout(toolbar);
     auto layout = new QVBoxLayout(this);
 
@@ -701,6 +701,10 @@ void qmdiEditor::setEditorHighlighter(QString id) {
     this->syntaxLangID = id;
     textEditor->setHighlighter(id);
 }
+
+bool qmdiEditor::isLocalToolbarVisible() const { return toolbar->isVisible(); }
+
+void qmdiEditor::setLocalToolbarVisible(bool state) const { toolbar->setVisible(state); }
 
 void qmdiEditor::setPreviewEnabled(bool enabled) { this->previewButton->setEnabled(enabled); }
 
