@@ -862,15 +862,18 @@ CommandArgs qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition
     }
 
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    if (!pluginManager) {
+        return {};
+    }
+
     auto symbol = cursor.selectedText();
-    // clang-format off
-    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
-        {GlobalArguments::RequestedSymbol, symbol },
-        {GlobalArguments::FileName, mdiClientFileName() },
-        {GlobalArguments::ExactMatch, true },
+    auto fileName = mdiClientFileName();
+    auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, symbol},
+        {GlobalArguments::FileName, fileName},
+        {GlobalArguments::ExactMatch, true}
     });
-    // clang-format on
-    return res;
+    return future.get();
 }
 
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
@@ -879,13 +882,14 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
         return {};
     }
 
-    // clang-format off
-    auto res = pluginManager->handleCommand(GlobalCommands::VariableInfo, {
-        {GlobalArguments::RequestedSymbol, prefix },
-        {GlobalArguments::FileName, mdiClientFileName() },
-        {GlobalArguments::ExactMatch, false },
+    // Call the async version and wait for the result
+    auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, prefix},
+        {GlobalArguments::FileName, mdiClientFileName()},
+        {GlobalArguments::ExactMatch, false}
     });
-    // clang-format on
+    
+    auto res = future.get();
 
     if (!res.contains("tags")) {
         return {};
@@ -1143,7 +1147,7 @@ void qmdiEditor::loadContent() {
 
     QFileInfo fileInfo(file);
     file.close();
-    qDebug() << "File " << fileName << "loaded in" << timer.elapsed() << "mSec";
+    qDebug() << "qmdiEditor::loadContent " << fileName << "loaded in" << timer.elapsed() << "mSec";
 
     fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
     if (!fileInfo.isWritable()) {

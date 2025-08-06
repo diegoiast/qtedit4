@@ -1,6 +1,7 @@
 #include "CTagsPlugin.hpp"
 #include "CTagsLoader.hpp"
 #include "GlobalCommands.hpp"
+#include "qmdidialogevents.hpp"
 
 #include <QDesktopServices>
 #include <QDir>
@@ -233,7 +234,7 @@ void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extr
     }
 }
 
-int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) const {
+int CTagsPlugin::canHandleAsyncCommand(const QString &command, const CommandArgs &) const {
     if (command == GlobalCommands::BuildFinished) {
         return CommandPriority::HighPriority;
     }
@@ -249,36 +250,38 @@ int CTagsPlugin::canHandleCommand(const QString &command, const CommandArgs &) c
     return CommandPriority::CannotHandle;
 }
 
-CommandArgs CTagsPlugin::handleCommand(const QString &command, const CommandArgs &args) {
-    if (command == GlobalCommands::BuildFinished) {
-        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
-        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
-        auto taskName = args[GlobalArguments::TaskName].toString();
-        auto projectName = args[GlobalArguments::Name].toString();
-        newProjectBuilt(projectName, sourceDir, buildDirectory);
-    }
+std::future<CommandArgs> CTagsPlugin::handleCommandAsync(const QString &command, const CommandArgs &args) {
+    return std::async(std::launch::async, [this, command, args]() -> CommandArgs {
+        if (command == GlobalCommands::BuildFinished) {
+            auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+            auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+            // auto taskName = args[GlobalArguments::TaskName].toString();
+            auto projectName = args[GlobalArguments::Name].toString();
+            newProjectBuilt(projectName, sourceDir, buildDirectory);
+        }
 
-    if (command == GlobalCommands::ProjectLoaded) {
-        auto projectName = args[GlobalArguments::ProjectName].toString();
-        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
-        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
-        newProjectAdded(projectName, sourceDir, buildDirectory);
-    }
+        if (command == GlobalCommands::ProjectLoaded) {
+            auto projectName = args[GlobalArguments::ProjectName].toString();
+            auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+            auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+            newProjectAdded(projectName, sourceDir, buildDirectory);
+        }
 
-    if (command == GlobalCommands::ProjectRemoved) {
-        auto projectName = args[GlobalArguments::ProjectName].toString();
-        auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
-        auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
-        projectRemoved(projectName, sourceDir, buildDirectory);
-    }
+        if (command == GlobalCommands::ProjectRemoved) {
+            auto projectName = args[GlobalArguments::ProjectName].toString();
+            auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
+            auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
+            projectRemoved(projectName, sourceDir, buildDirectory);
+        }
 
-    if (command == GlobalCommands::VariableInfo) {
-        auto filename = args[GlobalArguments::FileName].toString();
-        auto symbol = args[GlobalArguments::RequestedSymbol].toString();
-        auto exactMatch = args[GlobalArguments::ExactMatch].toBool();
-        return symbolInfoRequested(filename, symbol, exactMatch);
-    }
-    return {};
+        if (command == GlobalCommands::VariableInfo) {
+            auto filename = args[GlobalArguments::FileName].toString();
+            auto symbol = args[GlobalArguments::RequestedSymbol].toString();
+            auto exactMatch = args[GlobalArguments::ExactMatch].toBool();
+            return symbolInfoRequested(filename, symbol, exactMatch);
+        }
+        return {};
+    });
 }
 
 void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
@@ -311,7 +314,6 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
         QMetaObject::invokeMethod(
             this,
             [projectName, this]() {
-                qDebug() << "CTags loading finished for project:" << projectName;
                 emit tagsLoaded(projectName);
             },
             Qt::QueuedConnection);
@@ -340,6 +342,7 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
                                   const QString &buildDirectory) {
     // project should be loaded first, something is borked
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
+    qDebug() << "Loading " << projectName << "from" << sourceDir;
     if (!projects.contains(nativeSourceDir)) {
         qDebug() << "CTagsPlugin: Project build, but not added first! ctags will not support it"
                  << nativeSourceDir;
@@ -355,6 +358,7 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
                                              bool exactMatch) {
     CTagsLoader *project = nullptr;
     for (const auto &k : projects.keys()) {
+        qDebug() << "File" << fileName << "Project:" << k;
         if (fileName.startsWith(k)) {
             project = projects[k];
             break;

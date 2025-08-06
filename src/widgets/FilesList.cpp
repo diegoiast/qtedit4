@@ -66,7 +66,6 @@ void FileScannerWorker::start() {
     QElapsedTimer timer;
     timer.start();
     shouldStop = false;
-    qDebug() << "Scan started" << getRootDir();
     scanDir(rootDir);
     emit finished(timer.elapsed());
 }
@@ -82,7 +81,7 @@ void FileScannerWorker::scanDir(const QString &rootPath) {
         auto dir = QDir(dirPath);
         auto entries = dir.entryInfoList(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
 
-        for (auto const &fi : entries) {
+        for (auto const &fi : std::as_const(entries)) {
             if (shouldStop) {
                 qDebug() << "Requested to abort" << rootPath;
                 return;
@@ -184,7 +183,7 @@ void FilesList::setDir(const QString &dir) {
     connect(worker, &FileScannerWorker::finished, this, [=, this](qint64 ms) {
         auto w = qobject_cast<FileScannerWorker *>(sender());
         auto msg = w->requestedStop() ? "Scan aborted after" : "Scan finished in";
-        qDebug() << msg << ms << "ms, " << w->getRootDir();
+        qDebug() << "FilesList::setDir" << msg << ms << "ms, " << w->getRootDir();
         w->deleteLater();
         if (w == worker) {
             worker = nullptr;

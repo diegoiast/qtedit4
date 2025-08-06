@@ -87,7 +87,7 @@ bool CTagsLoader::scanDirs(const std::string &ctagsFileName, const std::string &
 #else
         std::string fullCommand = command + " > " + logFile + " 2>&1";
         if (system(fullCommand.c_str()) != 0) {
-            std::cerr << "Error: Failed to generate ctags file." << std::endl;
+            std::cerr << "CTagsLoader::scanDirs: Failed to generate ctags file." << std::endl;
         }
 #endif
         loadFile(ctagsFileName);
@@ -105,14 +105,11 @@ CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
     using namespace std::chrono;
     auto start = steady_clock::now();
 
-    auto iteration_count = 0;
     if (symbolName.length() >= 3) {
         if (exactMatch) {
             auto comp = [](const CTag &tag, const std::string &name) { return tag.name < name; };
             auto it = std::lower_bound(tags.begin(), tags.end(), symbolName, comp);
             while (it != tags.end() && it->name == symbolName) {
-                std::cerr << "Testing " << it->name << " iteration: " << iteration_count << "\n";
-                iteration_count++;
                 foundTags.emplace_back(*it);
                 ++it;
             }
@@ -156,7 +153,7 @@ bool CTagsLoader::load() {
 
     std::ifstream file(filename);
     if (!file.is_open()) {
-        std::cerr << "CTAGS: Error: Could not open file " << filename << std::endl;
+        std::cerr << "CTagsLoader::load Error: Could not open file " << filename << std::endl;
         return false;
     }
 
@@ -218,7 +215,7 @@ bool CTagsLoader::load() {
 
     auto end = steady_clock::now();
     auto duration = duration_cast<milliseconds>(end - start).count();
-    std::cout << "CTAGS: Loaded " << count << " tags from " << filename << " in " << duration
+    std::cout << "CTagsLoader::load Loaded " << count << " tags from " << filename << " in " << duration
               << " ms" << std::endl;
 
     return true;

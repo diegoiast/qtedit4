@@ -465,7 +465,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 }
 
                 // clang-format off
-                getManager()->handleCommand(GlobalCommands::BuildFinished, {
+                getManager()->handleCommandAsync(GlobalCommands::BuildFinished, {
                     {GlobalArguments::BuildDirectory, buildDirectory },
                     {GlobalArguments::SourceDirectory, sourceDirectory },
                     {GlobalArguments::TaskName, runningTask->name},
@@ -678,7 +678,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
 
             auto buildDirectory = QDir::toNativeSeparators(config->expand(config->buildDir));
             // clang-format off
-            getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
+            getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
                 {GlobalArguments::ProjectName, config->name},
                 {GlobalArguments::SourceDirectory, config->sourceDir},
                 {GlobalArguments::BuildDirectory, buildDirectory},
@@ -780,7 +780,7 @@ void ProjectManagerPlugin::addProject_clicked() {
     auto sourceDirectory = buildConfig->expand(buildConfig->sourceDir);
 
     // clang-format off
-    getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
+    getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
         {GlobalArguments::ProjectName, buildConfig->name },
         {GlobalArguments::SourceDirectory, sourceDirectory },
         {GlobalArguments::BuildDirectory, buildDirectory },
@@ -806,7 +806,7 @@ void ProjectManagerPlugin::removeProject_clicked() {
     getManager()->saveSettings();
 
     // clang-format off
-    getManager()->handleCommand(GlobalCommands::ProjectRemoved, {
+    getManager()->handleCommandAsync(GlobalCommands::ProjectRemoved, {
         {GlobalArguments::ProjectName, projectConfig->name },
         {GlobalArguments::SourceDirectory, projectConfig->sourceDir },
         {GlobalArguments::BuildDirectory, projectConfig->buildDir },
@@ -1291,7 +1291,7 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
 
         getManager()->saveSettings();
         // clang-format off
-        getManager()->handleCommand(GlobalCommands::ProjectLoaded, {
+        getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
             {GlobalArguments::ProjectName, project->name },
             {GlobalArguments::SourceDirectory, sourceDirectory },
             {GlobalArguments::BuildDirectory, buildDirectory },
