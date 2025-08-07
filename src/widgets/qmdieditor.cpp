@@ -28,6 +28,11 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTextBlock>
+#include <QFutureWatcher>
+#include <QtConcurrent/QtConcurrent>
+#include <QFuture>
+#include <QFutureWatcher>
+#include <QPromise>
 #include <QTextBrowser>
 #include <QTextEdit>
 #include <QToolBar>
@@ -445,20 +450,48 @@ QString qmdiEditor::getShortFileName() {
 }
 
 void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &globalPosition) {
-
-    auto followSybolMenu = new QMenu(this);
-    followSybolMenu->setTitle(tr("Follow symbol"));
-
-    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    auto res = getSuggestionsForCurrentWord(localPosition);
-    createSubFollowSymbolSubmenu(res, followSybolMenu, pluginManager);
-
+    auto followSymbolMenu = new QMenu(this);
+    followSymbolMenu->setTitle(tr("Follow symbol"));
+    
+    // Create a placeholder action that will be updated when the async operation completes
+    auto loadingAction = new QAction(tr("Loading..."), followSymbolMenu);
+    loadingAction->setEnabled(false);
+    followSymbolMenu->addAction(loadingAction);
+    
+    // Create the menu and show it immediately
     auto menu = textEditor->createStandardContextMenu();
     auto separator = new QAction(this);
     separator->setSeparator(true);
     menu->insertAction(menu->actions().first(), separator);
-    menu->insertMenu(menu->actions().first(), followSybolMenu);
-
+    menu->insertMenu(menu->actions().first(), followSymbolMenu);
+    
+    auto worker = [=, this]() -> CommandArgs {
+        auto future = getSuggestionsForCurrentWord(localPosition);
+        future.waitForFinished();
+        if (future.isValid() && future.isFinished()) {
+            return future.result();
+        }
+        return {};
+    };
+    
+    QFuture<CommandArgs> future = QtConcurrent::run(worker);
+    auto *watcher = new QFutureWatcher<CommandArgs>(this);
+    connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [=, this]() {
+        followSymbolMenu->removeAction(loadingAction);
+        delete loadingAction;
+        try {
+            auto res = watcher->result();
+            auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+            createSubFollowSymbolSubmenu(res, followSymbolMenu, pluginManager);
+        } catch (...) {
+            auto errorAction = new QAction(tr("Error loading suggestions"), followSymbolMenu);
+            errorAction->setEnabled(false);
+            followSymbolMenu->addAction(errorAction);
+        }
+        watcher->deleteLater();
+    });
+    
+    watcher->setFuture(future);
     menu->exec(globalPosition);
     delete menu;
 }
@@ -853,27 +886,55 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
-CommandArgs qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
+QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
     auto cursor = textEditor->cursorForPosition(localPosition);
     cursor.select(QTextCursor::WordUnderCursor);
-
+    
     if (cursor.selectedText().isEmpty()) {
-        return {};
+        QPromise<CommandArgs> promise;
+        promise.start();
+        promise.addResult({});
+        promise.finish();
+        return promise.future();
     }
-
+    
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     if (!pluginManager) {
-        return {};
+        QPromise<CommandArgs> promise;
+        promise.start();
+        promise.addResult({});
+        promise.finish();
+        return promise.future();
     }
-
+    
     auto symbol = cursor.selectedText();
     auto fileName = mdiClientFileName();
+    
+    // Convert the std::future to QFuture
     auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
         {GlobalArguments::RequestedSymbol, symbol},
         {GlobalArguments::FileName, fileName},
         {GlobalArguments::ExactMatch, true}
     });
-    return future.get();
+    
+    // Create a QPromise to wrap the std::future
+    auto promise = new QPromise<CommandArgs>();
+    auto resultFuture = promise->future();
+    
+    // Use QtConcurrent to wait for the std::future and resolve the QPromise
+    QtConcurrent::run([promise, future = std::move(future)]() mutable {
+        promise->start();
+        try {
+            promise->addResult(future.get());
+        } catch (...) {
+            // In case of any exception, return empty result
+            promise->addResult({});
+        }
+        promise->finish();
+        delete promise;
+    });
+    
+    return resultFuture;
 }
 
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
@@ -909,11 +970,17 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
 }
 
 void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
-    auto res = getSuggestionsForCurrentWord(localPosition);
-    auto tooltip = createTooltip(res);
-    if (!tooltip.isEmpty()) {
-        QToolTip::showText(globalPosition, tooltip, textEditor);
-    }
+    auto future = getSuggestionsForCurrentWord(localPosition);
+    auto *watcher = new QFutureWatcher<CommandArgs>(this);
+    connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [this, watcher, globalPosition]() {
+        auto res = watcher->result();
+        auto tooltip = createTooltip(res);
+        if (!tooltip.isEmpty()) {
+            QToolTip::showText(globalPosition, tooltip, textEditor);
+        }
+        watcher->deleteLater();
+    });
+    watcher->setFuture(future);
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {

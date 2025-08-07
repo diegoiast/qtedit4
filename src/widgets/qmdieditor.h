@@ -9,6 +9,7 @@
 #pragma once
 
 #include <QToolButton>
+#include <QFuture>
 
 // needed only for CommandArgs
 #include <pluginmanager.h>
@@ -174,7 +175,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void handleTabSelected();
     void handleTabDeselected();
     void handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition);
-    CommandArgs getSuggestionsForCurrentWord(const QPoint &localPosition);
+    QFuture<CommandArgs> getSuggestionsForCurrentWord(const QPoint &localPosition);
     QSet<QString> getTagCompletions(const QString &prefix);
 
   private:

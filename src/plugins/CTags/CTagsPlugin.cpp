@@ -357,8 +357,7 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
 CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QString &symbol,
                                              bool exactMatch) {
     CTagsLoader *project = nullptr;
-    for (const auto &k : projects.keys()) {
-        qDebug() << "File" << fileName << "Project:" << k;
+    for (auto const &k : projects.keys()) {
         if (fileName.startsWith(k)) {
             project = projects[k];
             break;
