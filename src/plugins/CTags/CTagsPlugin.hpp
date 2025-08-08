@@ -1,8 +1,3 @@
-#pragma once
-
-#include "iplugin.h"
-#include <qmdiconfigdialog.h>
-
 /**
  * \file CTagsPlugin.hpp
  * \brief Definition of the CTag support plugin
@@ -12,6 +7,8 @@
  */
 
 #pragma once
+
+#include "iplugin.h"
 
 class CTagsLoader;
 class qmdiConfigDialog;
@@ -34,8 +31,10 @@ class CTagsPlugin : public IPlugin {
     CTagsPlugin();
     ~CTagsPlugin();
 
-    virtual int canHandleAsyncCommand(const QString &command, const CommandArgs &args) const override;
-    virtual std::future<CommandArgs> handleCommandAsync(const QString &command, const CommandArgs &args) override;
+    virtual int canHandleAsyncCommand(const QString &command,
+                                      const CommandArgs &args) const override;
+    virtual QFuture<CommandArgs> handleCommandAsync(const QString &command,
+                                                    const CommandArgs &args) override;
 
     void setCTagsBinary(const QString &newBinary);
     void downloadCTags(qmdiConfigDialog *dialog);

@@ -16,10 +16,13 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFileSystemWatcher>
+#include <QFuture>
+#include <QFutureWatcher>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPlainTextEdit>
+#include <QPromise>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -28,16 +31,12 @@
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTextBlock>
-#include <QFutureWatcher>
-#include <QtConcurrent/QtConcurrent>
-#include <QFuture>
-#include <QFutureWatcher>
-#include <QPromise>
 #include <QTextBrowser>
 #include <QTextEdit>
 #include <QToolBar>
 #include <QToolTip>
 #include <QTreeView>
+#include <QtConcurrent/QtConcurrent>
 #include <qmditabwidget.h>
 
 #include <pluginmanager.h>
@@ -452,19 +451,16 @@ QString qmdiEditor::getShortFileName() {
 void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &globalPosition) {
     auto followSymbolMenu = new QMenu(this);
     followSymbolMenu->setTitle(tr("Follow symbol"));
-    
-    // Create a placeholder action that will be updated when the async operation completes
+
     auto loadingAction = new QAction(tr("Loading..."), followSymbolMenu);
     loadingAction->setEnabled(false);
     followSymbolMenu->addAction(loadingAction);
-    
-    // Create the menu and show it immediately
+
     auto menu = textEditor->createStandardContextMenu();
     auto separator = new QAction(this);
     separator->setSeparator(true);
     menu->insertAction(menu->actions().first(), separator);
     menu->insertMenu(menu->actions().first(), followSymbolMenu);
-    
     auto worker = [=, this]() -> CommandArgs {
         auto future = getSuggestionsForCurrentWord(localPosition);
         future.waitForFinished();
@@ -473,9 +469,9 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
         }
         return {};
     };
-    
-    QFuture<CommandArgs> future = QtConcurrent::run(worker);
-    auto *watcher = new QFutureWatcher<CommandArgs>(this);
+
+    auto future = QtConcurrent::run(worker);
+    auto watcher = new QFutureWatcher<CommandArgs>(this);
     connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [=, this]() {
         followSymbolMenu->removeAction(loadingAction);
         delete loadingAction;
@@ -490,7 +486,7 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
         }
         watcher->deleteLater();
     });
-    
+
     watcher->setFuture(future);
     menu->exec(globalPosition);
     delete menu;
@@ -889,7 +885,7 @@ void qmdiEditor::handleTabDeselected() {
 QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
     auto cursor = textEditor->cursorForPosition(localPosition);
     cursor.select(QTextCursor::WordUnderCursor);
-    
+
     if (cursor.selectedText().isEmpty()) {
         QPromise<CommandArgs> promise;
         promise.start();
@@ -897,7 +893,7 @@ QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &loca
         promise.finish();
         return promise.future();
     }
-    
+
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     if (!pluginManager) {
         QPromise<CommandArgs> promise;
@@ -906,80 +902,53 @@ QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &loca
         promise.finish();
         return promise.future();
     }
-    
+
     auto symbol = cursor.selectedText();
-    auto fileName = mdiClientFileName();
-    
-    // Convert the std::future to QFuture
-    auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
-        {GlobalArguments::RequestedSymbol, symbol},
-        {GlobalArguments::FileName, fileName},
-        {GlobalArguments::ExactMatch, true}
-    });
-    
-    // Create a QPromise to wrap the std::future
-    auto promise = new QPromise<CommandArgs>();
-    auto resultFuture = promise->future();
-    
-    // Use QtConcurrent to wait for the std::future and resolve the QPromise
-    QtConcurrent::run([promise, future = std::move(future)]() mutable {
-        promise->start();
-        try {
-            promise->addResult(future.get());
-        } catch (...) {
-            // In case of any exception, return empty result
-            promise->addResult({});
-        }
-        promise->finish();
-        delete promise;
-    });
-    
-    return resultFuture;
+    return pluginManager->handleCommandAsync(GlobalCommands::VariableInfo,
+                                             {{GlobalArguments::RequestedSymbol, symbol},
+                                              {GlobalArguments::FileName, mdiClientFileName()},
+                                              {GlobalArguments::ExactMatch, false}});
 }
 
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
+    QSet<QString> completions;
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     if (!pluginManager) {
-        return {};
+        return completions;
     }
 
-    // Call the async version and wait for the result
-    auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
-        {GlobalArguments::RequestedSymbol, prefix},
-        {GlobalArguments::FileName, mdiClientFileName()},
-        {GlobalArguments::ExactMatch, false}
-    });
-    
-    auto res = future.get();
+    auto result = pluginManager->handleCommand(GlobalCommands::VariableInfo,
+                                               {{GlobalArguments::RequestedSymbol, prefix},
+                                                {GlobalArguments::FileName, mdiClientFileName()},
+                                                {GlobalArguments::ExactMatch, false}});
 
-    if (!res.contains("tags")) {
-        return {};
-    }
-
-    auto tags = res["tags"].toList();
-    QSet<QString> completions;
-    for (const QVariant &item : tags) {
-        auto const tag = item.toHash();
-        auto const name = tag[GlobalArguments::Name].toString();
-        if (!name.isEmpty()) {
-            completions.insert(name);
+    if (result.contains("tags")) {
+        auto tags = result["tags"].toList();
+        for (const QVariant &item : std::as_const(tags)) {
+            auto const tag = item.toHash();
+            auto const name = tag[GlobalArguments::Name].toString();
+            if (!name.isEmpty()) {
+                completions.insert(name);
+            }
         }
     }
-
     return completions;
 }
 
 void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
     auto future = getSuggestionsForCurrentWord(localPosition);
-    auto *watcher = new QFutureWatcher<CommandArgs>(this);
-    connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [this, watcher, globalPosition]() {
-        auto res = watcher->result();
-        auto tooltip = createTooltip(res);
-        if (!tooltip.isEmpty()) {
-            QToolTip::showText(globalPosition, tooltip, textEditor);
-        }
-        watcher->deleteLater();
-    });
+    auto watcher = new QFutureWatcher<CommandArgs>(this);
+    connect(watcher, &QFutureWatcher<CommandArgs>::finished, this,
+            [this, watcher, globalPosition]() {
+                if (watcher->isFinished() && !watcher->isCanceled()) {
+                    auto res = watcher->result();
+                    auto tooltip = createTooltip(res);
+                    if (!tooltip.isEmpty()) {
+                        QToolTip::showText(globalPosition, tooltip, textEditor);
+                    }
+                }
+                watcher->deleteLater();
+            });
     watcher->setFuture(future);
 }
 

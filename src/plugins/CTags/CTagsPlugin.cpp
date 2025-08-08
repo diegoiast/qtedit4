@@ -1,8 +1,3 @@
-#include "CTagsPlugin.hpp"
-#include "CTagsLoader.hpp"
-#include "GlobalCommands.hpp"
-#include "qmdidialogevents.hpp"
-
 #include <QDesktopServices>
 #include <QDir>
 #include <QEventLoop>
@@ -13,6 +8,11 @@
 #include <QProcess>
 #include <QStandardPaths>
 #include <QThread>
+
+#include "CTagsLoader.hpp"
+#include "CTagsPlugin.hpp"
+#include "GlobalCommands.hpp"
+#include "qmdidialogevents.hpp"
 
 // FIXME: this is an ugly workaround. This is private API for Qt, and
 //        might break. I thing this is stable enough for now.
@@ -250,38 +250,40 @@ int CTagsPlugin::canHandleAsyncCommand(const QString &command, const CommandArgs
     return CommandPriority::CannotHandle;
 }
 
-std::future<CommandArgs> CTagsPlugin::handleCommandAsync(const QString &command, const CommandArgs &args) {
-    return std::async(std::launch::async, [this, command, args]() -> CommandArgs {
+QFuture<CommandArgs> CTagsPlugin::handleCommandAsync(const QString &command,
+                                                     const CommandArgs &args) {
+    auto promise = new QPromise<CommandArgs>();
+    auto future = promise->future();
+    QThreadPool::globalInstance()->start([this, command, args, promise]() {
+        promise->start();
+        CommandArgs result;
         if (command == GlobalCommands::BuildFinished) {
             auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
             auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
-            // auto taskName = args[GlobalArguments::TaskName].toString();
             auto projectName = args[GlobalArguments::Name].toString();
             newProjectBuilt(projectName, sourceDir, buildDirectory);
-        }
-
-        if (command == GlobalCommands::ProjectLoaded) {
+        } else if (command == GlobalCommands::ProjectLoaded) {
             auto projectName = args[GlobalArguments::ProjectName].toString();
             auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
             auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
             newProjectAdded(projectName, sourceDir, buildDirectory);
-        }
-
-        if (command == GlobalCommands::ProjectRemoved) {
+        } else if (command == GlobalCommands::ProjectRemoved) {
             auto projectName = args[GlobalArguments::ProjectName].toString();
             auto sourceDir = args[GlobalArguments::SourceDirectory].toString();
             auto buildDirectory = args[GlobalArguments::BuildDirectory].toString();
             projectRemoved(projectName, sourceDir, buildDirectory);
-        }
-
-        if (command == GlobalCommands::VariableInfo) {
+        } else if (command == GlobalCommands::VariableInfo) {
             auto filename = args[GlobalArguments::FileName].toString();
             auto symbol = args[GlobalArguments::RequestedSymbol].toString();
             auto exactMatch = args[GlobalArguments::ExactMatch].toBool();
-            return symbolInfoRequested(filename, symbol, exactMatch);
+            result = symbolInfoRequested(filename, symbol, exactMatch);
         }
-        return {};
+        promise->addResult(result);
+        promise->finish();
+        delete promise;
     });
+
+    return future;
 }
 
 void CTagsPlugin::setCTagsBinary(const QString &newBinary) {
@@ -312,11 +314,7 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
     connect(thread, &QThread::started, worker, [=, this]() {
         ctags->loadFile(ctagsFile.toStdString());
         QMetaObject::invokeMethod(
-            this,
-            [projectName, this]() {
-                emit tagsLoaded(projectName);
-            },
-            Qt::QueuedConnection);
+            this, [projectName, this]() { emit tagsLoaded(projectName); }, Qt::QueuedConnection);
         thread->quit();
     });
     connect(thread, &QThread::finished, worker, &QObject::deleteLater);
@@ -340,9 +338,7 @@ void CTagsPlugin::projectRemoved(const QString &projectName, const QString &sour
 
 void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sourceDir,
                                   const QString &buildDirectory) {
-    // project should be loaded first, something is borked
     auto nativeSourceDir = QDir::toNativeSeparators(sourceDir);
-    qDebug() << "Loading " << projectName << "from" << sourceDir;
     if (!projects.contains(nativeSourceDir)) {
         qDebug() << "CTagsPlugin: Project build, but not added first! ctags will not support it"
                  << nativeSourceDir;

@@ -215,8 +215,8 @@ bool CTagsLoader::load() {
 
     auto end = steady_clock::now();
     auto duration = duration_cast<milliseconds>(end - start).count();
-    std::cout << "CTagsLoader::load Loaded " << count << " tags from " << filename << " in " << duration
-              << " ms" << std::endl;
+    std::cout << "CTagsLoader::load Loaded " << count << " tags from " << filename << " in "
+              << duration << " ms" << std::endl;
 
     return true;
 }

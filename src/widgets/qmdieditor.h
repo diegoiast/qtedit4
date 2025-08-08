@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include <QToolButton>
 #include <QFuture>
+#include <QToolButton>
 
 // needed only for CommandArgs
 #include <pluginmanager.h>
