@@ -901,11 +901,13 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
         return completions;
     }
 
-    auto future = pluginManager->handleCommandAsync(
-        GlobalCommands::VariableInfo,
-        {{GlobalArguments::RequestedSymbol, prefix},
-         {GlobalArguments::FileName, mdiClientFileName()},
-         {GlobalArguments::ExactMatch, false}});
+    // clang-format off
+    auto future = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, prefix},
+        {GlobalArguments::FileName, mdiClientFileName()},
+        {GlobalArguments::ExactMatch, false}
+    });
+    // clang-format o,
 
     auto maxWaitMs = 500;
     auto pollIntervalMs = 10;

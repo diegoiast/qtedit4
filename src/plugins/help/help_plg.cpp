@@ -178,7 +178,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
                                               << tr("Check for updates every time program starts")
                                               << tr("Check for updates once per day")
                                               << tr("Check for updates once per week");
-    auto stableChannelStrings = QStringList() << tr("Stable channel (recommended")
+    auto stableChannelStrings = QStringList() << tr("Stable channel (recommended)")
                                               << tr("Testing channel (pre-releases)");
 
     config.pluginName = tr("Global config");
