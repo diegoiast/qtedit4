@@ -398,3 +398,50 @@ the project, and `cargo run` to execute it).
 
 Look for the files `kitdetector.h`, `kitdefinitions.h` `ProjectBuildConfig.h`
 for understand that subsystem.
+
+## Release cycles
+
+This product has 2 release channels (available from the config): stable, and 
+testing. The stable channel releases on the 1st of every month.  The testing,
+releases alpha,beta or RC versions. Usually from the 20 of each month, a new 
+"testing" version is done. 
+
+Try to get new code in the first 3 weeks of the month, so they can be tested
+and fixed before a final release.
+
+To understand how the versions work, look into `bump-version.py`, `updates.json`
+ and `src/plugins/help/help_plg.cpp`. 
+
+
+## Making a PR
+
+So, you found something you want to work. Fork the repo, make a few commits. 
+
+Before you send the PR
+
+1. This project uses `clang-format`. You can re-format the code using `make -C build/ fix-clang-format`.
+   If you use `ninja`, the command is `ninja -C build fix-clang-format`. If you built
+   on another build dir, you know how to fix this command.
+2. Rebase. We usually (!) like linear history.
+3. Try existing issues. If none exists, open one. 
+4. We have also a spell checker as part of the CI/CD. We can fix it later, don't worry.
+5. Put the component name you are working on, as first work then ":". 
+   For example: `login: handle null pointer`.
+6. When closing an issue, at the title of the commit should end with the numeber,
+   and in the bottom of the commit, add `closes #333`. Or `refs` if you just want
+   to mention it.
+   
+``` 
+login: handle null pointer (#333)
+
+We handle null pointers in the login screen, without crashing.
+
+closes #333
+refs #1234
+```
+
+7. **Rules are not written in stone**. If you want contribute, and these rules seem 
+   hard to follow, just make the PR. The PR will be cleaned, or re-written for you.
+8. **Have fun**. **Be possitive.**. -This project's aim is to enjoy coding. Don't be rude to other
+   participants, nor to other folks. 
+
