@@ -458,33 +458,21 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
 
     auto menu = textEditor->createStandardContextMenu();
     auto separator = new QAction(this);
-    separator->setSeparator(true);
-    menu->insertAction(menu->actions().first(), separator);
-    menu->insertMenu(menu->actions().first(), followSymbolMenu);
-    auto worker = [=, this]() -> CommandArgs {
-        auto future = getSuggestionsForCurrentWord(localPosition);
-        future.waitForFinished();
-        if (future.isValid() && future.isFinished()) {
-            return future.result();
-        }
-        return {};
-    };
+    auto actions = menu->actions();
+    auto firstAction = actions.isEmpty() ? nullptr : actions.first();
 
-    auto future = QtConcurrent::run(worker);
-    auto watcher = new QFutureWatcher<CommandArgs>(this);
+    separator->setSeparator(true);
+    menu->insertAction(firstAction, separator);
+    menu->insertMenu(firstAction, followSymbolMenu);
+
+    auto future = getSuggestionsForCurrentWord(localPosition);
+    auto watcher = new QFutureWatcher<CommandArgs>(menu);
     connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [=, this]() {
         followSymbolMenu->removeAction(loadingAction);
         delete loadingAction;
-        try {
-            auto res = watcher->result();
-            auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-            createSubFollowSymbolSubmenu(res, followSymbolMenu, pluginManager);
-        } catch (...) {
-            auto errorAction = new QAction(tr("Error loading suggestions"), followSymbolMenu);
-            errorAction->setEnabled(false);
-            followSymbolMenu->addAction(errorAction);
-        }
-        watcher->deleteLater();
+        auto res = watcher->result();
+        auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+        createSubFollowSymbolSubmenu(res, followSymbolMenu, pluginManager);
     });
 
     watcher->setFuture(future);
@@ -887,27 +875,23 @@ QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &loca
     cursor.select(QTextCursor::WordUnderCursor);
 
     if (cursor.selectedText().isEmpty()) {
-        QPromise<CommandArgs> promise;
-        promise.start();
-        promise.addResult({});
-        promise.finish();
-        return promise.future();
+        return {};
     }
 
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     if (!pluginManager) {
-        QPromise<CommandArgs> promise;
-        promise.start();
-        promise.addResult({});
-        promise.finish();
-        return promise.future();
+        return {};
     }
 
     auto symbol = cursor.selectedText();
-    return pluginManager->handleCommandAsync(GlobalCommands::VariableInfo,
-                                             {{GlobalArguments::RequestedSymbol, symbol},
-                                              {GlobalArguments::FileName, mdiClientFileName()},
-                                              {GlobalArguments::ExactMatch, false}});
+    // clang-format off
+    auto res = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
+        {GlobalArguments::RequestedSymbol, symbol },
+        {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, true },
+    });
+    // clang-format on
+    return res;
 }
 
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
@@ -917,18 +901,30 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
         return completions;
     }
 
-    auto result = pluginManager->handleCommand(GlobalCommands::VariableInfo,
-                                               {{GlobalArguments::RequestedSymbol, prefix},
-                                                {GlobalArguments::FileName, mdiClientFileName()},
-                                                {GlobalArguments::ExactMatch, false}});
+    auto future = pluginManager->handleCommandAsync(
+        GlobalCommands::VariableInfo,
+        {{GlobalArguments::RequestedSymbol, prefix},
+         {GlobalArguments::FileName, mdiClientFileName()},
+         {GlobalArguments::ExactMatch, false}});
 
-    if (result.contains("tags")) {
-        auto tags = result["tags"].toList();
-        for (const QVariant &item : std::as_const(tags)) {
-            auto const tag = item.toHash();
-            auto const name = tag[GlobalArguments::Name].toString();
-            if (!name.isEmpty()) {
-                completions.insert(name);
+    auto maxWaitMs = 500;
+    auto pollIntervalMs = 10;
+    auto waited = 0;
+    while (!future.isFinished() && waited < maxWaitMs) {
+        QThread::msleep(pollIntervalMs);
+        waited += pollIntervalMs;
+    }
+
+    if (future.isFinished() && future.isValid()) {
+        auto result = future.result();
+        if (result.contains("tags")) {
+            auto tags = result["tags"].toList();
+            for (const QVariant &item : std::as_const(tags)) {
+                auto const tag = item.toHash();
+                auto const name = tag[GlobalArguments::Name].toString();
+                if (!name.isEmpty()) {
+                    completions.insert(name);
+                }
             }
         }
     }
