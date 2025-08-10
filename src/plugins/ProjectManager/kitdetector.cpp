@@ -44,7 +44,7 @@ constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
 # This is a kit definition for qtedit4. All your tasks
 # will run through this file.
 
-# available enritonment variables:
+# available environment variables:
 # ${source_directory} - where the source being executed is saved
 # ${build_directory}  - where code should be compile into
 # ${run_directory}    - where this task should be run, as defined in
@@ -76,7 +76,7 @@ constexpr auto SCRIPT_HEADER_WIN32 = R"(@echo off
 rem This is a kit definition for qtedit4. All your tasks
 rem will run through this file.
 
-rem available enritonment variables:
+rem available environment variables:
 rem %source_directory% - where the source being executed is saved
 rem %build_directory%  - where code should be compile into
 rem %run_directory%    - where this task should be run, as defined in
@@ -177,11 +177,50 @@ auto getHomeDir() -> std::filesystem::path {
     return {};
 }
 
+#ifdef WIN32_
+#define CARGO "cargo.exe"
+#else
+#define CARGO "cargo"
+#endif
+
+using PathCallback = std::function<void(const std::filesystem::path &full_filename)>;
+
+static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> void {
+    auto path_env = safeGetEnv("PATH");
+    if (path_env.empty()) {
+        return;
+    }
+    auto ss = std::stringstream(path_env);
+    auto dir = std::string();
+    while (std::getline(ss, dir, ENV_SEPARATOR)) {
+        auto full_path = std::filesystem::path(dir) / std::filesystem::path(cmd);
+#if defined(_WIN32)
+        if (_waccess(full_path.c_str(), 04) != 0) {
+            continue;
+        }
+#else
+        if (access(full_path.c_str(), X_OK) != 0) {
+            continue;
+        }
+#endif
+        callback(full_path);
+    }
+    return;
+}
+
 auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected, bool unix_target) -> void {
     auto cargoHome = getHomeDir() / ".cargo";
     auto cargoHomeEnv = safeGetEnv("CARGO_HOME");
     if (!cargoHomeEnv.empty()) {
         cargoHome = std::filesystem::path(cargoHomeEnv);
+    } else {
+        findCommandInPath(CARGO, [&cargoHome](const auto &full_path){
+            // just handle the first one, unsure if this is the best solution
+            if (cargoHome.empty()) {
+                // cargoHome now points to "/usr/bin/cargo", and I need it to point to "/usr/"
+                cargoHome = full_path.parent_path().parent_path().string();
+            }
+        });
     }
     auto cargoPath = cargoHome / "bin" / (unix_target ? "cargo" : "cargo.exe");
     if (std::filesystem::exists(cargoPath)) {
@@ -308,33 +347,9 @@ auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
     return std::filesystem::exists(qmakePath);
 }
 
-using PathCallback = std::function<void(const std::filesystem::path &full_filename)>;
-
-static auto findCommandInPath(const std::string &cmd, PathCallback callback) -> void {
-    auto path_env = safeGetEnv("PATH");
-    if (path_env.empty()) {
-        return;
-    }
-    auto ss = std::stringstream(path_env);
-    auto dir = std::string();
-    while (std::getline(ss, dir, ENV_SEPARATOR)) {
-        auto full_path = std::filesystem::path(dir) / std::filesystem::path(cmd);
-#if defined(_WIN32)
-        if (_waccess(full_path.c_str(), 04) != 0) {
-            continue;
-        }
-#else
-        if (access(full_path.c_str(), X_OK) != 0) {
-            continue;
-        }
-#endif
-        callback(full_path);
-    }
-    return;
-}
 
 auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
-                              const std::string &path_env, const std::string &cc_name,
+                              const std::string &cc_name,
                               const std::string &cxx_name, bool unix_target) -> void {
     std::set<std::string> real_compiler_paths;
 
@@ -392,12 +407,8 @@ auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
 
 auto static findCppCompilersInPath(std::vector<KitDetector::ExtraPath> &detected, bool unix_target)
     -> void {
-    auto path_env = safeGetEnv("PATH");
-    if (path_env.empty()) {
-        return;
-    }
-    findCompilersImpl(detected, path_env, "gcc", "g++", unix_target);
-    findCompilersImpl(detected, path_env, "clang", "clang++", unix_target);
+    findCompilersImpl(detected, "gcc", "g++", unix_target);
+    findCompilersImpl(detected, "clang", "clang++", unix_target);
 }
 
 ////////////////////////////////////////////
