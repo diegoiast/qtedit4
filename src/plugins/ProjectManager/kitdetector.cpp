@@ -214,7 +214,7 @@ auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected, bool un
     if (!cargoHomeEnv.empty()) {
         cargoHome = std::filesystem::path(cargoHomeEnv);
     } else {
-        findCommandInPath(CARGO, [&cargoHome](const auto &full_path){
+        findCommandInPath(CARGO, [&cargoHome](const auto &full_path) {
             // just handle the first one, unsure if this is the best solution
             if (cargoHome.empty()) {
                 // cargoHome now points to "/usr/bin/cargo", and I need it to point to "/usr/"
@@ -347,10 +347,9 @@ auto isValidQtInstallation(const std::filesystem::path &path) -> bool {
     return std::filesystem::exists(qmakePath);
 }
 
-
 auto static findCompilersImpl(std::vector<KitDetector::ExtraPath> &detected,
-                              const std::string &cc_name,
-                              const std::string &cxx_name, bool unix_target) -> void {
+                              const std::string &cc_name, const std::string &cxx_name,
+                              bool unix_target) -> void {
     std::set<std::string> real_compiler_paths;
 
     // First detect postfixed compilers
