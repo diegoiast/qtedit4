@@ -20,7 +20,7 @@ auto isPlainText(const QString &str) -> bool;
 auto appendAscii(QTextEdit *edit, const QString &plainText) -> void;
 
 /// Helper function, converts ANSI escaped text to HTML and appends it to a QTextEdit
-auto appendAnsiText(QTextEdit *edit, const QString &ansiText) -> void;
+auto appendAnsiText(QTextEdit *edit, const QString &ansiText, const QString &baseDir) -> void;
 
 /// Convert a text containing ANSI escaped code to raw text.
 auto removeAnsiEscapeCodes(const QString &input) -> QString;

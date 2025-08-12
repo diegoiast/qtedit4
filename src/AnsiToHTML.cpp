@@ -8,6 +8,8 @@
 
 #include "AnsiToHTML.hpp"
 
+#include <QDir>
+#include <QFileInfo>
 #include <QRegularExpression>
 #include <QString>
 #include <QTextBlock>
@@ -125,17 +127,15 @@ void applyAnsiCodeToFormat(QTextCharFormat &fmt, const QString &codeStr) {
 }
 
 void insertLinkifiedText(QTextCursor &cursor, const QString &text,
-                         const QTextCharFormat &baseFormat, bool linkifyFiles) {
+                         const QTextCharFormat &baseFormat, bool linkifyFiles,
+                         const QString &baseDir) {
     static QRegularExpression urlRegex(R"((https?|file)://[^\s<>()]+)");
     static QRegularExpression pathRegex(
-        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
+        R"((([A-Za-z]:[\\/][\w\-.+\\/ ]+|~?/?[\w\-.+/]+|\./[\w\-.+/]+|\.\./[\w\-.+/]+)\.[a-zA-Z0-9+_-]{1,8})(:\d+)?(:\d+)?(:)?)");
 
     auto lastPos = 0;
     auto view = QStringView{text};
-    auto matchIter = urlRegex.globalMatch(text);
-    if (linkifyFiles) {
-        matchIter = pathRegex.globalMatch(text);
-    }
+    auto matchIter = linkifyFiles ? pathRegex.globalMatch(text) : urlRegex.globalMatch(text);
 
     while (matchIter.hasNext()) {
         auto match = matchIter.next();
@@ -148,23 +148,29 @@ void insertLinkifiedText(QTextCursor &cursor, const QString &text,
         }
 
         auto linkFmt = baseFormat;
-        auto linkUrl = QUrl();
+        QUrl linkUrl;
 
-        if (match.captured(0).startsWith("http") || match.captured(0).startsWith("file")) {
+        if (full.startsWith("http") || full.startsWith("file")) {
             linkUrl = QUrl(full);
         } else {
             auto filePart = match.captured(1);
             auto line = match.captured(3).mid(1);
             auto column = match.captured(4).mid(1);
-            QString fragment;
+            auto fragment = QString();
             if (!line.isEmpty()) {
                 fragment += line;
             }
             if (!column.isEmpty()) {
                 fragment += "," + column;
             }
-            QString filePath = filePart;
+
+            auto filePath = filePart;
             filePath.replace("\\", "/");
+            auto fi = QFileInfo(filePath);
+            if (fi.isRelative()) {
+                filePath = QDir(baseDir).absoluteFilePath(filePath);
+            }
+            filePath = QDir::cleanPath(filePath);
             linkUrl = QUrl::fromLocalFile(filePath);
             if (!fragment.isEmpty()) {
                 linkUrl.setFragment(fragment);
@@ -185,7 +191,7 @@ void insertLinkifiedText(QTextCursor &cursor, const QString &text,
     }
 }
 
-void appendAnsiText(QTextEdit *edit, const QString &ansiText) {
+void appendAnsiText(QTextEdit *edit, const QString &ansiText, const QString &baseDir) {
     auto cursor = edit->textCursor();
     cursor.movePosition(QTextCursor::End);
 
@@ -210,7 +216,7 @@ void appendAnsiText(QTextEdit *edit, const QString &ansiText) {
 
         if (start > lastPos) {
             auto chunk = view.sliced(lastPos, start - lastPos).toString();
-            insertLinkifiedText(cursor, chunk, fmt, linkifyFiles);
+            insertLinkifiedText(cursor, chunk, fmt, linkifyFiles, baseDir);
         }
 
         if (codes.isEmpty() || codes.contains('0')) {
@@ -225,7 +231,7 @@ void appendAnsiText(QTextEdit *edit, const QString &ansiText) {
     }
 
     if (lastPos < view.length()) {
-        insertLinkifiedText(cursor, view.sliced(lastPos).toString(), fmt, linkifyFiles);
+        insertLinkifiedText(cursor, view.sliced(lastPos).toString(), fmt, linkifyFiles, baseDir);
     }
 
     edit->setTextCursor(cursor);
