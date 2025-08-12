@@ -374,11 +374,11 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
                 auto fi = QFileInfo(link.toLocalFile());
                 auto fileName = fi.filePath();
+                auto dirName = fi.dir().dirName();
 
-                if (fi.isRelative()) {
+                if (fi.isRelative() || dirName == "./") {
                     auto project = getCurrentConfig();
-                    auto buildDir = project->expand(project->buildDir);
-                    fileName = buildDir + QDir::separator() + fileName;
+                    fileName = project->sourceDir + QDir::separator() + fileName;
                 }
                 auto row = -1;
                 auto col = -1;
