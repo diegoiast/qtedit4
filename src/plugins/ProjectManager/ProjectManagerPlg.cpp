@@ -377,7 +377,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                 auto dirName = fi.dir().dirName();
 
                 if (fi.isRelative() || dirName == "./") {
-                    qDebug() << "OutputPanel: clicking on realtive path failed: "
+                    qDebug() << "OutputPanel: clicking on relative path failed: "
                              << link.toString();
                     return;
                 }
