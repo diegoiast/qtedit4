@@ -1,5 +1,7 @@
 #define VersionString "0.0.12"
 #define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
+#define VC_Redist_URL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+
 
 [Setup]
 AppName=qtedit4
@@ -36,6 +38,12 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\breeze\devices\16\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\qtedit4.ico"; DestDir: "{app}\"; Flags: ignoreversion
+
+[Run]
+Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/quiet /norestart"; \
+    StatusMsg: "Installing Visual C++ Redistributable..."; \
+    Flags: waituntilterminated; \
+    Check: NeedsVC2015Runtime
 
 [Registry]
 ; Associate qtedit4 with .txt files
@@ -97,3 +105,24 @@ begin
   end;
 end;
 
+function NeedsVC2015Runtime: Boolean;
+begin
+  // Check if VC++ 2015–2022 x64 runtime is installed
+  Result := not RegKeyExists(HKLM, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64');
+end;
+
+function DownloadVCRedist: Boolean;
+var
+  ResultCode: Integer;
+begin
+  // Download the VC++ redistributable to {tmp}
+  Result := DownloadTemporaryFile('{#VC_Redist_URL}', 'vc_redist.x64.exe', ResultCode);
+  if not Result then
+    MsgBox('Failed to download Visual C++ Redistributable. Setup may not work correctly.', mbError, MB_OK);
+end;
+
+procedure InitializeWizard;
+begin
+  if NeedsVC2015Runtime then
+    DownloadVCRedist;
+end;
