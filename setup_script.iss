@@ -1,3 +1,5 @@
+#pragma include "idp.iss"
+
 #define VersionString "0.0.12"
 #define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
 #define VC_Redist_URL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
@@ -115,11 +117,13 @@ function DownloadVCRedist: Boolean;
 var
   ResultCode: Integer;
 begin
-  // Download the VC++ redistributable to {tmp}
-  Result := DownloadTemporaryFile('{#VC_Redist_URL}', 'vc_redist.x64.exe', ResultCode);
+  Result := DownloadTemporaryFile(ExpandConstant('{#VC_Redist_URL}'), 'vc_redist.x64.exe', ResultCode);
   if not Result then
+  begin
     MsgBox('Failed to download Visual C++ Redistributable. Setup may not work correctly.', mbError, MB_OK);
+  end;
 end;
+
 
 procedure InitializeWizard;
 begin
