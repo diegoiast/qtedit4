@@ -153,21 +153,6 @@ jobs:
         run: |
           windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
 
-      - name: Install Inno Download Plugin
-        if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
-        run: |
-          choco install 7zip.commandline -y
-
-          $idpInstaller = "$env:TEMP\idpsetup.exe"
-          Invoke-WebRequest -Uri "https://bitbucket.org/mitrich_k/inno-download-plugin/downloads/idpsetup-1.5.1.exe" -OutFile $idpInstaller
-
-          # Extract the installer (assuming it's a self-extracting EXE)
-          & 7z x $idpInstaller -o"$env:TEMP\idp" -y
-
-          # Copy files into Inno Setup directories
-          Copy-Item "$env:TEMP\idp\idp.iss" "C:\Program Files (x86)\Inno Setup 6\Includes\" -Force
-          Copy-Item "$env:TEMP\idp\Plugins\x64\idp.dll" "C:\Program Files (x86)\Inno Setup 6\Plugins\" -Force
-
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
