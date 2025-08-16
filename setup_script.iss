@@ -77,10 +77,10 @@ var
 begin
   Result := False;
   if RegQueryDWordValue(HKLM, 'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64',
-     'Installed', Val, True) and (Val = 1) then
+     'Installed', Val) and (Val = 1) then
     Result := True
   else if RegQueryDWordValue(HKLM, 'SOFTWARE\WOW6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64',
-     'Installed', Val, True) and (Val = 1) then
+     'Installed', Val) and (Val = 1) then
     Result := True;
 end;
 
