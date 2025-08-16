@@ -39,12 +39,6 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\qtedit4.ico"; DestDir: "{app}\"; Flags: ignoreversion
 
-[Run]
-Filename: "{tmp}\vc_redist.x64.exe"; Parameters: "/quiet /norestart"; \
-    StatusMsg: "Installing Visual C++ Redistributable..."; \
-    Flags: waituntilterminated; \
-    Check: NeedsVC2015Runtime
-
 [Registry]
 ; Associate qtedit4 with .txt files
 Root: HKCR; Subkey: ".txt"; ValueType: string; ValueName: ""; ValueData: "qtedit4.File"; Flags: createvalueifdoesntexist
