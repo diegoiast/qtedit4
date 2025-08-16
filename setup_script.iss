@@ -124,7 +124,7 @@ begin
 
     BtnOpen := TNewButton.Create(VCPage);
     BtnOpen.Parent := VCPage.Surface;
-    BtnOpen.Caption := 'Open download page';
+    BtnOpen.Caption := 'Download';
     BtnOpen.Left := 0;
     BtnOpen.Top := MsgLbl.Top + MsgLbl.Height + ScaleY(12);
     BtnOpen.OnClick := @BtnOpenClick;
