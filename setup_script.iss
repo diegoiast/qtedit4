@@ -61,98 +61,39 @@ Type: filesandordirs; Name: "{app}\*";
 [Icons]
 Name: "{group}\qtedit4 v{#VersionString}"; Filename: "{app}\qtedit4.exe"; Comment: "qtedit4 editor - version {#VersionString}"; Flags: uninsneveruninstall
 
+
 [Code]
-
+procedure RemoveOldShortcuts;
 var
-  VCPage: TWizardPage;
-  BtnOpen: TNewButton;
-  BtnRecheck: TNewButton;
-  MsgLbl: TNewStaticText;
-
-function IsVC2015_2022x64Installed: Boolean;
-var
-  Val: Cardinal;
+  OldShortcutPath: string;
+  FindRec: TFindRec;
+  CurrentShortcutName: string;
 begin
-  // Checks the standard VC++ 2015–2022 x64 runtime registry key
-  Result := False;
-  if RegQueryDWordValue(HKLM,  'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Installed', Val) and (Val = 1) then
-    Result := True
-  else if RegQueryDWordValue(HKLM64,'SOFTWARE\Microsoft\VisualStudio\14.0\VC\Runtimes\x64', 'Installed', Val) and (Val = 1) then
-    Result := True;
-end;
-
-procedure OpenVCRedistPage;
-var
-  ErrorCode: Integer;
-begin
-  ShellExec('', ExpandConstant('{#VC_Redist_URL}'), '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
-end;
-
-procedure BtnOpenClick(Sender: TObject);
-begin
-  OpenVCRedistPage;
-end;
-
-procedure BtnRecheckClick(Sender: TObject);
-begin
-  if IsVC2015_2022x64Installed then
-    MsgBox('Great! The Microsoft Visual C++ runtime is installed. Click Next to continue.', mbInformation, MB_OK)
-  else
-    MsgBox('Still not detected. Please finish installing the runtime, then click Re-check.', mbError, MB_OK);
-end;
-
-procedure InitializeWizard;
-begin
-  // If the runtime is missing, show a blocking dependency page with instructions.
-  if not IsVC2015_2022x64Installed then
+  OldShortcutPath := ExpandConstant('{group}\*');
+  CurrentShortcutName := 'qtedit4 ' + '{#VersionString}' + '.lnk';
+  if FindFirst(OldShortcutPath, FindRec) then
   begin
-    VCPage := CreateCustomPage(wpWelcome,
-      'Dependency Required',
-      'Microsoft Visual C++ 2015–2022 x64 Runtime not found');
-
-    MsgLbl := TNewStaticText.Create(VCPage);
-    MsgLbl.Parent := VCPage.Surface;
-    MsgLbl.Width := VCPage.SurfaceWidth;
-    MsgLbl.Top := ScaleY(8);
-    MsgLbl.WordWrap := True;
-    MsgLbl.Caption :=
-      'qtedit4 needs the Microsoft Visual C++ 2015–2022 x64 runtime.' + #13#10#13#10 +
-      '1) Click "Open download page" to get vc_redist.x64.exe from Microsoft.' + #13#10 +
-      '2) Install it, then return here and click "Re-check".';
-
-    BtnOpen := TNewButton.Create(VCPage);
-    BtnOpen.Parent := VCPage.Surface;
-    BtnOpen.Caption := 'Open download page';
-    BtnOpen.Left := 0;
-    BtnOpen.Top := MsgLbl.Top + MsgLbl.Height + ScaleY(12);
-    BtnOpen.OnClick := @BtnOpenClick;
-
-    BtnRecheck := TNewButton.Create(VCPage);
-    BtnRecheck.Parent := VCPage.Surface;
-    BtnRecheck.Caption := 'Re-check';
-    BtnRecheck.Left := BtnOpen.Left + BtnOpen.Width + ScaleX(8);
-    BtnRecheck.Top := BtnOpen.Top;
-    BtnRecheck.OnClick := @BtnRecheckClick;
-  end;
-end;
-
-function NextButtonClick(CurPageID: Integer): Boolean;
-begin
-  Result := True;
-  // Block moving past the dependency page until the runtime is installed
-  if Assigned(VCPage) and (CurPageID = VCPage.ID) then
-  begin
-    if not IsVC2015_2022x64Installed then
-    begin
-      MsgBox('The Microsoft Visual C++ runtime is required. Please install it before continuing.',
-        mbError, MB_OK);
-      Result := False;
+    try
+      repeat
+        if (FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0) and 
+           (ExtractFileExt(FindRec.Name) = '.lnk') and
+           (CompareText(FindRec.Name, CurrentShortcutName) <> 0) then
+        begin
+          DeleteFile(ExpandConstant('{group}\' + FindRec.Name));
+          Log('Deleted old shortcut: ' + FindRec.Name);
+        end;
+      until not FindNext(FindRec);
+    finally
+      FindClose(FindRec);
     end;
   end;
 end;
 
-// (Optional) keep your old shortcut cleanup etc. below if you still want it
-// procedure RemoveOldShortcuts; ... (your existing code)
-// procedure CurStepChanged(CurStep: TSetupStep); ... (your existing code)
-
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+  if CurStep = ssInstall then
+  begin
+    RemoveOldShortcuts;
+  end;
+end;
 
