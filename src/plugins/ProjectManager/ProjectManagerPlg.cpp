@@ -215,12 +215,69 @@ QStringList ProjectBuildModel::getAllOpenDirs() const {
     return dirs;
 }
 
+int ProjectManagerPlugin::runCommandWithKit(const QString &workingDir, const QString &program,
+                                          const QStringList &arguments,
+                                          QByteArray *output) {
+    auto project = getCurrentConfig();
+    if (!project) {
+        qWarning() << "No active project for running command with kit";
+        return -1;
+    }
+
+    QString executablePath = program;
+    QString workingDirectory = workingDir.isEmpty() ? project->buildDir : workingDir;
+    workingDirectory = project->expand(workingDirectory);
+
+    auto env = QProcessEnvironment::systemEnvironment();
+    auto kit = getCurrentKit();
+    
+    if (kit) {
+        auto buildDirectory = project->expand(project->buildDir);
+        auto sourceDirectory = project->expand(project->sourceDir);
+        auto taskCommand = project->expand(program);
+        
+        // Add standard environment variables
+        env.insert("run_directory", workingDirectory);
+        env.insert("build_directory", buildDirectory);
+        env.insert("source_directory", sourceDirectory);
+        env.insert("task", taskCommand);
+        
+        // Use the kit's executable
+        executablePath = QString::fromStdString(kit->filePath);
+        
+        // The actual command becomes an argument to the kit
+        QStringList kitArgs = {program};
+        kitArgs.append(arguments);
+        
+        if (output) {
+            // Use the output-capturing version if output is requested
+            return runCommandWithOutput(workingDirectory, executablePath, kitArgs, output);
+        } else {
+            // Otherwise use the regular runCommand
+            runCommand(workingDirectory, executablePath, kitArgs, env);
+            return 0;
+        }
+    } else {
+        // Fall back to running without a kit if none is available
+        qWarning() << "No kit available, running command directly";
+        if (output) {
+            return runCommandWithOutput(workingDirectory, executablePath, arguments, output);
+        } else {
+            runCommand(workingDirectory, executablePath, arguments, env);
+            return 0;
+        }
+    }
+}
+
 ProjectManagerPlugin::ProjectManagerPlugin() {
     name = tr("Project manager");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
     autoEnabled = true;
+    
+    // Set this instance as the command runner for ProjectBuildConfig
+    ProjectBuildConfig::setCommandRunner(this);
     alwaysEnabled = true;
 
     config.pluginName = tr("Project manager");
@@ -843,6 +900,34 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
 
     updateTasksUI(buildConfig);
     updateExecutablesUI(buildConfig);
+}
+
+int ProjectManagerPlugin::runCommandWithOutput(const QString &workingDirectory, const QString &program,
+                                             const QStringList &arguments, QByteArray *output) {
+    QProcess process;
+    process.setWorkingDirectory(workingDirectory);
+    process.setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+    process.setProgram(program);
+    process.setArguments(arguments);
+    
+    // Capture both stdout and stderr
+    process.setProcessChannelMode(QProcess::MergedChannels);
+    
+    // Connect to the readyRead signal to capture output as it comes
+    QObject::connect(&process, &QProcess::readyReadStandardOutput, [&]() {
+        if (output) {
+            output->append(process.readAllStandardOutput());
+        }
+    });
+    
+    process.start();
+    if (!process.waitForStarted()) {
+        qWarning() << "Process failed to start:" << program << arguments;
+        return -1;
+    }
+    
+    process.waitForFinished(-1);
+    return process.exitCode();
 }
 
 void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QString &program,

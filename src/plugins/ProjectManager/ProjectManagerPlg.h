@@ -2,6 +2,7 @@
 
 #include "iplugin.h"
 #include "kitdefinitions.h"
+#include "ProjectBuildConfig.h"
 #include <QAbstractItemModel>
 #include <QFileSystemWatcher>
 #include <QProcess>
@@ -41,7 +42,7 @@ class ProjectBuildModel : public QAbstractListModel {
     QStringList getAllOpenDirs() const;
 };
 
-class ProjectManagerPlugin : public IPlugin {
+class ProjectManagerPlugin : public IPlugin, public ProjectBuildConfig::CommandRunner {
 
     struct Config {
         CONFIG_DEFINE(SaveBeforeTask, bool);
@@ -69,8 +70,12 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void showAbout() override;
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void configurationHasBeenModified() override;
-    virtual void loadConfig(QSettings &settings) override;
-    virtual void saveConfig(QSettings &settings) override;
+    
+    // CommandRunner interface implementation
+    int runCommandWithKit(const QString &workingDir, const QString &program,
+                         const QStringList &arguments, QByteArray *output = nullptr) override;
+    void loadConfig(QSettings &settings) override;
+    void saveConfig(QSettings &settings) override;
 
     int canOpenFile(const QString &fileName) override;
     bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
@@ -86,6 +91,10 @@ class ProjectManagerPlugin : public IPlugin {
 
     void runCommand(const QString &workingDirectory, const QString &programOrCommand,
                     const QStringList &arguments, const QProcessEnvironment &env);
+                    
+    // Run a command and capture its output
+    int runCommandWithOutput(const QString &workingDirectory, const QString &program,
+                           const QStringList &arguments, QByteArray *output);
     void do_runExecutable(const ExecutableInfo *info);
     void do_runTask(const TaskInfo *task);
     void runButton_clicked();

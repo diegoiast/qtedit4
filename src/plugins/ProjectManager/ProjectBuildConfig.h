@@ -1,7 +1,15 @@
-#pragma once
+#ifndef PROJECTBUILDCONFIG_H
+#define PROJECTBUILDCONFIG_H
 
-#include <QHash>
-#include <QString>
+#include <QtCore/QHash>
+#include <QtCore/QProcessEnvironment>
+#include <QtCore/QByteArray>
+#include <QtCore/QStringList>
+#include <QtCore/QList>
+#include <QtCore/QVariantMap>
+#include <memory>
+
+class QProcess;
 
 auto constexpr PLATFORM_LINUX = "linux";
 auto constexpr PLATFORM_WINDOWS = "windows";
@@ -34,6 +42,14 @@ struct TaskInfo {
 enum class ProjectType { cmake, cargo, golang, meson, unknown };
 
 struct ProjectBuildConfig {
+    class CommandRunner {
+      public:
+        virtual ~CommandRunner() = default;
+        virtual int runCommandWithKit(const QString &workingDir, const QString &program,
+                                      const QStringList &arguments,
+                                      QByteArray *output = nullptr) = 0;
+    };
+
     ProjectBuildConfig() = default;
     QString sourceDir;
     QString buildDir;
@@ -57,6 +73,7 @@ struct ProjectBuildConfig {
     static auto tryGuessFromMeson(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto buildFromDirectory(const QString &directory) -> std::shared_ptr<ProjectBuildConfig>;
     static auto buildFromFile(const QString &jsonFileName) -> std::shared_ptr<ProjectBuildConfig>;
+
     static auto canLoadFile(const QString &filename) -> bool;
 
     auto updateBinaries() -> void;
@@ -72,4 +89,12 @@ struct ProjectBuildConfig {
     auto expand(const QString &var) -> QString;
 
     bool operator==(const ProjectBuildConfig &other) const;
+
+    static void setCommandRunner(CommandRunner *runner);
+    static CommandRunner *getCommandRunner() { return commandRunner; }
+
+  private:
+    static CommandRunner *commandRunner;
 };
+
+#endif // PROJECTBUILDCONFIG_H

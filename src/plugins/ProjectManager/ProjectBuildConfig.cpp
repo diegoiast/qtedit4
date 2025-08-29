@@ -10,6 +10,14 @@
 #include <QJsonObject>
 #include <QProcess>
 #include <QString>
+#include <QStringList>
+
+// Initialize static member
+ProjectBuildConfig::CommandRunner* ProjectBuildConfig::commandRunner = nullptr;
+
+void ProjectBuildConfig::setCommandRunner(CommandRunner *runner) {
+    commandRunner = runner;
+}
 
 using StringHash = QHash<QString, QString>;
 using StringPair = QPair<QString, QString>;
@@ -110,62 +118,85 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     return executables;
 }
 
+QByteArray extractJsonFromByteArray(const QByteArray &input) {
+    int start = input.indexOf('{');
+    if (start == -1) {
+        return {};
+    }
+
+    int braceCount = 0;
+    for (int i = start; i < input.size(); ++i) {
+        if (input[i] == '{') {
+            braceCount++;
+        } else {
+            if (input[i] == '}') {
+                braceCount--;
+            }
+        }
+
+        if (braceCount == 0) {
+            return input.mid(start, i - start + 1);
+        }
+    }
+
+    return {}; // Invalid or incomplete JSON
+}
+
 auto static cargoListBinUnits(const QString &directoryPath) -> StringHash {
     auto fileMap = StringHash{};
     auto process = QProcess{};
-    process.setProgram("cargo");
-    process.setArguments({"metadata", "--format-version=1", "--no-deps"});
-    process.setWorkingDirectory(directoryPath);
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    process.start();
-    if (!process.waitForFinished(10000)) {
-        qWarning() << "cargoListBinUnits: cargo metadata timed out or failed";
+    
+    auto* runner = ProjectBuildConfig::getCommandRunner();
+    if (!runner) {
+        qWarning() << "Command runner not set, cannot execute cargo metadata";
+        return fileMap;
+    }
+    
+    QByteArray output;
+    int exitCode = runner->runCommandWithKit(
+        directoryPath, "cargo", {"metadata", "--no-deps", "--format-version=1"}, &output);
+
+    if (exitCode != 0) {
+        qWarning() << "cargo metadata failed with exit code:" << exitCode;
         return fileMap;
     }
 
-    auto output = process.readAllStandardOutput();
-    if (output.isEmpty()) {
-        qWarning() << "cargoListBinUnits: cargo metadata output is empty";
+    QJsonParseError error;
+    auto jsonBytes = extractJsonFromByteArray(output);
+    auto jsonDoc = QJsonDocument::fromJson(jsonBytes, &error);
+    if (jsonDoc.isNull()) {
+        qWarning() << "Failed to parse cargo metadata output:" << error.errorString();
         return fileMap;
     }
-
-    auto jsonDoc = QJsonDocument::fromJson(output);
-    if (jsonDoc.isNull() || !jsonDoc.isObject()) {
-        qWarning() << "cargoListBinUnits: Failed to parse cargo metadata JSON";
-        return fileMap;
-    }
-
-    auto rootObj = jsonDoc.object();
-    auto targetDirStr = rootObj.value("target_directory").toString();
+    
+    auto root = jsonDoc.object();
+    auto targetDirStr = root["target_directory"].toString();
     if (targetDirStr.isEmpty()) {
-        qWarning() << "cargoListBinUnits: target_directory missing";
+        qWarning() << "cargo metadata missing target_directory";
         return fileMap;
     }
-
+    
     auto targetDir = QDir(targetDirStr);
-    auto packages = rootObj.value("packages").toArray();
-    for (const auto &packageVal : packages) {
-        if (!packageVal.isObject()) {
-            continue;
-        }
+    auto packages = root["packages"].toArray();
 
-        auto packageObj = packageVal.toObject();
-        auto targets = packageObj.value("targets").toArray();
-
-        for (const auto &targetVal : targets) {
-            if (!targetVal.isObject()) {
-                continue;
-            }
-
-            auto targetObj = targetVal.toObject();
+    for (const auto &pkg : packages) {
+        auto pkgObj = pkg.toObject();
+        auto targets = pkgObj["targets"].toArray();
+        
+        for (const auto &target : targets) {
+            auto targetObj = target.toObject();
             auto kindArray = targetObj.value("kind").toArray();
             bool isBin = std::any_of(kindArray.constBegin(), kindArray.constEnd(),
-                                     [](const auto &val) { return val.toString() == "bin"; });
+                                   [](const auto &val) { return val.toString() == "bin"; });
             if (!isBin) {
                 continue;
             }
 
             auto targetName = targetObj.value("name").toString();
+            if (targetName.isEmpty()) {
+                continue;
+            }
+
 #ifdef Q_OS_WIN
             auto exeName = targetName + ".exe";
 #else
