@@ -168,6 +168,24 @@ def update_build_sh(build_sh_path, app_version=None, qt_version=None):
     with open(build_sh_path, 'wb') as f:
         f.write(new_content.encode('utf-8'))
 
+def update_github_workflow_qt_version(yaml_file_path, qt_version):
+    if not qt_version:
+        return
+    with open(yaml_file_path, 'r', encoding='utf-8') as f:
+        original_content = f.read()
+        line_ending = detect_line_ending(original_content)
+
+    pattern = re.compile(r'(qt_version:\s*\n(?:\s*-\s*"[0-9.]+"\s*\n)+)', re.MULTILINE)
+    def replace_versions(match):
+        original = match.group(1)
+        indent = re.search(r'^(\s*)-', original, re.MULTILINE).group(1)
+        return f'qt_version:\n{indent}- "{qt_version}"\n'
+
+    updated_content = pattern.sub(replace_versions, original_content)
+    with open(yaml_file_path, 'w', encoding='utf-8') as f:
+        f.write(updated_content.replace('\n', line_ending))
+    print(f"Updated Qt version in {yaml_file_path}")
+
 def main():
     parser = argparse.ArgumentParser(description='Update version numbers across project files')
     parser.add_argument('new_version', nargs='?', help='New version number to set')
@@ -185,6 +203,7 @@ def main():
     iss_file = args.iss
     cpp_file = args.cpp
     json_file = args.json
+    workflow_file = '.github/workflows/build.yml'
 
     # Only reformat JSON if flag is set
     if args.reformat_json:
@@ -205,9 +224,10 @@ def main():
 
     update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
     update_build_bat(args.build_bat, qt_version=args.qt_version)
+    update_github_workflow_qt_version(workflow_file, args.qt_version)
 
     if args.git:
-        git_add([iss_file, cpp_file, json_file, args.build_sh, args.build_bat])
+        git_add([iss_file, cpp_file, json_file, args.build_sh, args.build_bat, workflow_file])
 
 if __name__ == "__main__":
     main()
