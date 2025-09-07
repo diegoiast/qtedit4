@@ -41,6 +41,7 @@
 #include "kitdefinitionmodel.h"
 #include "kitdetector.h"
 #include "pluginmanager.h"
+#include "plugins/filesystem/filesystemwidget.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
 #include "widgets/qmdieditor.h"
@@ -742,6 +743,20 @@ bool ProjectManagerPlugin::openFile(const QString &requestedUri, int x, int, int
 
     // just edit the file
     return false;
+}
+
+qmdiActionGroup *ProjectManagerPlugin::extraActionsForMenu(const QStringView actionName) const {
+    auto l = new qmdiActionGroup();
+    if (actionName == FileSystemWidget::POPUPMENU) {
+        auto a = new QAction(tr("Open dir as project"));
+        connect(a, &QAction::triggered, a, [a]() {
+            auto data = a->data().toString();
+            auto fi = QFileInfo(data);
+            qDebug() << "Adding dir" << fi.dir().absolutePath();
+        });
+        l->addAction(a);
+    }
+    return l;
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {

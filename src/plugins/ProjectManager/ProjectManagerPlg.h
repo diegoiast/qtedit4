@@ -72,8 +72,9 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
-    int canOpenFile(const QString &fileName) override;
-    bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
+    virtual int canOpenFile(const QString &fileName) override;
+    virtual bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
+    virtual qmdiActionGroup *extraActionsForMenu(const QStringView actionName) const override;
 
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
     const KitDefinition *getCurrentKit() const;
