@@ -1,3 +1,4 @@
+#include "plugins/filesystem/filesystemwidget.h"
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDockWidget>
@@ -309,6 +310,46 @@ void ProjectManagerPlugin::showAbout() {
                              tr("The project manager plugin"));
 }
 
+qmdiActionGroup *ProjectManagerPlugin::getContextMenuActions(const QString &menuId,
+                                                             const QString &dirPath) {
+    if (menuId != FileSystemWidget::POPUPMENU) {
+        return nullptr;
+    }
+
+    auto fileInfo = QFileInfo(dirPath);
+    if (!fileInfo.isDir()) {
+        return nullptr;
+    }
+
+    auto action = new QAction(tr("Open Directory as Project"));
+    action->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::FolderOpen));
+    connect(action, &QAction::triggered, this, [this, dirPath]() {
+        QMessageBox msgBox;
+        msgBox.setIcon(QMessageBox::Question);
+        msgBox.setText(tr("Do you want to load directory as a project?\n\n%2").arg(dirPath));
+        msgBox.setWindowTitle(tr("Confirmation"));
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+
+        auto ret = msgBox.exec();
+        switch (ret) {
+        case QMessageBox::Yes: {
+            addProjectFromDir(dirPath);
+            projectDock->raise();
+            break;
+        }
+        case QMessageBox::No:
+            break;
+        default:
+            break;
+        }
+    });
+
+    auto actionGroup = new qmdiActionGroup(tr("Project Manager"));
+    actionGroup->addAction(action);
+    return actionGroup;
+}
+
 void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     IPlugin::on_client_merged(host);
     auto manager = dynamic_cast<PluginManager *>(host);
@@ -333,7 +374,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
     connect(gui->projectComboBox, &QComboBox::currentIndexChanged, this,
             &ProjectManagerPlugin::newProjectSelected);
-    manager->createNewPanel(Panels::West, "projectmamager", tr("Project"), w);
+    projectDock = manager->createNewPanel(Panels::West, "projectmamager", tr("Project"), w);
 
     projectIssues = new ProjectIssuesWidget(manager);
     issuesDock =
@@ -660,47 +701,19 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
     auto dirsToLoad = getConfig().getOpenDirs();
-    auto index = std::make_shared<int>(0); // Shared counter
 
-    auto processNext = std::make_shared<std::function<void()>>();
-    *processNext = [this, dirsToLoad, index, processNext]() {
-        if (*index >= dirsToLoad.size()) {
-            return;
-        }
+    gui->projectComboBox->blockSignals(true);
+    for (auto const &d : dirsToLoad) {
+        addProjectFromDir(d);
+    }
+    gui->projectComboBox->blockSignals(false);
 
-        const auto &dirName = dirsToLoad[*index];
-        (*index)++;
-
-        auto config = projectModel->findConfigDir(dirName);
-        if (!config) {
-            gui->projectComboBox->blockSignals(true);
-            config = ProjectBuildConfig::buildFromDirectory(dirName);
-            projectModel->addConfig(config);
-            if (!config->fileName.isEmpty()) {
-                configWatcher.addPath(config->fileName);
-            }
-
-            auto buildDirectory = QDir::toNativeSeparators(config->expand(config->buildDir));
-            // clang-format off
-            getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
-                {GlobalArguments::ProjectName, config->name},
-                {GlobalArguments::SourceDirectory, config->sourceDir},
-                {GlobalArguments::BuildDirectory, buildDirectory},
-            });
-            // clang-format on
-
-            auto selectedDirectory = getConfig().getSelectedDirectory();
-            auto i = projectModel->findConfigDirIndex(selectedDirectory);
-            if (i >= 0) {
-                gui->projectComboBox->setCurrentIndex(i);
-                newProjectSelected(i);
-            }
-            gui->projectComboBox->blockSignals(false);
-            searchPanelUI->updateProjectList();
-        }
-        QTimer::singleShot(200, this, *processNext);
-    };
-    QTimer::singleShot(500, this, *processNext);
+    auto selectedDirectory = getConfig().getSelectedDirectory();
+    auto i = projectModel->findConfigDirIndex(selectedDirectory);
+    if (i >= 0) {
+        gui->projectComboBox->setCurrentIndex(i);
+        newProjectSelected(i);
+    }
 }
 
 void ProjectManagerPlugin::saveConfig(QSettings &settings) {
@@ -766,34 +779,7 @@ void ProjectManagerPlugin::onItemClicked(const QString &fileName) {
 
 void ProjectManagerPlugin::addProject_clicked() {
     QString dirName = QFileDialog::getExistingDirectory(gui->filesList, tr("Add directory"));
-    if (dirName.isEmpty()) {
-        return;
-    }
-    auto buildConfig = projectModel->findConfigDir(dirName);
-    if (buildConfig) {
-        return;
-    }
-    buildConfig = ProjectBuildConfig::buildFromDirectory(dirName);
-    if (!buildConfig->fileName.isEmpty()) {
-        // Auto generated config files have no filename
-        // buildConfig->fileName.toStdString().c_str());
-        configWatcher.addPath(buildConfig->fileName);
-    }
-
-    auto buildDirectory = buildConfig->expand(buildConfig->buildDir);
-    auto sourceDirectory = buildConfig->expand(buildConfig->sourceDir);
-
-    // clang-format off
-    getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
-        {GlobalArguments::ProjectName, buildConfig->name },
-        {GlobalArguments::SourceDirectory, sourceDirectory },
-        {GlobalArguments::BuildDirectory, buildDirectory },
-    });
-    // clang-format on
-
-    projectModel->addConfig(buildConfig);
-    searchPanelUI->updateProjectList();
-    gui->projectComboBox->setCurrentIndex(projectModel->rowCount() - 1);
+    addProjectFromDir(dirName);
     getManager()->saveSettings();
 }
 
@@ -817,6 +803,7 @@ void ProjectManagerPlugin::removeProject_clicked() {
         }
     );
     // clang-format on
+    searchPanelUI->updateProjectList();
 }
 
 void ProjectManagerPlugin::newProjectSelected(int index) {
@@ -1069,6 +1056,37 @@ void ProjectManagerPlugin::projectFile_modified(const QString &path) {
     // TODO  - new file created is not working yet.
     qDebug("Config file modified - %s", path.toStdString().data());
 }
+
+auto ProjectManagerPlugin::addProjectFromDir(const QString &dirName) -> void {
+    if (dirName.isEmpty()) {
+        return;
+    }
+    auto buildConfig = projectModel->findConfigDir(dirName);
+    if (buildConfig) {
+        return;
+    }
+    buildConfig = ProjectBuildConfig::buildFromDirectory(dirName);
+    if (!buildConfig->fileName.isEmpty()) {
+        configWatcher.addPath(buildConfig->fileName);
+    }
+
+    auto buildDirectory = buildConfig->expand(buildConfig->buildDir);
+    auto sourceDirectory = buildConfig->expand(buildConfig->sourceDir);
+
+    // clang-format off
+    getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
+        {GlobalArguments::ProjectName, buildConfig->name },
+        {GlobalArguments::SourceDirectory, sourceDirectory },
+        {GlobalArguments::BuildDirectory, buildDirectory },
+    });
+    // clang-format on
+
+    projectModel->addConfig(buildConfig);
+    searchPanelUI->updateProjectList();
+    gui->projectComboBox->setCurrentIndex(projectModel->rowCount() - 1);
+    searchPanelUI->updateProjectList();
+}
+
 auto ProjectManagerPlugin::saveAllDocuments() -> bool {
     for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
         auto c = mdiServer->getClient(i);

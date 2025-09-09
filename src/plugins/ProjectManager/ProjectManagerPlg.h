@@ -72,9 +72,11 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
 
+    virtual qmdiActionGroup *getContextMenuActions(const QString &menuId,
+                                                   const QString &filePath) override;
+
     int canOpenFile(const QString &fileName) override;
     bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
-
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
     const KitDefinition *getCurrentKit() const;
 
@@ -94,6 +96,7 @@ class ProjectManagerPlugin : public IPlugin {
     void projectFile_modified(const QString &path);
 
   private:
+    auto addProjectFromDir(const QString &dir) -> void;
     auto saveAllDocuments() -> bool;
     auto processBuildOutput(const QString &line) -> void;
     auto updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void;
@@ -104,6 +107,7 @@ class ProjectManagerPlugin : public IPlugin {
     int panelIndex = -1;
     Ui::ProjectManagerGUI *gui = nullptr;
     Ui::BuildRunOutput *outputPanel = nullptr;
+    QDockWidget *projectDock = nullptr;
     QDockWidget *outputDock = nullptr;
     QDockWidget *issuesDock = nullptr;
     ProjectIssuesWidget *projectIssues = nullptr;
