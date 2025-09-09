@@ -138,7 +138,7 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     updateTimer = new QTimer(this);
     updateTimer->setSingleShot(true);
     updateTimer->setInterval(300);
-    connect(updateTimer, &QTimer::timeout, this, [this]() { updateList(filesList, true); });
+    updateList(filesList, true);
 }
 
 void FilesList::setExcludeListEnabled(bool state) { this->excludeEdit->setEnabled(state); }
@@ -171,12 +171,15 @@ void FilesList::setDir(const QString &dir) {
     worker->moveToThread(scanThread);
     worker->setRootDir(directory);
     connect(worker, &FileScannerWorker::filesChunkFound, this, [=, this](const QStringList &chunk) {
+        if (worker->requestedStop()) {
+            return;
+        }
         QMetaObject::invokeMethod(
             this,
             [=, this]() {
+                updateList(chunk, false);
                 filesList.append(chunk);
                 loadingWidget->setToolTip(QString(tr("Total %1 files")).arg(filesList.size()));
-                updateList(chunk, false);
             },
             Qt::QueuedConnection);
     });
