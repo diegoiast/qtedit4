@@ -110,25 +110,15 @@ auto getExecutablesFromCMakeFileAPI(const QString &buildDir) -> StringHash {
     return executables;
 }
 
-auto static cargoListBinUnits(const QString &directoryPath) -> StringHash {
+auto static cargoListBinUnits(const QString &metaData) -> StringHash {
     auto fileMap = StringHash{};
-    auto process = QProcess{};
-    process.setProgram("cargo");
-    process.setArguments({"metadata", "--format-version=1", "--no-deps"});
-    process.setWorkingDirectory(directoryPath);
-    process.setProcessChannelMode(QProcess::MergedChannels);
-    process.start();
-    if (!process.waitForFinished(10000)) {
-        qWarning() << "cargoListBinUnits: cargo metadata timed out or failed";
+
+    auto file = QFile(metaData);
+    if (!file.open(QFile::OpenModeFlag::ReadOnly)) {
         return fileMap;
     }
 
-    auto output = process.readAllStandardOutput();
-    if (output.isEmpty()) {
-        qWarning() << "cargoListBinUnits: cargo metadata output is empty";
-        return fileMap;
-    }
-
+    auto output = file.readAll();
     auto jsonDoc = QJsonDocument::fromJson(output);
     if (jsonDoc.isNull() || !jsonDoc.isObject()) {
         qWarning() << "cargoListBinUnits: Failed to parse cargo metadata JSON";
@@ -358,12 +348,15 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
     auto cargoBuild = "cargo build";
     auto cargoBuildRelease = "cargo build --release";
     auto cargoUpdate = "cargo update";
+    auto cargoListPackages =
+        "(cargo metadata --format-version=1 --no-deps > ${build_directory}/cargo-metadata.json)";
+
     {
         auto t = TaskInfo();
         t.name = "cargo build";
         t.runDirectory = "${source_directory}";
-        t.commands.insert(PLATFORM_LINUX, {cargoBuild});
-        t.commands.insert(PLATFORM_WINDOWS, {cargoBuild});
+        t.commands.insert(PLATFORM_LINUX, {cargoBuild, cargoListPackages});
+        t.commands.insert(PLATFORM_WINDOWS, {cargoBuild, cargoListPackages});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -371,8 +364,8 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         auto t = TaskInfo();
         t.name = "cargo build (release)";
         t.runDirectory = "${source_directory}";
-        t.commands.insert(PLATFORM_LINUX, {cargoBuildRelease});
-        t.commands.insert(PLATFORM_WINDOWS, {cargoBuildRelease});
+        t.commands.insert(PLATFORM_LINUX, {cargoBuildRelease, cargoListPackages});
+        t.commands.insert(PLATFORM_WINDOWS, {cargoBuildRelease, cargoListPackages});
         t.isBuild = true;
         value->tasksInfo.push_back(t);
     }
@@ -392,8 +385,8 @@ auto ProjectBuildConfig::tryGuessFromCargo(const QString &directory)
         t.commands.insert(PLATFORM_WINDOWS, {cargoUpdate});
         value->tasksInfo.push_back(t);
     }
-    value->updateBinariesCargo();
 
+    value->updateBinariesCargo();
     return value;
 }
 
@@ -688,7 +681,9 @@ auto ProjectBuildConfig::updateBinariesCargo() -> void {
     e.executables[PLATFORM_WINDOWS] = "cargo run";
     this->executables.push_back(e);
 #endif
-    auto binaries = cargoListBinUnits(this->sourceDir);
+    auto metaData = QString::fromLatin1("${build_directory}/cargo-metadata.json");
+    metaData = this->expand(metaData);
+    auto binaries = cargoListBinUnits(metaData);
     for (const auto &[key, value] : binaries.asKeyValueRange()) {
         e.name = key;
         e.runDirectory = "${source_directory}";
