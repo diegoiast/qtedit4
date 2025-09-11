@@ -13,7 +13,6 @@ LoadingWidget::LoadingWidget(QWidget *parent) : QWidget(parent) {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     setFixedHeight(lineHeight);
 
-    lineColor = style()->standardPalette().highlight().color();
     connect(&timer, &QTimer::timeout, this, &LoadingWidget::updatePosition);
 }
 
@@ -68,6 +67,7 @@ void LoadingWidget::paintEvent(QPaintEvent *event) {
     auto yPos = (height() - lineHeight) / 2.0;
     auto lineRect = QRectF(position, yPos, lineWidth, lineHeight);
 
+    auto lineColor = palette().color(QPalette::Highlight);
     painter.setPen(Qt::NoPen);
     painter.setBrush(lineColor);
     painter.drawRoundedRect(lineRect, lineHeight / 2.0, lineHeight / 2.0);
