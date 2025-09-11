@@ -126,7 +126,7 @@ auto static setupPty(QProcess &process, int &masterFd) -> bool {
 
     process.setStandardInputFile(QString::fromUtf8(slaveName));
     process.setStandardOutputFile(QString::fromUtf8(slaveName));
-    process.setStandardErrorFile(QString::fromUtf8(slaveName));
+    process.setProcessChannelMode(QProcess::MergedChannels);
 
     close(slaveFd);
 
