@@ -223,17 +223,10 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = true;
+    auto monospacedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
 
     config.pluginName = tr("Project manager");
     config.description = tr("Add support for building using CMake/Cargo/Go");
-    config.configItems.push_back(
-        qmdiConfigItem::Builder()
-            .setDisplayName(tr("Black console"))
-            .setDescription(tr("Should the console background be black, or default"))
-            .setKey(Config::BlackConsoleKey)
-            .setType(qmdiConfigItem::Bool)
-            .setDefaultValue(false)
-            .build());
     config.configItems.push_back(
         qmdiConfigItem::Builder()
             .setDisplayName(tr("Save before running tasks (build, config etc)"))
@@ -242,24 +235,39 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
             .setType(qmdiConfigItem::Bool)
             .setDefaultValue(true)
             .build());
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("Black console"))
+            .setDescription(tr("Should the console background be black, or default"))
+            .setKey(Config::BlackConsoleKey)
+            .setType(qmdiConfigItem::Bool)
+            .setDefaultValue(false)
+            .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Extra paths"))
-                                     .setDescription(tr("Add new paths for compilers/tools"))
-                                     .setKey(Config::ExtraPathKey)
-                                     .setType(qmdiConfigItem::StringList)
-                                     .setDefaultValue(QStringList())
+                                     .setDisplayName(tr("Console font"))
+                                     .setKey(Config::ConsoleFontKey)
+                                     .setType(qmdiConfigItem::Font)
+                                     .setDefaultValue(monospacedFont)
+                                     .setValue(monospacedFont)
                                      .build());
 
+    /*
+        config.configItems.push_back(qmdiConfigItem::Builder()
+                                         .setDisplayName(tr("Extra paths"))
+                                         .setDescription(tr("Add new paths for compilers/tools"))
+                                         .setKey(Config::ExtraPathKey)
+                                         .setType(qmdiConfigItem::StringList)
+                                         .setDefaultValue(QStringList())
+                                         .build());
+    */
     // project GUI
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     // .setDisplayName(tr("Open directories"))
                                      .setKey(Config::OpenDirsKey)
                                      .setType(qmdiConfigItem::StringList)
                                      .setDefaultValue(QStringList())
                                      .setUserEditable(false)
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     // .setDisplayName(tr("Currently open directory"))
                                      .setKey(Config::SelectedDirectoryKey)
                                      .setType(qmdiConfigItem::String)
                                      .setDefaultValue(QString{})
@@ -395,16 +403,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     outputPanel->commandOuput->setLineWrapMode(QTextEdit::NoWrap);
     outputPanel->commandOuput->clear();
 
-    QTimer::singleShot(0, [this]() {
-        // why in a timer? because at this step, if we set the palette, the widget
-        // will get inserted "soon" and its palette will change anyway.
-        if (getConfig().getBlackConsole()) {
-            auto p = outputPanel->commandOuput->palette();
-            p.setColor(QPalette::Base, Qt::black);
-            p.setColor(QPalette::Text, QColor(192, 192, 192));
-            outputPanel->commandOuput->setPalette(p);
-        }
-    });
+    // why in a timer? because at this step, if we set the palette, the widget
+    // will get inserted "soon" and its palette will change anyway.
+    QTimer::singleShot(0, this, &ProjectManagerPlugin::configurationHasBeenModified);
 
     connect(outputPanel->commandOuput, &QTextBrowser::anchorClicked, outputPanel->commandOuput,
             [this](const QUrl &link) {
@@ -691,6 +692,10 @@ void ProjectManagerPlugin::configurationHasBeenModified() {
         p.setColor(QPalette::Text, QColor(192, 192, 192));
     }
     outputPanel->commandOuput->setPalette(p);
+
+    auto newFont = QFont();
+    newFont.fromString(getConfig().getConsoleFont());
+    outputPanel->commandOuput->setFont(newFont);
 }
 
 void ProjectManagerPlugin::loadConfig(QSettings &settings) {
