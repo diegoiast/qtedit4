@@ -46,6 +46,7 @@ class ProjectManagerPlugin : public IPlugin {
     struct Config {
         CONFIG_DEFINE(SaveBeforeTask, bool);
         CONFIG_DEFINE(BlackConsole, bool);
+        CONFIG_DEFINE(ConsoleFont, QString)
         CONFIG_DEFINE(ExtraPath, QStringList);
         CONFIG_DEFINE(OpenDirs, QStringList);
         CONFIG_DEFINE(SelectedDirectory, QString);
