@@ -231,7 +231,7 @@ auto static findRustSetup(std::vector<KitDetector::ExtraPath> &detected, bool un
         if (unix_target) {
             extraPath.command = "export PATH=\"" + extraPath.compiler_path + "/bin:${PATH}\"";
         } else {
-            extraPath.command = "set PATH=" + extraPath.compiler_path + ";%PATH%";
+            extraPath.command = "set PATH=" + extraPath.compiler_path + "\\bin;%PATH%";
         }
         detected.push_back(extraPath);
     }
