@@ -304,9 +304,6 @@ SplitTabWidget::SplitTabWidget(QWidget *parent)
     layout->setContentsMargins(0, 0, 0, 0);
     splitter->installEventFilter(this);
 
-    // Whty a timer? without this - event listener does not work, and menus don't work
-    QTimer::singleShot(0, splitter, [this]() { splitHorizontally(); });
-
     connect(qApp, &QApplication::focusChanged, this, [this](QWidget *, QWidget *now) mutable {
         if (!now || !this->isAncestorOf(now)) {
             return;
