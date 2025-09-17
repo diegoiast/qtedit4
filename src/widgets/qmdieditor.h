@@ -52,6 +52,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
     virtual bool canCloseClient() override;
     virtual QString mdiClientFileName() override;
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
+    virtual qmdiClientState getState() const override;
+    virtual void setState(const qmdiClientState &state) override;
 
     void setupActions();
     inline bool getModificationsLookupEnabled() const { return fileModifications; }
@@ -195,7 +197,16 @@ class qmdiEditor : public QWidget, public qmdiClient {
     bool fileModifications = true;
     QTimer *loadingTimer = nullptr;
     bool documentHasBeenLoaded = true;
-    QPoint requestedPosition;
+
+    qmdiClientState savedState;
+
+    struct StateConstants {
+        static constexpr const char *COLUMN = "col";
+        static constexpr const char *ROW = "row";
+        static constexpr const char *ZOOM = "zoom";
+        static constexpr const char *SEL_ANCHOR = "sel-anchor";
+        static constexpr const char *SEL_POSITION = "sel-position";
+    };
 
     QString fileName;
     QMenu *bookmarksMenu;

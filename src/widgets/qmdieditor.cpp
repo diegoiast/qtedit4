@@ -32,15 +32,16 @@
 #include <QStyledItemDelegate>
 #include <QTextBlock>
 #include <QTextBrowser>
+#include <QTextCursor>
 #include <QTextEdit>
 #include <QToolBar>
 #include <QToolTip>
 #include <QTreeView>
 #include <QtConcurrent/QtConcurrent>
-#include <qmditabwidget.h>
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
+#include <qmditabwidget.h>
 
 #include "GlobalCommands.hpp"
 #include "plugins/texteditor/thememanager.h"
@@ -417,7 +418,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->textEditor->setMouseTracking(true);
     this->textEditor->viewport()->installEventFilter(this);
 
-    originalLineEnding = PLATFORM_LINE_ENDING;
+    this->originalLineEnding = PLATFORM_LINE_ENDING;
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -514,6 +515,62 @@ std::optional<std::tuple<int, int, int>> qmdiEditor::get_coordinates() const {
     auto col = cursor.columnNumber();
     auto zoom = font().pointSize();
     return std::make_tuple(row, col, zoom);
+}
+
+qmdiClientState qmdiEditor::getState() const {
+    auto cursor = textEditor->textCursor();
+    auto row = textEditor->document()->findBlock(cursor.position()).blockNumber();
+    auto col = cursor.columnNumber();
+    auto zoom = font().pointSize();
+    auto state = qmdiClientState();
+    state[StateConstants::COLUMN] = col;
+    state[StateConstants::ROW] = row;
+    state[StateConstants::ZOOM] = zoom;
+
+    if (cursor.hasSelection()) {
+        state[StateConstants::SEL_ANCHOR] = cursor.anchor();
+        state[StateConstants::SEL_POSITION] = cursor.position();
+    } else {
+        state.remove(StateConstants::SEL_ANCHOR);
+        state.remove(StateConstants::SEL_POSITION);
+    }
+    return state;
+}
+
+void qmdiEditor::setState(const qmdiClientState &state) {
+    savedState = state;
+    if (!documentHasBeenLoaded) {
+        return;
+    }
+
+    if (state.contains(StateConstants::ZOOM)) {
+        auto zoom = state[StateConstants::ZOOM].toInt();
+        auto f = font();
+        f.setPointSize(zoom);
+        setFont(f);
+    }
+
+    {
+        auto col = 0;
+        auto row = 0;
+        if (state.contains(StateConstants::COLUMN)) {
+            col = state[StateConstants::COLUMN].toInt();
+        }
+        if (state.contains(StateConstants::ROW)) {
+            row = state[StateConstants::ROW].toInt();
+        }
+        textEditor->goTo(row, col);
+    }
+
+    if (state.contains(StateConstants::SEL_ANCHOR) &&
+        state.contains(StateConstants::SEL_POSITION)) {
+        auto anchor = state[StateConstants::SEL_ANCHOR].toInt();
+        auto position = state[StateConstants::SEL_POSITION].toInt();
+        auto cursor = textEditor->textCursor();
+        cursor.setPosition(anchor, QTextCursor::MoveAnchor);
+        cursor.setPosition(position, QTextCursor::KeepAnchor);
+        textEditor->setTextCursor(cursor);
+    }
 }
 
 void qmdiEditor::setupActions() {
@@ -789,8 +846,9 @@ void qmdiEditor::hideTimer_timeout() {
     }
 }
 
+// FIXME: this is becoming a "on modified" function.
 void qmdiEditor::updateClientName() {
-    auto static MODIFIED_TEXT = QString(" ") + QChar(0x270D); // pencil
+    auto static const MODIFIED_TEXT = QStringLiteral(" ") + QChar(0x270D); // pencil
 
     updatePreview();
     if (textEditor->document()->isModified()) {
@@ -810,8 +868,8 @@ void qmdiEditor::goTo(int x, int y) {
     if (documentHasBeenLoaded) {
         textEditor->goTo(x, y);
     } else {
-        requestedPosition.setX(x);
-        requestedPosition.setY(y);
+        savedState[StateConstants::ROW] = y;
+        savedState[StateConstants::COLUMN] = x;
     }
 }
 
@@ -1177,7 +1235,6 @@ void qmdiEditor::loadContent() {
     // on loading, since really, signals emitted a this stage are not meaningful.
     textEditor->blockSignals(true);
     textEditor->setPlainText(textStream.readAll());
-    textEditor->goTo(requestedPosition.x(), requestedPosition.y());
 
     QFileInfo fileInfo(file);
     file.close();
@@ -1199,6 +1256,7 @@ void qmdiEditor::loadContent() {
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
     updateClientName();
+    setState(savedState);
 
     // TODO - we should remove dependency on qmdiTabWidget
     if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
