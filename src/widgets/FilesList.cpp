@@ -129,6 +129,8 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
 
     connect(list, &QListWidget::itemClicked, this, [this](auto *it) {
         auto fileName = this->directory + QDir::separator() + it->text();
+        auto fileInfo = QFileInfo(fileName);
+        fileName = fileInfo.absoluteFilePath();
         fileName = QDir::toNativeSeparators(fileName);
         emit fileSelected(fileName);
     });
