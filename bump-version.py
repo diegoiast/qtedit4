@@ -1,5 +1,22 @@
 #! /usr/bin/python3
 
+# This script is used to update versions of the main app
+# and Qt dependencies. We have the same app version in several places:
+#
+# 1) setup_script.iss - which creates the EXE installer on windows
+# 2) build.sh - script which creates a local appimage
+# 3) main.cpp - runtime version
+# 4) the updates.json file
+#
+# Qt versions is also spread:
+# 1) build.bat
+# 2) build.sh
+# 3) github actions
+#
+# This script is vibe coded to the death. I just ask chatgpt to add features, and paste
+# the whole script. Seems to be working for such simple task. No need to be logged it, and
+# it gives good results.
+
 import re
 import json
 import argparse
@@ -94,7 +111,40 @@ def update_json_versions(file_path, new_version, update_all=False, qt_version=No
     with open(file_path, 'w', encoding='utf-8', newline='') as f:
         f.write(new_json)
 
-def print_versions(title, iss_file, cpp_file, json_file):
+def get_github_qt_versions(yaml_file_path):
+    try:
+        with open(yaml_file_path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        return None
+
+    match = re.search(r'qt_version:\s*\n((?:\s*-\s*"[0-9.]+"\s*\n?)+)', content)
+    if not match:
+        return None
+
+    versions_block = match.group(1)
+    versions = re.findall(r'"([\d\.]+)"', versions_block)
+    return versions
+
+def get_qt_version_from_build_sh(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        return None
+    match = re.search(r'^QT_VERSION="([^"]+)"', content, re.MULTILINE)
+    return match.group(1) if match else None
+
+def get_qt_version_from_build_bat(path):
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            content = f.read()
+    except FileNotFoundError:
+        return None
+    match = re.search(r'c:\\Qt\\([\d.]+)\\', content, re.IGNORECASE)
+    return match.group(1) if match else None
+
+def print_versions(title, iss_file, cpp_file, json_file, workflow_file=None, build_sh=None, build_bat=None):
     print(f"\n{title.center(40, '-')}")
     iss_version = get_iss_version(iss_file)
     cpp_version = get_cpp_version(cpp_file)
@@ -104,6 +154,24 @@ def print_versions(title, iss_file, cpp_file, json_file):
     print(f"{json_file}:")
     for env, ver in json_versions.items():
         print(f"  {env}: {ver}")
+
+    if workflow_file:
+        qt_versions = get_github_qt_versions(workflow_file)
+        if qt_versions:
+            print(f"{workflow_file}:")
+            for v in qt_versions:
+                print(f"  Qt: {v}")
+        else:
+            print(f"{workflow_file}: Qt version not found.")
+
+    if build_sh:
+        qt_sh = get_qt_version_from_build_sh(build_sh)
+        print(f"{build_sh}: Qt {qt_sh or 'version not found'}")
+
+    if build_bat:
+        qt_bat = get_qt_version_from_build_bat(build_bat)
+        print(f"{build_bat}: Qt {qt_bat or 'version not found'}")
+
 
 def git_add(files):
     try:
@@ -136,7 +204,6 @@ def update_build_bat(build_bat_path, qt_version):
     new_lines = []
     for line in lines:
         if line.strip().startswith('SET PATH='):
-            # Replace any Qt path like c:\Qt\6.8.0\...
             new_line = re.sub(
                 r'(c:\\Qt\\)([\d\.]+)(\\[^;\\]+)',
                 rf'\g<1>{qt_version}\g<3>',
@@ -176,9 +243,9 @@ def update_github_workflow_qt_version(yaml_file_path, qt_version):
         line_ending = detect_line_ending(original_content)
 
     pattern = re.compile(r'(qt_version:\s*\n(?:\s*-\s*"[0-9.]+"\s*\n)+)', re.MULTILINE)
+
     def replace_versions(match):
-        original = match.group(1)
-        indent = re.search(r'^(\s*)-', original, re.MULTILINE).group(1)
+        indent = re.search(r'^(\s*)-', match.group(1), re.MULTILINE).group(1)
         return f'qt_version:\n{indent}- "{qt_version}"\n'
 
     updated_content = pattern.sub(replace_versions, original_content)
@@ -205,26 +272,23 @@ def main():
     json_file = args.json
     workflow_file = '.github/workflows/build.yml'
 
-    # Only reformat JSON if flag is set
     if args.reformat_json:
         reformat_json(json_file)
         return
 
-    # new_version is required unless --reformat-json is used
+    print_versions('Current Versions', iss_file, cpp_file, json_file, workflow_file, build_sh=args.build_sh, build_bat=args.build_bat)
     if not args.new_version:
-        parser.error("the following arguments are required: new_version (unless --reformat-json is used)")
-
-    print_versions('Current Versions', iss_file, cpp_file, json_file)
+        return
 
     update_iss_version(iss_file, args.new_version)
     update_cpp_version(cpp_file, args.new_version)
     update_json_versions(json_file, args.new_version, update_all=args.all, qt_version=args.qt_version)
 
-    print_versions('Updated Versions', iss_file, cpp_file, json_file)
+    print_versions('Updated Versions', iss_file, cpp_file, json_file, workflow_file, build_sh=args.build_sh, build_bat=args.build_bat)
 
     update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
     update_build_bat(args.build_bat, qt_version=args.qt_version)
-    update_github_workflow_qt_version(workflow_file, args.qt_version)
+    update_github_workflow_qt_version(workflow_file, qt_version=args.qt_version)
 
     if args.git:
         git_add([iss_file, cpp_file, json_file, args.build_sh, args.build_bat, workflow_file])
