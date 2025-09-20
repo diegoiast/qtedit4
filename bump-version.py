@@ -284,11 +284,11 @@ def main():
     update_cpp_version(cpp_file, args.new_version)
     update_json_versions(json_file, args.new_version, update_all=args.all, qt_version=args.qt_version)
 
-    print_versions('Updated Versions', iss_file, cpp_file, json_file, workflow_file, build_sh=args.build_sh, build_bat=args.build_bat)
-
     update_build_sh(args.build_sh, app_version=args.new_version, qt_version=args.qt_version)
     update_build_bat(args.build_bat, qt_version=args.qt_version)
     update_github_workflow_qt_version(workflow_file, qt_version=args.qt_version)
+
+    print_versions('Updated Versions', iss_file, cpp_file, json_file, workflow_file, build_sh=args.build_sh, build_bat=args.build_bat)
 
     if args.git:
         git_add([iss_file, cpp_file, json_file, args.build_sh, args.build_bat, workflow_file])
