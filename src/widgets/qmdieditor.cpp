@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -28,6 +29,7 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QStackedWidget>
+#include <QStandardPaths>
 #include <QStyle>
 #include <QStyledItemDelegate>
 #include <QTextBlock>
@@ -419,6 +421,21 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->textEditor->viewport()->installEventFilter(this);
 
     this->originalLineEnding = PLATFORM_LINE_ENDING;
+
+    autoSaveTimer = new QTimer(this);
+    autoSaveTimer->setSingleShot(true);
+    autoSaveTimer->setInterval(5000);
+    connect(autoSaveTimer, &QTimer::timeout, this, &qmdiEditor::autoSave);
+    connect(textEditor, &QPlainTextEdit::textChanged, this, [this]() {
+        autoSaveTimer->start();
+    });
+
+    QByteArray randomData;
+    for (auto i = 0; i < 16; ++i) {
+        randomData.append(static_cast<char>(QRandomGenerator::global()->bounded(256)));
+    }
+    auto hash = QCryptographicHash::hash(randomData, QCryptographicHash::Sha1).toHex();
+    uid = QString::fromLatin1(hash);
 }
 
 qmdiEditor::~qmdiEditor() {
@@ -483,8 +500,11 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
 
 bool qmdiEditor::canCloseClient() {
     if (!textEditor->document()->isModified()) {
-        return true;
+        deleteBackup();
+    } else {
+        saveBackup();
     }
+    return true;
 
     QMessageBox msgBox(QMessageBox::Warning, mdiClientName,
                        tr("The document has been modified.\nDo you want to save your changes?"),
@@ -500,6 +520,7 @@ bool qmdiEditor::canCloseClient() {
     } else if (ret == QMessageBox::Cancel) {
         return false;
     }
+    deleteBackup();
     return true;
 }
 
@@ -527,6 +548,10 @@ qmdiClientState qmdiEditor::getState() const {
     state[StateConstants::ROW] = row;
     state[StateConstants::ZOOM] = zoom;
 
+    if (!uid.isEmpty()) {
+        state[StateConstants::UUID] = uid;
+    }
+
     if (cursor.hasSelection()) {
         state[StateConstants::SEL_ANCHOR] = cursor.anchor();
         state[StateConstants::SEL_POSITION] = cursor.position();
@@ -541,6 +566,10 @@ void qmdiEditor::setState(const qmdiClientState &state) {
     savedState = state;
     if (!documentHasBeenLoaded) {
         return;
+    }
+
+    if (state.contains(StateConstants::UUID)) {
+        uid = state[StateConstants::UUID].toString();
     }
 
     if (state.contains(StateConstants::ZOOM)) {
@@ -1122,6 +1151,7 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     setModificationsLookupEnabled(modificationsEnabledState);
     mdiServer->updateClientName(this);
     updateFileDetails();
+    saveBackup();
     return true;
 }
 
@@ -1217,12 +1247,25 @@ void qmdiEditor::loadContent() {
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
-    auto file = QFile(fileName);
-    if (!file.open(QIODevice::ReadOnly)) {
-        QApplication::restoreOverrideCursor();
-        return;
+    QFile file;
+    auto loadedFromBackup = false;    
+    if (savedState.contains(StateConstants::UUID)) {
+        uid = savedState[StateConstants::UUID].toString();
+        file.setFileName(getBackupFileName());
+        if (file.open(QIODevice::ReadOnly)) {
+            loadedFromBackup = true;
+        } else if (file.setFileName(fileName), !file.open(QIODevice::ReadOnly)) {
+            QApplication::restoreOverrideCursor();
+            return;
+        }
+    } else {
+        file.setFileName(fileName);
+        if (!file.open(QIODevice::ReadOnly)) {
+            QApplication::restoreOverrideCursor();
+            return;
+        }
     }
-
+    
     QElapsedTimer timer;
     timer.start();
     this->originalLineEnding = getLineEnding(file, originalLineEnding);
@@ -1235,9 +1278,9 @@ void qmdiEditor::loadContent() {
     // on loading, since really, signals emitted a this stage are not meaningful.
     textEditor->blockSignals(true);
     textEditor->setPlainText(textStream.readAll());
-
-    QFileInfo fileInfo(file);
     file.close();
+
+    QFileInfo fileInfo(fileName);
     qDebug() << "qmdiEditor::loadContent " << fileName << "loaded in" << timer.elapsed() << "mSec";
 
     fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
@@ -1249,6 +1292,7 @@ void qmdiEditor::loadContent() {
             10);
     }
 
+    textEditor->document()->setModified(loadedFromBackup);
     updateFileDetails();
     setModificationsLookupEnabled(modificationsEnabledState);
     textEditor->removeModifications();
@@ -1385,5 +1429,44 @@ void qmdiEditor::updatePreview() {
         textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::JSON);
     } else if (isXMLDocument()) {
         textPreview->previewText(mdiClientFileName(), textEditor->toPlainText(), TextPreview::XML);
+    }
+}
+
+void qmdiEditor::autoSave() {
+    if (textEditor->document()->isModified()) {
+        saveBackup();
+    }
+}
+
+QString qmdiEditor::getBackupFileName() const {
+    if (uid.isEmpty()) {
+        return {};
+    }
+
+    auto backupPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/backups/";
+    QDir().mkpath(backupPath);
+    return backupPath + uid + ".bak";
+}
+
+void qmdiEditor::saveBackup() {
+    auto file = QFile(getBackupFileName());
+    if (file.open(QIODevice::WriteOnly)) {
+        QTextStream out(&file);
+        out << textEditor->toPlainText();
+    }
+}
+
+void qmdiEditor::loadBackup() {
+    auto file = QFile(getBackupFileName());
+    if (file.exists() && file.open(QIODevice::ReadOnly)) {
+        QTextStream in(&file);
+        textEditor->setPlainText(in.readAll());
+    }
+}
+
+void qmdiEditor::deleteBackup() {
+    auto file = QFile(getBackupFileName());
+    if (file.exists()) {
+        file.remove();
     }
 }
