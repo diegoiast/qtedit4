@@ -2,14 +2,11 @@
 
 ![qtedit4](qtedit4.png)
 
-![GitHub Releases](https://img.shields.io/github/v/release/diegoiast/qtedit4?include_prereleases)
-![GitHub All Releases](https://img.shields.io/github/downloads/diegoiast/qtedit4/total)
-![Activity](https://img.shields.io/github/commit-activity/m/diegoiast/qtedit4)
-![Open Issues](https://img.shields.io/github/issues-raw/diegoiast/qtedit4)
-
 ![Build Status](https://github.com/diegoiast/qtedit4/actions/workflows/build.yml/badge.svg)
 ![Clang Format](https://github.com/diegoiast/qtedit4/actions/workflows/clang-format.yml/badge.svg)
 ![Code spell](https://github.com/diegoiast/qtedit4/actions/workflows/codespell.yml/badge.svg)
+![Activity](https://img.shields.io/github/commit-activity/m/diegoiast/qtedit4)
+![Open Issues](https://img.shields.io/github/issues-raw/diegoiast/qtedit4)
 
 <!-- Community 
 ![Contributors](https://img.shields.io/github/contributors/diegoiast/qtedit4)
@@ -28,7 +25,9 @@ qtedit4 is an IDE for Rust, Go, C++ Python and more. Its focus is local developm
 not web development. Its currently on early development. There are releases for Windows
 (exe installer) and Linux (AppImage).
 
-[![Download version 0.0.9](https://img.shields.io/badge/Download-%F0%9F%93%81-limegreen?style=for-the-badge)](https://github.com/diegoiast/qtedit4/releases/tag/v0.0.9)
+![Download latest stable version](https://img.shields.io/github/v/release/diegoiast/qtedit4)
+ ![Download tetsing version](https://img.shields.io/github/v/release/diegoiast/qtedit4?include_prereleases)
+![GitHub All Releases](https://img.shields.io/github/downloads/diegoiast/qtedit4/total)
 
 Want to contribue? Look at [hack.md](hack.md) for guideance (TLDR: 
 clone this repo, and `cmake -S build -B build; cmake --build build`, you will need a C++ compiler
@@ -43,13 +42,13 @@ Feel free to open new issues, and work on whatever makes you happy.
 
 ## Status
  * Basic editor working. Supports only UTF8. (need other? [request for it](https://github.com/diegoiast/qtedit4/issues)
- * Can load/build projects: CMake, Meson, Go, Cargo (WIP see https://github.com/diegoiast/qtedit4/issues/115)
- * Building project works for all projects (Cargo is WIP, see https://github.com/diegoiast/qtedit4/issues/116)
+ * Can load/build projects: CMake, Meson, Go, Cargo
  * Preview for XML, JSON, SVG (!), Markdown
  * Binary/HEX editor
  * Simple image viewer
  * Auto update with stable and testing channels
  * Command pallete (contorl+P - open files, control+shift+P commands)
+ * Auto save (modified files are restored on next app start)
 
 Want to see it in action? Live coding videos here: https://www.youtube.com/playlist?list=PLQeAIMKe60pMtZp3KZTmYoYXySy6UlvD3
 
