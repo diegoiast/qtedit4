@@ -426,9 +426,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     autoSaveTimer->setSingleShot(true);
     autoSaveTimer->setInterval(5000);
     connect(autoSaveTimer, &QTimer::timeout, this, &qmdiEditor::autoSave);
-    connect(textEditor, &QPlainTextEdit::textChanged, this, [this]() {
-        autoSaveTimer->start();
-    });
+    connect(textEditor, &QPlainTextEdit::textChanged, this, [this]() { autoSaveTimer->start(); });
 
     QByteArray randomData;
     for (auto i = 0; i < 16; ++i) {
