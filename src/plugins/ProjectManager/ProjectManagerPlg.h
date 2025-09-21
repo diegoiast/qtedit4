@@ -77,7 +77,7 @@ class ProjectManagerPlugin : public IPlugin {
                                                    const QString &filePath) override;
 
     int canOpenFile(const QString &fileName) override;
-    bool openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
+    qmdiClient *openFile(const QString &fileName, int = -1, int = -1, int = -1) override;
     std::shared_ptr<ProjectBuildConfig> getCurrentConfig() const;
     const KitDefinition *getCurrentKit() const;
 

@@ -104,9 +104,9 @@ int ImageViewrPlugin::canOpenFile(const QString &fileName) {
     }
 }
 
-bool ImageViewrPlugin::openFile(const QString &fileName, int, int, int) {
+qmdiClient *ImageViewrPlugin::openFile(const QString &fileName, int, int, int) {
     auto parentWidget = dynamic_cast<QWidget *>(mdiServer);
     auto viewer = new qmdiImageViewer(parentWidget, fileName);
     mdiServer->addClient(viewer);
-    return true;
+    return viewer;
 }

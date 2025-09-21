@@ -170,9 +170,9 @@ int HexViewrPlugin::canOpenFile(const QString &fileName) {
     return 2;
 }
 
-bool HexViewrPlugin::openFile(const QString &fileName, int, int, int) {
+qmdiClient *HexViewrPlugin::openFile(const QString &fileName, int, int, int) {
     auto parentWidget = dynamic_cast<QWidget *>(mdiServer);
     auto viewer = new qmdiHexViewer(parentWidget, fileName);
     mdiServer->addClient(viewer);
-    return true;
+    return viewer;
 }

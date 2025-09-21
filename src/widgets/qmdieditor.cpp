@@ -588,7 +588,7 @@ void qmdiEditor::setState(const qmdiClientState &state) {
         if (state.contains(StateConstants::ROW)) {
             row = state[StateConstants::ROW].toInt();
         }
-        textEditor->goTo(row, col);
+        textEditor->goTo(col, row);
     }
 
     if (state.contains(StateConstants::SEL_ANCHOR) &&
@@ -1076,13 +1076,13 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     fileName = QDir::toNativeSeparators(newFileName);
     mdiClientName = getShortFileName();
 
+    documentHasBeenLoaded = false;
     if (this->fileName.isEmpty()) {
         this->fileName.clear();
         textEditor->clear();
         return true;
     }
 
-    documentHasBeenLoaded = false;
     updateClientName();
     return true;
 }
@@ -1272,19 +1272,24 @@ void qmdiEditor::loadContent() {
     auto textStream = QTextStream(&file);
     textStream.seek(0);
 
-    // why blocking signals?
-    // when loading, (setPlainText()) a signal is emitted,  which triggers the system to believe
-    // that the content has been modified. just don't do this. It will also save some time
+    // Why blocking signals?
+    // When loading, (setPlainText()) a signal is emitted,  which triggers the system to believe
+    // that the content has been modified. Just don't do this. It will also save some time
     // on loading, since really, signals emitted a this stage are not meaningful.
     textEditor->blockSignals(true);
     textEditor->setPlainText(textStream.readAll());
     file.close();
 
     QFileInfo fileInfo(fileName);
-    qDebug() << "qmdiEditor::loadContent " << fileName << "loaded in" << timer.elapsed() << "mSec";
+    auto elapsed = timer.elapsed();
+
+    if (elapsed > 0) {
+        // don't spam logs with very fast loads, we don't care about it
+        qDebug() << "qmdiEditor::loadContent " << fileName << "loaded in" << elapsed << "mSec";
+    }
 
     fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
-    if (!fileInfo.isWritable()) {
+    if (fileInfo.exists() && !fileInfo.isWritable()) {
         textEditor->setReadOnly(true);
         displayBannerMessage(
             tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
