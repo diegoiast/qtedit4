@@ -116,6 +116,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
     void updateClientName();
+    void autoSave();
 
   public:
     QString originalLineEnding = "\n";
@@ -183,6 +184,10 @@ class qmdiEditor : public QWidget, public qmdiClient {
   private:
     QString getShortFileName();
     void showContextMenu(const QPoint &localPosition, const QPoint &globalPosition);
+    QString getBackupFileName() const;
+    void saveBackup();
+    void loadBackup();
+    void deleteBackup();
 
     Qutepart::ThemeManager *themeManager = nullptr;
     Qutepart::Qutepart *textEditor = nullptr;
@@ -206,6 +211,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
         static constexpr const char *ZOOM = "zoom";
         static constexpr const char *SEL_ANCHOR = "sel-anchor";
         static constexpr const char *SEL_POSITION = "sel-position";
+        static constexpr const char *UUID = "uuid";
     };
 
     QString fileName;
@@ -236,4 +242,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QAction *actionCopyFileName = nullptr;
     QAction *actionCopyFilePath = nullptr;
     QAction *actionToggleHeader = nullptr;
+
+    QTimer *autoSaveTimer = nullptr;
+    QString uid;
 };

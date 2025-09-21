@@ -405,7 +405,7 @@ int TextEditorPlugin::canOpenFile(const QString &fileName) {
     return 1;
 }
 
-bool TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom) {
+qmdiClient *TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom) {
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
 
     // In the future - the zoom, will be used to set state to the lines, if the value is really
@@ -424,24 +424,24 @@ bool TextEditorPlugin::openFile(const QString &fileName, int x, int y, int zoom)
     }
 
     applySettings(editor);
-    auto loaded = editor->loadFile(fileName);
     auto shouldAutoPreview = editor->autoPreview;
     auto canOpenPreview = editor->hasPreview();
+    editor->loadFile(fileName);
     editor->setPreviewEnabled(canOpenPreview);
     editor->setPreviewVisible(canOpenPreview && shouldAutoPreview);
     editor->setHistoryModel(historyModel);
-    mdiServer->addClient(editor);
     editor->goTo(x, y);
-    return loaded;
+    mdiServer->addClient(editor);
+    return editor;
 }
 
-void TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
-    auto *editor = dynamic_cast<qmdiEditor *>(client);
-    if (!editor) {
-        return;
-    }
-    editor->goTo(x, y);
+qmdiClient *TextEditorPlugin::navigateFile(qmdiClient *client, int x, int y, int z) {
     Q_UNUSED(z);
+    auto *editor = dynamic_cast<qmdiEditor *>(client);
+    if (editor) {
+        editor->goTo(x, y);
+    }
+    return editor;
 }
 
 void TextEditorPlugin::applySettings(qmdiEditor *editor) {

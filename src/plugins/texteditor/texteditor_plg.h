@@ -60,8 +60,8 @@ class TextEditorPlugin : public IPlugin {
 
     QStringList myExtensions() override;
     int canOpenFile(const QString &fileName) override;
-    bool openFile(const QString &fileName, int x = -1, int y = -1, int z = -1) override;
-    void navigateFile(qmdiClient *client, int x, int y, int z) override;
+    qmdiClient *openFile(const QString &fileName, int x = -1, int y = -1, int z = -1) override;
+    qmdiClient *navigateFile(qmdiClient *client, int x, int y, int z) override;
     void applySettings(qmdiEditor *editor);
 
   public slots:
