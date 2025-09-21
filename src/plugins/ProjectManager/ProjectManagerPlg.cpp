@@ -744,22 +744,24 @@ int ProjectManagerPlugin::canOpenFile(const QString &fileName) {
     return 0;
 }
 
-bool ProjectManagerPlugin::openFile(const QString &requestedUri, int x, int, int) {
+qmdiClient *ProjectManagerPlugin::openFile(const QString &requestedUri, int x, int, int) {
     auto uri = QUrl(requestedUri);
     auto filename = uri.path();
     auto fi = QFileInfo(filename);
     auto dir = fi.dir().absolutePath();
 
     if (uri.scheme() == "loaded") {
-        return tryOpenProject(filename, dir);
+        tryOpenProject(filename, dir);
+        return nullptr;
     }
 
     if (uri.scheme() == "projectmanager") {
-        return tryScrollOutput(x);
+        tryScrollOutput(x);
+        return nullptr;
     }
 
     // just edit the file
-    return false;
+    return nullptr;
 }
 
 std::shared_ptr<ProjectBuildConfig> ProjectManagerPlugin::getCurrentConfig() const {
