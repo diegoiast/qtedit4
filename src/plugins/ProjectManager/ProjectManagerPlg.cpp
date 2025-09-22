@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
@@ -14,6 +15,7 @@
 #include <QStandardPaths>
 #include <QStringListModel>
 #include <QTimer>
+#include <QWidgetAction>
 
 #if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
 #include <fcntl.h>
@@ -1164,21 +1166,41 @@ auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> bui
             gui->taskButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->taskButton);
+            gui->taskButton->setMenu(menu);
+
+            auto filterLineEdit = new QLineEdit(menu);
+            filterLineEdit->setPlaceholderText(tr("Filter tasks..."));
+            filterLineEdit->setClearButtonEnabled(true);
+
+            auto filterAction = new QWidgetAction(menu);
+            filterAction->setDefaultWidget(filterLineEdit);
+            menu->addAction(filterAction);
+
             QList<QAction *> actions;
             for (const auto &taskInfo : std::as_const(buildConfig->tasksInfo)) {
-                auto action = new QAction(taskInfo.name, this);
+                auto action = new QAction(taskInfo.name, menu);
                 menu->addAction(action);
                 actions.append(action);
 
-                action = new QAction(taskInfo.name, this);
-                connect(action, &QAction::triggered, this,
+                auto mainMenuAction = new QAction(taskInfo.name, this);
+                connect(mainMenuAction, &QAction::triggered, this,
                         [this, taskInfo]() { this->do_runTask(&taskInfo); });
-
-                this->availableTasksMenu->addAction(action);
+                this->availableTasksMenu->addAction(mainMenuAction);
             }
-            gui->taskButton->setMenu(menu);
+
+            connect(filterLineEdit, &QLineEdit::textChanged, menu,
+                    [actions = actions](const QString &text) {
+                        for (auto action : actions) {
+                            action->setVisible(action->text().contains(text, Qt::CaseInsensitive));
+                        }
+                    });
+
             connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
-                auto index = actions.indexOf(action);
+                auto it = std::find(actions.begin(), actions.end(), action);
+                if (it == actions.end()) {
+                    return;
+                }
+                auto index = std::distance(actions.begin(), it);
                 auto taskName = buildConfig->tasksInfo[index].name;
                 auto platform = PLATFORM_CURRENT;
                 auto commands = buildConfig->tasksInfo[index].commands.value(platform);
@@ -1239,21 +1261,42 @@ auto ProjectManagerPlugin::updateExecutablesUI(std::shared_ptr<ProjectBuildConfi
             this->gui->runButton->setMenu(nullptr);
         } else {
             auto menu = new QMenu(gui->runButton);
+            this->gui->runButton->setMenu(menu);
+
+            auto filterLineEdit = new QLineEdit(menu);
+            filterLineEdit->setPlaceholderText(tr("Filter executables..."));
+            filterLineEdit->setClearButtonEnabled(true);
+
+            auto filterAction = new QWidgetAction(menu);
+            filterAction->setDefaultWidget(filterLineEdit);
+            menu->addAction(filterAction);
+
             QList<QAction *> actions;
             for (const auto &target : std::as_const(buildConfig->executables)) {
-                QAction *action = new QAction(target.name, this);
+                auto action = new QAction(target.name, menu);
                 menu->addAction(action);
                 actions.append(action);
 
-                action = new QAction(target.name, this);
-                connect(action, &QAction::triggered, this,
+                auto mainMenuAction = new QAction(target.name, this);
+                connect(mainMenuAction, &QAction::triggered, this,
                         [this, target]() { this->do_runExecutable(&target); });
-                this->availableExecutablesMenu->addAction(action);
+                this->availableExecutablesMenu->addAction(mainMenuAction);
             }
             this->mdiServer->mdiHost->updateGUI();
-            this->gui->runButton->setMenu(menu);
+
+            connect(filterLineEdit, &QLineEdit::textChanged, menu,
+                    [actions = actions](const QString &text) {
+                        for (auto action : actions) {
+                            action->setVisible(action->text().contains(text, Qt::CaseInsensitive));
+                        }
+                    });
+
             connect(menu, &QMenu::triggered, this, [this, actions, buildConfig](QAction *action) {
-                auto index = actions.indexOf(action);
+                auto it = std::find(actions.begin(), actions.end(), action);
+                if (it == actions.end()) {
+                    return;
+                }
+                auto index = std::distance(actions.begin(), it);
                 auto executableName = buildConfig->executables[index].name;
                 auto executablePath =
                     findExecForPlatform(buildConfig->executables[index].executables);
