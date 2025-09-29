@@ -10,12 +10,12 @@
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc1",
-            "latest-version": "0.0.14-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc2",
+            "latest-version": "0.0.14-rc2",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc1/qtedit4-qt6.9.2-v0.0.14-rc1-x86_64.exe",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc2/qtedit4-qt6.8.3-v0.0.14-rc2-x86_64.exe",
             "changelog":
-                "Add project via file operations menu, cargo build fixed, change console font",
+                "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
             "mandatory": true
         },
         "linux": {
@@ -28,12 +28,12 @@
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc1",
-            "latest-version": "0.0.14-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc2",
+            "latest-version": "0.0.14-rc2",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc1/qtedit4-qt6.9.2-v0.0.14-rc1-x86_64.AppImage",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc2/qtedit4-qt6.8.3-v0.0.14-rc2-x86_64.AppImage",
             "changelog":
-                "Add project via file operations menu, cargo build fixed, change console font",
+                "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
             "mandatory": true
         }
     }
