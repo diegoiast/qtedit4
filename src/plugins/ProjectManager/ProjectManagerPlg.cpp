@@ -916,7 +916,7 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
             executablePath = QString::fromStdString(kit->filePath);
         }
     }
-
+    getManager()->saveSettings();
     runCommand(workingDirectory, executablePath, arguments, env);
 }
 
@@ -1005,6 +1005,7 @@ void ProjectManagerPlugin::runTask_clicked() {
             editor->removeMetaData();
         }
     }
+    getManager()->saveSettings();
     this->projectIssues->clearAllIssues();
     do_runTask(&buildConfig->tasksInfo[selectedTaskIndex]);
 }
