@@ -1,0 +1,79 @@
+name: CodeQL + Test Coverage
+
+on:
+  push:
+    branches: [main, github-actions]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-test-codeql:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      security-events: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+        with:
+          cmakeVersion: "~3.31.0"
+
+      - name: Install Qt 6.9.2
+        uses: jurplel/install-qt-action@v4.1.1
+        with:
+          version: 6.9.2
+          cache: true
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y ninja-build lcov
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: cpp
+
+      - name: Configure project
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build project
+        run: |
+          cmake --build build
+
+      - name: Run tests
+        run: |
+          cd build
+          ctest --output-on-failure || true
+
+      - name: Collect coverage
+        run: |
+          lcov --directory build --capture --output-file coverage.info
+          lcov --remove coverage.info '/usr/*' --output-file coverage.info
+          lcov --list coverage.info
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.info
+
+#      - name: Report coverage in PR
+#        uses: zyborg/code-coverage-report-action@v3
+#        with:
+#          coverage-files: coverage.info
+#          artifact-name: coverage-report
+#          minimum-coverage: 50
+#          publish-summary: true
+#          publish-comment: true
+#          fail-build: false
+
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+

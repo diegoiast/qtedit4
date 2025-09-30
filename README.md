@@ -7,6 +7,7 @@
 ![Code spell](https://github.com/diegoiast/qtedit4/actions/workflows/codespell.yml/badge.svg)
 ![Activity](https://img.shields.io/github/commit-activity/m/diegoiast/qtedit4)
 ![Open Issues](https://img.shields.io/github/issues-raw/diegoiast/qtedit4)
+![CodeQL + Coverage](https://github.com/diegoiast/qtedit4/actions/workflows/codeql-coverage.yml/badge.svg)
 
 <!-- Community 
 ![Contributors](https://img.shields.io/github/contributors/diegoiast/qtedit4)
