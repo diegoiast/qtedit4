@@ -1,4 +1,4 @@
-**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.0.13...v0.0.14-rc2
+**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.0.13...v0.0.14
 
 # October 2025 - release
 

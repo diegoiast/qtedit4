@@ -1,39 +1,31 @@
 {
     "updates": {
         "windows": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.13",
-            "latest-version": "0.0.13",
-            "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.13/qtedit4-qt6.9.2-v0.0.13-x86_64.exe",
-            "changelog":
-                "Syntax highlighter fixes, Rust building fixes, indentation of selected block, move tabs with keyboard, closing tabs on splits works as expected, Windows 10/11 install fixes",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
+            "latest-version": "0.0.14",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.exe",
+            "changelog": "Syntax highlighter fixes, Rust building fixes, indentation of selected block, move tabs with keyboard, closing tabs on splits works as expected, Windows 10/11 install fixes",
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc2",
-            "latest-version": "0.0.14-rc2",
-            "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc2/qtedit4-qt6.8.3-v0.0.14-rc2-x86_64.exe",
-            "changelog":
-                "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
+            "latest-version": "0.0.14",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.exe",
+            "changelog": "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
             "mandatory": true
         },
         "linux": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.13",
-            "latest-version": "0.0.13",
-            "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.13/qtedit4-qt6.9.2-v0.0.13-x86_64.AppImage",
-            "changelog":
-                "Syntax highlighter fixes, Rust building fixes, indentation of selected block, move tabs with keyboard, closing tabs on splits works as expected, Windows 10/11 install fixes",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
+            "latest-version": "0.0.14",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.AppImage",
+            "changelog": "Syntax highlighter fixes, Rust building fixes, indentation of selected block, move tabs with keyboard, closing tabs on splits works as expected, Windows 10/11 install fixes",
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14-rc2",
-            "latest-version": "0.0.14-rc2",
-            "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14-rc2/qtedit4-qt6.8.3-v0.0.14-rc2-x86_64.AppImage",
-            "changelog":
-                "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
+            "latest-version": "0.0.14",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.AppImage",
+            "changelog": "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
             "mandatory": true
         }
     }
