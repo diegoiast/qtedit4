@@ -8,7 +8,7 @@ Selections are restored in opened files. Unsaved files are restored without savi
 are actually saved to a temp location). You can modify the console fonts. Cargo bugs
 are finally fixed. Copying a full document works as expected.
 
-CMake dependencies are not locked with sha1, instead of following a branch. For reproducibility.
+From now on, CMake dependencies will locked with sha1, instead of following a branch.  This will help reproducibility.
 
 ## Changelog
  * Meta: Save IDE state more periodically - https://github.com/diegoiast/qtedit4/issues/124

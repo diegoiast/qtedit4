@@ -25,8 +25,8 @@ qtedit4 is an IDE for Rust, Go, C++ Python and more. Its focus is local developm
 not web development. Its currently on early development. There are releases for Windows
 (exe installer) and Linux (AppImage).
 
-![Download latest stable version](https://img.shields.io/github/v/release/diegoiast/qtedit4)
- ![Download tetsing version](https://img.shields.io/github/v/release/diegoiast/qtedit4?include_prereleases)
+[![Download latest stable version](https://img.shields.io/github/v/release/diegoiast/qtedit4)](https://github.com/diegoiast/qtedit4/releases/latest)
+[![Download testing version](https://img.shields.io/github/v/release/diegoiast/qtedit4?include_prereleases)](https://github.com/diegoiast/qtedit4/releases)
 ![GitHub All Releases](https://img.shields.io/github/downloads/diegoiast/qtedit4/total)
 
 Want to contribue? Look at [hack.md](hack.md) for guideance (TLDR: 
