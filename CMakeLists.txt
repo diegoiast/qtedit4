@@ -13,6 +13,8 @@ set(QMDILIB_BUILD_EXAMPLES off)
 set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
+set(COMMAND_PALLETE_ENABLE_TESTS off)
+
 option(QTEDIT4_WORK_OFFLINE off)
 
 if (QTEDIT4_WORK_OFFLINE)
@@ -30,7 +32,7 @@ else()
     
     CPMAddPackage("gh:diegoiast/qmdilib#c6eab5a342e9662695b8929476303745615b2978")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#5d166608410357432bd227a3eb07d21a786c8a08")
-    CPMAddPackage("gh:diegoiast/command-palette-widget#0900f97d7b75fb05c83b0ea83fdb2f908cb6b8a9")
+    CPMAddPackage("gh:diegoiast/command-palette-widget#6289e63de4a3d83f286526b65351d5ee2033c71a")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")

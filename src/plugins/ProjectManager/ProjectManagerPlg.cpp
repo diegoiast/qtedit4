@@ -664,6 +664,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     this->menus[tr("&Project")]->addAction(quickOpen);
 
     commandPalette = new CommandPalette(manager);
+    commandPalette->setFilterModes(CommandPalette::FilterMode::FileMatch);
     connect(quickOpen, &QAction::triggered, this, [this]() {
         if (commandPalette->isVisible()) {
             commandPalette->hide();

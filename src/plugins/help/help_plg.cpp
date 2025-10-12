@@ -255,6 +255,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         auto window = getManager();
         model->setActions(collectWidgetActions(window));
         auto commandPalette = new CommandPalette(window);
+        commandPalette->setFilterModes(CommandPalette::FilterMode::RemoveAccelerators);
         commandPalette->setDataModel(model);
         commandPalette->setItemDelegate(new ActionDelegate(commandPalette));
         connect(commandPalette, &CommandPalette::didChooseItem, this,
