@@ -29,8 +29,8 @@ clone_or_update_repo() {
         cd "$target_dir"
         if ! git checkout -q $release 2>/dev/null && 
            ! git checkout -q origin/$release 2>/dev/null; then
-            echo "Failed to checkout $release for $repo. Falling back to master."
-            git checkout -q master
+            echo "Failed to checkout $release for $repo. Falling back to master/main."
+            git checkout -q master || git checkout -q main
         fi
     )
 }
