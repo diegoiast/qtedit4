@@ -29,15 +29,14 @@ if (QTEDIT4_WORK_OFFLINE)
 else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
-    
+
     CPMAddPackage("gh:diegoiast/qmdilib#c6eab5a342e9662695b8929476303745615b2978")
-    CPMAddPackage("gh:diegoiast/qutepart-cpp#5d166608410357432bd227a3eb07d21a786c8a08")
-    CPMAddPackage("gh:diegoiast/command-palette-widget#6289e63de4a3d83f286526b65351d5ee2033c71a")
+    CPMAddPackage("gh:diegoiast/qutepart-cpp#51002489ff0779e4025565fe56ee2b3216423314")
+    CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")
     CPMAddPackage("gh:Dax89/QHexView#5fe6d9851ecfae0acf26d1659ee3cb579d03202f")
-    
     download_breeze_icons(6.4.0)
 endif()
 
@@ -55,7 +54,7 @@ set(qtedit4_sources
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.h
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugin_list.ui
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmanager.cpp
-    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmanager.h   
+    ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmanager.h
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginwindow.ui
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/plugins/filesystem/filesystembrowser.h
@@ -69,7 +68,7 @@ set(qtedit4_sources
     src/widgets/gotolineform.ui
     src/widgets/bannermessage.ui
     src/widgets/replaceform.ui
-    src/widgets/searchform.ui  
+    src/widgets/searchform.ui
     src/widgets/textoperationswidget.cpp
     src/widgets/textoperationswidget.h
     src/widgets/textpreview.cpp
@@ -78,17 +77,17 @@ set(qtedit4_sources
     src/widgets/xmltreemodel.h
     src/widgets/LoadingWidget.cpp
     src/widgets/LoadingWidget.hpp
-    src/widgets/qmdiSplitTab.cpp  
-    src/widgets/qmdiSplitTab.h  
+    src/widgets/qmdiSplitTab.cpp
+    src/widgets/qmdiSplitTab.h
     src/widgets/qmdieditor.cpp
     src/widgets/qmdieditor.h
-    src/widgets/SplitTabWidget.cpp  
+    src/widgets/SplitTabWidget.cpp
     src/widgets/SplitTabWidget.h
     src/widgets/qmdiSplitTab.cpp
     src/widgets/qmdiSplitTab.h
     src/widgets/FilesList.cpp
     src/widgets/FilesList.hpp
-    
+
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
     src/plugins/texteditor/thememanager.cpp
@@ -101,7 +100,7 @@ set(qtedit4_sources
     src/plugins/hexviewer/hexviewer_plg.h
     src/plugins/ProjectManager/BuildRunOutput.ui
     src/plugins/ProjectManager/CompilerOutputDecoders.cpp
-    src/plugins/ProjectManager/CompilerOutputDecoders.h 
+    src/plugins/ProjectManager/CompilerOutputDecoders.h
     src/plugins/ProjectManager/kitdefinitions.h
     src/plugins/ProjectManager/kitdefinitions.cpp
     src/plugins/ProjectManager/kitdefinitionmodel.h
@@ -110,8 +109,8 @@ set(qtedit4_sources
     src/plugins/ProjectManager/kitdetector.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.cpp
     src/plugins/ProjectManager/ProjectBuildConfig.h
-    src/plugins/ProjectManager/ProjectIssuesWidget.h 
-    src/plugins/ProjectManager/ProjectIssuesWidget.cpp 
+    src/plugins/ProjectManager/ProjectIssuesWidget.h
+    src/plugins/ProjectManager/ProjectIssuesWidget.cpp
     src/plugins/ProjectManager/ProjectIssuesWidget.ui
     src/plugins/ProjectManager/ProjectManagerPlg.cpp
     src/plugins/ProjectManager/ProjectManagerPlg.h
@@ -143,10 +142,18 @@ endif()
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
-    ${qutepart_SOURCE_DIR}/include 
+    ${qutepart_SOURCE_DIR}/include
     src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml
+    qmdilib
+    qutepart
+    CommandPaletteWidget
+    Pal::ImageViewer
+    QHexView
+    QSimpleUpdater
+    QJsonModelStatic
+)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
