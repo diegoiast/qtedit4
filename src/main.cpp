@@ -12,6 +12,7 @@
 #include <QIcon>
 #include <QStandardPaths>
 #include <QToolButton>
+#include <oclero/qlementine.hpp>
 
 #include "pluginmanager.h"
 #include "plugins/CTags/CTagsPlugin.hpp"
@@ -69,6 +70,9 @@ int main(int argc, char *argv[]) {
     auto iniFilePath = filePath + "/qtedit4.ini";
     auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
+
+    auto *style = new oclero::qlementine::QlementineStyle(&app);
+    QApplication::setStyle(style);
 
     pluginManager.setWindowTitle("qtedit4");
     pluginManager.setWindowIcon(windowIcon);

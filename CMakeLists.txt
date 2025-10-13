@@ -26,18 +26,19 @@ if (QTEDIT4_WORK_OFFLINE)
     add_subdirectory("lib/QJsonModel")
     add_subdirectory("lib/QSimpleUpdater")
     add_subdirectory("lib/QHexView")
+    add_subdirectory("lib/qlementine/")
 else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
     
     CPMAddPackage("gh:diegoiast/qmdilib#c6eab5a342e9662695b8929476303745615b2978")
-    CPMAddPackage("gh:diegoiast/qutepart-cpp#5d166608410357432bd227a3eb07d21a786c8a08")
-    CPMAddPackage("gh:diegoiast/command-palette-widget#6289e63de4a3d83f286526b65351d5ee2033c71a")
+    CPMAddPackage("gh:diegoiast/qutepart-cpp#51002489ff0779e4025565fe56ee2b3216423314")
+    CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")
     CPMAddPackage("gh:Dax89/QHexView#5fe6d9851ecfae0acf26d1659ee3cb579d03202f")
-    
+    CPMAddPackage("gh:oclero/qlementine/#d1c10740d22fc81ddbf18f2d2e1766c5bdde9ba9")
     download_breeze_icons(6.4.0)
 endif()
 
@@ -146,7 +147,16 @@ target_include_directories(qtedit4 PUBLIC
     ${qutepart_SOURCE_DIR}/include 
     src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml qmdilib qutepart CommandPaletteWidget Pal::ImageViewer QHexView QSimpleUpdater QJsonModelStatic)
+target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml
+    qmdilib
+    qutepart
+    CommandPaletteWidget
+    Pal::ImageViewer
+    QHexView
+    QSimpleUpdater
+    QJsonModelStatic
+    qlementine
+)
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
