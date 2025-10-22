@@ -30,6 +30,9 @@ inline constexpr const char *ScrollOutput = "ScrollOutput";
 // Editor requests information about variable below mouse
 inline constexpr const char *VariableInfo = "VariableInfo";
 
+// Editor requests information about variable below mouse
+inline constexpr const char *KeywordTooltip = "KeywordTooltip";
+
 } // namespace GlobalCommands
 
 namespace GlobalArguments {
@@ -46,4 +49,6 @@ inline constexpr const char *ColumnNumber = "ColumnNumber";
 inline constexpr const char *Type = "Type";
 inline constexpr const char *Value = "Value";
 inline constexpr const char *Raw = "Raw";
+inline constexpr const char *Tags = "Tags";
+inline constexpr const char *Tooltip = "Tooltip";
 } // namespace GlobalArguments

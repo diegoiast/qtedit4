@@ -129,58 +129,6 @@ auto static getLineEnding(QIODevice &stream, const QString &defaultLineEnding) -
     return ending;
 }
 
-static auto createTooltip(const CommandArgs &data) -> QString {
-    static auto const START_MARKER = QString("/^");
-    static auto const END_MARKER = QString("$/;\"");
-    static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
-
-    if (!data.contains("tags")) {
-        return {};
-    }
-
-    auto originalSymbol = data["symbol"].toString();
-    auto tags = data["tags"].toList();
-    if (tags.isEmpty()) {
-        return {};
-    }
-
-    auto tooltip = QString("<html><body style='white-space:pre;'>");
-    tooltip += QString("<b>Symbol References:</b> <code>%1</code> (%2)<br>")
-                   .arg(originalSymbol)
-                   .arg(tags.size());
-
-    auto count = 0;
-    for (const QVariant &item : tags) {
-        auto const tag = item.toHash();
-        auto const fieldType = tag[GlobalArguments::Type].toString();
-        auto const fieldValue = tag[GlobalArguments::Value].toString();
-        auto address = tag[GlobalArguments::Raw].toString();
-        if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
-            address.length() > MIN_LENGTH) {
-            address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
-        }
-
-        if (!tooltip.isEmpty()) {
-            tooltip += "<br>";
-        }
-
-        auto fixedFileName = QDir::toNativeSeparators(tag[GlobalArguments::FileName].toString());
-        tooltip += QString("┌ <b>File:</b> %1<br>").arg(fixedFileName);
-        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
-        tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
-
-        count++;
-
-        if (count > 7) {
-            tooltip += "<br/> ... <i>and more</i>";
-            break;
-        }
-    }
-
-    tooltip += "</body></html>";
-    return tooltip;
-}
-
 static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
                                          PluginManager *manager) -> void {
     static auto const START_MARKER = QString("/^");
@@ -955,30 +903,6 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
-QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
-    auto cursor = textEditor->cursorForPosition(localPosition);
-    cursor.select(QTextCursor::WordUnderCursor);
-
-    if (cursor.selectedText().isEmpty()) {
-        return {};
-    }
-
-    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    if (!pluginManager) {
-        return {};
-    }
-
-    auto symbol = cursor.selectedText();
-    // clang-format off
-    auto res = pluginManager->handleCommandAsync(GlobalCommands::VariableInfo, {
-        {GlobalArguments::RequestedSymbol, symbol },
-        {GlobalArguments::FileName, mdiClientFileName() },
-        {GlobalArguments::ExactMatch, true },
-    });
-    // clang-format on
-    return res;
-}
-
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
     QSet<QString> completions;
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
@@ -1004,8 +928,8 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
 
     if (future.isFinished() && future.isValid()) {
         auto result = future.result();
-        if (result.contains("tags")) {
-            auto tags = result["tags"].toList();
+        if (result.contains(GlobalArguments::Tags)) {
+            auto tags = result[GlobalArguments::Tags].toList();
             for (const QVariant &item : std::as_const(tags)) {
                 auto const tag = item.toHash();
                 auto const name = tag[GlobalArguments::Name].toString();
@@ -1019,13 +943,13 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
 }
 
 void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &globalPosition) {
-    auto future = getSuggestionsForCurrentWord(localPosition);
+    auto future = getTooltipsForPosition(localPosition);
     auto watcher = new QFutureWatcher<CommandArgs>(this);
     connect(watcher, &QFutureWatcher<CommandArgs>::finished, this,
             [this, watcher, globalPosition]() {
                 if (watcher->isFinished() && !watcher->isCanceled()) {
                     auto res = watcher->result();
-                    auto tooltip = createTooltip(res);
+                    auto tooltip = res[GlobalArguments::Tooltip].toString();
                     if (!tooltip.isEmpty()) {
                         QToolTip::showText(globalPosition, tooltip, textEditor);
                     }
@@ -1033,6 +957,39 @@ void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &gl
                 watcher->deleteLater();
             });
     watcher->setFuture(future);
+}
+
+QFuture<CommandArgs> qmdiEditor::getCommandForLocation(const QPoint &localPosition, const QString &cmd)
+{
+    auto cursor = textEditor->cursorForPosition(localPosition);
+    cursor.select(QTextCursor::WordUnderCursor);
+
+    if (cursor.selectedText().isEmpty()) {
+        return {};
+    }
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    if (!pluginManager) {
+        return {};
+    }
+
+    auto symbol = cursor.selectedText();
+    // clang-format off
+    auto res = pluginManager->handleCommandAsync(cmd, {
+        {GlobalArguments::RequestedSymbol, symbol },
+        {GlobalArguments::FileName, mdiClientFileName() },
+        {GlobalArguments::ExactMatch, true },
+    });
+    // clang-format on
+    return res;
+}
+
+QFuture<CommandArgs> qmdiEditor::getSuggestionsForCurrentWord(const QPoint &localPosition) {
+    return getCommandForLocation(localPosition, GlobalCommands::VariableInfo);
+}
+
+QFuture<CommandArgs> qmdiEditor::getTooltipsForPosition(const QPoint &localPosition) {
+    return getCommandForLocation(localPosition, GlobalCommands::KeywordTooltip);
 }
 
 void qmdiEditor::displayBannerMessage(QString message, int time) {

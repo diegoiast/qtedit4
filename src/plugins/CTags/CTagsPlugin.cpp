@@ -66,6 +66,46 @@ class Q_CORE_EXPORT QZipReader {
 Q_DECLARE_TYPEINFO(QZipReader::FileInfo, Q_RELOCATABLE_TYPE);
 Q_DECLARE_TYPEINFO(QZipReader::Status, Q_PRIMITIVE_TYPE);
 
+static auto createTooltip(const QString &originalSymbol, const QVariantList &tags) -> QString {
+    static auto const START_MARKER = QString("/^");
+    static auto const END_MARKER = QString("$/;\"");
+    static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
+
+    auto tooltip = QString("<html><body style='white-space:pre;'>");
+    tooltip += QString("<b>Symbol References:</b> <code>%1</code> (%2)<br>")
+                   .arg(originalSymbol)
+                   .arg(tags.size());
+
+    auto count = 0;
+    for (const QVariant &item : tags) {
+        auto const tag = item.toHash();
+        auto const fieldType = tag[GlobalArguments::Type].toString();
+        auto const fieldValue = tag[GlobalArguments::Value].toString();
+        auto address = tag[GlobalArguments::Raw].toString();
+        if (address.startsWith(START_MARKER) && address.endsWith(END_MARKER) &&
+            address.length() > MIN_LENGTH) {
+            address = address.mid(START_MARKER.length(), address.length() - MIN_LENGTH);
+        }
+        if (!tooltip.isEmpty()) {
+            tooltip += "<br>";
+        }
+
+        auto fixedFileName = QDir::toNativeSeparators(tag[GlobalArguments::FileName].toString());
+        tooltip += QString("┌ <b>File:</b> %1<br>").arg(fixedFileName);
+        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
+        tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
+
+        count++;
+        if (count > 7) {
+            tooltip += "<br/> ... <i>and more</i>";
+            break;
+        }
+    }
+
+    tooltip += "</body></html>";
+    return tooltip;
+}
+
 CTagsPlugin::CTagsPlugin() {
     name = tr("CTags support");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
@@ -74,7 +114,11 @@ CTagsPlugin::CTagsPlugin() {
     autoEnabled = true;
     alwaysEnabled = false;
 
+#if defined(Q_OS_LINUX)
     ctagsBinary = "ctags.exe";
+#else
+    ctagsBinary = "ctags";
+#endif
 
     config.pluginName = tr("CTags");
     config.configItems.push_back(qmdiConfigItem::Builder()
@@ -237,14 +281,13 @@ void CTagsPlugin::extractArchive(const QString &archivePath, const QString &extr
 int CTagsPlugin::canHandleAsyncCommand(const QString &command, const CommandArgs &) const {
     if (command == GlobalCommands::BuildFinished) {
         return CommandPriority::HighPriority;
-    }
-    if (command == GlobalCommands::ProjectLoaded) {
+    } else if (command == GlobalCommands::ProjectLoaded) {
         return CommandPriority::HighPriority;
-    }
-    if (command == GlobalCommands::ProjectRemoved) {
+    } else if (command == GlobalCommands::ProjectRemoved) {
         return CommandPriority::HighPriority;
-    }
-    if (command == GlobalCommands::VariableInfo) {
+    } else if (command == GlobalCommands::VariableInfo) {
+        return CommandPriority::HighPriority;
+    } else if (command == GlobalCommands::KeywordTooltip) {
         return CommandPriority::HighPriority;
     }
     return CommandPriority::CannotHandle;
@@ -277,6 +320,13 @@ QFuture<CommandArgs> CTagsPlugin::handleCommandAsync(const QString &command,
             auto symbol = args[GlobalArguments::RequestedSymbol].toString();
             auto exactMatch = args[GlobalArguments::ExactMatch].toBool();
             result = symbolInfoRequested(filename, symbol, exactMatch);
+        } else if (command == GlobalCommands::KeywordTooltip) {
+            auto filename = args[GlobalArguments::FileName].toString();
+            auto symbol = args[GlobalArguments::RequestedSymbol].toString();
+            auto symbolRequestReply = symbolInfoRequested(filename, symbol, false);
+            auto tags = symbolRequestReply[GlobalArguments::Tags].toList();
+            auto tooltip = createTooltip(symbol, tags);
+            result[GlobalArguments::Tooltip] = tooltip;
         }
         promise->addResult(result);
         promise->finish();
