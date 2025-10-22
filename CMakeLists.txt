@@ -14,8 +14,9 @@ set(QMDILIB_TESTS off)
 set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
 set(COMMAND_PALLETE_ENABLE_TESTS off)
+set(LSP_USE_SANITIZERS off)
 
-option(QTEDIT4_WORK_OFFLINE off)
+option(QTEDIT4_WORK_OFFLINE "Making this off will force using CPM, if set on, first run get-code.sh" off)
 
 if (QTEDIT4_WORK_OFFLINE)
     # for this to work, you need to make these libraries available yourself.
@@ -26,6 +27,7 @@ if (QTEDIT4_WORK_OFFLINE)
     add_subdirectory("lib/QJsonModel")
     add_subdirectory("lib/QSimpleUpdater")
     add_subdirectory("lib/QHexView")
+    add_subdirectory("lib/lsp-framework")
 else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
@@ -37,12 +39,14 @@ else()
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")
     CPMAddPackage("gh:Dax89/QHexView#5fe6d9851ecfae0acf26d1659ee3cb579d03202f")
+    CPMAddPackage("gh:leon-bckl/lsp-framework#0ee5155a1ca788547c1945fd20931d15f61b16bc")
     download_breeze_icons(6.4.0)
 endif()
 
 
 find_package(Qt6 COMPONENTS Widgets PrintSupport Network Svg Xml)
 find_package(Qt6 REQUIRED COMPONENTS Concurrent)
+
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
@@ -126,6 +130,12 @@ set(qtedit4_sources
     src/plugins/SplitTabsPlugin/SplitTabsPlugin.hpp
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
+    
+    src/plugins/LSP/LspPlugin.cpp
+    src/plugins/LSP/LspPlugin.hpp
+    src/plugins/LSP/LspClientImpl.cpp
+    src/plugins/LSP/LspClientImpl.hpp
+    
     src/main.cpp
     qtedit4.qrc
 )
@@ -153,6 +163,7 @@ target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6:
     QHexView
     QSimpleUpdater
     QJsonModelStatic
+    lsp
 )
 
 if(MSVC)

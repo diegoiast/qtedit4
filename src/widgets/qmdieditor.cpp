@@ -429,7 +429,7 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
     menu->insertAction(firstAction, separator);
     menu->insertMenu(firstAction, followSymbolMenu);
 
-    auto future = getSuggestionsForCurrentWord(localPosition);
+    auto future = getTooltipsForPosition(localPosition);
     auto watcher = new QFutureWatcher<CommandArgs>(menu);
     connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [=, this]() {
         followSymbolMenu->removeAction(loadingAction);

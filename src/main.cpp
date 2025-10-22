@@ -15,6 +15,7 @@
 
 #include "pluginmanager.h"
 #include "plugins/CTags/CTagsPlugin.hpp"
+#include "plugins/LSP/LspPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/SplitTabsPlugin/SplitTabsPlugin.hpp"
 #include "plugins/filesystem/filesystembrowser.h"
@@ -84,6 +85,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    pluginManager.addPlugin(new LspPlugin);
     pluginManager.updateGUI();
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
 
