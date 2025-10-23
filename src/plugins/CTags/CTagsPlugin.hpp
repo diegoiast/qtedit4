@@ -14,15 +14,18 @@ class CTagsLoader;
 class qmdiConfigDialog;
 
 class CTagsPlugin : public IPlugin {
-    Q_OBJECT
-
     struct Config {
         CONFIG_DEFINE(CTagsBinary, QString)
         CONFIG_DEFINE(DownloadCTags, QString)
         CONFIG_DEFINE(CTagsHomepage, QString)
         qmdiPluginConfig *config;
     };
-    Config &getConfig();
+    Config &getConfig() {
+        static Config configObject{&this->config};
+        return configObject;
+    }
+
+    Q_OBJECT
     QHash<QString, CTagsLoader *> projects;
 
     QString ctagsBinary = "ctags";

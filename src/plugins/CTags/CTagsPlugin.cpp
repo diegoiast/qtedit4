@@ -115,9 +115,9 @@ CTagsPlugin::CTagsPlugin() {
     alwaysEnabled = false;
 
 #if defined(Q_OS_LINUX)
-    ctagsBinary = "ctags.exe";
-#else
     ctagsBinary = "ctags";
+#else
+    ctagsBinary = "ctags.exe";
 #endif
 
     config.pluginName = tr("CTags");
@@ -160,11 +160,6 @@ CTagsPlugin::CTagsPlugin() {
 }
 
 CTagsPlugin::~CTagsPlugin() { projects.clear(); }
-
-CTagsPlugin::Config &CTagsPlugin::getConfig() {
-    static Config configObject{&this->config};
-    return configObject;
-}
 
 void CTagsPlugin::downloadCTags(qmdiConfigDialog *dialog) {
 #if !defined(Q_OS_LINUX) && !defined(Q_OS_WIN)
@@ -356,6 +351,7 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
 
     auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
     auto ctags = projects[nativeSourceDir];
+    auto bin = getConfig().getCTagsBinary();
     ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
 
     auto thread = new QThread;
@@ -430,8 +426,8 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     }
 
     CommandArgs res;
-    res["symbol"] = symbol;
-    res["fileName"] = fileName;
-    res["tags"] = tagList;
+    res[GlobalArguments::Symbol] = symbol;
+    res[GlobalArguments::FileName] = fileName;
+    res[GlobalArguments::Tags] = tagList;
     return res;
 }

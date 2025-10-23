@@ -51,4 +51,5 @@ inline constexpr const char *Value = "Value";
 inline constexpr const char *Raw = "Raw";
 inline constexpr const char *Tags = "Tags";
 inline constexpr const char *Tooltip = "Tooltip";
+inline constexpr const char *Symbol = "Symbol";
 } // namespace GlobalArguments

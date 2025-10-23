@@ -126,10 +126,9 @@ CTagsLoader::TagListRef CTagsLoader::findTags(const std::string &symbolName,
 
                 auto tagLower = std::string(it->name);
                 std::transform(tagLower.begin(), tagLower.end(), tagLower.begin(), ::tolower);
-                if (!tagLower.starts_with(symbolLower)) {
-                    break;
+                if (tagLower.starts_with(symbolLower)) {
+                    foundTags.emplace_back(*it);
                 }
-                foundTags.emplace_back(*it);
             }
         }
     }

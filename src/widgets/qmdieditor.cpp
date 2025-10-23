@@ -135,12 +135,12 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
     static auto const END_MARKER = QString("$/;\"");
     static auto const MIN_LENGTH = START_MARKER.length() + END_MARKER.length();
 
-    if (!data.contains("tags")) {
+    if (!data.contains(GlobalArguments::Tags)) {
         return;
     }
 
-    auto tags = data["tags"].toList();
-    auto originalSymbol = data["symbol"].toString();
+    auto tags = data[GlobalArguments::Tags].toList();
+    auto originalSymbol = data[GlobalArguments::Symbol].toString();
     {
         auto a = new QAction(originalSymbol, menu);
         a->setEnabled(false);

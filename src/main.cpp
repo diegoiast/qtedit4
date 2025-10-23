@@ -78,12 +78,12 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new SplitTabsPlugin(textEditorPlugin));
 #endif
     pluginManager.addPlugin(textEditorPlugin);
+    pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
-    pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.updateGUI();
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
 
