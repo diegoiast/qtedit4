@@ -1042,7 +1042,7 @@ void ProjectManagerPlugin::clearProject_clicked() {
 }
 
 void ProjectManagerPlugin::projectFile_modified(const QString &path) {
-    auto onDiskConfig = ProjectBuildConfig::buildFromFile(path);
+    auto onDiskConfig = ProjectBuildConfig::buildFromJsonFile(path);
     auto inMemoryConfig = projectModel->findConfigFile(path);
 
     if (onDiskConfig) {
@@ -1345,8 +1345,8 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         return false;
     }
 
-    auto text = tr("This is a project file, do you want to load the project, or just edit the "
-                   "file?<br/><br/> <b>%1</b>")
+    auto text = tr("This is a project file, do you want to load the project, or just edit the file?"
+                   "<br/><br/><b>%1</b>")
                     .arg(filename);
     QMessageBox box;
     box.setWindowTitle(tr("Load project"));
@@ -1375,6 +1375,7 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
         return true;
     }
 
+    project.reset();
     return false;
 }
 

@@ -1203,7 +1203,7 @@ void qmdiEditor::loadContent() {
     QApplication::processEvents();
 
     QFile file;
-    auto loadedFromBackup = false;    
+    auto loadedFromBackup = false;
     if (savedState.contains(StateConstants::UUID)) {
         uid = savedState[StateConstants::UUID].toString();
         file.setFileName(getBackupFileName());
@@ -1220,7 +1220,7 @@ void qmdiEditor::loadContent() {
             return;
         }
     }
-    
+
     QElapsedTimer timer;
     timer.start();
     this->originalLineEnding = getLineEnding(file, originalLineEnding);
@@ -1403,7 +1403,8 @@ QString qmdiEditor::getBackupFileName() const {
         return {};
     }
 
-    auto backupPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/backups/";
+    auto backupPath =
+        QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + "/backups/";
     QDir().mkpath(backupPath);
     return backupPath + uid + ".bak";
 }
