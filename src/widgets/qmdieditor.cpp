@@ -304,9 +304,6 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
 
     textOperationsMenu = new QMenu(tr("Text actions"), this);
     textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
-    textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
-    textOperationsMenu->setObjectName("qmdiEditor::textOperationsMenu");
-
     textOperationsMenu->addAction(textEditor->deleteLineAction());
     textOperationsMenu->addAction(textEditor->cutLineAction());
     textOperationsMenu->addAction(textEditor->copyLineAction());
@@ -331,6 +328,14 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     bookmarksMenu->addAction(textEditor->nextBookmarkAction());
     bookmarksMenu->addAction(textEditor->prevBookmarkAction());
 
+    foldingMenu = new QMenu(tr("Folding"), this);
+    foldingMenu->setObjectName("foldingMenu");
+    foldingMenu->addAction(textEditor->foldAction());
+    foldingMenu->addAction(textEditor->unfoldAction());
+    foldingMenu->addAction(textEditor->foldTopLevelAction());
+    foldingMenu->addAction(textEditor->unfoldAllAction());
+    foldingMenu->addAction(textEditor->toggleFoldAction());
+
     this->menus["&File"]->addAction(actionSave);
     this->menus["&File"]->addAction(actionSaveAs);
     this->menus["&Edit"]->addAction(actionUndo);
@@ -342,6 +347,7 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->menus["&Edit"]->addSeparator();
     this->menus["&Edit"]->addMenu(textOperationsMenu);
     this->menus["&Edit"]->addMenu(bookmarksMenu);
+    this->menus["&Edit"]->addMenu(foldingMenu);
     menus["&Edit"]->addAction(textEditor->findMatchingBracketAction());
 
     this->menus["&Search"]->addAction(actionFind);

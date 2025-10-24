@@ -219,6 +219,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QString fileName;
     QMenu *bookmarksMenu;
     QMenu *textOperationsMenu;
+    QMenu *foldingMenu;
 
     QComboBox *comboChangeHighlighter = nullptr;
     QToolButton *buttonChangeIndenter = nullptr;
