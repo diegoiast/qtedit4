@@ -52,8 +52,6 @@
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
 
-Q_DECLARE_METATYPE(qmdiEditor *)
-
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
 #if defined(WIN32)

@@ -126,7 +126,6 @@ class ProjectManagerPlugin : public IPlugin {
     CommandPalette *commandPalette = nullptr;
     ProjectSearch *searchPanelUI = nullptr;
 
-    QAction *runScriptAction = nullptr;
     QAction *runAction = nullptr;
     QAction *buildAction = nullptr;
     QAction *clearAction = nullptr;
