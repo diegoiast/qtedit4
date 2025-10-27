@@ -841,19 +841,28 @@ void qmdiEditor::hideTimer_timeout() {
 
 // FIXME: this is becoming a "on modified" function.
 void qmdiEditor::updateClientName() {
-    auto static const MODIFIED_TEXT = QStringLiteral(" ") + QChar(0x270D); // pencil
+    static const auto MODIFIED_TEXT = QStringLiteral(" ") + QChar(0x270D); // pencil
+    static const auto EXECUTABLE_TEXT = QStringLiteral(" ") + QChar(0x2699); // wheel
+    // static const auto EXECUTABLE_TEXT = QStringLiteral(" | >_");
 
     updatePreview();
-    if (textEditor->document()->isModified()) {
-        if (!mdiClientName.contains(MODIFIED_TEXT)) {
-            mdiClientName = getShortFileName() + MODIFIED_TEXT;
-            mdiServer->updateClientName(this);
-        }
-    } else {
-        if (mdiClientName.contains(MODIFIED_TEXT)) {
-            mdiClientName = getShortFileName();
-            mdiServer->updateClientName(this);
-        }
+
+    auto action = contextMenu.findActionNamed("runScript");
+    auto baseName = getShortFileName();
+    auto isModified = textEditor->document()->isModified();
+    auto newName = baseName;
+    auto isExecutable = (action != nullptr);
+
+    if (isModified) {
+        newName += MODIFIED_TEXT;
+    }
+    if (isExecutable) {
+        newName += EXECUTABLE_TEXT;
+    }
+
+    if (mdiClientName != newName) {
+        mdiClientName = newName;
+        mdiServer->updateClientName(this);
     }
 }
 
@@ -1277,8 +1286,6 @@ void qmdiEditor::loadContent() {
     textEditor->blockSignals(false);
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
-    updateClientName();
-    setState(savedState);
 
     // TODO - we should remove dependency on qmdiTabWidget
     if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
@@ -1294,6 +1301,9 @@ void qmdiEditor::loadContent() {
         {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient*>(this)) }
     });
     // clang-format
+
+    updateClientName();
+    setState(savedState);
 }
 
 void qmdiEditor::chooseHighliter(const QString &newText) {
