@@ -1,4 +1,3 @@
-#include "plugins/filesystem/filesystemwidget.h"
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDockWidget>
@@ -31,6 +30,7 @@
 #endif
 
 #include <CommandPaletteWidget/CommandPalette>
+#include <qmdiclient.h>
 #include <qmdihost.h>
 #include <qmdiserver.h>
 #include <qmditabwidget.h>
@@ -44,6 +44,7 @@
 #include "kitdefinitionmodel.h"
 #include "kitdetector.h"
 #include "pluginmanager.h"
+#include "plugins/filesystem/filesystemwidget.h"
 #include "ui_BuildRunOutput.h"
 #include "ui_ProjectManagerGUI.h"
 #include "widgets/qmdieditor.h"
@@ -624,6 +625,20 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     gui->projectComboBox->setModel(projectModel);
     emit gui->kitComboBox->activated(0);
 
+    runScriptAction =
+        new QAction(QIcon::fromTheme(QIcon::ThemeIcon::CallStart), tr("&Run script"), this);
+    runScriptAction->setShortcut(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_R);
+    connect(runScriptAction, &QAction::triggered, runScriptAction, [this]() {
+        auto d = runScriptAction->data();
+        auto client = d.value<qmdiClient *>();
+
+        if (client) {
+            qDebug() << "Running from client" << client->mdiClientName
+                     << client->mdiClientFileName();
+        }
+    });
+    // toolbars["main"]->addAction(runScriptAction);
+
     runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
     buildAction = new QAction(QIcon::fromTheme("document-save-as"), tr("&Run task"), this);
     clearAction = new QAction(QIcon::fromTheme("edit-clear"), tr("&Delete build directory"), this);
@@ -642,6 +657,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     this->menus[tr("&Project")]->addAction(runAction);
     this->menus[tr("&Project")]->addAction(buildAction);
     this->menus[tr("&Project")]->addAction(clearAction);
+    this->menus[tr("&Project")]->addAction(runScriptAction);
 
     this->availableTasksMenu = new QMenu(tr("Available tasks"));
     this->availableExecutablesMenu = new QMenu(tr("Available executables"));
@@ -734,6 +750,47 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
     getConfig().setSearchPath(searchPanelUI->getSearchPath());
     IPlugin::saveConfig(settings);
+}
+
+int ProjectManagerPlugin::canHandleCommand(const QString &command, const CommandArgs &args) const {
+    if (command == GlobalCommands::LoadedFile) {
+        return true;
+    }
+    if (command == GlobalCommands::ClosedFile) {
+        return true;
+    }
+    return false;
+}
+
+CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const CommandArgs &args) {
+    if (command == GlobalCommands::LoadedFile) {
+        auto filename = args[GlobalArguments::FileName];
+        auto client = args.value(GlobalArguments::Client).value<qmdiClient *>();
+
+        if (client) {
+            auto s = client->mdiClientFileName();
+            auto isScript = s.endsWith(".sh");
+            if (isScript) {
+                client->contextMenu.addAction(runScriptAction);
+                runScriptAction->setData(QVariant::fromValue(client));
+            } else {
+                client->contextMenu.removeAction(runScriptAction);
+                runScriptAction->setData({});
+            }
+        }
+        return {};
+    }
+    if (command == GlobalCommands::ClosedFile) {
+        auto filename = args[GlobalArguments::FileName];
+        auto clientObject = args.value(GlobalArguments::Client).value<void *>();
+        auto client = static_cast<qmdiClient *>(clientObject);
+        if (client) {
+            client->contextMenu.removeAction(runScriptAction);
+        }
+        runScriptAction->setData({});
+        return {};
+    }
+    return {};
 }
 
 int ProjectManagerPlugin::canOpenFile(const QString &fileName) {

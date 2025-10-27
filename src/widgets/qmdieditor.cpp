@@ -52,6 +52,8 @@
 #include "widgets/textpreview.h"
 #include "widgets/ui_bannermessage.h"
 
+Q_DECLARE_METATYPE(qmdiEditor *)
+
 #define PLAIN_TEXT_HIGHIGHTER "Plain text"
 
 #if defined(WIN32)
@@ -552,6 +554,18 @@ void qmdiEditor::setState(const qmdiClientState &state) {
         cursor.setPosition(position, QTextCursor::KeepAnchor);
         textEditor->setTextCursor(cursor);
     }
+}
+
+void qmdiEditor::on_client_unmerged(qmdiHost *host) {
+    qmdiClient::on_client_unmerged(host);
+
+    auto pluginManager = dynamic_cast<PluginManager *>(host);
+    // clang-format off
+    auto result = pluginManager->handleCommand(GlobalCommands::ClosedFile, {
+        {GlobalArguments::FileName, mdiClientFileName()},
+        {GlobalArguments::Client, QVariant::fromValue(this)},
+    });
+    // clang-format
 }
 
 void qmdiEditor::setupActions() {
@@ -1273,8 +1287,15 @@ void qmdiEditor::loadContent() {
         emit tab->newClientAdded(this);
     }
 
+    // FIXME: port to handleCommand
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     pluginManager->openFile("loaded:" + fileName);
+    // clang-format off
+    auto result = pluginManager->handleCommand(GlobalCommands::LoadedFile, {
+        {GlobalArguments::FileName, mdiClientFileName()},
+        {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient*>(this)) }
+    });
+    // clang-format
 }
 
 void qmdiEditor::chooseHighliter(const QString &newText) {

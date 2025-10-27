@@ -54,6 +54,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
     virtual qmdiClientState getState() const override;
     virtual void setState(const qmdiClientState &state) override;
+    virtual void on_client_unmerged(qmdiHost *host) override;
 
     void setupActions();
     inline bool getModificationsLookupEnabled() const { return fileModifications; }

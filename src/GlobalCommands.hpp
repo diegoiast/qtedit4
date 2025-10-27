@@ -15,6 +15,9 @@ inline constexpr const char *OpenFile = "OpenFile";
 // Broadcast - a new file has been loaded. The payload will contain the filename
 inline constexpr const char *LoadedFile = "LoadedFile";
 
+// Broadcast - a file has been closed
+inline constexpr const char *ClosedFile = "ClosedFile";
+
 // Broadcast - build succeeded.
 inline constexpr const char *BuildFinished = "BuildFinished";
 
@@ -42,6 +45,7 @@ inline constexpr const char *RequestedSymbol = "RequestedSymbol";
 inline constexpr const char *SourceDirectory = "SourceDirectory";
 inline constexpr const char *BuildDirectory = "BuildDirectory";
 inline constexpr const char *FileName = "FileName";
+inline constexpr const char *Client = "Client";
 inline constexpr const char *Name = "Name";
 inline constexpr const char *TaskName = "TaskName";
 inline constexpr const char *LineNumber = "LineNumber";

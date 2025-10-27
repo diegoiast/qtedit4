@@ -72,6 +72,8 @@ class ProjectManagerPlugin : public IPlugin {
     virtual void configurationHasBeenModified() override;
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
+    virtual int canHandleCommand(const QString &command, const CommandArgs &args) const override;
+    virtual CommandArgs handleCommand(const QString &command, const CommandArgs &args) override;
 
     virtual qmdiActionGroup *getContextMenuActions(const QString &menuId,
                                                    const QString &filePath) override;
@@ -124,6 +126,7 @@ class ProjectManagerPlugin : public IPlugin {
     CommandPalette *commandPalette = nullptr;
     ProjectSearch *searchPanelUI = nullptr;
 
+    QAction *runScriptAction = nullptr;
     QAction *runAction = nullptr;
     QAction *buildAction = nullptr;
     QAction *clearAction = nullptr;
