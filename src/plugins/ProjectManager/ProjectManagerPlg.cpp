@@ -747,6 +747,68 @@ int ProjectManagerPlugin::canHandleCommand(const QString &command, const Command
     return false;
 }
 
+#include <QByteArray>
+#include <QFile>
+#include <QFileInfo>
+#include <QMimeDatabase>
+#include <QMimeType>
+#include <QStringList>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
+
+auto verifyRunnable(const QString &fileName) -> bool {
+    auto info = QFileInfo(fileName);
+    if (!info.exists() || !info.isFile()) {
+        return false;
+    }
+
+#ifdef Q_OS_WIN
+    // Common directly runnable extensions
+    static const auto runnableExts = QStringList{".exe", ".bat", ".cmd", ".ps1", ".com"};
+    for (const auto &ext : runnableExts) {
+        if (info.suffix().compare(ext.mid(1), Qt::CaseInsensitive) == 0) {
+            return true;
+        }
+    }
+
+    // Ask Windows: is there a registered handler for this file type?
+    auto wFile = reinterpret_cast<LPCWSTR>(fileName.utf16());
+    wchar_t exePath[MAX_PATH];
+    auto result = FindExecutableW(wFile, nullptr, exePath);
+
+    // According to docs: >32 means success (a valid handler was found)
+    // https://learn.microsoft.com/en-us/windows/win32/api/shellapi/nf-shellapi-findexecutablew
+    if (reinterpret_cast<INT_PTR>(result) > 32) {
+        return true;
+    }
+#else
+    // Linux / macOS
+    if (info.isExecutable()) {
+        return true;
+    }
+
+    static const auto scriptExts = QStringList{".sh", ".py", ".pl", ".rb"};
+    for (const auto &ext : scriptExts) {
+        if (info.fileName().endsWith(ext, Qt::CaseInsensitive)) {
+            return true;
+        }
+    }
+
+    // Check for shebang
+    QFile file(fileName);
+    if (file.open(QIODevice::ReadOnly)) {
+        auto firstLine = file.readLine();
+        if (firstLine.startsWith("#!")) {
+            return true;
+        }
+    }
+#endif
+
+    return false;
+}
+
 CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const CommandArgs &args) {
     if (command == GlobalCommands::LoadedFile) {
         auto client = args.value(GlobalArguments::Client).value<qmdiClient *>();
@@ -758,8 +820,7 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
         auto action = client->contextMenu.findActionNamed("runScript");
 
         // TODO - make it generic, is it a runnable script?
-        auto isScript = client->mdiClientFileName().endsWith(".sh") ||
-                        client->mdiClientFileName().endsWith(".py");
+        auto isScript = verifyRunnable(client->mdiClientFileName());
         if (isScript) {
             if (!action) {
                 auto shortcut = QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_R);
