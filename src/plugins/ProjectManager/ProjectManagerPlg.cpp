@@ -758,7 +758,8 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
         auto action = client->contextMenu.findActionNamed("runScript");
 
         // TODO - make it generic, is it a runnable script?
-        auto isScript = client->mdiClientFileName().endsWith(".sh");
+        auto isScript = client->mdiClientFileName().endsWith(".sh") ||
+                        client->mdiClientFileName().endsWith(".py");
         if (isScript) {
             if (!action) {
                 auto shortcut = QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_R);
@@ -769,9 +770,14 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
                 client->contextMenu.addAction(action);
                 client->menus[tr("&Project")]->addAction(action);
 
-                connect(action, &QAction::triggered, action, [action]() {
+                connect(action, &QAction::triggered, action, [action, this]() {
                     auto client = action->data().value<qmdiClient *>();
-                    qDebug() << "Will execute" << client->mdiClientFileName();
+                    auto fi = QFileInfo(client->mdiClientFileName());
+                    auto workingDir = fi.dir().absolutePath();
+                    auto scriptName = fi.absoluteFilePath();
+                    auto arguments = QStringList();
+                    auto env = QProcessEnvironment();
+                    this->runCommand(workingDir, scriptName, arguments, env);
                 });
                 this->mdiServer->mdiHost->unmergeClient(client);
                 this->mdiServer->mdiHost->mergeClient(client);
@@ -1189,10 +1195,14 @@ auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
 
     auto plaintext = removeAnsiEscapeCodes(fixedAnsi);
     auto project = this->getCurrentConfig();
-    appendAnsiText(this->outputPanel->commandOuput, fixedAnsi, project->sourceDir);
-    auto sourceDir = project->sourceDir;
-    auto buildDir = project->expand(project->buildDir);
-    this->projectIssues->processLine(plaintext, lineNumber, sourceDir, buildDir);
+    if (project) {
+        auto sourceDir = project->sourceDir;
+        auto buildDir = project->expand(project->buildDir);
+        appendAnsiText(this->outputPanel->commandOuput, fixedAnsi, sourceDir);
+        this->projectIssues->processLine(plaintext, lineNumber, sourceDir, buildDir);
+    } else {
+        appendAnsiText(this->outputPanel->commandOuput, fixedAnsi, "");
+    }
 }
 
 auto ProjectManagerPlugin::updateTasksUI(std::shared_ptr<ProjectBuildConfig> buildConfig) -> void {
