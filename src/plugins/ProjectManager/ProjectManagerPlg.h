@@ -66,6 +66,7 @@ class ProjectManagerPlugin : public IPlugin {
     Q_OBJECT
   public:
     ProjectManagerPlugin();
+    ~ProjectManagerPlugin();
 
     virtual void showAbout() override;
     virtual void on_client_merged(qmdiHost *host) override;

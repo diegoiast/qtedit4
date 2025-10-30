@@ -316,6 +316,8 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
                                      .build());
 }
 
+ProjectManagerPlugin::~ProjectManagerPlugin() { delete searchPanelUI; }
+
 void ProjectManagerPlugin::showAbout() {
     QMessageBox::information(dynamic_cast<QMainWindow *>(mdiServer), tr("About"),
                              tr("The project manager plugin"));
