@@ -3,8 +3,8 @@
 set -x
 set -e
 
-QT_VERSION="6.9.2"
-APP_VERSION="0.0.14"
+QT_VERSION="6.10.0"
+APP_VERSION="0.0.15-rc1"
 
 NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
 QTDIR="$HOME/qt/${QT_VERSION}/gcc_64"
@@ -33,7 +33,7 @@ tar -cjhvf dist/$NAME.tar.bz2 -C dist/qtedit4 .
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/iconengines/"
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
 cp -arv $QTDIR/plugins/iconengines/* "dist/${matrix_config_build_dir}/usr/plugins/iconengines/"
-cp -arv $QTDIR/plugins/platforms/libqwayland-*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
+cp -arv $QTDIR/plugins/platforms/libqwayland*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
 
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
