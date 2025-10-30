@@ -119,7 +119,7 @@ jobs:
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
-          cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland-*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
+          cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
