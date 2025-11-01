@@ -53,10 +53,10 @@ class FilesList : public QWidget {
 
     void setFiles(const QStringList &files);
     void setDir(const QString &dir);
-    QString getDir() const { return directory; };
+    const QString &getDir() const { return directory; };
     void clear();
     QStringList currentFilteredFiles() const;
-    const QStringList &getAllFiles() const { return filesList; }
+    const QStringList &getAllFiles() const { return allFilesList; }
 
   signals:
     void fileSelected(const QString &filename);
@@ -64,16 +64,20 @@ class FilesList : public QWidget {
 
   private slots:
     void scheduleUpdateList();
-    void updateList(const QStringList &files, bool clearList);
+    void updateList(const QStringList &chunk, bool clearList);
 
   private:
+    bool matchesFilters(const QString &filename, const QList<QRegularExpression> &excludeRegexes,
+                        const QList<QRegularExpression> &showRegexes,
+                        const QStringList &showTokens) const;
+
     LoadingWidget *loadingWidget = nullptr;
-    QListWidget *list = nullptr;
+    QListWidget *displayList = nullptr;
     QLineEdit *excludeEdit = nullptr;
     QLineEdit *showEdit = nullptr;
 
     QString directory;
-    QStringList filesList;
+    QStringList allFilesList;
 
     FileScannerWorker *worker = nullptr;
     QThread *scanThread = nullptr;

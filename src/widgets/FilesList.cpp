@@ -19,6 +19,7 @@
 #include <QQueue>
 #include <QRegularExpression>
 #include <QThread>
+#include <QThreadPool>
 #include <QTimer>
 #include <QVBoxLayout>
 
@@ -46,7 +47,8 @@ static QList<QRegularExpression> toRegexList(const QStringList &patterns) {
             } else if (ch == '?') {
                 rx += '.';
             } else if (QString("[](){}.+^$|\\").contains(ch)) {
-                rx += '\\' + ch;
+                rx += '\\';
+                rx += ch;
             } else {
                 rx += ch;
             }
@@ -72,7 +74,7 @@ void FileScannerWorker::start() {
 
 void FileScannerWorker::scanDir(const QString &rootPath) {
     auto chunk = QStringList();
-    auto const chunkSize = 200;
+    auto const chunkSize = 2000;
     auto queue = QQueue<QString>();
     queue.enqueue(rootPath);
 
@@ -107,12 +109,12 @@ void FileScannerWorker::scanDir(const QString &rootPath) {
 FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    list = new QListWidget(this);
+    displayList = new QListWidget(this);
     excludeEdit = new QLineEdit(this);
     showEdit = new QLineEdit(this);
     loadingWidget = new LoadingWidget(this);
 
-    list->setAlternatingRowColors(true);
+    displayList->setAlternatingRowColors(true);
 
     showEdit->setClearButtonEnabled(true);
     showEdit->setPlaceholderText(tr("Files to show (e.g. main;*.cpp;*.h)"));
@@ -123,11 +125,11 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     excludeEdit->setToolTip(excludeEdit->placeholderText());
 
     layout->addWidget(loadingWidget);
-    layout->addWidget(list);
+    layout->addWidget(displayList);
     layout->addWidget(showEdit);
     layout->addWidget(excludeEdit);
 
-    connect(list, &QListWidget::itemClicked, this, [this](auto *it) {
+    connect(displayList, &QListWidget::itemClicked, this, [this](auto *it) {
         auto fileName = this->directory + QDir::separator() + it->text();
         auto fileInfo = QFileInfo(fileName);
         fileName = fileInfo.absoluteFilePath();
@@ -140,7 +142,8 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     updateTimer = new QTimer(this);
     updateTimer->setSingleShot(true);
     updateTimer->setInterval(300);
-    updateList(filesList, true);
+    connect(updateTimer, &QTimer::timeout, this, [this]() { updateList(allFilesList, true); });
+    updateList(allFilesList, true);
 }
 
 void FilesList::setExcludeListEnabled(bool state) { this->excludeEdit->setEnabled(state); }
@@ -172,29 +175,24 @@ void FilesList::setDir(const QString &dir) {
     worker = new FileScannerWorker;
     worker->moveToThread(scanThread);
     worker->setRootDir(directory);
-    connect(worker, &FileScannerWorker::filesChunkFound, this, [=, this](const QStringList &chunk) {
-        if (worker->requestedStop()) {
+
+    auto *w = worker;
+    connect(w, &FileScannerWorker::filesChunkFound, this, [this, w](const QStringList &chunk) {
+        if (w != this->worker) {
             return;
         }
-        QMetaObject::invokeMethod(
-            this,
-            [=, this]() {
-                updateList(chunk, false);
-                filesList.append(chunk);
-                loadingWidget->setToolTip(QString(tr("Total %1 files")).arg(filesList.size()));
-            },
-            Qt::QueuedConnection);
+        allFilesList.append(chunk);
+        updateList(chunk, false);
     });
-    connect(worker, &FileScannerWorker::finished, this, [=, this](qint64 ms) {
-        auto w = qobject_cast<FileScannerWorker *>(sender());
+    connect(w, &FileScannerWorker::finished, this, [this, w](qint64 ms) {
         auto msg = w->requestedStop() ? "Scan aborted after" : "Scan finished in";
         qDebug() << "FilesList::setDir" << msg << ms << "ms, " << w->getRootDir();
-        w->deleteLater();
-        if (w == worker) {
-            worker = nullptr;
-            scanThread->quit();
-            loadingWidget->stop();
+        if (w == this->worker) {
+            this->worker = nullptr;
+            this->scanThread->quit();
+            this->loadingWidget->stop();
         }
+        w->deleteLater();
     });
     connect(scanThread, &QThread::started, worker, &FileScannerWorker::start);
     connect(scanThread, &QThread::finished, scanThread, &QObject::deleteLater);
@@ -204,20 +202,20 @@ void FilesList::setDir(const QString &dir) {
 }
 
 void FilesList::setFiles(const QStringList &files) {
-    filesList = files;
+    allFilesList = files;
     scheduleUpdateList();
 }
 
 void FilesList::clear() {
-    filesList.clear();
-    list->clear();
+    allFilesList.clear();
+    displayList->clear();
     directory.clear();
 }
 
 QStringList FilesList::currentFilteredFiles() const {
     auto res = QStringList();
-    for (auto i = 0; i < list->count(); ++i) {
-        res << list->item(i)->text();
+    for (auto i = 0; i < displayList->count(); ++i) {
+        res << displayList->item(i)->text();
     }
     return res;
 }
@@ -229,42 +227,39 @@ void FilesList::scheduleUpdateList() {
     updateTimer->start();
 }
 
-void FilesList::updateList(const QStringList &files, bool clearList) {
-    auto excludes = toRegexList(excludeEdit->text().split(';', Qt::SkipEmptyParts));
-    auto shows = toRegexList(showEdit->text().split(';', Qt::SkipEmptyParts));
-    auto showTokens = showEdit->text().toLower().split(';', Qt::SkipEmptyParts);
-    auto filtered = QStringList();
-    auto count = 0;
+bool FilesList::matchesFilters(const QString &filename,
+                               const QList<QRegularExpression> &excludeRegexes,
+                               const QList<QRegularExpression> &showRegexes,
+                               const QStringList &showTokens) const {
+    auto normPath = normalizeFilePath(filename);
+    auto segments = normPath.split('/', Qt::SkipEmptyParts);
 
-    if (clearList) {
-        list->clear();
+    for (auto const &rx : excludeRegexes) {
+        for (auto const &segment : segments) {
+            if (rx.match(segment).hasMatch()) {
+                return false;
+            }
+        }
     }
 
-    for (auto const &rel : files) {
-        auto normPath = normalizeFilePath(rel);
-        auto segments = normPath.split('/', Qt::SkipEmptyParts);
-        auto excluded = false;
-
-        for (auto const &rx : excludes) {
+    if (!showRegexes.isEmpty() || !showTokens.isEmpty()) {
+        auto matched = false;
+        for (auto const &rx : showRegexes) {
             for (auto const &segment : segments) {
                 if (rx.match(segment).hasMatch()) {
-                    excluded = true;
+                    matched = true;
                     break;
                 }
             }
-            if (excluded) {
+            if (matched) {
                 break;
             }
         }
-        if (excluded) {
-            continue;
-        }
-
-        if (!shows.isEmpty() || !showTokens.isEmpty()) {
-            auto matched = false;
-            for (auto const &rx : shows) {
-                for (auto const &segment : segments) {
-                    if (rx.match(segment).hasMatch()) {
+        if (!matched && !showTokens.isEmpty()) {
+            for (auto const &segment : segments) {
+                const auto lowerSegment = segment.toLower();
+                for (auto const &token : showTokens) {
+                    if (lowerSegment.contains(token)) {
                         matched = true;
                         break;
                     }
@@ -273,39 +268,44 @@ void FilesList::updateList(const QStringList &files, bool clearList) {
                     break;
                 }
             }
+        }
+        if (!matched) {
+            return false;
+        }
+    }
+    return true;
+}
 
-            if (!matched && !showTokens.isEmpty()) {
-                for (auto const &token : showTokens) {
-                    for (auto const &segment : segments) {
-                        if (segment.toLower().contains(token)) {
-                            matched = true;
-                            break;
-                        }
-                    }
-                    if (matched) {
-                        break;
-                    }
-                }
-            }
+void FilesList::updateList(const QStringList &chunk, bool clearList) {
+    const auto excludesText = excludeEdit->text();
+    const auto showsText = showEdit->text();
+    QThreadPool::globalInstance()->start([this, chunk, clearList, excludesText, showsText]() {
+        auto excludes = toRegexList(excludesText.split(';', Qt::SkipEmptyParts));
+        auto shows = toRegexList(showsText.split(';', Qt::SkipEmptyParts));
+        auto showTokens = showsText.toLower().split(';', Qt::SkipEmptyParts);
+        auto filtered = QStringList();
 
-            if (!matched) {
-                continue;
+        for (auto const &rel : chunk) {
+            if (matchesFilters(rel, excludes, shows, showTokens)) {
+                filtered << rel;
             }
         }
 
-        filtered << rel;
-        if (++count % 200 == 0) {
-            QCoreApplication::processEvents();
+        filtered.sort(Qt::CaseInsensitive);
+        QTimer::singleShot(0, this, [this, clearList, filtered]() {
+            if (clearList) {
+                this->displayList->clear();
+            }
+            for (auto const &rel : filtered) {
+                auto *item = new QListWidgetItem(QDir::toNativeSeparators(rel));
+                item->setToolTip(QDir::toNativeSeparators(this->directory + rel));
+                this->displayList->addItem(item);
+            }
+            // auto s = tr("Displaying %1/%2 files").arg(filtered.size()).arg(allFilesList.size());
+            // loadingWidget->setToolTip(s);
+        });
+        if (clearList) {
+            emit filtersChanged();
         }
-    }
-
-    filtered.sort(Qt::CaseInsensitive);
-    for (auto const &rel : filtered) {
-        auto *item = new QListWidgetItem(QDir::toNativeSeparators(rel));
-        item->setToolTip(QDir::toNativeSeparators(directory + rel));
-        list->addItem(item);
-    }
-    if (clearList) {
-        emit filtersChanged();
-    }
+    });
 }
