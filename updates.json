@@ -1,36 +1,34 @@
 {
     "updates": {
         "windows": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
-            "latest-version": "0.0.14",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
+            "latest-version": "0.0.15",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.exe",
-            "changelog":
-                "Syntax highlighter fixes, Rust building fixes, indentation of selected block, move tabs with keyboard, closing tabs on splits works as expected, Windows 10/11 install fixes",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.exe",
+            "changelog": "Code folding, run scripts",
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15-rc1",
-            "latest-version": "0.0.15-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
+            "latest-version": "0.0.15",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15-rc1/qtedit4-qt6.10.0-v0.0.15-rc1-x86_64.exe",
-            "changelog":
-                "Add project via file operations menu, cargo build fixed, change console font, filters for exe/tasks, save IDE state",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.exe",
+            "changelog": "Code folding, run scripts",
             "mandatory": true
         },
         "linux": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.14",
-            "latest-version": "0.0.14",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
+            "latest-version": "0.0.15",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.14/qtedit4-qt6.9.2-v0.0.14-x86_64.AppImage",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.AppImage",
             "changelog": "Code folding, run scripts",
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15-rc1",
-            "latest-version": "0.0.15-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
+            "latest-version": "0.0.15",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15-rc1/qtedit4-qt6.10.0-v0.0.15-rc1-x86_64.AppImage",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.AppImage",
             "changelog": "Code folding, run scripts",
             "mandatory": true
         }
