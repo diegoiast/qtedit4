@@ -12,6 +12,7 @@
 #include <QComboBox>
 #include <QCompleter>
 #include <QCoreApplication>
+#include <QCryptographicHash>
 #include <QDir>
 #include <QFile>
 #include <QFileDialog>
@@ -25,6 +26,7 @@
 #include <QPlainTextEdit>
 #include <QPromise>
 #include <QPushButton>
+#include <QRandomGenerator>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QSplitter>
@@ -39,7 +41,6 @@
 #include <QToolBar>
 #include <QToolTip>
 #include <QTreeView>
-#include <QtConcurrent/QtConcurrent>
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
