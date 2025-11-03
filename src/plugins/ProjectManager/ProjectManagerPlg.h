@@ -34,6 +34,7 @@ class ProjectBuildModel : public QAbstractListModel {
     int findConfigDirIndex(const QString &dir);
     std::shared_ptr<ProjectBuildConfig> findConfigDir(const QString &dir);
     std::shared_ptr<ProjectBuildConfig> findConfigFile(const QString &fileName);
+    std::shared_ptr<ProjectBuildConfig> findProjectForFile(const QString &fileName);
 
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     virtual QVariant data(const QModelIndex &index, int role) const override;

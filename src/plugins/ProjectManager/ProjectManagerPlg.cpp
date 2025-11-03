@@ -196,6 +196,15 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findConfigFile(const QStr
     return {};
 }
 
+std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findProjectForFile(const QString &fileName) {
+    for (const auto &c : configs) {
+        if (fileName.startsWith(c->sourceDir)) {
+            return c;
+        }
+    }
+    return {};
+}
+
 int ProjectBuildModel::rowCount(const QModelIndex &) const { return configs.size(); }
 
 QVariant ProjectBuildModel::data(const QModelIndex &index, int role) const {
@@ -853,6 +862,26 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
             this->mdiServer->mdiHost->mergeClient(client);
             this->mdiServer->mdiHost->updateGUI();
         }
+
+        auto widget = dynamic_cast<QObject *>(client);
+        auto actionCopyFilePath = new QAction(tr("Copy path relative to project"), widget);
+        connect(actionCopyFilePath, &QAction::triggered, actionCopyFilePath, [client, this]() {
+            auto c = QApplication::clipboard();
+            auto fileName = client->mdiClientFileName();
+            auto project = projectModel->findProjectForFile(fileName);
+            if (!project || !fileName.startsWith(project->sourceDir)) {
+                c->setText(fileName);
+                return;
+            }
+            auto fixed = fileName;
+            auto l = project->sourceDir.length();
+            if (!project->sourceDir.endsWith('\\') && !project->sourceDir.endsWith('/')) {
+                l++;
+            }
+            fixed.remove(0, l);
+            c->setText(fixed);
+        });
+        client->contextMenu.addAction(actionCopyFilePath);
 
         return {};
     }
