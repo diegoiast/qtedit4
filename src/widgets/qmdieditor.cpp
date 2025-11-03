@@ -44,7 +44,6 @@
 
 #include <pluginmanager.h>
 #include <qmdiserver.h>
-#include <qmditabwidget.h>
 
 #include "GlobalCommands.hpp"
 #include "plugins/texteditor/thememanager.h"
@@ -1287,11 +1286,6 @@ void qmdiEditor::loadContent() {
     textEditor->blockSignals(false);
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
-
-    // TODO - we should remove dependency on qmdiTabWidget
-    if (auto tab = dynamic_cast<qmdiTabWidget *>(mdiServer)) {
-        emit tab->newClientAdded(this);
-    }
 
     // FIXME: port to handleCommand
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
