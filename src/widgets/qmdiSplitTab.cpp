@@ -12,6 +12,7 @@
 #include <QSplitter>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QTimer>
 #include <QToolButton>
 
 #include <pluginmanager.h>
@@ -118,10 +119,8 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
     auto mouseEvent = static_cast<QMouseEvent *>(event);
     auto position = mouseEvent->pos();
     auto clickedItem = tabBar->tabAt(position);
-
-    // just in case
     if (clickedItem == -1) {
-        return QObject::eventFilter(obj, event);
+        return SplitTabWidget::eventFilter(obj, event);
     }
 
     auto tabWidget = qobject_cast<QTabWidget *>(tabBar->parent());
@@ -130,18 +129,24 @@ bool qmdiSplitTab::eventFilter(QObject *obj, QEvent *event) {
     clickedItem += computeLeading(tabWidget);
 
     switch (mouseEvent->button()) {
-    case Qt::LeftButton:
-        return QObject::eventFilter(obj, event);
-        break;
     case Qt::RightButton:
-        on_rightMouse_pressed(clickedItem, parentPosition);
+        // Use a QTimer::singleShot to display the context menu. Calling menu->exec()
+        // directly from within the eventFilter creates a nested event loop, which
+        // causes the mouse press event to be re-processed and incorrectly propagated
+        // to the client widget, creating a second menu. The timer decouples the menu
+        // creation from the event, ensuring the mouse event is fully consumed first.
+        QTimer::singleShot(0, this, [this, clickedItem, parentPosition]() {
+            on_rightMouse_pressed(clickedItem, parentPosition);
+        });
         break;
     case Qt::MiddleButton:
         on_middleMouse_pressed(clickedItem, parentPosition);
         break;
+    case Qt::LeftButton:
     default:
-        return QObject::eventFilter(obj, event);
+        return SplitTabWidget::eventFilter(obj, event);
     }
+
     return true;
 }
 
