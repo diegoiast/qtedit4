@@ -25,6 +25,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QPromise>
 #include <QPushButton>
 #include <QRandomGenerator>
@@ -437,13 +438,26 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
     menu->insertMenu(firstAction, followSymbolMenu);
 
     auto future = getSuggestionsForCurrentWord(localPosition);
-    auto watcher = new QFutureWatcher<CommandArgs>(menu);
-    connect(watcher, &QFutureWatcher<CommandArgs>::finished, this, [=, this]() {
-        followSymbolMenu->removeAction(loadingAction);
-        delete loadingAction;
-        auto res = watcher->result();
+    auto watcher = new QFutureWatcher<CommandArgs>(this);
+    auto safeWatcher = QPointer(watcher);
+    auto safeFollow = QPointer(followSymbolMenu);
+    auto safeLoading = QPointer(loadingAction);
+    connect(watcher, &QFutureWatcher<CommandArgs>::finished, menu, [=, this]() {
+        if (!safeFollow || !safeLoading || !safeFollow->isVisible()) {
+            return;
+        }
+
+        safeFollow->removeAction(safeLoading);
+        if (!safeWatcher) {
+            return;
+        }
+
+        auto res = safeWatcher->result();
         auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-        createSubFollowSymbolSubmenu(res, followSymbolMenu, pluginManager);
+        if (!pluginManager) {
+            return;
+        }
+        createSubFollowSymbolSubmenu(res, safeFollow, pluginManager);
     });
 
     watcher->setFuture(future);
