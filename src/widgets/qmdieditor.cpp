@@ -14,6 +14,7 @@
 #include <QCoreApplication>
 #include <QCryptographicHash>
 #include <QDir>
+#include <QElapsedTimer>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
