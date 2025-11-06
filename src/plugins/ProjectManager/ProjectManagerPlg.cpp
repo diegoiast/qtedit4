@@ -63,7 +63,7 @@ static auto str(QProcess::ExitStatus e) -> QString {
 
 static auto findExecForPlatform(QHash<QString, QString> files) -> QString {
     if (!files.contains(PLATFORM_CURRENT)) {
-        qDebug("Warning - unsupported platform, cannot find executable");
+        qDebug("Warning - findExecForPlatform: unsupported platform, cannot find executable");
     }
     return files[PLATFORM_CURRENT];
 }
@@ -501,6 +501,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
 
             auto process = sender();
             auto var1 = process->property("runningTask").value<quintptr>();
+
+            // FIXME: if the task gets deleted
             auto *runningTask = reinterpret_cast<TaskInfo *>(var1);
 
             auto project =

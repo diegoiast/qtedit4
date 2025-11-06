@@ -608,7 +608,7 @@ ProjectBuildConfig::buildFromJsonFile(const QString &jsonFileName) {
                     }
 
                 } else {
-                    qWarning() << "Invalid 'commands' format.";
+                    qWarning() << "buildFromJsonFile: Invalid 'commands' format.";
                 }
 
                 taskInfo.runDirectory = obj["runDirectory"].toString();
@@ -784,7 +784,7 @@ auto ProjectBuildConfig::updateBinariesMeson() -> void {
 auto ProjectBuildConfig::saveToFile(const QString &jsonFileName) -> void {
     auto file = QFile(jsonFileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Failed to open file for writing:" << file.errorString();
+        qWarning() << "saveToFile: Failed to open file for writing:" << file.errorString();
         return;
     }
 
