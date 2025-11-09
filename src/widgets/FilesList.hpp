@@ -12,9 +12,10 @@
 #include <QThread>
 #include <QTimer>
 #include <QWidget>
+#include <qabstractitemmodel.h>
 
 class QLineEdit;
-class QListWidget;
+class QListView;
 class FileScannerWorker;
 class FileFilterWorker;
 class LoadingWidget;
@@ -41,6 +42,19 @@ class FileScannerWorker : public QObject {
     bool shouldStop = false;
 };
 
+class FilesListModel : public QAbstractListModel {
+    QString baseDir;
+    QStringList displayFiles;
+
+  public:
+    void clear();
+    void setBaseDir(const QString &newBaseDir);
+    void addFiles(const QStringList &l);
+    const QStringList &getFiles() const { return displayFiles; }
+    virtual int rowCount(const QModelIndex &parent) const override;
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+};
+
 class FilesList : public QWidget {
     Q_OBJECT
   public:
@@ -55,12 +69,11 @@ class FilesList : public QWidget {
     void setDir(const QString &dir);
     const QString &getDir() const { return directory; };
     void clear();
-    QStringList currentFilteredFiles() const;
+    const QStringList &currentFilteredFiles() const;
     const QStringList &getAllFiles() const { return allFilesList; }
 
   signals:
     void fileSelected(const QString &filename);
-    void filtersChanged();
 
   private slots:
     void scheduleUpdateList();
@@ -72,7 +85,8 @@ class FilesList : public QWidget {
                         const QStringList &showTokens) const;
 
     LoadingWidget *loadingWidget = nullptr;
-    QListWidget *displayList = nullptr;
+    FilesListModel *filesModel = nullptr;
+    QListView *displayList = nullptr;
     QLineEdit *excludeEdit = nullptr;
     QLineEdit *showEdit = nullptr;
     quint64 scanGeneration = 0;

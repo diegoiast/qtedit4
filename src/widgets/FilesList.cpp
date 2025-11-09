@@ -15,7 +15,7 @@
 #include <QElapsedTimer>
 #include <QFileInfo>
 #include <QLineEdit>
-#include <QListWidget>
+#include <QListView>
 #include <QQueue>
 #include <QRegularExpression>
 #include <QThread>
@@ -74,7 +74,7 @@ void FileScannerWorker::start() {
 
 void FileScannerWorker::scanDir(const QString &rootPath) {
     auto chunk = QStringList();
-    auto const chunkSize = 2000;
+    auto const chunkSize = 1000;
     auto queue = QQueue<QString>();
     queue.enqueue(rootPath);
 
@@ -109,12 +109,13 @@ void FileScannerWorker::scanDir(const QString &rootPath) {
 FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    displayList = new QListWidget(this);
     excludeEdit = new QLineEdit(this);
     showEdit = new QLineEdit(this);
     loadingWidget = new LoadingWidget(this);
-
+    filesModel = new FilesListModel();
+    displayList = new QListView(this);
     displayList->setAlternatingRowColors(true);
+    displayList->setModel(filesModel);
 
     showEdit->setClearButtonEnabled(true);
     showEdit->setPlaceholderText(tr("Files to show (e.g. main;*.cpp;*.h)"));
@@ -129,8 +130,8 @@ FilesList::FilesList(QWidget *parent) : QWidget(parent) {
     layout->addWidget(showEdit);
     layout->addWidget(excludeEdit);
 
-    connect(displayList, &QListWidget::itemClicked, this, [this](auto *it) {
-        auto fileName = this->directory + QDir::separator() + it->text();
+    connect(displayList, &QListView::clicked, this, [this](const QModelIndex &modelIndex) {
+        auto fileName = this->directory + QDir::separator() + modelIndex.data().toString();
         auto fileInfo = QFileInfo(fileName);
         fileName = fileInfo.absoluteFilePath();
         fileName = QDir::toNativeSeparators(fileName);
@@ -167,7 +168,8 @@ void FilesList::setDir(const QString &dir) {
     }
     clear();
     directory = normalizeDirPath(dir);
-
+    filesModel->setBaseDir(dir);
+    filesModel->clear();
     if (worker) {
         worker->requestStop();
     }
@@ -225,18 +227,12 @@ void FilesList::clear() {
     }
 
     allFilesList.clear();
-    displayList->clear();
+    filesModel->clear();
     loadingWidget->stop();
     directory.clear();
 }
 
-QStringList FilesList::currentFilteredFiles() const {
-    auto res = QStringList();
-    for (auto i = 0; i < displayList->count(); ++i) {
-        res << displayList->item(i)->text();
-    }
-    return res;
-}
+const QStringList &FilesList::currentFilteredFiles() const { return filesModel->getFiles(); }
 
 void FilesList::scheduleUpdateList() {
     if (updateTimer->isActive()) {
@@ -309,21 +305,51 @@ void FilesList::updateList(const QStringList &chunk, bool clearList) {
             }
         }
 
+        QElapsedTimer t1;
+        t1.start();
         filtered.sort(Qt::CaseInsensitive);
+        qDebug() << QString("Sorting %1 files took %2ms").arg(filtered.count()).arg(t1.elapsed());
         QTimer::singleShot(0, this, [this, clearList, filtered]() {
+            QElapsedTimer t1;
+            t1.start();
             if (clearList) {
-                this->displayList->clear();
+                this->filesModel->clear();
             }
-            for (auto const &rel : filtered) {
-                auto *item = new QListWidgetItem(QDir::toNativeSeparators(rel));
-                item->setToolTip(QDir::toNativeSeparators(this->directory + rel));
-                this->displayList->addItem(item);
-            }
+
+            filesModel->addFiles(filtered);
+            qDebug()
+                << QString("Adding %1 files took %2ms").arg(filtered.count()).arg(t1.elapsed());
             // auto s = tr("Displaying %1/%2 files").arg(filtered.size()).arg(allFilesList.size());
             // loadingWidget->setToolTip(s);
         });
-        if (clearList) {
-            emit filtersChanged();
-        }
     });
+}
+
+void FilesListModel::clear() {
+    beginResetModel();
+    displayFiles.clear();
+    endResetModel();
+}
+
+void FilesListModel::setBaseDir(const QString &newBaseDir) { baseDir = newBaseDir; }
+
+void FilesListModel::addFiles(const QStringList &l) {
+    beginResetModel();
+    displayFiles.append(l);
+    endResetModel();
+}
+
+int FilesListModel::rowCount(const QModelIndex &) const { return displayFiles.size(); }
+
+QVariant FilesListModel::data(const QModelIndex &index, int role) const {
+    switch (role) {
+    case Qt::DisplayRole:
+        return displayFiles[index.row()];
+        break;
+    case Qt::ToolTipRole:
+        return baseDir + displayFiles[index.row()];
+        break;
+    default:
+        return {};
+    }
 }
