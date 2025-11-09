@@ -175,21 +175,23 @@ void FilesList::setDir(const QString &dir) {
     worker = new FileScannerWorker;
     worker->moveToThread(scanThread);
     worker->setRootDir(directory);
-
+    auto currentGen = scanGeneration;
     auto *w = worker;
-    connect(w, &FileScannerWorker::filesChunkFound, this, [this, w](const QStringList &chunk) {
-        if (w != this->worker) {
-            return;
-        }
-        allFilesList.append(chunk);
-        updateList(chunk, false);
-    });
+    connect(w, &FileScannerWorker::filesChunkFound, this,
+            [this, w, currentGen](const QStringList &chunk) {
+                if (currentGen != scanGeneration || w != this->worker) {
+                    return;
+                }
+                allFilesList.append(chunk);
+                updateList(chunk, false);
+            });
     connect(w, &FileScannerWorker::finished, this, [this, w](qint64 ms) {
         auto msg = w->requestedStop() ? "Scan aborted after" : "Scan finished in";
         qDebug() << "FilesList::setDir" << msg << ms << "ms, " << w->getRootDir();
         if (w == this->worker) {
             this->worker = nullptr;
             this->scanThread->quit();
+            this->scanThread = nullptr;
             this->loadingWidget->stop();
         }
         w->deleteLater();
@@ -207,8 +209,24 @@ void FilesList::setFiles(const QStringList &files) {
 }
 
 void FilesList::clear() {
+    scanGeneration++;
+
+    if (worker) {
+        disconnect(worker, nullptr, this, nullptr);
+        worker->requestStop();
+        worker = nullptr;
+    }
+
+    if (scanThread) {
+        disconnect(scanThread, nullptr, this, nullptr);
+        scanThread->quit();
+        scanThread->wait();
+        scanThread = nullptr;
+    }
+
     allFilesList.clear();
     displayList->clear();
+    loadingWidget->stop();
     directory.clear();
 }
 

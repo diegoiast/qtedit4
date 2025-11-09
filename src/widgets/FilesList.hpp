@@ -24,7 +24,7 @@ class FileScannerWorker : public QObject {
   public:
     explicit FileScannerWorker(QObject *parent = nullptr);
     void setRootDir(const QString &dir);
-    const QString &getRootDir() { return rootDir; }
+    const QString &getRootDir() const { return rootDir; }
 
   public slots:
     void start();
@@ -75,6 +75,7 @@ class FilesList : public QWidget {
     QListWidget *displayList = nullptr;
     QLineEdit *excludeEdit = nullptr;
     QLineEdit *showEdit = nullptr;
+    quint64 scanGeneration = 0;
 
     QString directory;
     QStringList allFilesList;
