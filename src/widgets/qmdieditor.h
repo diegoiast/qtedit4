@@ -49,7 +49,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     qmdiEditor(QWidget *p, Qutepart::ThemeManager *theme);
     ~qmdiEditor();
 
-    virtual bool canCloseClient() override;
+    virtual bool canCloseClient(CloseReason reason = CloseReason::CloseTab) override;
     virtual QString mdiClientFileName() override;
     virtual std::optional<std::tuple<int, int, int>> get_coordinates() const override;
     virtual qmdiClientState getState() const override;

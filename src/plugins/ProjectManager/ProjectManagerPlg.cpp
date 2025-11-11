@@ -831,8 +831,6 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
 
         auto filename = args[GlobalArguments::FileName];
         auto action = client->contextMenu.findActionNamed("runScript");
-
-        // TODO - make it generic, is it a runnable script?
         auto isScript = verifyRunnable(client->mdiClientFileName());
         if (isScript) {
             if (!action) {
@@ -846,6 +844,9 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
 
                 connect(action, &QAction::triggered, action, [action, this]() {
                     auto client = action->data().value<qmdiClient *>();
+                    if (!client->canCloseClient(CloseReason::CloseTab)) {
+                        return;
+                    }
                     auto fi = QFileInfo(client->mdiClientFileName());
                     auto workingDir = fi.dir().absolutePath();
                     auto scriptName = fi.absoluteFilePath();
@@ -1267,7 +1268,7 @@ auto ProjectManagerPlugin::addProjectFromDir(const QString &dirName) -> void {
 auto ProjectManagerPlugin::saveAllDocuments() -> bool {
     for (auto i = 0; i < mdiServer->getClientsCount(); i++) {
         auto c = mdiServer->getClient(i);
-        if (!c->canCloseClient()) {
+        if (!c->canCloseClient(CloseReason::CloseTab)) {
             return false;
         }
     }

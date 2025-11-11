@@ -465,13 +465,18 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
     delete menu;
 }
 
-bool qmdiEditor::canCloseClient() {
+bool qmdiEditor::canCloseClient(CloseReason reason) {
     if (!textEditor->document()->isModified()) {
         deleteBackup();
-    } else {
-        saveBackup();
+        return true;
     }
-    return true;
+
+    if (reason == CloseReason::ApplicationQuit) {
+        if (textEditor->document()->isModified()) {
+            saveBackup();
+        }
+        return true;
+    }
 
     QMessageBox msgBox(QMessageBox::Warning, mdiClientName,
                        tr("The document has been modified.\nDo you want to save your changes?"),

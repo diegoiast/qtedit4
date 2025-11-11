@@ -15,7 +15,7 @@ set(DISABLE_QUTEPART_TESTS on)
 set(QHEXVIEW_ENABLE_DIALOGS on)
 set(COMMAND_PALLETE_ENABLE_TESTS off)
 
-option(QTEDIT4_WORK_OFFLINE off)
+option(QTEDIT4T4_WORK_OFFLINE off)
 
 if (QTEDIT4_WORK_OFFLINE)
     # for this to work, you need to make these libraries available yourself.
@@ -30,7 +30,7 @@ else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
 
-    CPMAddPackage("gh:diegoiast/qmdilib#c7ec7459163a88a8d224a3aaaed52d6fe74d7150")
+    CPMAddPackage("gh:diegoiast/qmdilib#a376990fc9edbfc2ea7ef09971eab4a2f1363ab5")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#63397fce174c7f6000031404c79c5447bd2f39ac")
     CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")

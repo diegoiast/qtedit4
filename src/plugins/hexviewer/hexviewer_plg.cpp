@@ -86,7 +86,7 @@ class qmdiHexViewer : public QHexView, public qmdiClient {
         this->menus["&Search"]->addAction(actionPastAsHex);
     }
 
-    virtual bool canCloseClient() override {
+    virtual bool canCloseClient(CloseReason) override {
         if (!this->hexDocument()->isModified()) {
             return true;
         }
