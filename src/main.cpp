@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(":qtedit4.ico");
 
-    pluginManager.setWindowTitle("qtedit4");
+    pluginManager.setWindowTitle(QCoreApplication::applicationName());
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
 
