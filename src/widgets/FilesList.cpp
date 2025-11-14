@@ -308,7 +308,6 @@ void FilesList::updateList(const QStringList &chunk, bool clearList) {
         QElapsedTimer t1;
         t1.start();
         filtered.sort(Qt::CaseInsensitive);
-        qDebug() << QString("Sorting %1 files took %2ms").arg(filtered.count()).arg(t1.elapsed());
         QTimer::singleShot(0, this, [this, clearList, filtered]() {
             QElapsedTimer t1;
             t1.start();
@@ -317,10 +316,6 @@ void FilesList::updateList(const QStringList &chunk, bool clearList) {
             }
 
             filesModel->addFiles(filtered);
-            qDebug()
-                << QString("Adding %1 files took %2ms").arg(filtered.count()).arg(t1.elapsed());
-            // auto s = tr("Displaying %1/%2 files").arg(filtered.size()).arg(allFilesList.size());
-            // loadingWidget->setToolTip(s);
         });
     });
 }
