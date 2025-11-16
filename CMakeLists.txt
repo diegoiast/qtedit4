@@ -18,7 +18,9 @@ set(COMMAND_PALLETE_ENABLE_TESTS off)
 option(QTEDIT4T4_WORK_OFFLINE off)
 
 if (QTEDIT4_WORK_OFFLINE)
-    # for this to work, you need to make these libraries available yourself.
+    # For this to work, you need to make these libraries available yourself.
+    # On Linux/macOS, you can run the script `get-code.sh`. This might work on Windows using
+    # git-bash, but is untested.
     add_subdirectory("lib/qmdilib")
     add_subdirectory("lib/qutepart-cpp")
     add_subdirectory("lib/command-palette-widget")
@@ -30,7 +32,7 @@ else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
 
-    CPMAddPackage("gh:diegoiast/qmdilib#a376990fc9edbfc2ea7ef09971eab4a2f1363ab5")
+    CPMAddPackage("gh:diegoiast/qmdilib#b131ec638837b1d80b5a7f1f8ce27a3e9db2eb24")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#e90c41b8cd511217cc7408be208d517f1ca8b38a")
     CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
