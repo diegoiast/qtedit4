@@ -449,8 +449,12 @@ void SplitTabWidget::moveTabToNewSplit(QWidget *widget) {
     auto oldTab = qobject_cast<QTabWidget *>(widget->parentWidget()->parentWidget());
     auto index = oldTab->indexOf(widget);
     auto text = oldTab->tabText(index);
-    currentTabWidget->addTab(widget, text);
-    oldTab->removeTab(index);
+    auto tooltip = oldTab->tabToolTip(index);
+
+    // The widget is automatically removed from oldTab when reparented
+    auto newIndex = currentTabWidget->addTab(widget, text);
+    currentTabWidget->setTabToolTip(newIndex, tooltip);
+    currentTabWidget->setCurrentIndex(newIndex);
     widget->setFocus();
 }
 
