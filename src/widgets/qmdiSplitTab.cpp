@@ -68,7 +68,10 @@ qmdiSplitTab::qmdiSplitTab(QWidget *parent) : SplitTabWidget(parent) {
     connect(this, &SplitTabWidget::emptyAreaDoubleClicked, this,
             [this](QTabWidget *tabWidget, const QPoint &) {
                 auto manager = dynamic_cast<PluginManager *>(this->parent());
-                if (manager) {
+                if (tabWidget) {
+                    updateCurrentTabWidget(tabWidget);
+                }
+                if (tabWidget && manager) {
                     emit manager->newFileRequested(tabWidget->tabBar());
                 }
             });
