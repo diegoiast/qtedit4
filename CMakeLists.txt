@@ -152,6 +152,13 @@ set(codepointer_sources
     src/plugins/CTags/CTagsLoader.hpp
     src/plugins/SplitTabsPlugin/SplitTabsPlugin.cpp
     src/plugins/SplitTabsPlugin/SplitTabsPlugin.hpp
+    src/plugins/git/GitPlugin.cpp
+    src/plugins/git/GitPlugin.hpp
+    src/plugins/git/CommitDelegate.hpp
+    src/plugins/git/CommitDelegate.cpp
+    src/plugins/git/CommitModel.hpp
+    src/plugins/git/CommitModel.cpp
+    src/plugins/git/GitCommands.ui
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp

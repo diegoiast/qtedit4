@@ -18,6 +18,7 @@
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/SplitTabsPlugin/SplitTabsPlugin.hpp"
 #include "plugins/filesystem/filesystembrowser.h"
+#include "plugins/git/GitPlugin.hpp"
 #include "plugins/help/help_plg.h"
 #include "plugins/hexviewer/hexviewer_plg.h"
 #include "plugins/imageviewer/imageviewer_plg.h"
@@ -112,6 +113,7 @@ int main(int argc, char *argv[]) {
     split->setLoadingFinished(false);
 
     // Those are defaults, restore will override them
+    pluginManager.addPlugin(new GitPlugin);
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
     pluginManager.hidePanels(Qt::LeftDockWidgetArea);
     pluginManager.hidePanels(Qt::RightDockWidgetArea);
