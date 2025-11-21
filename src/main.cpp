@@ -18,6 +18,7 @@
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/SplitTabsPlugin/SplitTabsPlugin.hpp"
 #include "plugins/filesystem/filesystembrowser.h"
+#include "plugins/git/GitPlugin.hpp"
 #include "plugins/help/help_plg.h"
 #include "plugins/hexviewer/hexviewer_plg.h"
 #include "plugins/imageviewer/imageviewer_plg.h"
@@ -84,6 +85,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    pluginManager.addPlugin(new GitPlugin);
     pluginManager.updateGUI();
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
 

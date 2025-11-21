@@ -32,7 +32,7 @@ else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
 
-    CPMAddPackage("gh:diegoiast/qmdilib#d044a71f5d3de265c34bfececff2502c284663f9")
+    CPMAddPackage("gh:diegoiast/qmdilib#d9406e25c045bfcf33362f427687455e6d3af71e")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#e90c41b8cd511217cc7408be208d517f1ca8b38a")
     CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
@@ -126,6 +126,13 @@ set(qtedit4_sources
     src/plugins/CTags/CTagsLoader.hpp
     src/plugins/SplitTabsPlugin/SplitTabsPlugin.cpp
     src/plugins/SplitTabsPlugin/SplitTabsPlugin.hpp
+    src/plugins/git/GitPlugin.cpp
+    src/plugins/git/GitPlugin.hpp
+    src/plugins/git/CommitDelegate.hpp
+    src/plugins/git/CommitDelegate.cpp
+    src/plugins/git/CommitModel.hpp
+    src/plugins/git/CommitModel.cpp
+    src/plugins/git/GitCommands.ui
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp

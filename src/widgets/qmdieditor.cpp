@@ -634,11 +634,7 @@ void qmdiEditor::setupActions() {
     // this is usually "control+r, which we use for running a target
     // actionReplace->setShortcut(QKeySequence::Replace);
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-    if (!is_running_under_gnome()) {
-        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
-    } else {
-        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
-    }
+    actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionToggleHeader->setShortcut(Qt::Key_F4);
