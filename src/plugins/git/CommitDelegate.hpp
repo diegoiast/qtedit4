@@ -12,15 +12,7 @@ class CommitDelegate : public QStyledItemDelegate {
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QModelIndex &index) const override;
 
+    static QColor laneColor(int column);
+
   private:
-    struct ParentInfo {
-        int column;
-        QColor color;
-    };
-
-    int m_columnWidth = 18;
-    int m_nodeRadius = 4;
-
-    QColor laneColor(int column) const;
-    void paintBezier(QPainter *p, QPoint start, QPoint end, const QColor &color) const;
 };
