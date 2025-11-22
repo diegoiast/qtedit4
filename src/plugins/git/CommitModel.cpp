@@ -1,59 +1,67 @@
 #include "CommitModel.hpp"
+
+#include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QProcess>
-#include <qnamespace.h>
-#include <qtypes.h>
+#include <QRegularExpression>
+#include <QSize>
+#include <qabstractitemmodel.h>
 
-CommitModel::CommitModel(QObject *parent) : QAbstractListModel(parent) {
-    qRegisterMetaType<QVector<int>>("QVector<int>");
+namespace {
+void addHorizontalConnectors(QString &graphString) {
+    if (graphString.contains('/')) {
+        return;
+    }
+    auto starPos = graphString.lastIndexOf('*');
+    if (starPos != -1) {
+        auto branchPoint = graphString.left(starPos).lastIndexOf(QRegularExpression("[|\\\\/+]"));
+        if (branchPoint != -1) {
+            for (auto i = branchPoint + 1; i < starPos; ++i) {
+                if (graphString[i] == ' ') {
+                    graphString[i] = '-';
+                }
+            }
+        }
+    }
 }
+
+} // namespace
+
+CommitModel::CommitModel(QObject *parent) : QAbstractListModel(parent) {}
 
 int CommitModel::rowCount(const QModelIndex &parent) const {
     if (parent.isValid()) {
         return 0;
     }
-    return m_commits.size();
+    return m_commits.count();
 }
 
 QVariant CommitModel::data(const QModelIndex &index, int role) const {
-    if (!index.isValid()) {
-        return QVariant();
+    if (!index.isValid() || index.row() >= m_commits.count()) {
+        return {};
     }
 
-    auto &c = m_commits.at(index.row());
+    auto &commit = m_commits[index.row()];
     switch (role) {
     case Qt::DisplayRole:
-        return c.subject;
-    case Qt::ToolTipRole:
-        return c.sha + " " + c.author + " " + c.date;
-    case Qt::UserRole + 1:
-        return c.column;
-    case Qt::UserRole + 2:
-        return QVariant::fromValue(c.parentColumns);
-    case Qt::UserRole + 3:
-        return c.sha;
-    case Qt::UserRole + 4:
-        return c.author;
-    case Qt::UserRole + 5:
-        return c.date;
-    case Qt::UserRole + 6:
-        return c.refs;
-    default:
-        return QVariant();
+        return QString("%1 %2").arg(commit.hash.left(7), commit.message);
+    case Qt::SizeHintRole:
+        return QSize(-1, m_rowHeight); // Fixed row height
+    case GraphRole:
+        return commit.graphLines;
+    case HashRole:
+        return commit.hash;
+    case ParentsRole:
+        return QVariant(commit.parents);
+    case MessageRole:
+        return commit.message;
+    case AuthorRole:
+        return commit.author;
+    case DateRole:
+        return QVariant(commit.date);
     }
-}
-
-QHash<int, QByteArray> CommitModel::roleNames() const {
-    QHash<int, QByteArray> roles;
-    roles[Qt::DisplayRole] = "subject";
-    roles[Qt::UserRole + 1] = "column";
-    roles[Qt::UserRole + 2] = "parentColumns";
-    roles[Qt::UserRole + 3] = "sha";
-    roles[Qt::UserRole + 4] = "author";
-    roles[Qt::UserRole + 5] = "date";
-    roles[Qt::UserRole + 6] = "refs";
-    return roles;
+    return {};
 }
 
 QString CommitModel::detectRepoRoot(const QString &filePath) const {
@@ -64,181 +72,63 @@ QString CommitModel::detectRepoRoot(const QString &filePath) const {
     return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
 }
 
-QString CommitModel::getGitLogForFile(const QString &repoPath, const QString &filePath) const {
-    QProcess p;
-    p.setWorkingDirectory(repoPath);
-    p.start(gitBinary, {"log", "--pretty=format:%H|%P|%s|%an|%ad|%D", "--date=short",
-                        "--date-order", "--", filePath});
-    p.waitForFinished();
-    return QString::fromUtf8(p.readAllStandardOutput());
-}
-
-QVector<CommitEntry> CommitModel::parseGitLog(const QString &raw) const {
-    QStringList lines = raw.split('\n', Qt::SkipEmptyParts);
-    QVector<CommitEntry> out;
-    out.reserve(lines.size());
-
-    for (auto const &line : lines) {
-        auto parts = line.split('|');
-        if (parts.size() < 6) {
-            continue;
-        }
-
-        CommitEntry c;
-        c.sha = parts[0];
-        c.parents = parts[1].split(' ', Qt::SkipEmptyParts);
-        c.subject = parts[2];
-        c.author = parts[3];
-        c.date = parts[4];
-        c.refs = parts[5].split(',', Qt::SkipEmptyParts);
-        c.column = -1;
-        out.push_back(c);
-    }
-    return out;
-}
-
-void CommitModel::assignGraphColumns(QVector<CommitEntry> &commits) {
-    QHash<QString, int> laneOf;
-    auto nextLane = 0;
-
-    for (auto c : commits) {
-        if (!laneOf.contains(c.sha)) {
-            laneOf[c.sha] = nextLane++;
-        }
-
-        c.column = laneOf[c.sha];
-        c.parentColumns.clear();
-        c.parentColumns.reserve(c.parents.size());
-
-        auto first = true;
-        for (auto const &p : c.parents) {
-            if (first) {
-                if (!laneOf.contains(p)) {
-                    laneOf[p] = c.column;
-                }
-                c.parentColumns.push_back(laneOf[p]);
-                first = false;
-            } else {
-                if (!laneOf.contains(p)) {
-                    laneOf[p] = nextLane++;
-                }
-                c.parentColumns.push_back(laneOf[p]);
-            }
-        }
-    }
-}
-
 bool CommitModel::loadFileHistory(const QString &file) {
     beginResetModel();
     m_commits.clear();
 
-    QProcess p;
-    QStringList args = {
-        "log",
-        "--first-parent",
-        "--pretty=format:%H%x1f%P%x1f%an%x1f%ad%x1f%s%x1f%D",
-        "--date=short",
-        "--",
-        file,
-    };
-
-    p.setWorkingDirectory(detectRepoRoot(file));
-    p.start(gitBinary, args);
-    if (!p.waitForFinished()) {
+    QString repoRoot = detectRepoRoot(file);
+    if (repoRoot.isEmpty()) {
+        endResetModel();
         return false;
     }
-    auto lines = p.readAllStandardOutput().split('\n');
-    buildTree(lines);
-    endResetModel();
-    return !m_commits.isEmpty();
-}
-
-bool CommitModel::loadProjectHistory(const QString &filePath) {
-    beginResetModel();
-    m_commits.clear();
 
     QProcess p;
-    QStringList args = {
-        "log",
-        "--first-parent",
-        "--pretty=format:%H%x1f%P%x1f%an%x1f%ad%x1f%s%x1f%D",
-        "--date=short",
-    };
-
-    p.setWorkingDirectory(detectRepoRoot(filePath));
+    p.setWorkingDirectory(repoRoot);
+    auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
+    if (!file.isEmpty()) {
+        args << "--" << file;
+    }
     p.start(gitBinary, args);
-    if (!p.waitForFinished()) {
-        return false;
-    }
-    auto lines = p.readAllStandardOutput().split('\n');
-    buildTree(lines);
-    endResetModel();
-    return !m_commits.isEmpty();
-}
+    p.waitForFinished();
 
-void CommitModel::buildTree(QList<QByteArray> &lines) {
-    for (const QByteArray &ln : lines) {
-        if (ln.isEmpty()) {
-            continue;
-        }
+    auto output = QString::fromUtf8(p.readAllStandardOutput());
+    auto lines = output.split('\n', Qt::SkipEmptyParts);
+    auto graphLinesBuffer = QStringList{};
 
-        QList<QByteArray> parts = ln.split('\x1f');
-        if (parts.size() < 6) {
-            continue;
-        }
+    for (auto &line : lines) {
+        auto sepPos = line.indexOf(QChar(0x01));
+        if (sepPos == -1) {
+            // Graph-only line
+            graphLinesBuffer.append(line);
+        } else {
+            // Commit line
+            CommitInfo commit;
+            commit.graphLines = graphLinesBuffer;
+            commit.graphLines.append(line.left(sepPos));
+            graphLinesBuffer.clear();
 
-        CommitEntry c;
-        c.sha = parts[0];
-        c.parents = QString(parts[1]).split(' ', Qt::SkipEmptyParts);
-        c.author = parts[2];
-        c.date = parts[3];
-        c.subject = parts[4];
-
-        QString refText = parts[5];
-        if (!refText.isEmpty()) {
-            c.refs = refText.split(", ");
-        }
-        c.column = 0;
-        c.parentColumns.clear();
-        m_commits.append(c);
-    }
-    assignLanes();
-}
-
-void CommitModel::assignLanes() {
-    QVector<int> active; // sha → column mapping
-
-    for (auto i = 0; i < m_commits.size(); ++i) {
-        auto &c = m_commits[i];
-        auto col = active.indexOf(i);
-        if (col < 0) {
-            col = active.size();
-            active.append(i);
-        }
-
-        c.column = col;
-        c.parentColumns.clear();
-        for (auto const &pSha : c.parents) {
-            int parentIndex = findCommitIndexBySha1(pSha);
-            if (parentIndex < 0) {
+            auto commitData = line.mid(sepPos + 1);
+            auto parts = commitData.split(QChar(0x02));
+            if (parts.count() < 5) {
                 continue;
             }
-            auto pCol = active.indexOf(parentIndex);
-            if (pCol < 0) {
-                pCol = active.size();
-                active.append(parentIndex);
+
+            auto dateString = parts[3];
+            dateString.replace(10, 1, 'T');
+
+            commit.hash = parts[0];
+            commit.parents = parts[1].split(' ', Qt::SkipEmptyParts);
+            commit.author = parts[2];
+            commit.date = QDateTime::fromString(dateString, Qt::ISODate);
+            commit.message = parts[4];
+            for (auto &graphLine : commit.graphLines) {
+                addHorizontalConnectors(graphLine);
             }
-            c.parentColumns.append(pCol);
+            m_commits.append(commit);
         }
-        active.removeAll(i);
     }
+    endResetModel();
+    return true;
 }
 
-int CommitModel::findCommitIndexBySha1(const QString &sha) const {
-    for (qsizetype i = 0, n = m_commits.size(); i < n; ++i) {
-        if (m_commits.at(i).sha == sha) {
-            return i;
-        }
-    }
-    return -1;
-}
+bool CommitModel::loadProjectHistory(const QString &filePath) { return loadFileHistory({}); }

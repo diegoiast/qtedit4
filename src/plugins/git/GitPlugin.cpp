@@ -66,7 +66,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     form->listView->setItemDelegate(delegate);
     form->listView->setItemDelegate(new CommitDelegate(form->listView));
     form->listView->setViewMode(QListView::ListMode);
-    form->listView->setUniformItemSizes(false);
+    form->listView->setUniformItemSizes(true);
     form->listView->setResizeMode(QListView::Adjust);
     form->listView->setWrapping(false);
 
