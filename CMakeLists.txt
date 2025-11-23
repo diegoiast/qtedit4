@@ -115,6 +115,8 @@ set(codepointer_sources
     src/widgets/qmdiSplitTab.h
     src/widgets/FilesList.cpp
     src/widgets/FilesList.hpp
+    src/widgets/AutoShrinkLabel.cpp
+    src/widgets/AutoShrinkLabel.hpp
 
     src/plugins/texteditor/texteditor_plg.cpp
     src/plugins/texteditor/texteditor_plg.h
@@ -159,6 +161,7 @@ set(codepointer_sources
     src/plugins/git/CommitModel.hpp
     src/plugins/git/CommitModel.cpp
     src/plugins/git/GitCommands.ui
+    src/plugins/git/GitCommit.ui
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp

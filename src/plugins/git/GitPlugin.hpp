@@ -5,6 +5,7 @@
 namespace Ui {
 class GitCommandsForm;
 }
+
 class GitPlugin : public IPlugin {
     Q_OBJECT
 
@@ -21,6 +22,8 @@ class GitPlugin : public IPlugin {
     void logFileHandler();
     void logProjectHandler();
     void logHandler(GitLog log, const QString &filename);
+    void on_gitCommitClicked(const QModelIndex &mi);
+    void on_gitCommitDoubleClicked(const QModelIndex &mi);
 
   private:
     QAction *diffFile = nullptr;
