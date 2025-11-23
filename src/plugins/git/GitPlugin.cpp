@@ -6,7 +6,10 @@
 
 #include <QDockWidget>
 #include <QFileInfo>
+#include <QFontDatabase>
+#include <QPlainTextEdit>
 #include <QProcess>
+#include <QScrollArea>
 
 GitPlugin::GitPlugin() {
     name = tr("Help system browser");
@@ -59,16 +62,11 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     form = new Ui::GitCommandsForm();
     form->setupUi(w);
     form->listView->setViewMode(QListView::ListMode);
-    form->listView->setFlow(QListView::TopToBottom);
     form->listView->setAlternatingRowColors(true);
 
     auto delegate = new CommitDelegate(form->listView);
     form->listView->setItemDelegate(delegate);
-    form->listView->setItemDelegate(new CommitDelegate(form->listView));
-    form->listView->setViewMode(QListView::ListMode);
-    form->listView->setUniformItemSizes(true);
-    form->listView->setResizeMode(QListView::Adjust);
-    form->listView->setWrapping(false);
+    connect(form->listView, &QAbstractItemView::clicked, this, &GitPlugin::on_gitCommitClicked);
 
     gitDock = manager->createNewPanel(Panels::West, "gitpanel", tr("Git"), w);
 }
@@ -115,4 +113,31 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
     form->listView->setModel(model);
     gitDock->raise();
     gitDock->show();
+}
+
+void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
+    auto const *model = static_cast<CommitModel *>(form->listView->model());
+    auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
+    auto const commit = model->getFullCommitInfo(sha1);
+    auto scrollArea = static_cast<QScrollArea *>(form->container->widget(0));
+
+    QPlainTextEdit *editor = nullptr;
+    if (!scrollArea) {
+        scrollArea = new QScrollArea(form->container);
+        scrollArea->setWidgetResizable(true);
+        editor = new QPlainTextEdit(scrollArea);
+        editor->setReadOnly(true);
+        editor->setLineWrapMode(QPlainTextEdit::NoWrap);
+
+        auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        fnt.setFixedPitch(true);
+        editor->setFont(fnt);
+
+        scrollArea->setWidget(editor);
+        form->container->addWidget(scrollArea);
+    } else {
+        editor = static_cast<QPlainTextEdit *>(scrollArea->widget());
+    }
+
+    editor->setPlainText(commit.raw);
 }

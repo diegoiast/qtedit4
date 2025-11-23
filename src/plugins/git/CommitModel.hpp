@@ -14,6 +14,16 @@ struct CommitInfo {
     QStringList graphLines;
 };
 
+struct FullCommitInfo {
+    QString raw;
+    QStringView hash;
+    QStringView author;
+    QStringView date;
+    QStringView subject;
+    QStringView body;
+    QStringView diff;
+};
+
 class CommitModel : public QAbstractListModel {
     Q_OBJECT
   public:
@@ -21,6 +31,7 @@ class CommitModel : public QAbstractListModel {
         HashRole = Qt::UserRole + 1,
         ParentsRole,
         MessageRole,
+        BodyRole,
         AuthorRole,
         DateRole,
         GraphRole
@@ -36,9 +47,15 @@ class CommitModel : public QAbstractListModel {
 
     QString detectRepoRoot(const QString &filePath) const;
 
+    CommitInfo getCommitInfo(const QString &sha1) const;
+    FullCommitInfo getFullCommitInfo(const QString &sha1) const;
+    QString getRawCommitDiff(const QString &sha1) const;
+    FullCommitInfo parseFullCommitInfo(const QString &rawInfo) const;
+
   protected:
   private:
     QString gitBinary = "git";
     QVector<CommitInfo> m_commits;
     int m_rowHeight = 22;
+    QString repoRoot;
 };

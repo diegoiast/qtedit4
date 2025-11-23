@@ -7,6 +7,7 @@
 #include <QRegularExpression>
 #include <QSize>
 #include <qabstractitemmodel.h>
+#include <qnamespace.h>
 
 namespace {
 void addHorizontalConnectors(QString &graphString) {
@@ -76,7 +77,7 @@ bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
     beginResetModel();
     m_commits.clear();
 
-    QString repoRoot = detectRepoRoot(file);
+    repoRoot = detectRepoRoot(file);
     if (repoRoot.isEmpty()) {
         endResetModel();
         return false;
@@ -133,4 +134,87 @@ bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
 
 bool CommitModel::loadProjectHistory(const QString &filePath) {
     return loadFileHistory(filePath, false);
+}
+
+CommitInfo CommitModel::getCommitInfo(const QString &sha1) const {
+    for (const auto &commit : m_commits) {
+        if (commit.hash == sha1) {
+            return commit;
+        }
+    }
+    return {};
+}
+
+FullCommitInfo CommitModel::getFullCommitInfo(const QString &sha1) const {
+    auto s = getRawCommitDiff(sha1);
+    return parseFullCommitInfo(s);
+}
+
+QString CommitModel::getRawCommitDiff(const QString &sha1) const {
+    if (repoRoot.isEmpty()) {
+        return {};
+    }
+    QProcess p;
+    p.setWorkingDirectory(repoRoot);
+    p.start(gitBinary, {"show", sha1});
+    p.waitForFinished();
+    return QString::fromUtf8(p.readAllStandardOutput());
+}
+
+FullCommitInfo CommitModel::parseFullCommitInfo(const QString &rawInfo) const {
+    FullCommitInfo result;
+    result.raw = rawInfo;
+    if (result.raw.isEmpty()) {
+        return result;
+    }
+
+    QStringView content(result.raw);
+
+    // 1. Headers
+    int headerEndPos = content.indexOf(u"\n\n");
+    if (headerEndPos == -1) {
+        result.body = content;
+        return result;
+    }
+
+    QStringView headers = content.left(headerEndPos);
+    content = content.mid(headerEndPos + 2);
+
+    for (const auto &line : headers.split('\n')) {
+        if (line.startsWith(u"commit ")) {
+            result.hash = line.mid(7);
+        } else if (line.startsWith(u"Author: ")) {
+            result.author = line.mid(8);
+        } else if (line.startsWith(u"Date:   ")) {
+            result.date = line.mid(8).trimmed();
+        }
+    }
+
+    // 2. Diff section
+    int diffStartPos = content.indexOf(u"\ndiff --git");
+    QStringView messageBlock;
+    if (diffStartPos == -1) {
+        messageBlock = content;
+        result.diff = QStringView();
+    } else {
+        messageBlock = content.left(diffStartPos);
+        result.diff = content.mid(diffStartPos + 1);
+    }
+
+    // 3. Subject and Body from message block (un-indenting by 4 spaces)
+    int firstLineStart = messageBlock.indexOf(QRegularExpression(R"(\S)"));
+    if (firstLineStart == -1) { // Empty message
+        return result;
+    }
+
+    // Find body (text after first empty line)
+    int bodyPos = messageBlock.indexOf(u"\n\n", firstLineStart);
+    if (bodyPos == -1) {
+        result.subject = messageBlock.mid(firstLineStart).trimmed();
+    } else {
+        result.subject = messageBlock.mid(firstLineStart, bodyPos - firstLineStart).trimmed();
+        result.body = messageBlock.mid(bodyPos + 2).trimmed();
+    }
+
+    return result;
 }

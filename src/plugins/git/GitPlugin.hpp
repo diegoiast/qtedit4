@@ -21,6 +21,7 @@ class GitPlugin : public IPlugin {
     void logFileHandler();
     void logProjectHandler();
     void logHandler(GitLog log, const QString &filename);
+    void on_gitCommitClicked(const QModelIndex &mi);
 
   private:
     QAction *diffFile = nullptr;
