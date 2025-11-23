@@ -72,7 +72,7 @@ QString CommitModel::detectRepoRoot(const QString &filePath) const {
     return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
 }
 
-bool CommitModel::loadFileHistory(const QString &file) {
+bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
     beginResetModel();
     m_commits.clear();
 
@@ -85,7 +85,7 @@ bool CommitModel::loadFileHistory(const QString &file) {
     QProcess p;
     p.setWorkingDirectory(repoRoot);
     auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
-    if (!file.isEmpty()) {
+    if (scopeLogToFile && !file.isEmpty()) {
         args << "--" << file;
     }
     p.start(gitBinary, args);
@@ -131,4 +131,6 @@ bool CommitModel::loadFileHistory(const QString &file) {
     return true;
 }
 
-bool CommitModel::loadProjectHistory(const QString &filePath) { return loadFileHistory({}); }
+bool CommitModel::loadProjectHistory(const QString &filePath) {
+    return loadFileHistory(filePath, false);
+}

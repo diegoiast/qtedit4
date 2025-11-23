@@ -31,7 +31,7 @@ class CommitModel : public QAbstractListModel {
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    bool loadFileHistory(const QString &filePath);
+    bool loadFileHistory(const QString &filePath, bool scopeLogToFile = true);
     bool loadProjectHistory(const QString &filePath);
 
     QString detectRepoRoot(const QString &filePath) const;
