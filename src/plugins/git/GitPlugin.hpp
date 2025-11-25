@@ -5,6 +5,7 @@
 namespace Ui {
 class GitCommandsForm;
 }
+
 class GitPlugin : public IPlugin {
     Q_OBJECT
 

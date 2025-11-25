@@ -5,6 +5,8 @@
 #include <QVariant>
 #include <QVector>
 
+#include <memory>
+
 struct CommitInfo {
     QString hash;
     QStringList parents;
@@ -14,14 +16,19 @@ struct CommitInfo {
     QStringList graphLines;
 };
 
+struct FileDiff {
+    QStringView filename;
+    QStringView diff_content;
+};
+
 struct FullCommitInfo {
-    QString raw;
+    std::shared_ptr<const QString> raw;
     QStringView hash;
     QStringView author;
     QStringView date;
     QStringView subject;
-    QStringView body;
-    QStringView diff;
+    QString body;
+    QList<FileDiff> files;
 };
 
 class CommitModel : public QAbstractListModel {

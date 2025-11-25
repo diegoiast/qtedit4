@@ -3,11 +3,15 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QLatin1String>
+#include <QList>
 #include <QProcess>
 #include <QRegularExpression>
 #include <QSize>
 #include <qabstractitemmodel.h>
 #include <qnamespace.h>
+
+#include <memory>
 
 namespace {
 void addHorizontalConnectors(QString &graphString) {
@@ -163,57 +167,105 @@ QString CommitModel::getRawCommitDiff(const QString &sha1) const {
 
 FullCommitInfo CommitModel::parseFullCommitInfo(const QString &rawInfo) const {
     FullCommitInfo result;
-    result.raw = rawInfo;
-    if (result.raw.isEmpty()) {
+    if (rawInfo.isEmpty()) {
         return result;
     }
 
-    QStringView content(result.raw);
+    result.raw = std::make_shared<const QString>(rawInfo);
+    QStringView content(*result.raw);
 
     // 1. Headers
-    int headerEndPos = content.indexOf(u"\n\n");
+    int headerEndPos = content.indexOf(QLatin1String("\n\n"));
     if (headerEndPos == -1) {
-        result.body = content;
+        // No headers found, something is wrong, but we can treat it all as body.
+        // Body must be an owned QString.
+        result.body = content.toString();
         return result;
     }
 
     QStringView headers = content.left(headerEndPos);
-    content = content.mid(headerEndPos + 2);
-
     for (const auto &line : headers.split('\n')) {
-        if (line.startsWith(u"commit ")) {
+        if (line.startsWith(QLatin1String("commit "))) {
             result.hash = line.mid(7);
-        } else if (line.startsWith(u"Author: ")) {
+        } else if (line.startsWith(QLatin1String("Author: "))) {
             result.author = line.mid(8);
-        } else if (line.startsWith(u"Date:   ")) {
+        } else if (line.startsWith(QLatin1String("Date:   "))) {
             result.date = line.mid(8).trimmed();
         }
     }
 
-    // 2. Diff section
-    int diffStartPos = content.indexOf(u"\ndiff --git");
+    // 2. Message and Diff blocks
+    QStringView bodyAndDiff = content.mid(headerEndPos + 2);
+    int diffStartPos = bodyAndDiff.indexOf(QLatin1String("diff --git"));
     QStringView messageBlock;
     if (diffStartPos == -1) {
-        messageBlock = content;
-        result.diff = QStringView();
+        messageBlock = bodyAndDiff;
     } else {
-        messageBlock = content.left(diffStartPos);
-        result.diff = content.mid(diffStartPos + 1);
+        messageBlock = bodyAndDiff.left(diffStartPos);
     }
 
-    // 3. Subject and Body from message block (un-indenting by 4 spaces)
+    // 3. Subject and Body from message block
     int firstLineStart = messageBlock.indexOf(QRegularExpression(R"(\S)"));
-    if (firstLineStart == -1) { // Empty message
-        return result;
+    if (firstLineStart != -1) {
+        const QRegularExpression separator(QLatin1String("\\n\\s*\\n"));
+        const auto match = separator.matchView(messageBlock, firstLineStart);
+
+        if (!match.hasMatch()) {
+            result.subject = messageBlock.mid(firstLineStart).trimmed();
+        } else {
+            const int bodyPos = match.capturedStart();
+            const int separatorLength = match.capturedLength();
+            result.subject = messageBlock.mid(firstLineStart, bodyPos - firstLineStart).trimmed();
+
+            QStringView rawBody = messageBlock.mid(bodyPos + separatorLength);
+            QList<QStringView> bodyLines = rawBody.split('\n', Qt::KeepEmptyParts);
+
+            QStringList processedBodyLines;
+            processedBodyLines.reserve(bodyLines.size());
+            for (QStringView line : bodyLines) {
+                if (line.startsWith(QLatin1String("    "))) {
+                    processedBodyLines.append(line.sliced(4).toString());
+                } else {
+                    processedBodyLines.append(line.toString());
+                }
+            }
+            result.body = processedBodyLines.join('\n').trimmed();
+        }
     }
 
-    // Find body (text after first empty line)
-    int bodyPos = messageBlock.indexOf(u"\n\n", firstLineStart);
-    if (bodyPos == -1) {
-        result.subject = messageBlock.mid(firstLineStart).trimmed();
-    } else {
-        result.subject = messageBlock.mid(firstLineStart, bodyPos - firstLineStart).trimmed();
-        result.body = messageBlock.mid(bodyPos + 2).trimmed();
+    // 4. Parse file diffs
+    if (diffStartPos != -1) {
+        QStringView diffsBlock = bodyAndDiff.mid(diffStartPos);
+        int currentPos = 0;
+        while (currentPos < diffsBlock.size()) {
+            int nextPos = diffsBlock.indexOf(QLatin1String("\ndiff --git"), currentPos + 1);
+            if (nextPos != -1) {
+                nextPos++; // include the \n
+            }
+            int endOfBlock = (nextPos == -1) ? diffsBlock.size() : nextPos;
+
+            QStringView currentDiff = diffsBlock.mid(currentPos, endOfBlock - currentPos);
+            if (currentDiff.isEmpty()) {
+                break;
+            }
+
+            FileDiff fileDiff;
+            fileDiff.diff_content = currentDiff;
+
+            int firstLineEnd = currentDiff.indexOf('\n');
+            QStringView firstLine = currentDiff.left(firstLineEnd);
+            int b_part_start = firstLine.lastIndexOf(QLatin1String(" b/"));
+            if (b_part_start != -1) {
+                fileDiff.filename = firstLine.mid(b_part_start + 3);
+            }
+
+            result.files.append(fileDiff);
+
+            if (nextPos == -1) {
+                break;
+            }
+            currentPos = nextPos;
+        }
     }
 
     return result;

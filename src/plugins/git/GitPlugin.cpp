@@ -1,15 +1,45 @@
-#include "GitPlugin.hpp"
-
-#include "CommitDelegate.hpp"
-#include "CommitModel.hpp"
-#include "ui_GitCommands.h"
-
 #include <QDockWidget>
 #include <QFileInfo>
 #include <QFontDatabase>
+#include <QFontMetrics>
+#include <QLabel>
+#include <QPainter>
 #include <QPlainTextEdit>
 #include <QProcess>
+#include <QResizeEvent>
 #include <QScrollArea>
+#include <QStringListModel>
+
+#include "CommitDelegate.hpp"
+#include "CommitModel.hpp"
+#include "GitPlugin.hpp"
+#include "ui_GitCommands.h"
+#include "ui_GitCommit.h"
+#include "widgets/AutoShrinkLabel.hpp"
+
+QString shortGitSha1(const QString &fullSha1, int length = 7) {
+    if (length <= 0) {
+        return QString();
+    }
+
+    if (fullSha1.size() <= length) {
+        return fullSha1;
+    }
+
+    return fullSha1.left(length);
+}
+
+class GitCommitDisplay : public QWidget {
+  public:
+    GitCommitDisplay(QWidget *parent) : QWidget(parent) {
+        ui.setupUi(this);
+
+        auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
+        fnt.setFixedPitch(true);
+        ui.rawGitCommit->setFont(fnt);
+    }
+    Ui::GitCommit ui;
+};
 
 GitPlugin::GitPlugin() {
     name = tr("Help system browser");
@@ -118,26 +148,27 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
 void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-    auto const commit = model->getFullCommitInfo(sha1);
-    auto scrollArea = static_cast<QScrollArea *>(form->container->widget(0));
+    auto const sha1Short = shortGitSha1(sha1);
+    auto const fullCommit = model->getFullCommitInfo(sha1);
+    auto widget = static_cast<GitCommitDisplay *>(form->container->widget(0));
 
-    QPlainTextEdit *editor = nullptr;
-    if (!scrollArea) {
-        scrollArea = new QScrollArea(form->container);
-        scrollArea->setWidgetResizable(true);
-        editor = new QPlainTextEdit(scrollArea);
-        editor->setReadOnly(true);
-        editor->setLineWrapMode(QPlainTextEdit::NoWrap);
-
-        auto fnt = QFontDatabase::systemFont(QFontDatabase::FixedFont);
-        fnt.setFixedPitch(true);
-        editor->setFont(fnt);
-
-        scrollArea->setWidget(editor);
-        form->container->addWidget(scrollArea);
-    } else {
-        editor = static_cast<QPlainTextEdit *>(scrollArea->widget());
+    if (!widget) {
+        widget = new GitCommitDisplay(form->container);
+        form->container->addWidget(widget);
     }
 
-    editor->setPlainText(commit.raw);
+    widget->ui.rawGitCommit->setPlainText(*fullCommit.raw);
+    widget->ui.sha1->setPrimaryText(sha1);
+    widget->ui.sha1->setFallbackText(sha1Short);
+    widget->ui.commiter->setText(fullCommit.author.toString());
+    widget->ui.commitDate->setText(fullCommit.date.toString());
+    widget->ui.commit->setText(fullCommit.subject.toString());
+    widget->ui.commitMessage->setVisible(!fullCommit.body.trimmed().isEmpty());
+    widget->ui.commitMessage->setMarkdown(fullCommit.body);
+
+    auto s = QStringList();
+    for (auto ss : fullCommit.files) {
+        s.push_back(ss.filename.toString());
+    }
+    widget->ui.commits->setModel(new QStringListModel(s));
 }
