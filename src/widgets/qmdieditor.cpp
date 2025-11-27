@@ -872,6 +872,9 @@ void qmdiEditor::updateClientName() {
     auto isModified = textEditor->document()->isModified();
     auto newName = baseName;
     auto isExecutable = (action != nullptr);
+    auto canOpenPreview = hasPreview();
+    setPreviewEnabled(canOpenPreview);
+    setPreviewVisible(canOpenPreview && autoPreview);
 
     if (isModified) {
         newName += MODIFIED_TEXT;
@@ -950,6 +953,7 @@ void qmdiEditor::handleTabDeselected() {
     loadingTimer = nullptr;
 }
 
+// FIXME: this is blocking, and wrong
 QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
     QSet<QString> completions;
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
@@ -963,7 +967,7 @@ QSet<QString> qmdiEditor::getTagCompletions(const QString &prefix) {
         {GlobalArguments::FileName, mdiClientFileName()},
         {GlobalArguments::ExactMatch, false}
     });
-    // clang-format o,
+    // clang-format on
 
     auto maxWaitMs = 500;
     auto pollIntervalMs = 10;
@@ -1311,7 +1315,7 @@ void qmdiEditor::loadContent() {
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     pluginManager->openFile("loaded:" + fileName);
     // clang-format off
-    auto result = pluginManager->handleCommand(GlobalCommands::LoadedFile, {
+    /*auto result =*/ pluginManager->handleCommand(GlobalCommands::LoadedFile, {
         {GlobalArguments::FileName, mdiClientFileName()},
         {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient*>(this)) }
     });
