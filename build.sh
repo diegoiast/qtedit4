@@ -3,8 +3,8 @@
 set -x
 set -e
 
-QT_VERSION="6.10.0"
-APP_VERSION="0.0.15"
+QT_VERSION="6.10.1"
+APP_VERSION="0.0.16-rc1"
 
 NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
 QTDIR="$HOME/qt/${QT_VERSION}/gcc_64"
@@ -14,11 +14,26 @@ export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 export OUTPUT=dist/$NAME.AppImage
 export QMAKE="${QTDIR}/bin/qmake"
 
+# without this, the process does not work on some systems
+# export NO_STRIP=true
+
+# Some distros use ccache on differnt locations, arch vs debian/ubuntu
+if [ -x /usr/lib/ccache/clang-19 ] && [ -x /usr/lib/ccache/clang++-19 ]; then
+    export CC="/usr/lib/ccache/clang-19"
+    export CXX="/usr/lib/ccache/clang++-19"
+elif [ -x /usr/lib/ccache/bin/clang ] && [ -x /usr/lib/ccache/bin/clang++ ]; then
+    export CC="/usr/lib/ccache/bin/clang"
+    export CXX="/usr/lib/ccache/bin/clang++"
+elif command -v clang >/dev/null 2>&1 && command -v clang++ >/dev/null 2>&1; then
+    export CC="$(command -v clang)"
+    export CXX="$(command -v clang++)"
+else
+    echo "No usable clang found!" >&2
+    return 1
+fi
+
 rm -fr "build/${matrix_config_build_dir}"
 rm -fr "dist"
-
-export CC="/usr/lib/ccache/clang-19"
-export CXX="/usr/lib/ccache/clang++-19"
 
 cmake -B "build/${matrix_config_build_dir}" -DCMAKE_BUILD_TYPE=Release
 cmake --build   "build/${matrix_config_build_dir}" --parallel --config Release
@@ -38,5 +53,6 @@ cp -arv $QTDIR/plugins/platforms/libqwayland*.so "dist/${matrix_config_build_dir
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
 chmod +x linuxdeploy*.AppImage
+
 ./linuxdeploy-x86_64.AppImage --appdir "dist/${matrix_config_build_dir}" --plugin qt --output appimage
 
