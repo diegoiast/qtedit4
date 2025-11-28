@@ -1010,8 +1010,8 @@ void qmdiEditor::handleWordTooltip(const QPoint &localPosition, const QPoint &gl
     watcher->setFuture(future);
 }
 
-QFuture<CommandArgs> qmdiEditor::getCommandForLocation(const QPoint &localPosition, const QString &cmd)
-{
+QFuture<CommandArgs> qmdiEditor::getCommandForLocation(const QPoint &localPosition,
+                                                       const QString &cmd) {
     auto cursor = textEditor->cursorForPosition(localPosition);
     cursor.select(QTextCursor::WordUnderCursor);
 
