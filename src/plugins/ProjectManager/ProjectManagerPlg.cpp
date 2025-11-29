@@ -208,12 +208,15 @@ std::shared_ptr<ProjectBuildConfig> ProjectBuildModel::findProjectForFile(const 
 int ProjectBuildModel::rowCount(const QModelIndex &) const { return configs.size(); }
 
 QVariant ProjectBuildModel::data(const QModelIndex &index, int role) const {
+    if (!index.isValid()) {
+        return {};
+    }
     auto config = configs[index.row()];
     switch (role) {
     case Qt::DisplayRole:
+        return config->name;
+    case Qt::ToolTipRole:
         return QDir::toNativeSeparators(config->sourceDir);
-    case Qt::StatusTipRole:
-        return QDir::toNativeSeparators(config->buildDir);
     default:
         break;
     }
@@ -635,7 +638,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
                                              QString::fromStdString(kit.filePath));
         gui->kitComboBox->setToolTip(tooltip);
     });
-    gui->projectComboBox->setModel(projectModel);
+
+    auto combo = gui->projectComboBox;
+    combo->setModel(projectModel);
+    connect(gui->projectComboBox, &QComboBox::currentIndexChanged, combo, [combo](int index) {
+        auto tip = combo->itemData(index, Qt::ToolTipRole);
+        combo->setToolTip(tip.toString());
+    });
+    combo->setToolTip(combo->itemData(combo->currentIndex(), Qt::ToolTipRole).toString());
+
     emit gui->kitComboBox->activated(0);
 
     runAction = new QAction(QIcon::fromTheme("document-save"), tr("&Run"), this);
