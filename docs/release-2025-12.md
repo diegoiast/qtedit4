@@ -1,4 +1,4 @@
-**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.0.15...v0.0.16-rc1
+**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.0.15...v0.0.16
 
 # December 2025 - release
 
@@ -19,5 +19,4 @@ all docks and have a simple text editor.
 * Project manager: copy relative file to the project - https://github.com/diegoiast/qtedit4/issues/7
 * When moving tabs to a new split, other tabs are lost sometimes - https://github.com/diegoiast/qtedit4/issues/131
 * SplittabWidget: clicking on empty area creates a new file on the wrong split - https://github.com/diegoiast/qtedit4/issues/132
-
-
+* ProjectManager: search project description is broken - https://github.com/diegoiast/qtedit4/issues/134

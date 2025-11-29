@@ -1,35 +1,35 @@
 {
     "updates": {
         "windows": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
-            "latest-version": "0.0.15",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16",
+            "latest-version": "0.0.16",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.exe",
-            "changelog": "Code folding, run scripts",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16/qtedit4-qt6.10.1-v0.0.16-x86_64.exe",
+            "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16-rc1",
-            "latest-version": "0.0.16-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16",
+            "latest-version": "0.0.16",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16-rc1/qtedit4-qt6.10.1-v0.0.16-rc1-x86_64.exe",
-            "changelog": "Code folding, run scripts",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16/qtedit4-qt6.10.1-v0.0.16-x86_64.exe",
+            "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "linux": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.15",
-            "latest-version": "0.0.15",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16",
+            "latest-version": "0.0.16",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.15/qtedit4-qt6.8.3-v0.0.15-x86_64.AppImage",
-            "changelog": "Code folding, run scripts",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16/qtedit4-qt6.10.1-v0.0.16-x86_64.AppImage",
+            "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16-rc1",
-            "latest-version": "0.0.16-rc1",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.0.16",
+            "latest-version": "0.0.16",
             "download-url":
-                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16-rc1/qtedit4-qt6.10.1-v0.0.16-rc1-x86_64.AppImage",
-            "changelog": "Code folding, run scripts",
+                "https://github.com/diegoiast/qtedit4/releases/download/v0.0.16/qtedit4-qt6.10.1-v0.0.16-x86_64.AppImage",
+            "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         }
     }
