@@ -1,22 +1,23 @@
 #define VersionString "0.0.16"
 #define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
 #define VC_Redist_URL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+;OutputBaseFilename=qtedit4-qt6.8.1-v{#VersionString}-x86_64
+;OutputBaseFilename=qtedit4-win64
 
 [Setup]
 AppName=qtedit4
 AppVersion={#VersionString}
 AppId={#AppId}
-DefaultDirName={pf}\qtedit4
-DefaultGroupName=qtedit4
-UninstallDisplayIcon={app}\qtedit4.ico
+DefaultDirName={pf}\{#AppName}
+DefaultGroupName={#AppName}
+UninstallDisplayIcon={app}\{#AppName}.ico
 OutputDir=dist
-;OutputBaseFilename=qtedit4-qt6.8.1-v{#VersionString}-x86_64
-OutputBaseFilename=qtedit4-win64
+OutputBaseFilename={#AppName}-win64-v{#VersionString}
 Compression=lzma
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ShowComponentSizes=yes
-SetupIconFile=qtedit4.ico
+SetupIconFile={#AppName}.ico
 
 [Files]
 Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}";
