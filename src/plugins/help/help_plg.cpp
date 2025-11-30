@@ -243,7 +243,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
     if (canInstallDesktopFile()) {
         auto installDesktopFile = new QAction(tr("Install desktop file"), this);
         connect(installDesktopFile, &QAction::triggered, this, [this]() {
-            auto svgResourcePath = ":qtedit4.svg";
+            auto svgResourcePath = QTEDIT4_SVG_ICON;
             auto exe = getExecutablePath();
             auto svgFile = QFile(QString::fromStdString(svgResourcePath));
             if (!svgFile.open(QIODevice::ReadOnly)) {
