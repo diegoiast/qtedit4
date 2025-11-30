@@ -59,8 +59,13 @@ int main(int argc, char *argv[]) {
         qDebug() << "No icons found, using our own. Icons search path" << paths;
     }
 
-#if 1
+#if defined(BUILD_DEV)
+    auto tintBackgroundColor = QColor::fromRgb(0xFFC107);
+#elif defined(BUILD_OFFICIAL)
     auto tintBackgroundColor = QColor::fromRgb(0x44aa44);
+#endif
+
+#if !defined(BUILD_CE)
     auto tintTextColor = Qt::white;
 
     auto lighterColor = tintBackgroundColor.lighter(150).name();
@@ -88,7 +93,7 @@ int main(int argc, char *argv[]) {
 
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    auto iniFilePath = filePath + "/qtedit4.ini";
+    auto iniFilePath = filePath + QString("/%1.ini").arg(QTEDIT4_APP_NAME);
     auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(QTEDIT4_ICON);
 

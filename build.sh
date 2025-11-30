@@ -3,10 +3,19 @@
 set -x
 set -e
 
-QT_VERSION="6.10.1"
-APP_VERSION="0.0.16"
+BUILD_TYPE="OFFICIAL"
+NAME_SUFFIX=""
 
-NAME="qtedit4-qt${QT_VERSION}-v${APP_VERSION}-dev-x86_64"
+if [ "$1" = "--ce" ]; then
+  BUILD_TYPE="CE"
+  NAME_SUFFIX="-ce"
+fi
+
+APP_NAME="qtedit4"
+APP_VERSION="0.0.16"
+QT_VERSION="6.10.1"
+
+NAME="${APP_NAME}-v${APP_VERSION}${NAME_SUFFIX}-x86_64"
 QTDIR="$HOME/qt/${QT_VERSION}/gcc_64"
 export matrix_config_build_dir=ubuntu-gcc
 export PATH=$QTDIR/bin:$PATH
@@ -14,13 +23,18 @@ export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
 export OUTPUT=dist/$NAME.AppImage
 export QMAKE="${QTDIR}/bin/qmake"
 
+if [ ! -x ${QMAKE} ]; then
+    echo "Could not find qmake at ${QMAKE}"
+    exit -1
+fi
+
 # without this, the process does not work on some systems
 # export NO_STRIP=true
 
 # Some distros use ccache on differnt locations, arch vs debian/ubuntu
-if [ -x /usr/lib/ccache/clang-19 ] && [ -x /usr/lib/ccache/clang++-19 ]; then
-    export CC="/usr/lib/ccache/clang-19"
-    export CXX="/usr/lib/ccache/clang++-19"
+if [ -x /usr/lib/ccache/clang-21 ] && [ -x /usr/lib/ccache/clang++-21 ]; then
+    export CC="/usr/lib/ccache/clang-21"
+    export CXX="/usr/lib/ccache/clang++-21"
 elif [ -x /usr/lib/ccache/bin/clang ] && [ -x /usr/lib/ccache/bin/clang++ ]; then
     export CC="/usr/lib/ccache/bin/clang"
     export CXX="/usr/lib/ccache/bin/clang++"
@@ -35,24 +49,23 @@ fi
 rm -fr "build/${matrix_config_build_dir}"
 rm -fr "dist"
 
-cmake -B "build/${matrix_config_build_dir}" -DCMAKE_BUILD_TYPE=Release
+cmake -B "build/${matrix_config_build_dir}" -DCMAKE_BUILD_TYPE=Release -DBUILD_VERSION=${BUILD_TYPE}
 cmake --build   "build/${matrix_config_build_dir}" --parallel --config Release
 cmake --install "build/${matrix_config_build_dir}" --prefix dist/${matrix_config_build_dir}/usr
 
-rm -fr dist/qtedit4
-mkdir -p dist/qtedit4/
-ln -s  ../${matrix_config_build_dir}/usr/ dist/qtedit4/$NAME
-tar -cjhvf dist/$NAME.tar.bz2 -C dist/qtedit4 .
+rm -fr dist/${APP_NAME}
+mkdir -p dist/${APP_NAME}/
+ln -s  ../${matrix_config_build_dir}/usr/ dist/${APP_NAME}/$NAME
+tar -cjhvf dist/$NAME.tar.bz2 -C dist/${APP_NAME} .
 
 # Qt plugin does not bundle the needed plugins, do this manually
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/iconengines/"
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
-cp -arv $QTDIR/plugins/iconengines/* "dist/${matrix_config_build_dir}/usr/plugins/iconengines/"
-cp -arv $QTDIR/plugins/platforms/libqwayland*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
+cp -arv $QTDIR/plugins/iconengines/* "dist/${matrix_config_build_dir}/usr/plugins/iconengines/" || true;
+cp -arv $QTDIR/plugins/platforms/libqwayland*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/" || true
 
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
 chmod +x linuxdeploy*.AppImage
 
 ./linuxdeploy-x86_64.AppImage --appdir "dist/${matrix_config_build_dir}" --plugin qt --output appimage
-

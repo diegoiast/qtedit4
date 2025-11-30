@@ -1,9 +1,27 @@
 cmake_minimum_required(VERSION 3.20)
 project (qtedit4)
 
-set(QTEDIT4_APP_NAME "qtedit4" CACHE STRING "Application name")
-set(QTEDIT4_BINARY "qtedit4" CACHE STRING "Executable name")
-set(QTEDIT4_ICON "qtedit4" CACHE STRING "Icon name")
+set(BUILD_VERSION "DEV" CACHE STRING "Build version (DEV, CE, OFFICIAL)")
+set_property(CACHE BUILD_VERSION PROPERTY STRINGS DEV CE OFFICIAL)
+
+if(BUILD_VERSION STREQUAL "DEV")
+    set(APP_SUFFIX "-dev")
+    set(ICON_NAME "qtedit4-dev")
+    set(BUILD_APP_NAME "qtedit4-dev")
+elseif(BUILD_VERSION STREQUAL "CE")
+    set(APP_SUFFIX "-ce")
+    set(ICON_NAME "qtedit4-ce")
+    set(BUILD_APP_NAME "qtedit4-ce")
+else()
+    set(APP_SUFFIX "")
+    set(ICON_NAME "qtedit4")
+    set(BUILD_APP_NAME "qtedit4")
+endif()
+
+set(QTEDIT4_APP_NAME "${BUILD_APP_NAME}")
+set(QTEDIT4_BINARY "qtedit4${APP_SUFFIX}")
+set(QTEDIT4_ICON "${ICON_NAME}")
+set(QTEDIT4_MACHINE_NAME "${MACHINE_IDENTIFIER}")
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -36,7 +54,7 @@ else()
     include(cmake/CPM.cmake)
     include(cmake/icons-breeze.cmake)
 
-    CPMAddPackage("gh:diegoiast/qmdilib#d044a71f5d3de265c34bfececff2502c284663f9")
+    CPMAddPackage("gh:diegoiast/qmdilib#f31094465ca4b236062fe1f75ea4e0c17ab669a7")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#20f23b781d7f1fe920d536b5cdf56d5cf1f4b565")
     CPMAddPackage("gh:diegoiast/command-palette-widget#3c4e338216936097e89e8a19e1c325018d7e750c")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
@@ -136,8 +154,14 @@ set(qtedit4_sources
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp
-    qtedit4.qrc
+    ${CMAKE_BINARY_DIR}/qtedit4.qrc
 )
+
+file(COPY "${CMAKE_SOURCE_DIR}/${ICON_NAME}.svg" DESTINATION "${CMAKE_BINARY_DIR}")
+file(COPY "${CMAKE_SOURCE_DIR}/${ICON_NAME}.ico" DESTINATION "${CMAKE_BINARY_DIR}")
+
+configure_file(qtedit4.qrc.in ${CMAKE_BINARY_DIR}/qtedit4.qrc)
+configure_file(qtedit4.desktop.in ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop)
 
 if (WIN32)
     add_executable(qtedit4 WIN32 ${qtedit4_sources} qtedit4.rc)
@@ -151,6 +175,16 @@ endif()
 
 target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_APP_NAME="${QTEDIT4_APP_NAME}")
 target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_ICON=":${QTEDIT4_ICON}.ico")
+target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_SVG_ICON=":${QTEDIT4_ICON}.svg")
+target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_MACHINE_NAME="${QTEDIT4_MACHINE_NAME}")
+
+if(BUILD_VERSION STREQUAL "DEV")
+    target_compile_definitions(qtedit4 PRIVATE -DBUILD_DEV)
+elseif(BUILD_VERSION STREQUAL "CE")
+    target_compile_definitions(qtedit4 PRIVATE -DBUILD_CE)
+else()
+    target_compile_definitions(qtedit4 PRIVATE -DBUILD_OFFICIAL)
+endif()
 
 target_include_directories(qtedit4 PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
@@ -196,9 +230,8 @@ if (WIN32)
 else()
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
-    install(FILES ${CMAKE_SOURCE_DIR}/qtedit4.desktop
-            DESTINATION share/applications
-            RENAME ${QTEDIT4_APP_NAME}.desktop)
+    install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
+            DESTINATION share/applications)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
             DESTINATION share/
             DIRECTORY_PERMISSIONS
