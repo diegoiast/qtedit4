@@ -83,7 +83,7 @@ jobs:
       - name: Configure
         working-directory: ${{ github.workspace }}
         id: runcmake
-        run: cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }}
+        run: cmake -B "build/${{ matrix.config.build_dir }}" -G "${{ matrix.generators }}" -DCMAKE_BUILD_TYPE="${{ matrix.build_type }}" -DCMAKE_C_COMPILER=${{ matrix.config.cc }} -DCMAKE_CXX_COMPILER=${{ matrix.config.cxx }} -DBUILD_VERSION=OFFICIAL
       - name: Build
         working-directory: ${{ github.workspace }}
         id: runcmakebuild
@@ -122,7 +122,7 @@ jobs:
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
 
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
-          export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          export OUTPUT=build/qtedit4-${{ env.version }}-x86_64.AppImage
 
           sudo apt install fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
 
@@ -137,8 +137,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
-          path: build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          name: qtedit4-${{ env.version }}-x86_64.AppImage
+          path: build/qtedit4-${{ env.version }}-x86_64.AppImage
 
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
@@ -148,13 +148,14 @@ jobs:
           path: "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz"
 
       - name: windeployqt (Windows)
+        working-directory: ${{ github.workspace }}
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/*.exe
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
 
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.4
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
         with:
           path: "setup_script.iss"
           options: /O+
@@ -162,15 +163,15 @@ jobs:
       - name: Rename and upload setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          copy dist\qtedit4-win64.exe dist\qtedit4-${{ env.version }}-x86_64.exe
         shell: cmd
 
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
-          path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          name: qtedit4-${{ env.version }}-x86_64.exe
+          path: dist/qtedit4-${{ env.version }}-x86_64.exe
 
   create-release:
     name : Draft GitHub Release
