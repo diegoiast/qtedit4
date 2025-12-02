@@ -27,7 +27,7 @@ project:
    1. `QPlainTextEdit` syntax highlighting is done in a single
        pass, not incrementally (like GEdit or Scintilla does), which
        means loading a large file, might block the main UI.
-   1. There is no concept of "default icons" in Qt. Whilte Qt 6.8
+   1. There is no concept of "default icons" in Qt. Whilte Qt 6.10
       starts naming the icons in a "theme", it actually only works
       on Gnu/Linux distros. On Windows, you need to deploy your own.
       This project bundles its own "breeze" icons from KDE, see 
@@ -55,7 +55,7 @@ But you already know this, this is the reason you are here.
 
 To build on Windows, you will need to install:
 
-1. [Qt 6.8.1](https://www.qt.io/download-open-source). You can use the Open Source
+1. [Qt 6.10.1](https://www.qt.io/download-open-source). You can use the Open Source
    edition.
 2. [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/). 
    You can use the Community edition. *Optional step*.
@@ -69,13 +69,14 @@ To build on Windows, you will need to install:
    to create installers.
 
 **NOTE**
-> The Qt installation comes with a CMake build, and a MinwGW compiler. Thoses
-> components can used for building.
+> The Qt installation comes with a CMake build, and a MinwGW compiler. These
+> components can used for building. 
 >
 > You can optionally use the standalone/original CMake setup, or use MSVC 
 > to build. That is what the CD/CI does. I test both scenarions regularly.
 >
 > The command line git utilites also work perfectly.
+
 
 Steps:
 
@@ -92,11 +93,15 @@ Steps:
 ### Creating/debugging the installer
 
 If you want to debug the installer:
-1. Execute once, the `build.bat` once. 
+
+1. Execute the `build.bat` once, this will build everything.
     1. If it fails to run:
     1. From Windows terminal, `cd c:\user\epiccoder\Documents\QtEdit4`
     1. Run nanually `call build.bat` . Try to understand what went wrong,
-       usually, this means some path inside the batch file is wrong. 
+       usually, this means some path inside the batch file is wrong.
+    1. The usual problems are the Qt version, tools are installed on different path
+       on your setup, or you are missing a tool.
+    1. You can modify the file as needed to *your* setup.
 2. From the Windows Start menu find *Inno Setup Compiler* and urn it. When it
    starts, point it to `setup_script.iss` inside the qtedit4 clone.
 3. Press F9, to compile the installer and execute it.
@@ -114,7 +119,7 @@ is not covered by this document.
 Install the following packages:
 
 ```
-sudo apt install python3-pip python3-pipx build-essential libcups2-dev clang clang-tools ninja-build cmake ccache mold
+sudo apt install python3-pip python3-pipx build-essential xorg-dev libcups2-dev libxcb-cursor-dev libtiff5-dev clang clang-tools ninja-build cmake ccache mold
 ```
 
 ### Fedora
@@ -122,9 +127,7 @@ sudo apt install python3-pip python3-pipx build-essential libcups2-dev clang cla
 Install the following packages:
 
 ```
-sudo dnf install python3-devel python3-pip \
-    wayland-devel mesa-libGL-devel cups-devel \
-    clang clang-tools-extra ninja cmake ccache mold
+sudo dnf install python3-devel python3-pip wayland-devel mesa-libGL-devel cups-devel clang clang-tools-extra ninja cmake ccache mold
 ```
 
 ### Arch
@@ -151,19 +154,17 @@ or using your distro packages.
 > You are not forced to build on the command line, you can use your IDE, but it
 > will require some setup. Documentation is always welcomed.
 >
-> While this document mentions Qt 6.9.1, it is recommended to download the latest
+> While this document mentions Qt 6.10.1, it is recommended to download the latest
 > version avialable. See https://doc.qt.io/qt-6/qt-releases.html for more details.
 >
-> Under modern ditros (Debian, and Arch) `pip` will faill. Use instead `pipx`.
+> Under modern ditros (Debian, and Arch) `pip` will faill. Use instead `pipx`. On some
+> distros this is called `pipx3`. 
 
-From the command line (when installing Qt, `-m all` means install all modules
-this might not be needed for this process - but this is a good thing to have,
-execute the following code:
-
+From the command line execute the following line (note the `-m all` flag which installs all Qt6 modules):
 
 ``` bash
 pip install aqtinstall
-aqt install-qt linux desktop 6.9.1 -m all -O ~/qt
+aqt install-qt linux desktop 6.10.1 -m all -O ~/qt
 aqt install-tool linux desktop tools_qtcreator_gui -O ~/qt
 ```
 Alternativelly - you can use the Qt Online installer (its easier on Windows).
@@ -171,7 +172,7 @@ Alternativelly - you can use the Qt Online installer (its easier on Windows).
 Download the source code, and start building (first exports can be added into
 your `~/.bashrc` 
 ```
-export PATH=~/qt/6.8.1/gcc_64/bin/:$PATH
+export PATH=~/qt/6.10.1/gcc_64/bin/:$PATH
 export NINJA_STATUS="[%f/%t %p %P][%w + %W] "
 export CC=/usr/lib64/ccache/gcc
 export CXX=/usr/lib64/ccache/g++
@@ -185,12 +186,10 @@ cmake --build build
 ```
 
 Notes:
-1. See how we chane the default ouput from GnuMakefiles to Ninja, 
-   its faster.
-1. *Optional:* We installed `mold` which is a faster linke, which is auto detected.
-1. *Optional:* We use `ccache` which means sequential rebuilds will be done
-   in "0" time. 
-1. *Optional:* We modify the output of `ninja` to display ETA
+1. See how we change the default ouput from GnuMakefiles to Ninja, its faster.
+1. *Optional:* We installed `mold` which is a faster linker, which is auto detected.
+1. *Optional:* We use `ccache` which means sequential rebuilds will be done much faster. 
+1. *Optional:* We modify the output of `ninja` to display ETA.
 1. The `exports` you see here, can be added to your `~/.bashrc`.
 1. `ccache` uses the full paths for compilation units. If you rename
    the built/output dir - the next rebuild will be a full rebuild,
@@ -276,17 +275,37 @@ defined. Now, you will see the 3rd party sources in lib, as normal git repos.
    a valid C++ syntax. 
 1. If you need helper functions in your translation unit - make those funcitons
    as `static`. If you need/want to share them - add them to the header, if
-   possible under a namespace.
+   possible under a namespace (static functions can also be in an unnamed
+   namespace).
+1. First standard library includes, then Qt includes, then project includes. Sections
+    separated by a new line. First 2 will use `#include <...>` and the last will use
+   `#include "..."`
 1. Try to use `enum class`. In rare cases, use traditional `enum`. If you
    do need to use traditional `enum` when dealing with it, use it as it was
    a class enum (meaning `Colors::Red` instead of just `Red`).
+1. Use `auto`. For example:
+```
+// This will probably be a pointer
+auto foo = getFirstWindow();
+
+// Without the `const` the Qt container might detach.
+auto const docks = window->getAllDocks();
+for (auto d: docks) {
+   // Force the variable to be a `long`;
+   auto i = 0L;
+   i += d.width();
+   // Force the variable to be a `qsize_type`, architecture dependent
+   auto j = qsize_type(0);
+   j += d.childs().count();
+}
+
 1. I have a tendency to remove Qt code as much as possible. If you are creating
    new functionality - try to do this in STL and not Qt. I see Qt as an 
    implementation detail that migt change in the future.
-1. NERVER create static fork projects. Meaning, do not just copy the source of a 
+1. NEVER create static fork projects. Meaning, do not just copy the source of a 
    project into the source tree of this project. Instead - use upstream (to 
    consume it we use CPM at the moment). This means that sometimes, We need to
-   fork upstream, add to the code a CMakeLists.txt at the top - and cosume this
+   fork upstream, add to the code a CMakeLists.txt at the top - and consume this
    fork. The idea is that we can them make a PR to that project and remove that
    temporary. CPM has also tricks to deal with projects that have no CMake 
    support. ChatGPT can help with this as well.
@@ -375,7 +394,7 @@ should be done in `QutePart` library.
 
 The widget created by this plugin, is a compound widget that contains the editor
 and a toolbar to display the cursor position, and choosing the indentation/theme
-used. 
+used, as well a a preview pane for supported types.
 
 ### Project management
 
@@ -429,7 +448,7 @@ Before you send the PR
    For example: `login: handle null pointer`.
 6. When closing an issue, at the title of the commit should end with the numeber,
    and in the bottom of the commit, add `closes #333`. Or `refs` if you just want
-   to mention it.
+   to mention it. Also add it on the title..
    
 ``` 
 login: handle null pointer (#333)
@@ -440,8 +459,11 @@ closes #333
 refs #1234
 ```
 
-7. **Rules are not written in stone**. If you want contribute, and these rules seem 
+
+7. Tend to use `auto` where possible. If you need `auto const`.
+8. Standing functions, should use the postfix return value: For example:
+9. **Rules are not written in stone**. If you want contribute, and these rules seem 
    hard to follow, just make the PR. The PR will be cleaned, or re-written for you.
-8. **Have fun**. **Be possitive.**. -This project's aim is to enjoy coding. Don't be rude to other
+10. **Have fun**. **Be possitive.**. -This project's aim is to enjoy coding. Don't be rude to other
    participants, nor to other folks. 
 
