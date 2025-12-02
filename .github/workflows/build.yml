@@ -137,8 +137,8 @@ jobs:
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
-          path: build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
+          name: qtedit4-${{ env.version }}-x86_64.AppImage
+          path: build/qtedit4-${{ env.version }}-x86_64.AppImage
 
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
@@ -163,15 +163,15 @@ jobs:
       - name: Rename and upload setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          copy dist\qtedit4-win64.exe dist\qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          copy dist\qtedit4-win64.exe dist\qtedit4-${{ env.version }}-x86_64.exe
         shell: cmd
 
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         uses: actions/upload-artifact@v4
         with:
-          name: qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
-          path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
+          name: qtedit4-${{ env.version }}-x86_64.exe
+          path: dist/qtedit4-${{ env.version }}-x86_64.exe
 
   create-release:
     name : Draft GitHub Release
