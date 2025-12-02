@@ -148,9 +148,10 @@ jobs:
           path: "dist/qtedit4-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz"
 
       - name: windeployqt (Windows)
+        working-directory: ${{ github.workspace }}
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/*.exe
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
 
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
