@@ -9,7 +9,8 @@
 AppName={#AppName}
 AppVersion={#VersionString}
 AppId={#AppId}
-DefaultDirName={userpf}\{#AppName}
+DefaultDirName={localappdata}\Programs\{#AppName}
+
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppName}.ico
 OutputDir=dist
@@ -21,6 +22,7 @@ ArchitecturesInstallIn64BitMode=x64
 ShowComponentSizes=yes
 SetupIconFile={#AppName}.ico
 PrivilegesRequired=lowest
+PrivilegesRequiredOverridesAllowed=dialog
 
 [Files]
 Source: "dist\windows-msvc\usr\bin\{#AppName}.exe"; DestDir: "{app}";
@@ -33,8 +35,9 @@ Source: "dist\windows-msvc\usr\bin\platforms\*.dll"; DestDir: "{app}\platforms";
 Source: "dist\windows-msvc\usr\bin\styles\*.dll"; DestDir: "{app}\styles";
 Source: "dist\windows-msvc\usr\bin\tls\*.dll"; DestDir: "{app}\tls";
 
+; Icons
 ;Source: "dist\windows-msvc\usr\share\icons\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion noregerror allowunsafefiles
-Source: "dist\windows-msvc\usr\share\icons\breeze\index.theme"; DestDir: "{app}\icons\breeze"; Flags:  ignoreversion
+Source: "dist\windows-msvc\usr\share\icons\breeze\index.theme"; DestDir: "{app}\icons\breeze"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\16\*.svg"; DestDir: "{app}\icons\breeze\actions\16\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\22\*.svg"; DestDir: "{app}\icons\breeze\actions\22\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\breeze\actions\32\"; Flags: ignoreversion
@@ -43,29 +46,20 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\{#AppName}.ico"; DestDir: "{app}\"; Flags: ignoreversion
 
 [Registry]
-; DO NOT overwrite the .txt association!
-Root: HKCU; Subkey: "txtfile\shell\Edit with qtedit4\command"; ValueType: string; ValueData: """{app}\{#AppName}.exe"" ""%1"""
+; Right-click menu for .txt (safe, does not steal default app)
+Root: HKCU; Subkey: "Software\Classes\txtfile\shell\Edit with {#AppName}"; ValueType: string; ValueData: "Edit with {#AppName}"
+Root: HKCU; Subkey: "Software\Classes\txtfile\shell\Edit with {#AppName}\command"; ValueType: string; ValueData: """{app}\{#AppName}.exe"" ""%1"""
 
-; Define the file type description
-Root: HKCU; Subkey: "{#AppName}.File"; ValueType: string; ValueName: ""; ValueData: "Text Document ({#AppName})"
-
-; Set the default icon for .txt files associated
-Root: HKCU; Subkey: "{#AppName}.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#AppName}.exe,0"
-
-; Add "Edit with ..." to the right-click context menu
-Root: HKCU; Subkey: "{#AppName}.File\shell\edit"; ValueType: string; ValueName: ""; ValueData: "Edit with {#AppName}"
-Root: HKCU; Subkey: "{#AppName}.File\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppName}.exe"" ""%1"""
-
-; Optional: Register for "Open" action if you want to make double-click open
-Root: HKCU; Subkey: "{#AppName}.File\shell\open"; ValueType: string; ValueName: ""; ValueData: "Open with {#AppName}"
-Root: HKCU; Subkey: "{#AppName}.File\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppName}.exe"" ""%1"""
+; Optional: register custom file type
+Root: HKCU; Subkey: "Software\Classes\{#AppName}.File"; ValueType: string; ValueData: "{#AppName} Document"
+Root: HKCU; Subkey: "Software\Classes\{#AppName}.File\DefaultIcon"; ValueType: string; ValueData: "{app}\{#AppName}.exe,0"
+Root: HKCU; Subkey: "Software\Classes\{#AppName}.File\shell\open\command"; ValueType: string; ValueData: """{app}\{#AppName}.exe"" ""%1"""
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{app}\*";
+Type: filesandordirs; Name: "{app}\*"
 
 [Icons]
 Name: "{group}\{#AppName} v{#VersionString}"; Filename: "{app}\{#AppName}.exe"; Comment: "{#AppName} editor - version {#VersionString}"; Flags: uninsneveruninstall
-
 
 [Code]
 
@@ -163,7 +157,8 @@ var
   CurrentShortcutName: string;
 begin
   OldShortcutPath := ExpandConstant('{group}\*');
-  CurrentShortcutName := '{#AppName} v' + '{#VersionString}' + '.lnk';
+  CurrentShortcutName := '{#AppName} v{#VersionString}.lnk';
+
   if FindFirst(OldShortcutPath, FindRec) then
   begin
     try
@@ -185,7 +180,5 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssInstall then
-  begin
     RemoveOldShortcuts;
-  end;
 end;
