@@ -1,14 +1,15 @@
 #define VersionString "0.0.16"
 #define AppId "1f7e9ebf-ed92-4d88-8eac-89e3fe53282c"
 #define VC_Redist_URL "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+#define AppName "qtedit4"
 ;OutputBaseFilename=qtedit4-qt6.8.1-v{#VersionString}-x86_64
 ;OutputBaseFilename=qtedit4-win64
 
 [Setup]
-AppName=qtedit4
+AppName={#AppName}
 AppVersion={#VersionString}
 AppId={#AppId}
-DefaultDirName={pf}\{#AppName}
+DefaultDirName={userpf}\{#AppName}
 DefaultGroupName={#AppName}
 UninstallDisplayIcon={app}\{#AppName}.ico
 OutputDir=dist
@@ -18,9 +19,10 @@ SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64
 ShowComponentSizes=yes
 SetupIconFile={#AppName}.ico
+PrivilegesRequired=lowest
 
 [Files]
-Source: "dist\windows-msvc\usr\bin\qtedit4.exe"; DestDir: "{app}";
+Source: "dist\windows-msvc\usr\bin\{#AppName}.exe"; DestDir: "{app}";
 Source: "dist\windows-msvc\usr\bin\*.dll"; DestDir: "{app}";
 Source: "dist\windows-msvc\usr\bin\generic\*.dll"; DestDir: "{app}\generic";
 Source: "dist\windows-msvc\usr\bin\iconengines\*.dll"; DestDir: "{app}\iconengines";
@@ -37,31 +39,31 @@ Source: "dist\windows-msvc\usr\share\icons\breeze\actions\22\*.svg"; DestDir: "{
 Source: "dist\windows-msvc\usr\share\icons\breeze\actions\32\*.svg"; DestDir: "{app}\icons\breeze\actions\32\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\16\*.svg"; DestDir: "{app}\icons\breeze\devices\16\"; Flags: ignoreversion
 Source: "dist\windows-msvc\usr\share\icons\breeze\devices\22\*.svg"; DestDir: "{app}\icons\breeze\devices\22\"; Flags: ignoreversion
-Source: "dist\windows-msvc\usr\qtedit4.ico"; DestDir: "{app}\"; Flags: ignoreversion
+Source: "dist\windows-msvc\usr\{#AppName}.ico"; DestDir: "{app}\"; Flags: ignoreversion
 
 [Registry]
-; Associate qtedit4 with .txt files
-Root: HKCR; Subkey: ".txt"; ValueType: string; ValueName: ""; ValueData: "qtedit4.File"; Flags: createvalueifdoesntexist
+; DO NOT overwrite the .txt association!
+Root: HKCU; Subkey: "txtfile\shell\Edit with qtedit4\command"; ValueType: string; ValueData: """{app}\{#AppName}.exe"" ""%1"""
 
-; Define the file type description for qtedit4
-Root: HKCR; Subkey: "qtedit4.File"; ValueType: string; ValueName: ""; ValueData: "Text Document (qtedit4)"
+; Define the file type description
+Root: HKCU; Subkey: "{#AppName}.File"; ValueType: string; ValueName: ""; ValueData: "Text Document ({#AppName})"
 
-; Set the default icon for .txt files associated with qtedit4
-Root: HKCR; Subkey: "qtedit4.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\qtedit4.exe,0"
+; Set the default icon for .txt files associated
+Root: HKCU; Subkey: "{#AppName}.File\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#AppName}.exe,0"
 
-; Add "Edit with qtedit4" to the right-click context menu
-Root: HKCR; Subkey: "qtedit4.File\shell\edit"; ValueType: string; ValueName: ""; ValueData: "Edit with qtedit4"
-Root: HKCR; Subkey: "qtedit4.File\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{app}\qtedit4.exe"" ""%1"""
+; Add "Edit with ..." to the right-click context menu
+Root: HKCU; Subkey: "{#AppName}.File\shell\edit"; ValueType: string; ValueName: ""; ValueData: "Edit with {#AppName}"
+Root: HKCU; Subkey: "{#AppName}.File\shell\edit\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppName}.exe"" ""%1"""
 
-; Optional: Register for "Open" action if you want to make double-click open with qtedit4
-Root: HKCR; Subkey: "qtedit4.File\shell\open"; ValueType: string; ValueName: ""; ValueData: "Open with qtedit4"
-Root: HKCR; Subkey: "qtedit4.File\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\qtedit4.exe"" ""%1"""
+; Optional: Register for "Open" action if you want to make double-click open
+Root: HKCU; Subkey: "{#AppName}.File\shell\open"; ValueType: string; ValueName: ""; ValueData: "Open with {#AppName}"
+Root: HKCU; Subkey: "{#AppName}.File\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#AppName}.exe"" ""%1"""
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\*";
 
 [Icons]
-Name: "{group}\qtedit4 v{#VersionString}"; Filename: "{app}\qtedit4.exe"; Comment: "qtedit4 editor - version {#VersionString}"; Flags: uninsneveruninstall
+Name: "{group}\{#AppName} v{#VersionString}"; Filename: "{app}\{#AppName}.exe"; Comment: "{#AppName} editor - version {#VersionString}"; Flags: uninsneveruninstall
 
 
 [Code]
@@ -119,7 +121,7 @@ begin
     MsgLbl.Top := ScaleY(8);
     MsgLbl.WordWrap := True;
     MsgLbl.Caption :=
-      'qtedit4 needs the Microsoft Visual C++ 2015–2022 x64 runtime.' + #13#10#13#10 +
+      '{#AppName} needs the Microsoft Visual C++ 2015–2022 x64 runtime.' + #13#10#13#10 +
       '1) Click "Download" to get vc_redist.x64.exe from Microsoft.' + #13#10 +
       '2) Install it, then return here and click "Re-check".';
 
@@ -160,7 +162,7 @@ var
   CurrentShortcutName: string;
 begin
   OldShortcutPath := ExpandConstant('{group}\*');
-  CurrentShortcutName := 'qtedit4 v' + '{#VersionString}' + '.lnk';
+  CurrentShortcutName := '{#AppName} v' + '{#VersionString}' + '.lnk';
   if FindFirst(OldShortcutPath, FindRec) then
   begin
     try
