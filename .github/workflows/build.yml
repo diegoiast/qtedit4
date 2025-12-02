@@ -120,7 +120,7 @@ jobs:
           mkdir -p "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
           cp -arv ${QT_ROOT_DIR}/plugins/iconengines/* "dist/${{ matrix.config.build_dir }}/usr/plugins/iconengines/"
           cp -arv ${QT_ROOT_DIR}/plugins/platforms/libqwayland*.so "dist/${{ matrix.config.build_dir }}/usr/plugins/platforms/"
-          
+
           export LD_LIBRARY_PATH=dist/${{ matrix.config.build_dir }}/usr/lib:$LD_LIBRARY_PATH
           export OUTPUT=build/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.AppImage
 
@@ -150,7 +150,7 @@ jobs:
       - name: windeployqt (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
         run: |
-          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/qtedit4.exe
+          windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/${{ matrix.config.build_dir }}/usr/bin/*.exe
 
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
@@ -173,22 +173,22 @@ jobs:
           path: dist/qtedit4-qt${{ matrix.qt_version }}-${{ env.version }}-x86_64.exe
 
   create-release:
-    name : Draft GitHub Release 
-    needs : build-cmake 
-    runs-on : ubuntu-latest 
-    env : 
+    name : Draft GitHub Release
+    needs : build-cmake
+    runs-on : ubuntu-latest
+    env :
       GITHUB_TOKEN : ${{ secrets.GITHUB_TOKEN }}
     if : github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     steps :
-      - uses : actions/checkout@v4 
-      - name : Download all artifacts 
-        uses : actions/download-artifact@v4 
+      - uses : actions/checkout@v4
+      - name : Download all artifacts
+        uses : actions/download-artifact@v4
         with :
-            merge-multiple : true 
-            path : ./artifacts 
-      - name : Create Draft Release 
-        run : | 
-            gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --generate-notes --draft 
-      - name : Upload assets to release 
-        run : | 
+            merge-multiple : true
+            path : ./artifacts
+      - name : Create Draft Release
+        run : |
+            gh release create ${{ github.ref_name }} --title ${{ github.ref_name }} --generate-notes --draft
+      - name : Upload assets to release
+        run : |
             gh release upload ${{ github.ref_name }} ./artifacts/*
