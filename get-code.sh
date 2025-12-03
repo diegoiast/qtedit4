@@ -22,12 +22,15 @@ clone_or_update_repo() {
     else
         echo -n "Cloning $target_dir (gh:$owner/$repo)"
         git clone -q "https://github.com/$owner/$repo" "$target_dir"
+        cd $target_dir
+        git remote add github "git@github.com:$owner/$repo"
+        cd - > /dev/null
     fi
     echo "."
 
     (
         cd "$target_dir"
-        if ! git checkout -q $release 2>/dev/null && 
+        if ! git checkout -q $release 2>/dev/null &&
            ! git checkout -q origin/$release 2>/dev/null; then
             echo "Failed to checkout $release for $repo. Falling back to master/main."
             git checkout -q master || git checkout -q main
@@ -40,7 +43,7 @@ while read -r line; do
         owner=${BASH_REMATCH[1]}
         repo=${BASH_REMATCH[2]}
         release=${BASH_REMATCH[3]}
-        
+
         clone_or_update_repo "$owner" "$repo" "$release"
     fi
 done < <(grep CPMAddPackage CMakeLists.txt)
