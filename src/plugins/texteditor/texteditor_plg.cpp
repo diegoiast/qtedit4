@@ -185,8 +185,13 @@ TextEditorPlugin::TextEditorPlugin() {
 TextEditorPlugin::~TextEditorPlugin() {}
 
 void TextEditorPlugin::on_client_merged(qmdiHost *) {
-    chooseTheme = new QAction(tr("Choose theme"), getManager());
+    auto manager = getManager();
+    chooseTheme = new QAction(tr("Choose theme"), manager);
     menus[tr("Se&ttings")]->addAction(chooseTheme);
+
+    manager->connect(manager, &PluginManager::newFileRequested,[this]() {
+        fileNew();
+    });
 
     connect(chooseTheme, &QAction::triggered, this, [this]() {
         auto current = getManager()->currentClient();

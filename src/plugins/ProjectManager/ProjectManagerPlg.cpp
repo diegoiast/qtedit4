@@ -1544,27 +1544,31 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
     box.addButton("&Edit the file (escape)", QMessageBox::RejectRole);
     auto result = box.exec();
 
-    if (result == 2) {
-        // User chose "Load the project"
-        projectModel->addConfig(project);
-        searchPanelUI->updateProjectList();
-        auto buildDirectory = project->expand(project->buildDir);
-        auto sourceDirectory = project->expand(project->sourceDir);
-
-        getManager()->saveSettings();
-        // clang-format off
-        getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
-            {GlobalArguments::ProjectName, project->name },
-            {GlobalArguments::SourceDirectory, sourceDirectory },
-            {GlobalArguments::BuildDirectory, buildDirectory },
-        });
-        // clang-format on
-        return true;
+    if (result != 2) {
+        // User did not choose "Load the project"
+        project.reset();
+        return false;
     }
 
-    project.reset();
-    return false;
+    projectModel->addConfig(project);
+    searchPanelUI->updateProjectList();
+    auto buildDirectory = project->expand(project->buildDir);
+    auto sourceDirectory = project->expand(project->sourceDir);
+
+    projectDock->show();
+    projectDock->raise();
+    getManager()->saveSettings();
+
+    // clang-format off
+    getManager()->handleCommandAsync(GlobalCommands::ProjectLoaded, {
+        {GlobalArguments::ProjectName, project->name },
+        {GlobalArguments::SourceDirectory, sourceDirectory },
+        {GlobalArguments::BuildDirectory, buildDirectory },
+    });
+    // clang-format on
+    return true;
 }
+
 
 auto ProjectManagerPlugin::tryScrollOutput(int line) -> bool {
 

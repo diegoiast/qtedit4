@@ -111,15 +111,22 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
-    pluginManager.updateGUI();
+
+    // Those are defaults, restore will override them
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
+    pluginManager.hidePanels(Qt::LeftDockWidgetArea);
+    pluginManager.hidePanels(Qt::RightDockWidgetArea);
+    pluginManager.actionHideGUI->setChecked(true);
+    pluginManager.updateGUI();
 
     pluginManager.restoreSettings();
-    pluginManager.show();
-
-    pluginManager.connect(&pluginManager, &PluginManager::newFileRequested,
-                          [textEditorPlugin]() { textEditorPlugin->fileNew(); });
-
     pluginManager.openFiles(parser.positionalArguments());
+
+    if (pluginManager.visibleTabs() == 0) {
+        textEditorPlugin->fileNew();
+        pluginManager.saveSettings();
+    }
+
+    pluginManager.show();
     return app.exec();
 }
