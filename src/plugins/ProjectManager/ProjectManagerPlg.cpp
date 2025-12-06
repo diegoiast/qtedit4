@@ -620,6 +620,8 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         searchPanel->show();
         searchPanel->setFocus();
         searchPanelUI->setFocusOnSearch();
+        auto currentEditor = dynamic_cast<qmdiEditor *>(getManager()->currentClient());
+        searchPanelUI->setSearchPattern(currentEditor->getSelectedText());
     });
     manager->addAction(projectSearch);
     kitsModel = new KitDefinitionModel();
