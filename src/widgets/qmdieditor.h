@@ -88,6 +88,8 @@ class qmdiEditor : public QWidget, public qmdiClient {
                isJSONDocument();
     }
 
+    QString getSelectedText() const;
+
   public slots:
     void on_fileChanged(const QString &filename);
     void displayBannerMessage(QString message, int time);

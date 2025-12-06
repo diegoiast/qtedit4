@@ -898,6 +898,12 @@ void qmdiEditor::goTo(int x, int y) {
     }
 }
 
+QString qmdiEditor::getSelectedText() const
+{
+    auto cursor = textEditor->textCursor();
+    return cursor.selectedText();
+}
+
 void qmdiEditor::focusInEvent(QFocusEvent *event) {
 
     QWidget::focusInEvent(event);
