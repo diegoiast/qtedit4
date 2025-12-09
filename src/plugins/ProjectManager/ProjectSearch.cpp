@@ -224,7 +224,10 @@ void ProjectSearch::setSearchPath(const QString &s) { ui->pathEdit->setText(s); 
 
 const QString ProjectSearch::getSearchPattern() { return ui->searchFor->text(); }
 
-void ProjectSearch::setSearchPattern(const QString &s) { ui->searchFor->setText(s); }
+void ProjectSearch::setSearchPattern(const QString &s) {
+    ui->searchFor->setText(s);
+    ui->searchFor->selectAll();
+}
 
 const QString ProjectSearch::getSearchInclude() { return ui->includeFiles->text(); }
 
