@@ -616,12 +616,15 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     auto projectSearch = new QAction(tr("Search in project"));
     projectSearch->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_F));
     connect(projectSearch, &QAction::triggered, this, [searchPanel, this]() {
+        auto currentEditor = dynamic_cast<qmdiEditor *>(getManager()->currentClient());
+        if (currentEditor) {
+            auto text = currentEditor->getSelectedText();
+            searchPanelUI->setSearchPattern(text);
+        }
         searchPanel->raise();
         searchPanel->show();
         searchPanel->setFocus();
         searchPanelUI->setFocusOnSearch();
-        auto currentEditor = dynamic_cast<qmdiEditor *>(getManager()->currentClient());
-        searchPanelUI->setSearchPattern(currentEditor->getSelectedText());
     });
     manager->addAction(projectSearch);
     kitsModel = new KitDefinitionModel();
