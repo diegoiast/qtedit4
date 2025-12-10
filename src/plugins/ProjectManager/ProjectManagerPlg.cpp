@@ -619,7 +619,9 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
         auto currentEditor = dynamic_cast<qmdiEditor *>(getManager()->currentClient());
         if (currentEditor) {
             auto text = currentEditor->getSelectedText();
-            searchPanelUI->setSearchPattern(text);
+            if (!text.isEmpty()) {
+                searchPanelUI->setSearchPattern(text);
+            }
         }
         searchPanel->raise();
         searchPanel->show();

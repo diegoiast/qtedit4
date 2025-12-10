@@ -213,7 +213,10 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
 
 ProjectSearch::~ProjectSearch() { delete ui; }
 
-void ProjectSearch::setFocusOnSearch() { ui->searchFor->setFocus(); }
+void ProjectSearch::setFocusOnSearch() {
+    ui->searchFor->setFocus();
+    ui->searchFor->selectAll();
+}
 
 const QString ProjectSearch::getSearchPath() {
     auto sss = ui->pathEdit->path();
