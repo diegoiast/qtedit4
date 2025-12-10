@@ -268,8 +268,17 @@ bool qmdiSplitTab::event(QEvent *ev) {
         // when minimized mode changes, modify buttons for each tab
         auto manager = dynamic_cast<PluginManager *>(parentWidget());
         if (manager) {
-            connect(manager, &PluginManager::minimizedModeChanged, this,
-                    &SplitTabWidget::onSplitCountMaybeChanged);
+            connect(manager, &PluginManager::minimizedModeChanged, this, [this, manager](bool status) {
+                SplitTabWidget::onSplitCountMaybeChanged();
+                keepSingleClient = status;
+                if (status) {
+                    if (status) {
+                        if (getClientsCount() < 1) {
+                            emit manager->newFileRequested(this);
+                        }
+                    }
+                }
+            });
         }
     }
     return QWidget::event(ev);
