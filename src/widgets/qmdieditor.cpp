@@ -1065,22 +1065,25 @@ void qmdiEditor::hideBannerMessage() {
 void qmdiEditor::newDocument() { loadFile(""); }
 
 bool qmdiEditor::doSave() {
-    if (!documentHasBeenLoaded) {
-        return true;
-    }
     if (fileName.isEmpty()) {
         return doSaveAs();
     } else {
+        if (!documentHasBeenLoaded) {
+            return true;
+        }
         return saveFile(fileName);
     }
 }
 
 bool qmdiEditor::doSaveAs() {
-    const QString lastDirectory;
-    QString s = QFileDialog::getSaveFileName(this, tr("Save file"), lastDirectory);
+    static QString lastDirectory;
+    auto s = QFileDialog::getSaveFileName(this, tr("Save file"), lastDirectory);
     if (s.isEmpty()) {
         return false;
     }
+
+    auto f = QFileInfo(s);
+    lastDirectory = f.dir().absolutePath();
     return saveFile(s);
 }
 
