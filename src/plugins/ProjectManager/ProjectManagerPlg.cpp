@@ -495,7 +495,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(
         &runProcess, &QProcess::finished, this,
         [this](int exitCode, QProcess::ExitStatus exitStatus) {
-            auto output = QString("[code=%1, status=%2]").arg(exitCode).arg(str(exitStatus));
+            auto output = QString("[code=%1, status=%2]\n").arg(exitCode).arg(str(exitStatus));
 
             appendAnsiText(outputPanel->commandOuput, output, {});
             getManager()->showPanels(Qt::BottomDockWidgetArea);
@@ -819,24 +819,7 @@ auto verifyRunnable(const QString &fileName) -> bool {
     if (info.isExecutable()) {
         return true;
     }
-
-    static const auto scriptExts = QStringList{".sh", ".py", ".pl", ".rb"};
-    for (const auto &ext : scriptExts) {
-        if (info.fileName().endsWith(ext, Qt::CaseInsensitive)) {
-            return true;
-        }
-    }
-
-    // Check for shebang
-    QFile file(fileName);
-    if (file.open(QIODevice::ReadOnly)) {
-        auto firstLine = file.readLine();
-        if (firstLine.startsWith("#!")) {
-            return true;
-        }
-    }
 #endif
-
     return false;
 }
 

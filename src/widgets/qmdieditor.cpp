@@ -1071,7 +1071,7 @@ bool qmdiEditor::doSave() {
         if (!documentHasBeenLoaded) {
             return true;
         }
-        return saveFile(fileName);
+        return saveFile(fileName, false);
     }
 }
 
@@ -1082,9 +1082,15 @@ bool qmdiEditor::doSaveAs() {
         return false;
     }
 
+#if defined(WIN32)
+    auto makeExecutable = false;
+#else
+    auto makeExecutable = true;
+#endif
+
     auto f = QFileInfo(s);
     lastDirectory = f.dir().absolutePath();
-    return saveFile(s);
+    return saveFile(s, makeExecutable);
 }
 
 bool qmdiEditor::loadFile(const QString &newFileName) {
@@ -1102,7 +1108,7 @@ bool qmdiEditor::loadFile(const QString &newFileName) {
     return true;
 }
 
-bool qmdiEditor::saveFile(const QString &newFileName) {
+bool qmdiEditor::saveFile(const QString &newFileName, bool makeExecutable) {
     auto sl = fileSystemWatcher->directories();
     if (!sl.isEmpty()) {
         fileSystemWatcher->removePaths(sl);
@@ -1111,14 +1117,15 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
     auto modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
-    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    QApplication::processEvents();
 
     auto file = QFile(newFileName);
     if (!file.open(QIODevice::WriteOnly)) {
+        qDebug() << "Could not open file for saving" << newFileName;
         return false;
     }
 
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    QApplication::processEvents();
     auto textStream = QTextStream(&file);
     auto cursor = QTextCursor(textEditor->document());
     auto op = Qutepart::AtomicEditOperation(textEditor);
@@ -1153,20 +1160,46 @@ bool qmdiEditor::saveFile(const QString &newFileName) {
             }
         }
     }
+
+    auto filenameChanged = this->fileName != newFileName;
+    if (filenameChanged && makeExecutable) {
+        auto firstLine = textEditor->lines().first();
+        if (firstLine.length() >= 3) {
+            auto firstChar = firstLine.text()[0];
+            auto secondChar = firstLine.text()[1];
+            if (firstChar == '#' && secondChar == '!') {
+                auto currentPermissions = file.permissions();
+                auto newPermissions = currentPermissions | QFileDevice::ExeUser;
+                if (!file.setPermissions(newPermissions)) {
+                    qWarning() << "Failed to add executable permission.";
+                }
+
+                qDebug() << "Set executable bit";
+            }
+        }
+    }
     file.close();
+
     textEditor->document()->setModified(false);
     updateClientName();
 
-    QApplication::restoreOverrideCursor();
-
+    fileSystemWatcher->removePath(fileName);
     fileName = newFileName;
     mdiClientName = getShortFileName();
     textEditor->removeModifications();
-    fileSystemWatcher->addPath(newFileName);
     setModificationsLookupEnabled(modificationsEnabledState);
     mdiServer->updateClientName(this);
     updateFileDetails();
     saveBackup();
+    fileSystemWatcher->addPath(newFileName);
+
+    auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
+    /*auto result =*/ pluginManager->handleCommand(GlobalCommands::LoadedFile, {
+        {GlobalArguments::FileName, mdiClientFileName()},
+        {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient*>(this)) }
+    });
+
+    QApplication::restoreOverrideCursor();
     return true;
 }
 
@@ -1320,7 +1353,6 @@ void qmdiEditor::loadContent() {
     QApplication::restoreOverrideCursor();
     documentHasBeenLoaded = true;
 
-    // FIXME: port to handleCommand
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
     pluginManager->openFile("loaded:" + fileName);
     // clang-format off

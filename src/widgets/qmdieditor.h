@@ -99,7 +99,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     bool doSave();
     bool doSaveAs();
     bool loadFile(const QString &fileName);
-    bool saveFile(const QString &fileName);
+    bool saveFile(const QString &fileName, bool makeExecutable);
     void transformBlockToUpper();
     void transformBlockToLower();
     void transformBlockCase();
