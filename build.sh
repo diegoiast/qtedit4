@@ -16,7 +16,7 @@ APP_VERSION="0.0.16"
 QT_VERSION="6.10.1"
 
 NAME="${APP_NAME}-v${APP_VERSION}${NAME_SUFFIX}-x86_64"
-QTDIR="$HOME/qt/${QT_VERSION}/gcc_64"
+QTDIR="${HOME}/qt/${QT_VERSION}/gcc_64"
 export matrix_config_build_dir=ubuntu-gcc
 export PATH=$QTDIR/bin:$PATH
 export LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
@@ -62,7 +62,9 @@ tar -cjhvf dist/$NAME.tar.bz2 -C dist/${APP_NAME} .
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/iconengines/"
 mkdir -p "dist/${matrix_config_build_dir}/usr/plugins/platforms/"
 cp -arv $QTDIR/plugins/iconengines/* "dist/${matrix_config_build_dir}/usr/plugins/iconengines/" || true;
-cp -arv $QTDIR/plugins/platforms/libqwayland*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/" || true
+cp -arv $QTDIR/plugins/platforms/*.so "dist/${matrix_config_build_dir}/usr/plugins/platforms/" || true
+cp -arv $QTDIR/plugins/platforms/wayland-* "dist/${matrix_config_build_dir}/usr/plugins/" || true
+cp -arv $QTDIR/plugins/platform-themes/*.so "dist/${matrix_config_build_dir}/usr/plugins/platform-themes/" || true
 
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
 wget -nc --no-verbose "https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage"
