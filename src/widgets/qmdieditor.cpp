@@ -1194,10 +1194,12 @@ bool qmdiEditor::saveFile(const QString &newFileName, bool makeExecutable) {
     fileSystemWatcher->addPath(newFileName);
 
     auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
-    /*auto result =*/ pluginManager->handleCommand(GlobalCommands::LoadedFile, {
-        {GlobalArguments::FileName, mdiClientFileName()},
-        {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient*>(this)) }
-    });
+    pluginManager->handleCommand(
+        GlobalCommands::LoadedFile,
+        {
+            {GlobalArguments::FileName, mdiClientFileName()},
+            {GlobalArguments::Client, QVariant::fromValue(static_cast<qmdiClient *>(this))},
+        });
 
     QApplication::restoreOverrideCursor();
     return true;

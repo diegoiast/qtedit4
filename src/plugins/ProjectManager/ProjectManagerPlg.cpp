@@ -1554,7 +1554,6 @@ auto ProjectManagerPlugin::tryOpenProject(const QString &filename, const QString
     return true;
 }
 
-
 auto ProjectManagerPlugin::tryScrollOutput(int line) -> bool {
 
     auto browser = this->outputPanel->commandOuput;
