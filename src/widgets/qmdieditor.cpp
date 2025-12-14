@@ -443,18 +443,21 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
     auto safeFollow = QPointer(followSymbolMenu);
     auto safeLoading = QPointer(loadingAction);
     connect(watcher, &QFutureWatcher<CommandArgs>::finished, menu, [=, this]() {
-        if (!safeFollow || !safeLoading || !safeFollow->isVisible()) {
+        if (!safeFollow || !safeLoading /*|| !safeFollow->isVisible()*/) {
+            qDebug() << "qmdiEditor: not safe follow";
             return;
         }
 
         safeFollow->removeAction(safeLoading);
         if (!safeWatcher) {
+            qDebug() << "qmdiEditor: no safe watcher";
             return;
         }
 
         auto res = safeWatcher->result();
         auto pluginManager = dynamic_cast<PluginManager *>(mdiServer->mdiHost);
         if (!pluginManager) {
+            qDebug() << "qmdiEditor: no plugin manager";
             return;
         }
         createSubFollowSymbolSubmenu(res, safeFollow, pluginManager);

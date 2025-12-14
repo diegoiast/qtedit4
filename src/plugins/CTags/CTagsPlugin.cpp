@@ -6,6 +6,7 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QProcess>
+#include <QRegularExpression>
 #include <QStandardPaths>
 #include <QThread>
 
@@ -92,7 +93,7 @@ static auto createTooltip(const QString &originalSymbol, const QVariantList &tag
 
         auto fixedFileName = QDir::toNativeSeparators(tag[GlobalArguments::FileName].toString());
         tooltip += QString("┌ <b>File:</b> %1<br>").arg(fixedFileName);
-        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType).arg(fieldValue);
+        tooltip += QString("├ <b>%1:</b> %2<br>").arg(fieldType, fieldValue);
         tooltip += QString("└ <b>Definition:</b> <code>%1</code>").arg(address.trimmed());
 
         count++;
@@ -104,6 +105,33 @@ static auto createTooltip(const QString &originalSymbol, const QVariantList &tag
 
     tooltip += "</body></html>";
     return tooltip;
+}
+
+static auto normalizedFileName(const QString &fileName) -> QString {
+    QString name = fileName;
+    name = name.normalized(QString::NormalizationForm_C);
+    static const QRegularExpression unsafe(R"([^A-Za-z0-9._-])");
+    name.replace(unsafe, "_");
+
+#ifdef Q_OS_WIN
+    static const QStringList reserved = {
+        "CON",  "PRN",  "AUX",  "NUL",  "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7",
+        "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
+    while (name.endsWith('.') || name.endsWith(' ')) {
+        name.chop(1);
+    }
+
+    if (reserved.contains(name.toUpper())) {
+        name.prepend('_');
+    }
+#endif
+
+    if (name.isEmpty()) {
+        name = "file";
+    }
+
+    name.replace(QRegularExpression(R"(_{2,})"), "_");
+    return name;
 }
 
 CTagsPlugin::CTagsPlugin() {
@@ -349,7 +377,8 @@ void CTagsPlugin::newProjectAdded(const QString &projectName, const QString &sou
         projects[nativeSourceDir] = new CTagsLoader(ctagsBinary.toStdString());
     }
 
-    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
+    auto fileName = normalizedFileName(projectName);
+    auto ctagsFile = buildDirectory + QDir::separator() + fileName + ".tags";
     auto ctags = projects[nativeSourceDir];
     auto bin = getConfig().getCTagsBinary();
     ctags->setCTagsBinary(getConfig().getCTagsBinary().toStdString());
@@ -391,7 +420,8 @@ void CTagsPlugin::newProjectBuilt(const QString &projectName, const QString &sou
         return;
     }
     auto ctags = projects.value(nativeSourceDir);
-    auto ctagsFile = buildDirectory + QDir::separator() + projectName + ".tags";
+    auto fileName = normalizedFileName(projectName);
+    auto ctagsFile = buildDirectory + QDir::separator() + fileName + ".tags";
     ctags->scanDirs(ctagsFile.toStdString(),
                     QDir::toNativeSeparators(nativeSourceDir).toStdString());
 }
@@ -415,7 +445,7 @@ CommandArgs CTagsPlugin::symbolInfoRequested(const QString &fileName, const QStr
     QVariantList tagList;
     auto tags = project->findTags(symbol.toStdString(), exactMatch);
     for (auto &tagRef : tags) {
-        const CTag &tag = tagRef.get();
+        auto &tag = tagRef.get();
         tagList.append(QVariant::fromValue(CommandArgs{
             {GlobalArguments::FileName, QString::fromStdString(std::string{tag.file})},
             {GlobalArguments::Type, QString::fromStdString(tagFieldKeyToString(tag.fieldKey))},
