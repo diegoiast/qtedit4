@@ -52,8 +52,9 @@ void HistoryLineEdit::setHistoryModel(SharedHistoryModel *m) {
         completer = new QCompleter(this);
         completer->setModel(new QStringListModel(historyModel->getHistory(), completer));
         completer->setCaseSensitivity(Qt::CaseInsensitive);
+        // Use QueuedConnection to allow QCompleter to emit 'activated' before the model is updated
         connect(historyModel, &SharedHistoryModel::historyUpdated, this,
-                &HistoryLineEdit::updateCompleter);
+                &HistoryLineEdit::updateCompleter, Qt::QueuedConnection);
     } else {
         if (completer) {
             completer->deleteLater();
