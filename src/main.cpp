@@ -116,11 +116,14 @@ int main(int argc, char *argv[]) {
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
     pluginManager.hidePanels(Qt::LeftDockWidgetArea);
     pluginManager.hidePanels(Qt::RightDockWidgetArea);
+
+    pluginManager.blockSignals(true);
     pluginManager.actionHideGUI->setChecked(true);
     pluginManager.updateGUI();
 
     pluginManager.restoreSettings();
     pluginManager.openFiles(parser.positionalArguments());
+    pluginManager.blockSignals(false);
 
     if (pluginManager.visibleTabs() == 0) {
         textEditorPlugin->fileNew();
