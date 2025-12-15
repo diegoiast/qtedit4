@@ -94,16 +94,15 @@ int main(int argc, char *argv[]) {
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + QString("/%1.ini").arg(QTEDIT4_APP_NAME);
-    auto textEditorPlugin = new TextEditorPlugin;
     auto windowIcon = QIcon(QTEDIT4_ICON);
+    auto textEditorPlugin = new TextEditorPlugin;
+    auto split = new SplitTabsPlugin(textEditorPlugin);
 
     pluginManager.setWindowTitle(QCoreApplication::applicationName());
     pluginManager.setWindowIcon(windowIcon);
     pluginManager.setFileSettingsManager(iniFilePath);
 
-#if defined(USE_SPLIT)
-    pluginManager.addPlugin(new SplitTabsPlugin(textEditorPlugin));
-#endif
+    pluginManager.addPlugin(split);
     pluginManager.addPlugin(textEditorPlugin);
     pluginManager.addPlugin(new HelpPlugin);
     pluginManager.addPlugin(new CTagsPlugin);
@@ -111,19 +110,17 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    split->setLoadingFinished(false);
 
     // Those are defaults, restore will override them
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
     pluginManager.hidePanels(Qt::LeftDockWidgetArea);
     pluginManager.hidePanels(Qt::RightDockWidgetArea);
-
-    pluginManager.blockSignals(true);
     pluginManager.actionHideGUI->setChecked(true);
-    pluginManager.updateGUI();
-
     pluginManager.restoreSettings();
     pluginManager.openFiles(parser.positionalArguments());
-    pluginManager.blockSignals(false);
+    split->setLoadingFinished(true);
+    pluginManager.updateGUI();
 
     if (pluginManager.visibleTabs() == 0) {
         textEditorPlugin->fileNew();

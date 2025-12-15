@@ -272,7 +272,7 @@ bool qmdiSplitTab::event(QEvent *ev) {
                 auto manager = dynamic_cast<PluginManager *>(parentWidget());
                 SplitTabWidget::onSplitCountMaybeChanged();
                 keepSingleClient = status;
-                if (status) {
+                if (status && loadingFinished) {
                     if (getClientsCount() < 1) {
                         emit manager->newFileRequested(this);
                     }

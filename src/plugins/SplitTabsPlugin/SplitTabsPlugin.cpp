@@ -111,3 +111,5 @@ void SplitTabsPlugin::on_client_merged(qmdiHost *host) {
 }
 
 void SplitTabsPlugin::on_client_unmerged(qmdiHost *) {}
+
+void SplitTabsPlugin::setLoadingFinished(bool b) { this->split->loadingFinished = b; }

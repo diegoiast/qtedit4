@@ -31,6 +31,7 @@ class SplitTabsPlugin : public IPlugin {
     virtual void saveConfig(QSettings &settings) override;
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void on_client_unmerged(qmdiHost *host) override;
+    void setLoadingFinished(bool);
 
   private:
     TextEditorPlugin *textEditorPlugin = nullptr;
