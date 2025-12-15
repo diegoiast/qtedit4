@@ -449,8 +449,8 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
         }
 
         safeFollow->removeAction(safeLoading);
-        if (!safeWatcher) {
-            qDebug() << "qmdiEditor: no safe watcher";
+        if (!safeWatcher || safeWatcher.isNull() || safeWatcher->isCanceled()) {
+            qDebug() << "qmdiEditor: no safe watcher, null, or cancelled";
             return;
         }
 
