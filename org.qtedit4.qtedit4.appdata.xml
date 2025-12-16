@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.qtedit4.qtedit4</id>
+
+  <name>QtEdit4</name>
+  <summary>Lightweight Qt-based text and code editor</summary>
+
+  <description>
+    <p>
+      QtEdit4 is a fast, lightweight editor built with Qt, featuring
+      syntax highlighting, plugin support, and project management tools.
+    </p>
+  </description>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <developer_name>QtEdit4 Developers</developer_name>
+
+  <url type="homepage">https://github.com/diegoiast/qtedit4</url>
+  <url type="bugtracker">https://github.com/diegoiast/qtedit4/issues</url>
+
+  <categories>
+    <category>Development</category>
+    <category>Utility</category>
+    <category>TextEditor</category>
+  </categories>
+
+  <provides>
+    <binary>qtedit4</binary>
+  </provides>
+
+  <launchable type="desktop-id">
+    org.qtedit4.qtedit4.desktop
+  </launchable>
+</component>
