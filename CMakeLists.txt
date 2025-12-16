@@ -239,15 +239,15 @@ else()
             RENAME org.diegoiast.${QTEDIT4_APP_NAME}.desktop)
 
 if (!QTEDIT4_WORK_OFFLINE)
-    # TODO: what is this part? is it needed?
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
-            DESTINATION share/
-            DIRECTORY_PERMISSIONS
-                OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                GROUP_READ GROUP_EXECUTE
-                WORLD_READ WORLD_EXECUTE
-            FILES_MATCHING PATTERN "*/*"
-            PATTERN "*")
+    # # TODO: what is this part? is it needed?
+    # install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
+    #         DESTINATION share/
+    #         DIRECTORY_PERMISSIONS
+    #             OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    #             GROUP_READ GROUP_EXECUTE
+    #             WORLD_READ WORLD_EXECUTE
+    #         FILES_MATCHING PATTERN "*/*"
+    #         PATTERN "*")
 endif()
 
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
