@@ -15,6 +15,10 @@
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-2.0-or-later</project_license>
   <developer_name>qtedit4 Developers</developer_name>
+  <developer id="org.diegoiast">
+    <name>qtedit4 Developers</name>
+  </developer>
+
   <url type="homepage">https://github.com/diegoiast/qtedit4</url>
   <url type="bugtracker">https://github.com/diegoiast/qtedit4/issues</url>
 
@@ -29,6 +33,8 @@
   </provides>
 
   <launchable type="desktop-id">
-    org.diegoiast.desktop
+    org.diegoiast.qtedit4.desktop
   </launchable>
+
+  <content_rating type="oars-1.1"/>
 </component>
