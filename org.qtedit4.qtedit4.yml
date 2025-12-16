@@ -39,7 +39,7 @@ modules:
 
       - type: git
         url: https://github.com/diegoiast/qutepart-cpp.git
-        commit: e256e4a92c173b090d4032f0b79e7c47d028ee34
+        commit: 9b419096b31d637e33805f8e3e1d1a1b8f27869a
         dest: lib/qutepart-cpp
 
       - type: git
