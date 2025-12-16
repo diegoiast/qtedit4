@@ -29,7 +29,7 @@ modules:
       # Main application
       - type: git
         url: https://github.com/diegoiast/qtedit4.git
-        commit: ef6fad923fece86bc394349a4a964f0d2c151050
+        commit: f0d1c5536f9e0318303ee4fbb6650a263cab2e2f
 
       # Vendored dependencies (offline mode)
       - type: git
