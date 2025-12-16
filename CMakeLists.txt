@@ -234,9 +234,12 @@ if (WIN32)
 else()
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
+    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
+            DESTINATION share/icons/hicolor/scalable/apps
+            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.svg)
     install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
             DESTINATION share/applications
             RENAME org.diegoiast.${QTEDIT4_APP_NAME}.desktop)
-    install(FILES org.qtedit4.qtedit4.appdata.xml
+    install(FILES org.diegoiast.qtedit4.appdata.xml
             DESTINATION share/metainfo)
 endif()
