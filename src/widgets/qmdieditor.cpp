@@ -692,7 +692,7 @@ void qmdiEditor::setupActions() {
 
     connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
-    connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::updateClientName);
+    connect(textEditor, &QPlainTextEdit::textChanged, this, &qmdiEditor::onTextModified);
 
     connect(actionCopyFileName, &QAction::triggered, actionCopyFileName, [this]() {
         auto c = QApplication::clipboard();
@@ -890,6 +890,11 @@ void qmdiEditor::updateClientName() {
         mdiClientName = newName;
         mdiServer->updateClientName(this);
     }
+}
+
+void qmdiEditor::onTextModified() {
+    autoPreview = isPreviewVisible();
+    updateClientName();
 }
 
 void qmdiEditor::goTo(int x, int y) {

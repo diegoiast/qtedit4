@@ -119,6 +119,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void fileMessage_clicked(const QString &s);
     void hideTimer_timeout();
     void updateClientName();
+    void onTextModified();
     void autoSave();
 
   public:
