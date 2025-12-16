@@ -2,13 +2,14 @@
 
 SET matrix_config_build_dir=windows-msvc
 SET PATH=c:\Qt\6.10.1\msvc2022_64\bin\;c:\Program Files (x86)\Inno Setup 6\;%PATH%
+SET BUILD_TYPE=OFFICIAL
 
 RMDIR /s /q "build/%matrix_config_build_dir%"
 RMDIR /s /q dist
 
 call "C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
-cmake . -B  "build/%matrix_config_build_dir%" -DCMAKE_BUILD_TYPE=Release -A x64
+cmake . -B  "build/%matrix_config_build_dir%" -DCMAKE_BUILD_TYPE=Release -A x64 -DBUILD_VERSION=%BUILD_TYPE%
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build   "build/%matrix_config_build_dir%" --parallel --verbose --config Release
 if %errorlevel% neq 0 exit /b %errorlevel%

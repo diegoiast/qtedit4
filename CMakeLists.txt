@@ -215,15 +215,13 @@ endif()
 install(TARGETS qtedit4
         RUNTIME DESTINATION bin)
 
-if (!QTEDIT4_WORK_OFFLINE)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/icons/
-        DESTINATION share/icons
-        DIRECTORY_PERMISSIONS
-            OWNER_READ OWNER_WRITE OWNER_EXECUTE
-            GROUP_READ GROUP_EXECUTE
-            WORLD_READ WORLD_EXECUTE
-        FILES_MATCHING PATTERN "*/*"
-        PATTERN "*")
+if (NOT QTEDIT4_WORK_OFFLINE)
+    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
+            DESTINATION share/
+            DIRECTORY_PERMISSIONS
+                OWNER_READ OWNER_WRITE OWNER_EXECUTE
+                GROUP_READ GROUP_EXECUTE
+                WORLD_READ WORLD_EXECUTE)
 endif()
 
 if (WIN32)
@@ -235,14 +233,13 @@ else()
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
     install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
-            DESTINATION share/applications)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
-            DESTINATION share/
-            DIRECTORY_PERMISSIONS
-                OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                GROUP_READ GROUP_EXECUTE
-                WORLD_READ WORLD_EXECUTE
-            FILES_MATCHING PATTERN "*/*"
-            PATTERN "*"
-            PATTERN "*")
+            DESTINATION share/applications
+            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.desktop)
+
+    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
+            DESTINATION share/icons/hicolor/scalable/apps
+            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.svg)
+    install(FILES org.diegoiast.qtedit4.appdata.xml
+            DESTINATION share/metainfo)
+
 endif()

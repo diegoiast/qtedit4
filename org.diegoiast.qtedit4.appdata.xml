@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>org.diegoiast.qtedit4</id>
+
+  <name>qtedit4</name>
+  <summary>IDE for Rust, Go, C++ and more</summary>
+
+  <description>
+    <p>
+    qtedit4 is an IDE for Rust, Go, C++ Python and more. Its focus is local development,
+    not web development.
+    </p>
+  </description>
+
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-2.0-or-later</project_license>
+  <developer_name>qtedit4 Developers</developer_name>
+  <developer id="org.diegoiast">
+    <name>qtedit4 Developers</name>
+  </developer>
+
+  <url type="homepage">https://github.com/diegoiast/qtedit4</url>
+  <url type="bugtracker">https://github.com/diegoiast/qtedit4/issues</url>
+
+  <categories>
+    <category>Development</category>
+    <category>Utility</category>
+    <category>TextEditor</category>
+  </categories>
+
+  <provides>
+    <binary>qtedit4</binary>
+  </provides>
+
+  <launchable type="desktop-id">
+    org.diegoiast.qtedit4.desktop
+  </launchable>
+
+  <content_rating type="oars-1.1"/>
+</component>
