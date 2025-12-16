@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>org.qtedit4.qtedit4</id>
+  <id>org.diegoiast.qtedit4</id>
 
-  <name>QtEdit4</name>
-  <summary>Lightweight Qt-based text and code editor</summary>
+  <name>qtedit4</name>
+  <summary>IDE for Rust, Go, C++ and more</summary>
 
   <description>
     <p>
-      QtEdit4 is a fast, lightweight editor built with Qt, featuring
-      syntax highlighting, plugin support, and project management tools.
+    qtedit4 is an IDE for Rust, Go, C++ Python and more. Its focus is local development,
+    not web development.
     </p>
   </description>
 
   <metadata_license>CC0-1.0</metadata_license>
-  <project_license>GPL-3.0-or-later</project_license>
-
-  <developer_name>QtEdit4 Developers</developer_name>
-
+  <project_license>GPL-2.0-or-later</project_license>
+  <developer_name>qtedit4 Developers</developer_name>
   <url type="homepage">https://github.com/diegoiast/qtedit4</url>
   <url type="bugtracker">https://github.com/diegoiast/qtedit4/issues</url>
 
@@ -31,6 +29,6 @@
   </provides>
 
   <launchable type="desktop-id">
-    org.qtedit4.qtedit4.desktop
+    org.diegoiast.desktop
   </launchable>
 </component>

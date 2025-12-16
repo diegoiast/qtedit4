@@ -231,19 +231,12 @@ if (WIN32)
             DESTINATION /)
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.ico
             DESTINATION /)
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
-            DESTINATION share/
-            DIRECTORY_PERMISSIONS
-                OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                GROUP_READ GROUP_EXECUTE
-                WORLD_READ WORLD_EXECUTE
-            FILES_MATCHING PATTERN "*/*"
-            PATTERN "*")
 else()
     install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
     install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
-            DESTINATION share/applications)
+            DESTINATION share/applications
+            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.desktop)
     install(FILES org.qtedit4.qtedit4.appdata.xml
             DESTINATION share/metainfo)
 endif()
