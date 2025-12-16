@@ -239,14 +239,14 @@ else()
     install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
             DESTINATION share/applications)
     message(STATUS "Stage 3")
-    install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
-            DESTINATION share/
-            DIRECTORY_PERMISSIONS
-                OWNER_READ OWNER_WRITE OWNER_EXECUTE
-                GROUP_READ GROUP_EXECUTE
-                WORLD_READ WORLD_EXECUTE
-            FILES_MATCHING PATTERN "*/*"
-            PATTERN "*"
-            PATTERN "*")
+    # install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
+    #         DESTINATION share/
+    #         DIRECTORY_PERMISSIONS
+    #             OWNER_READ OWNER_WRITE OWNER_EXECUTE
+    #             GROUP_READ GROUP_EXECUTE
+    #             WORLD_READ WORLD_EXECUTE
+    #         FILES_MATCHING PATTERN "*/*"
+    #         PATTERN "*"
+    #         PATTERN "*")
     message(STATUS "Stage 4 - final")
 endif()
