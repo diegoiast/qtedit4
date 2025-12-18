@@ -1,9 +1,9 @@
 [Desktop Entry]
-Exec=@QTEDIT4_BINARY@ %f
+Exec=@CODEPOINTER_BINARY@ %f
 Comment=Text editor
 Type=Application
-Icon=@QTEDIT4_ICON@
-Name=@QTEDIT4_APP_NAME@
+Icon=@CODEPOINTER_ICON@
+Name=@CODEPOINTER_APP_NAME@
 StartupNotify=true
 Terminal=false
 Categories=Qt;TextEditor;Utility;

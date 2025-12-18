@@ -603,7 +603,7 @@ void ProjectManagerPlugin::on_client_merged(qmdiHost *host) {
     connect(gui->editBuildConfig, &QAbstractButton::clicked, this, [this]() {
         auto buildConfig = this->getCurrentConfig();
         if (buildConfig->fileName.isEmpty()) {
-            auto path = buildConfig->sourceDir + "/" + "qtedit4.json";
+            auto path = buildConfig->sourceDir + "/" + "codepointer.json";
             buildConfig->saveToFile(path);
             configWatcher.addPath(buildConfig->fileName);
         }
@@ -1055,6 +1055,11 @@ void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QSt
 }
 
 void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
+    if (!info) {
+        qDebug() << "ProjectManagerPlugin::do_runExecutable() - info is null";
+        return;
+    }
+
     auto project = getCurrentConfig();
     auto executablePath = QDir::toNativeSeparators(findExecForPlatform(info->executables));
     auto workingDirectory = info->runDirectory.isEmpty() ? project->buildDir : info->runDirectory;
@@ -1280,7 +1285,7 @@ auto ProjectManagerPlugin::processBuildOutput(const QString &line) -> void {
     auto cursor = this->outputPanel->commandOuput->textCursor();
     auto lineNumber = cursor.blockNumber();
 
-    // see https://github.com/diegoiast/qtedit4/issues/88
+    // see https://github.com/codepointerapp/codepointer/issues/88
     // Ninja likes printing "\r" to clear line. Lets not deal with that
     auto fixedAnsi = line;
 #if 1

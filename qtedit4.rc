@@ -1,3 +1,0 @@
-#include <windows.h>
-
-IDI_ICON1 ICON "qtedit4.ico"

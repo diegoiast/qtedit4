@@ -11,7 +11,7 @@ if [ "$1" = "--ce" ]; then
   NAME_SUFFIX="-ce"
 fi
 
-APP_NAME="qtedit4"
+APP_NAME="codepointer"
 APP_VERSION="0.0.16"
 QT_VERSION="6.10.1"
 

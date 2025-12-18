@@ -1,6 +1,6 @@
 /**
  * \file main.cpp
- * \brief Entry point of application - qtedit4
+ * \brief Entry point of application - CodePointer
  * \author Diego Iastrubni diegoiast@gmail.com
  */
 
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_theme_data);
 
     QApplication app(argc, argv);
-    QCoreApplication::setApplicationName(QTEDIT4_APP_NAME);
+    QCoreApplication::setApplicationName(CODEPOINTER_APP_NAME);
     QCoreApplication::setApplicationVersion("0.0.16");
 
 #if defined(WIN32)
@@ -93,8 +93,8 @@ int main(int argc, char *argv[]) {
 
     PluginManager pluginManager;
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
-    auto iniFilePath = filePath + QString("/%1.ini").arg(QTEDIT4_APP_NAME);
-    auto windowIcon = QIcon(QTEDIT4_ICON);
+    auto iniFilePath = filePath + QString("/%1.ini").arg(CODEPOINTER_APP_NAME);
+    auto windowIcon = QIcon(CODEPOINTER_ICON);
     auto textEditorPlugin = new TextEditorPlugin;
     auto split = new SplitTabsPlugin(textEditorPlugin);
 

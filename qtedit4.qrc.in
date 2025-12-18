@@ -1,7 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>@QTEDIT4_ICON@.svg</file>
-        <file>@QTEDIT4_ICON@.ico</file>
-    </qresource>
-</RCC>
-

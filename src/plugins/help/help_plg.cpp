@@ -175,7 +175,7 @@ auto static refreshSystemMenus() -> void {
 }
 
 auto updatesUrl =
-    "https://raw.githubusercontent.com/diegoiast/qtedit4/refs/heads/main/updates.json";
+    "https://raw.githubusercontent.com/codepointerapp/codepointer/refs/heads/main/updates.json";
 
 HelpPlugin::HelpPlugin() {
     name = tr("Help system browser");
@@ -235,15 +235,16 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
     connect(actionAbout, &QAction::triggered, this, &HelpPlugin::actionAbout_triggered);
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
-    connect(actionVisitHomePage, &QAction::triggered, this,
-            []() { QDesktopServices::openUrl(QUrl("https://github.com/diegoiast/qtedit4/")); });
+    connect(actionVisitHomePage, &QAction::triggered, this, []() {
+        QDesktopServices::openUrl(QUrl("https://github.com/codepointerapp/codepointer/"));
+    });
     auto actionAboutQt = new QAction(tr("About Qt"), this);
     connect(actionAboutQt, &QAction::triggered, this, []() { QApplication::aboutQt(); });
 
     if (canInstallDesktopFile()) {
         auto installDesktopFile = new QAction(tr("Install desktop file"), this);
         connect(installDesktopFile, &QAction::triggered, this, [this]() {
-            auto svgResourcePath = QTEDIT4_SVG_ICON;
+            auto svgResourcePath = CODEPOINTER_SVG_ICON;
             auto exe = getExecutablePath();
             auto svgFile = QFile(QString::fromStdString(svgResourcePath));
             if (!svgFile.open(QIODevice::ReadOnly)) {
@@ -252,7 +253,6 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
             }
             auto svgContent = svgFile.readAll().toStdString();
             svgFile.close();
-
             auto desktopFile = createDesktopMenuItem(
                 QApplication::applicationName().toStdString(),
                 QApplication::applicationVersion().toStdString(), exe, svgContent);
@@ -485,8 +485,8 @@ void HelpPlugin::actionAbout_triggered() {
 
     auto contentWidget = new QWidget;
     auto contentLayout = new QVBoxLayout(contentWidget);
-    auto textLabel =
-        new QLabel(aboutText.arg(appName).arg(version).arg("https://github.com/diegoiast/qtedit4"));
+    auto textLabel = new QLabel(
+        aboutText.arg(appName).arg(version).arg("https://github.com/codepointerapp/codepointer"));
     textLabel->setWordWrap(true);
     textLabel->setOpenExternalLinks(true);
     textLabel->setTextFormat(Qt::RichText);

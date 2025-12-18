@@ -1,27 +1,27 @@
 cmake_minimum_required(VERSION 3.20)
-project (qtedit4)
+project (codepointer)
 
 set(BUILD_VERSION "DEV" CACHE STRING "Build version (DEV, CE, OFFICIAL)")
 set_property(CACHE BUILD_VERSION PROPERTY STRINGS DEV CE OFFICIAL)
 
 if(BUILD_VERSION STREQUAL "DEV")
     set(APP_SUFFIX "-dev")
-    set(ICON_NAME "qtedit4-dev")
-    set(BUILD_APP_NAME "qtedit4-dev")
+    set(ICON_NAME "codepointer-dev")
+    set(BUILD_APP_NAME "codepointer-dev")
 elseif(BUILD_VERSION STREQUAL "CE")
     set(APP_SUFFIX "-ce")
-    set(ICON_NAME "qtedit4-ce")
-    set(BUILD_APP_NAME "qtedit4-ce")
+    set(ICON_NAME "codepointer-ce")
+    set(BUILD_APP_NAME "codepointer-ce")
 else()
     set(APP_SUFFIX "")
-    set(ICON_NAME "qtedit4")
-    set(BUILD_APP_NAME "qtedit4")
+    set(ICON_NAME "codepointer")
+    set(BUILD_APP_NAME "codepointer")
 endif()
 
-set(QTEDIT4_APP_NAME "${BUILD_APP_NAME}")
-set(QTEDIT4_BINARY "qtedit4${APP_SUFFIX}")
-set(QTEDIT4_ICON "${ICON_NAME}")
-set(QTEDIT4_MACHINE_NAME "${MACHINE_IDENTIFIER}")
+set(CODEPOINTER_APP_NAME "${BUILD_APP_NAME}")
+set(CODEPOINTER_BINARY "codepointer${APP_SUFFIX}")
+set(CODEPOINTER_ICON "${ICON_NAME}")
+set(CODEPOINTER_MACHINE_NAME "${MACHINE_IDENTIFIER}")
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -39,9 +39,9 @@ set(QUTEPART_USE_CMAKEFORMAT OFF)
 set(QHEXVIEW_ENABLE_DIALOGS ON)
 set(COMMAND_PALLETE_ENABLE_TESTS OFF)
 
-option(QTEDIT4_WORK_OFFLINE OFF)
+option(CODEPOINTER_WORK_OFFLINE OFF)
 
-if (QTEDIT4_WORK_OFFLINE)
+if (CODEPOINTER_WORK_OFFLINE)
     # For this to work, you need to make these libraries available yourself.
     # On Linux/macOS, you can run the script `get-code.sh`. This might work on Windows using
     # git-bash, but is untested.
@@ -72,7 +72,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(qtedit4_sources
+set(codepointer_sources
     ${qmdilib_SOURCE_DIR}/demos/common/common.qrc
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/iplugin.cpp
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo/pluginmodel.cpp
@@ -155,44 +155,44 @@ set(qtedit4_sources
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp
-    ${CMAKE_BINARY_DIR}/qtedit4.qrc
+    ${CMAKE_BINARY_DIR}/codepointer.qrc
 )
 
 file(COPY "${CMAKE_SOURCE_DIR}/${ICON_NAME}.svg" DESTINATION "${CMAKE_BINARY_DIR}")
 file(COPY "${CMAKE_SOURCE_DIR}/${ICON_NAME}.ico" DESTINATION "${CMAKE_BINARY_DIR}")
 
-configure_file(qtedit4.qrc.in ${CMAKE_BINARY_DIR}/qtedit4.qrc)
-configure_file(qtedit4.desktop.in ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop)
+configure_file(codepointer.qrc.in ${CMAKE_BINARY_DIR}/codepointer.qrc)
+configure_file(codepointer.desktop.in ${CMAKE_BINARY_DIR}/${CODEPOINTER_APP_NAME}.desktop)
 
 if (WIN32)
-    add_executable(qtedit4 WIN32 ${qtedit4_sources} qtedit4.rc)
+    add_executable(codepointer WIN32 ${codepointer_sources} codepointer.rc)
 else()
-    add_executable(qtedit4 ${qtedit4_sources})
+    add_executable(codepointer ${codepointer_sources})
 endif()
 
 if (!MINGW)
-    set_property(TARGET qtedit4PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    set_property(TARGET codepointerPROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
 endif()
 
-target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_APP_NAME="${QTEDIT4_APP_NAME}")
-target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_ICON=":${QTEDIT4_ICON}.ico")
-target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_SVG_ICON=":${QTEDIT4_ICON}.svg")
-target_compile_definitions(qtedit4 PRIVATE -DQTEDIT4_MACHINE_NAME="${QTEDIT4_MACHINE_NAME}")
+target_compile_definitions(codepointer PRIVATE -DCODEPOINTER_APP_NAME="${CODEPOINTER_APP_NAME}")
+target_compile_definitions(codepointer PRIVATE -DCODEPOINTER_ICON=":${CODEPOINTER_ICON}.ico")
+target_compile_definitions(codepointer PRIVATE -DCODEPOINTER_SVG_ICON=":${CODEPOINTER_ICON}.svg")
+target_compile_definitions(codepointer PRIVATE -DCODEPOINTER_MACHINE_NAME="${CODEPOINTER_MACHINE_NAME}")
 
 if(BUILD_VERSION STREQUAL "DEV")
-    target_compile_definitions(qtedit4 PRIVATE -DBUILD_DEV)
+    target_compile_definitions(codepointer PRIVATE -DBUILD_DEV)
 elseif(BUILD_VERSION STREQUAL "CE")
-    target_compile_definitions(qtedit4 PRIVATE -DBUILD_CE)
+    target_compile_definitions(codepointer PRIVATE -DBUILD_CE)
 else()
-    target_compile_definitions(qtedit4 PRIVATE -DBUILD_OFFICIAL)
+    target_compile_definitions(codepointer PRIVATE -DBUILD_OFFICIAL)
 endif()
 
-target_include_directories(qtedit4 PUBLIC
+target_include_directories(codepointer PUBLIC
     ${qmdilib_SOURCE_DIR}/demos/plugin-demo
     ${qutepart_SOURCE_DIR}/include
     src
 )
-target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml
+target_link_libraries(codepointer PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6::Network Qt6::Svg Qt6::Xml
     qmdilib
     qutepart
     CommandPaletteWidget
@@ -201,21 +201,21 @@ target_link_libraries(qtedit4 PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent Qt6:
     QSimpleUpdater
     QJsonModelStatic
 )
-set_target_properties(qtedit4 PROPERTIES OUTPUT_NAME ${QTEDIT4_BINARY})
+set_target_properties(codepointer PROPERTIES OUTPUT_NAME ${CODEPOINTER_BINARY})
 
 if(MSVC)
    # if we don't do this - file will be under Debug/Relase subdir
-   set_target_properties(qtedit4 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}$<0:>)
-   target_compile_options(qtedit4 PRIVATE /W4)
+   set_target_properties(codepointer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}$<0:>)
+   target_compile_options(codepointer PRIVATE /W4)
 else()
-  set_target_properties(qtedit4 PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-  target_compile_options(qtedit4 PRIVATE -Wall -Wextra -Wpedantic)
+  set_target_properties(codepointer PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+  target_compile_options(codepointer PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-install(TARGETS qtedit4
+install(TARGETS codepointer
         RUNTIME DESTINATION bin)
 
-if (NOT QTEDIT4_WORK_OFFLINE)
+if (NOT CODEPOINTER_WORK_OFFLINE)
     install(DIRECTORY ${CMAKE_BINARY_DIR}/share/
             DESTINATION share/
             DIRECTORY_PERMISSIONS
@@ -225,21 +225,20 @@ if (NOT QTEDIT4_WORK_OFFLINE)
 endif()
 
 if (WIN32)
-    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
+    install(FILES ${CMAKE_SOURCE_DIR}/${CODEPOINTER_ICON}.svg
             DESTINATION /)
-    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.ico
+    install(FILES ${CMAKE_SOURCE_DIR}/${CODEPOINTER_ICON}.ico
             DESTINATION /)
 else()
-    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
+    install(FILES ${CMAKE_SOURCE_DIR}/${CODEPOINTER_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps)
-    install(FILES ${CMAKE_BINARY_DIR}/${QTEDIT4_APP_NAME}.desktop
+    install(FILES ${CMAKE_BINARY_DIR}/${CODEPOINTER_APP_NAME}.desktop
             DESTINATION share/applications
-            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.desktop)
+            RENAME org.codepointerapp.${CODEPOINTER_APP_NAME}.desktop)
 
-    install(FILES ${CMAKE_SOURCE_DIR}/${QTEDIT4_ICON}.svg
+    install(FILES ${CMAKE_SOURCE_DIR}/${CODEPOINTER_ICON}.svg
             DESTINATION share/icons/hicolor/scalable/apps
-            RENAME org.diegoiast.${QTEDIT4_APP_NAME}.svg)
-    install(FILES org.diegoiast.qtedit4.appdata.xml
+            RENAME org.codepointerapp.${CODEPOINTER_APP_NAME}.svg)
+    install(FILES org.codepointerapp.codepointer.appdata.xml
             DESTINATION share/metainfo)
-
 endif()
