@@ -96,6 +96,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     void hideBannerMessage();
 
     void newDocument();
+    void setPlainText(const QString &plainText);
     bool doSave();
     bool doSaveAs();
     bool loadFile(const QString &fileName);

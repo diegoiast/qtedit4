@@ -23,8 +23,6 @@
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 
-#define USE_SPLIT
-
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);
     Q_INIT_RESOURCE(qutepart_theme_data);
@@ -95,6 +93,7 @@ int main(int argc, char *argv[]) {
     auto filePath = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation);
     auto iniFilePath = filePath + QString("/%1.ini").arg(CODEPOINTER_APP_NAME);
     auto windowIcon = QIcon(CODEPOINTER_ICON);
+    auto helpPlugin = new HelpPlugin;
     auto textEditorPlugin = new TextEditorPlugin;
     auto split = new SplitTabsPlugin(textEditorPlugin);
 
@@ -104,7 +103,7 @@ int main(int argc, char *argv[]) {
 
     pluginManager.addPlugin(split);
     pluginManager.addPlugin(textEditorPlugin);
-    pluginManager.addPlugin(new HelpPlugin);
+    pluginManager.addPlugin(helpPlugin);
     pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
@@ -123,7 +122,7 @@ int main(int argc, char *argv[]) {
     pluginManager.updateGUI();
 
     if (pluginManager.visibleTabs() == 0) {
-        textEditorPlugin->fileNew();
+        helpPlugin->showWelcomeScreen();
         pluginManager.saveSettings();
     }
 

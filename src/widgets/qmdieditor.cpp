@@ -888,7 +888,9 @@ void qmdiEditor::updateClientName() {
 
     if (mdiClientName != newName) {
         mdiClientName = newName;
-        mdiServer->updateClientName(this);
+        if (mdiServer) {
+            mdiServer->updateClientName(this);
+        }
     }
 }
 
@@ -1071,6 +1073,11 @@ void qmdiEditor::hideBannerMessage() {
 }
 
 void qmdiEditor::newDocument() { loadFile(""); }
+
+void qmdiEditor::setPlainText(const QString &plainText) {
+    textEditor->setPlainText(plainText);
+    textEditor->document()->setModified(true);
+}
 
 bool qmdiEditor::doSave() {
     if (fileName.isEmpty()) {

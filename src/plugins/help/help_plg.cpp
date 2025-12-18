@@ -37,6 +37,7 @@
 #include <iplugin.h>
 #include <pluginmanager.h>
 
+#include "GlobalCommands.hpp"
 #include "help_plg.h"
 #include "iplugin.h"
 #include "widgets/bannerwidget.h"
@@ -55,10 +56,46 @@
 #elif defined(__APPLE__)
 #define TESTING_CHANNEL "osx-testing"
 #else
+#error This platform is not supported yet, feel free to help! PRs are welcomed!
 #endif
 
 // #define DEBUG_UPDATES
 // #define DISABLE_UPDATES
+
+const QString WelcomContent = R"(
+# Welcome to CodePointer
+
+CodePointer - an IDE for Rust, Go, C++ and more. The application
+will look like a normal text editor, but can
+
+Some hints for starter:
+
+ * Normal keyboard shortcuts you are used
+   to should work (`control+f`, `control+o`, `control+s` and more).
+ * To select tabs, press `alt+1` etc.
+ * To select/hide/show hide sidebar, press `control+1` (this will open the file
+   manager).
+ * On the top left, you will find the application menu (shortcut is `alt+m`).
+ * You can access the command palette which has all the available commands
+   using `control+shift+p`.
+ * You can press `alt+control+m` to get a conservative menus+toolbars UI.
+ * You can split the editor horizontally by pressing
+ * Program checks for updates, and will notify when a new version is available. 
+
+## Project management
+
+You can also load projects, build and execute them:
+ * If you edit a `CMakeLists.txt` or `meson.build` or `cargo.toml` you will be
+   prompted to open this file as a project. A new sidebar will be opened with
+   the project files.
+ * You can also add an "existing project", by choosing a directory.
+ * You can choose commands to execute for building, or other tasks relevant
+   to this project (configure, build), and you can choose which target
+   to run (`control+b` and `control-r`).
+ * When building, errors are shown at the bottom.
+ * You can execute script files (python, Perl, Bash, PowerShell, etc.), by
+   pressing `control+shift+r`
+)";
 
 auto static createDesktopMenuItem(const std::string &programName, const std::string &version,
                                   const std::string &execPath, const std::string &svgIconContent)
@@ -263,7 +300,6 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         });
         menus["&Help"]->addAction(installDesktopFile);
     }
-
     auto searchAction = new QAction(tr("Search action in UI"), this);
     searchAction->setShortcut(QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_P));
     connect(searchAction, &QAction::triggered, this, [this]() {
@@ -286,6 +322,9 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
         commandPalette->show();
     });
 
+    auto showWelcomeScreenAction = new QAction(tr("Show welcome screen"), this);
+    connect(showWelcomeScreenAction, &QAction::triggered, this, &HelpPlugin::showWelcomeScreen);
+
 #ifndef DISABLE_UPDATES
     menus["&Help"]->addAction(actionCheckForUpdates);
 #endif
@@ -296,6 +335,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
 #endif
     menus["&Help"]->addAction(searchAction);
     menus["&Help"]->addSeparator();
+    menus["&Help"]->addAction(showWelcomeScreenAction);
     menus["&Help"]->addAction(actionVisitHomePage);
     menus["&Help"]->addAction(actionAboutQt);
     menus["&Help"]->addAction(actionAbout);
@@ -446,6 +486,15 @@ bool HelpPlugin::isBottomPanelsVisible() const {
         }
     }
     return false;
+}
+
+void HelpPlugin::showWelcomeScreen() {
+    auto manager = getManager();
+    CommandArgs args = {
+        {GlobalArguments::FileName, "welcome.md"},
+        {GlobalArguments::Content, WelcomContent},
+    };
+    manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
 void HelpPlugin::actionAbout_triggered() {

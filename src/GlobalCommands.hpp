@@ -36,6 +36,9 @@ inline constexpr const char *VariableInfo = "VariableInfo";
 // Editor requests information about variable below mouse
 inline constexpr const char *KeywordTooltip = "KeywordTooltip";
 
+// Open a new editor, with the attached document
+inline constexpr const char *DisplayText = "DisplayText";
+
 } // namespace GlobalCommands
 
 namespace GlobalArguments {
@@ -56,4 +59,5 @@ inline constexpr const char *Raw = "Raw";
 inline constexpr const char *Tags = "Tags";
 inline constexpr const char *Tooltip = "Tooltip";
 inline constexpr const char *Symbol = "Symbol";
+inline constexpr const char *Content = "Content";
 } // namespace GlobalArguments

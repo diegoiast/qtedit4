@@ -1,3 +1,4 @@
+
 #include <QAction>
 #include <QActionGroup>
 #include <QApplication>
@@ -17,6 +18,7 @@
 #include <qmdiserver.h>
 
 #include "AnsiToHTML.hpp"
+#include "GlobalCommands.hpp"
 #include "texteditor_plg.h"
 #include "thememanager.h"
 #include "widgets/HistoryLineEdit.h"
@@ -294,6 +296,42 @@ void TextEditorPlugin::saveConfig(QSettings &settings) {
     auto history = historyModel->getHistory();
     getConfig().setSeachHistory(history);
     IPlugin::saveConfig(settings);
+}
+
+int TextEditorPlugin::canHandleAsyncCommand(const QString &command, const CommandArgs &) const {
+    if (command == GlobalCommands::DisplayText) {
+        return true;
+    }
+    return false;
+}
+
+QFuture<CommandArgs> TextEditorPlugin::handleCommandAsync(const QString &command,
+                                                          const CommandArgs &args) {
+    if (command != GlobalCommands::DisplayText) {
+        return {};
+    }
+
+    auto fileName = args[GlobalArguments::FileName].toString();
+    auto content = args[GlobalArguments::Content].toString();
+    auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
+    auto langInfo = ::Qutepart::chooseLanguage({}, {}, fileName);
+    if (langInfo.isValid()) {
+        editor->setEditorHighlighter(langInfo.id);
+    }
+    // auto shouldAutoPreview = editor->autoPreview;
+    // auto canOpenPreview = editor->hasPreview();
+    editor->loadFile(fileName);
+    editor->setPreviewEnabled(true);
+    editor->setPreviewVisible(true);
+    editor->setHistoryModel(historyModel);
+    editor->setPlainText(content);
+    applySettings(editor);
+    mdiServer->addClient(editor);
+
+    auto promise = new QPromise<CommandArgs>();
+    auto future = promise->future();
+    promise->finish();
+    return promise->future();
 }
 
 QStringList TextEditorPlugin::myExtensions() {

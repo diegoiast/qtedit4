@@ -57,6 +57,10 @@ class TextEditorPlugin : public IPlugin {
     virtual void showAbout() override;
     virtual void loadConfig(QSettings &settings) override;
     virtual void saveConfig(QSettings &settings) override;
+    virtual int canHandleAsyncCommand(const QString &command,
+                                      const CommandArgs &args) const override;
+    virtual QFuture<CommandArgs> handleCommandAsync(const QString &command,
+                                                    const CommandArgs &args) override;
 
     QStringList myExtensions() override;
     int canOpenFile(const QString &fileName) override;

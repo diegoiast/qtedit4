@@ -60,6 +60,7 @@ class HelpPlugin : public IPlugin {
     bool isBottomPanelsVisible() const;
 
   public slots:
+    void showWelcomeScreen();
     void actionAbout_triggered();
     void checkForUpdates_triggered();
 
