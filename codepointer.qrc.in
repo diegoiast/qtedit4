@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>@CODEPOINTER_ICON@.svg</file>
+        <file>@CODEPOINTER_ICON@.ico</file>
+    </qresource>
+</RCC>
+

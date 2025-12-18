@@ -41,7 +41,7 @@ constexpr auto ENV_SEPARATOR = ';';
 constexpr auto SCRIPT_EXTENSION_UNIX = ".sh";
 constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
 
-# This is a kit definition for qtedit4. All your tasks
+# This is a kit definition for CodePointer. All your tasks
 # will run through this file.
 
 # available environment variables:
@@ -51,9 +51,9 @@ constexpr auto SCRIPT_HEADER_UNIX = R"(#! /bin/sh
 #                       the task's definition in the JSON file
 # ${task}             - the actual code to be run
 
-# The following meta variables are for qtedit4. Note the prefix:
+# The following meta variables are for CodePointer. Note the prefix:
 # @@ name = @@NAME@@
-# @@ author = auto generated - by qtedit4
+# @@ author = auto generated - by CodePointer
 
 # from this point on - echo is on. Every command will be displayed
 # in the build output.
@@ -73,7 +73,7 @@ eval "${task}"
 constexpr auto SCRIPT_EXTENSION_WIN32 = ".bat";
 constexpr auto SCRIPT_HEADER_WIN32 = R"(@echo off
 
-rem This is a kit definition for qtedit4. All your tasks
+rem This is a kit definition for CodePointer. All your tasks
 rem will run through this file.
 
 rem available environment variables:
@@ -85,7 +85,7 @@ rem %task%             - the actual code to be run
 
 rem The following meta variables are for qtedit4. Note the prefix:
 rem @@ name = @@NAME@@
-rem @@ author = auto generated - by qtedit4
+rem @@ author = auto generated - by CodePointer
 
 rem from this point on - echo is on. Every command will be displayed
 rem in the build output.
