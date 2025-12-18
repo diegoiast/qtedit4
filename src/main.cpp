@@ -13,6 +13,7 @@
 #include <QStandardPaths>
 #include <QToolButton>
 
+#include "GlobalCommands.hpp"
 #include "pluginmanager.h"
 #include "plugins/CTags/CTagsPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
@@ -23,7 +24,41 @@
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
 
-#define USE_SPLIT
+const QString WelcomContent = R"(
+# Welcome to CodePointer
+
+CodePointer - an IDE for Rust, Go, C++ and more. The application
+will look like a normal text editor, but can
+
+![CodePointer](https://raw.githubusercontent.com/diegoiast/qtedit4/337cd10aab4b123b15dee53c446fd1b7e343dc9a/qtedit4.png)
+
+Some hints for starter:
+
+ * Normal keyboard shortcuts you are used
+   to should work (`control+f`, `control+o`, `control+s` and more).
+ * To select tabs, press `alt+1` etc.
+ * To select/hide/show hide sidebar, press `control+1` (this will open the file
+   manager).
+ * On the top left, you will find the application menu (shortcut is `alt+m`).
+ * You can access the command palette which has all the available commands
+   using `control+shift+p`.
+ * You can press `alt+control+m` to get a conservative menus+toolbars UI.
+ * You can split the editor horizontally by pressing
+
+## Project management
+
+You can also load projects, build and execute them:
+ * If you edit a `CMakeLists.txt` or `meson.build` or `cargo.toml` you will be
+   prompted to open this file as a project. A new sidebar will be opened with
+   the project files.
+ * You can also add an "existing project", by choosing a directory.
+ * You can choose commands to execute for building, or other tasks relevant
+   to this project (configure, build), and you can choose which target
+   to run (`control+b` and `control-r`).
+ * When building, errors are shown at the bottom.
+ * You can execute script files (python, Perl, Bash, PowerShell, etc.), by
+   pressing `control+shift+r`
+)";
 
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);
@@ -123,7 +158,11 @@ int main(int argc, char *argv[]) {
     pluginManager.updateGUI();
 
     if (pluginManager.visibleTabs() == 0) {
-        textEditorPlugin->fileNew();
+        CommandArgs args = {
+            {GlobalArguments::FileName, "welcome.md"},
+            {GlobalArguments::Content, WelcomContent},
+        };
+        pluginManager.handleCommandAsync(GlobalCommands::DisplayText, args);
         pluginManager.saveSettings();
     }
 
