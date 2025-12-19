@@ -19,7 +19,6 @@ cache:
 # ----------------------------------------
 build-cmake:
   stage: build
-  extends: .default-rules
   parallel:
     matrix:
       - NAME: "Windows MSVC"
@@ -46,7 +45,7 @@ build-cmake:
 
   before_script:
     - echo "Building $NAME with Qt $QT_VERSION"
-    
+
     # Handle version/tag logic
     - |
       if [[ -n "$CI_COMMIT_TAG" ]]; then
@@ -139,4 +138,3 @@ create-release:
         --tag-name "$CI_COMMIT_TAG" \
         --description "Automated release for $CI_COMMIT_TAG" \
         --assets-link "{\"name\":\"Artifacts\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build-cmake\"}"
-
