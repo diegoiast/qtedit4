@@ -48,8 +48,7 @@ build-cmake-unix:
 
     - |
       if [[ "$OS" == "linux" ]]; then
-        sudo apt update
-        sudo apt install -y libcups2-dev python3-pip ninja-build
+        apt install -y libcups2-dev python3-pip ninja-build
       fi
 
       python3 -m pip install --user cmake-format aqtinstall
@@ -69,7 +68,7 @@ build-cmake-unix:
         ln -s ../$BUILD_DIR/usr dist/$APP_NAME/$APP_NAME-$BUILD_DIR-$VERSION
         tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$VERSION.tar.gz -C dist/$APP_NAME .
 
-        sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
+        apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
 
         export OUTPUT=build/$APP_NAME-$VERSION-x86_64.AppImage
         wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
