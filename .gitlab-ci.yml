@@ -1,0 +1,142 @@
+stages:
+  - build
+  - release
+
+variables:
+  APP_NAME: codepointer
+  CMAKE_VERSION: "3.31.0"
+  QT_VERSION: "6.10.1"
+  BUILD_TYPE: "Release"
+
+# Cache definitions
+cache:
+  paths:
+    - .cache/pip
+    - Qt/
+
+# ----------------------------------------
+# Build matrix (Linux, Windows, macOS)
+# ----------------------------------------
+build-cmake:
+  stage: build
+  extends: .default-rules
+  parallel:
+    matrix:
+      - NAME: "Windows MSVC"
+        OS: windows
+        RUNNER_TAG: windows
+        BUILD_DIR: windows-msvc
+        CC: cl
+        CXX: cl
+      - NAME: "Ubuntu GCC"
+        OS: linux
+        RUNNER_TAG: linux
+        BUILD_DIR: linux-gcc
+        CC: gcc
+        CXX: g++
+      - NAME: "macOS"
+        OS: macos
+        RUNNER_TAG: macos
+        BUILD_DIR: macos
+        CC: clang
+        CXX: clang++
+
+  tags:
+    - $RUNNER_TAG
+
+  before_script:
+    - echo "Building $NAME with Qt $QT_VERSION"
+    
+    # Handle version/tag logic
+    - |
+      if [[ -n "$CI_COMMIT_TAG" ]]; then
+        export VERSION="$CI_COMMIT_TAG"
+      else
+        export VERSION="${CI_COMMIT_SHORT_SHA}"
+      fi
+      echo "VERSION=$VERSION"
+
+    # Install `aqtinstall` and Qt (if not cached)
+    - |
+      if [[ "$OS" == "linux" || "$OS" == "macos" ]]; then
+        python3 -m pip install --user aqtinstall
+        python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
+        export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
+        export PATH=$QT_ROOT_DIR/bin:$PATH
+      fi
+    - |
+      if [[ "$OS" == "windows" ]]; then
+        python -m pip install --user aqtinstall
+        aqt install-qt windows desktop $QT_VERSION win64_msvc2022_64 -m qt5compat
+        set QT_ROOT_DIR=%CD%\Qt\$QT_VERSION\msvc2022_64
+        set PATH=%QT_ROOT_DIR%\bin;%PATH%
+      fi
+
+  script:
+    - |
+      if [[ "$OS" == "linux" ]]; then
+        sudo apt install -y libcups2-dev python3-pip ninja-build
+        pip3 install cmake-format
+      fi
+    - |
+      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
+        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+        choco install innosetup -y  # Install Inno Setup on Windows
+      fi
+    - cmake -B build/$BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_VERSION=OFFICIAL
+    - cmake --build build/$BUILD_DIR --parallel --verbose
+    - cmake --install build/$BUILD_DIR --prefix dist/$BUILD_DIR/usr
+
+    # Packaging for Linux (AppImage, TGZ)
+    - |
+      if [[ "$OS" == "linux" && "$CC" == "gcc" ]]; then
+        mkdir -p dist/$APP_NAME
+        ln -s ../$BUILD_DIR/usr dist/$APP_NAME/$APP_NAME-$BUILD_DIR-$VERSION
+        tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$VERSION.tar.gz -C dist/$APP_NAME .
+
+        sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
+
+        export OUTPUT=build/$APP_NAME-$VERSION-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+
+        ./linuxdeploy-x86_64.AppImage --appdir dist/$BUILD_DIR --plugin qt --output appimage
+      fi
+
+    # Packaging for Windows (windeployqt + Inno Setup)
+    - |
+      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
+        windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist\\$BUILD_DIR\\usr\\bin\\$APP_NAME.exe
+        iscc setup_script.iss
+        copy dist\\$APP_NAME-win64.exe dist\\$APP_NAME-$VERSION-x86_64.exe
+      fi
+
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - dist/
+      - build/*.AppImage
+      - dist/$APP_NAME-${VERSION}-x86_64.exe
+
+# ----------------------------------------
+# Release job (tags only)
+# ----------------------------------------
+create-release:
+  stage: release
+  needs: ["build-cmake"]
+  tags:
+    - linux
+  rules:
+    - if: $CI_COMMIT_TAG
+
+  script:
+    - echo "Creating GitLab Release for $CI_COMMIT_TAG"
+    - |
+      release-cli create \
+        --name "$CI_COMMIT_TAG" \
+        --tag-name "$CI_COMMIT_TAG" \
+        --description "Automated release for $CI_COMMIT_TAG" \
+        --assets-link "{\"name\":\"Artifacts\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build-cmake\"}"
+
