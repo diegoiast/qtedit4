@@ -48,6 +48,7 @@ build-cmake-unix:
 
     - |
       if [[ "$OS" == "linux" ]]; then
+        apt update
         # apt install -y libcups2-dev
         apt install -y python3-pip ninja-build
       fi
