@@ -55,7 +55,7 @@ build-cmake-unix:
 
       pipx install cmake-format --include-deps
       pipx install aqtinstall
-      python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
+      /root/.local/bin/aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
       export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
       export PATH=$QT_ROOT_DIR/bin:$PATH
 
