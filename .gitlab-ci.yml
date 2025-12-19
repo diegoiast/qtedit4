@@ -23,19 +23,19 @@ build-cmake:
     matrix:
       - NAME: "Windows MSVC"
         OS: windows
-        RUNNER_TAG: windows
+        RUNNER_TAG: saas-windows-medium-amd64
         BUILD_DIR: windows-msvc
         CC: cl
         CXX: cl
       - NAME: "Ubuntu GCC"
         OS: linux
-        RUNNER_TAG: linux
+        RUNNER_TAG: saas-linux-small-amd64
         BUILD_DIR: linux-gcc
         CC: gcc
         CXX: g++
       - NAME: "macOS"
         OS: macos
-        RUNNER_TAG: macos
+        RUNNER_TAG: saas-macos-medium-m1
         BUILD_DIR: macos
         CC: clang
         CXX: clang++
