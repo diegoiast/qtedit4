@@ -53,7 +53,7 @@ build-cmake-unix:
         apt install -y python3-pip ninja-build pipx
       fi
 
-      pipx install cmake-format
+      pipx install cmake-format --include-deps
       pipx install aqtinstall
       python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
       export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
