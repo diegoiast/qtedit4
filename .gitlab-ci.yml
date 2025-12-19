@@ -14,9 +14,9 @@ cache:
     - Qt/
 
 # ----------------------------------------
-# Build matrix (Linux, Windows, macOS)
+# Unix builds: Linux + macOS (Bash shell)
 # ----------------------------------------
-build-cmake:
+build-cmake-unix:
   stage: build
   parallel:
     matrix:
@@ -32,20 +32,107 @@ build-cmake:
         BUILD_DIR: macos
         CC: clang
         CXX: clang++
-      - NAME: "Windows MSVC"
-        OS: windows
-        RUNNER_TAG: saas-windows-medium-amd64
-        BUILD_DIR: windows-msvc
-        CC: cl
-        CXX: cl
-
   tags:
     - $RUNNER_TAG
 
   before_script:
     - echo "Building $NAME with Qt $QT_VERSION"
 
-    # Version handling (works in PowerShell too)
+    - |
+      if [[ -n "$CI_COMMIT_TAG" ]]; then
+        export VERSION="$CI_COMMIT_TAG"
+      else
+        export VERSION="${CI_COMMIT_SHORT_SHA}"
+      fi
+      echo "VERSION=$VERSION"
+
+    - |
+      if [[ "$OS" == "linux" ]]; then
+        sudo apt update
+        sudo apt install -y libcups2-dev python3-pip ninja-build
+      fi
+
+      python3 -m pip install --user cmake-format
+      python3 -m pip install --user aqtinstall
+      python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
+      export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
+      export PATH=$QT_ROOT_DIR/bin:$PATH
+
+  script:
+    - |
+    - cmake -B build/$BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_VERSION=OFFICIAL
+    - cmake --build build/$BUILD_DIR --parallel --verbose
+    - cmake --install build/$BUILD_DIR --prefix dist/$BUILD_DIR/usr
+
+    # Linux-specific packaging (AppImage + TGZ)
+    - |
+      if [[ "$OS" == "linux" ]]; then
+        mkdir -p dist/$APP_NAME
+        ln -s ../$BUILD_DIR/usr dist/$APP_NAME/$APP_NAME-$BUILD_DIR-$VERSION
+        tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$VERSION.tar.gz -C dist/$APP_NAME .
+
+        sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
+
+        export OUTPUT=build/$APP_NAME-$VERSION-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+        chmod +x linuxdeploy*.AppImage
+
+        ./linuxdeploy-x86_64.AppImage --appdir dist/$BUILD_DIR --plugin qt --output appimage
+      fi
+
+    # macOS-specific bundling and DMG creation
+    - |
+      if [[ "$OS" == "macos" ]]; then
+        # Assume executable is installed to usr/bin/codepointer (no .app yet)
+        # Create proper .app bundle structure
+        mkdir -p dist/$APP_NAME.app/Contents/MacOS
+        mkdir -p dist/$APP_NAME.app/Contents/Resources
+
+        mv dist/$BUILD_DIR/usr/bin/$APP_NAME dist/$APP_NAME.app/Contents/MacOS/
+        # Copy any resources if needed (e.g., icons) – adjust if you have an Info.plist or icns
+        # cp path/to/your.icns dist/$APP_NAME.app/Contents/Resources/  # optional
+
+        # Run macdeployqt to bundle Qt and create full .app
+        $QT_ROOT_DIR/bin/macdeployqt dist/$APP_NAME.app -always-overwrite
+
+        # Create a staging folder for the DMG
+        mkdir -p dmg_staging
+        cp -R dist/$APP_NAME.app dmg_staging/
+        ln -s /Applications dmg_staging/Applications
+
+        # Create the DMG (compressed, good compatibility)
+        hdiutil create -srcfolder dmg_staging \
+                       -volname "$APP_NAME $VERSION" \
+                       -fs HFS+ \
+                       -format UDBZ \
+                       build/$APP_NAME-$VERSION.dmg
+
+        # Clean up staging
+        rm -rf dmg_staging
+      fi
+
+artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - dist/
+      - build/*.AppImage
+
+# ----------------------------------------
+# Windows build (PowerShell shell)
+# ----------------------------------------
+build-cmake-windows:
+  stage: build
+  tags:
+    - saas-windows-medium-amd64
+  variables:
+    NAME: "Windows MSVC"
+    BUILD_DIR: windows-msvc
+
+  before_script:
+    - echo "Building $env:NAME with Qt $env:QT_VERSION"
+
     - |
       if ($env:CI_COMMIT_TAG) {
         $env:VERSION = $env:CI_COMMIT_TAG
@@ -54,88 +141,47 @@ build-cmake:
       }
       echo "VERSION=$env:VERSION"
 
-    # Qt installation (aqtinstall uses Python, works cross-platform)
-    - |
-      if ($env:OS -eq "linux") {
-        sudo apt update
-        sudo apt install -y python3-pip
-      }
-      if ($env:OS -eq "linux" -or $env:OS -eq "macos") {
-        python3 -m pip install --user aqtinstall
-        python3 -m aqt install-qt $env:OS desktop $QT_VERSION gcc_64 -m qt5compat
-        $env:QT_ROOT_DIR = "$env:HOME/Qt/$QT_VERSION/gcc_64"
-        $env:PATH = "$env:QT_ROOT_DIR/bin;$env:PATH"
-      }
-      if ($env:OS -eq "windows") {
-        python -m pip install --user aqtinstall
-        aqt install-qt windows desktop $QT_VERSION win64_msvc2022_64 -m qt5compat
-        $env:QT_ROOT_DIR = "$pwd\Qt\$QT_VERSION\msvc2022_64"
-        $env:PATH = "$env:QT_ROOT_DIR\bin;$env:PATH"
-      }
+    # Install aqtinstall and Qt
+    - python -m pip install --user aqtinstall
+    - aqt install-qt windows desktop $env:QT_VERSION win64_msvc2022_64 -m qt5compat
+    - $env:QT_ROOT_DIR = "$pwd\Qt\$env:QT_VERSION\msvc2022_64"
+    - $env:PATH = "$env:QT_ROOT_DIR\bin;$env:PATH"
 
   script:
-    # Platform-specific dependencies
-    - |
-      if ($env:OS -eq "linux") {
-        sudo apt install -y libcups2-dev python3-pip ninja-build
-        pip3 install cmake-format
-      }
-      if ($env:OS -eq "windows") {
-        choco install innosetup -y
-      }
+    # Install Inno Setup
+    - choco install innosetup -y
+    - choco install ninja --version=1.8.2
 
-    # CMake build (common, works in PowerShell)
-    - cmake -B build/$BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_VERSION=OFFICIAL
-    - cmake --build build/$BUILD_DIR --parallel --verbose
-    - cmake --install build/$BUILD_DIR --prefix dist/$BUILD_DIR/usr
+    # Load Visual Studio developer command prompt (required for cl.exe)
+    - '& "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=amd64'
 
-    # Linux packaging (unchanged, only runs on Linux runner)
-    - |
-      if ($env:OS -eq "linux") {
-        mkdir -p dist/$APP_NAME
-        New-Item -ItemType SymbolicLink -Path dist/$APP_NAME -Name "$APP_NAME-$BUILD_DIR-$env:VERSION" -Target "../$BUILD_DIR/usr"
-        tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$env:VERSION.tar.gz -C dist/$APP_NAME .
+    # CMake configure, build, install
+    - cmake -B build/$env:BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DBUILD_VERSION=OFFICIAL
+    - cmake --build build/$env:BUILD_DIR --parallel --verbose
+    - cmake --install build/$env:BUILD_DIR --prefix dist/$env:BUILD_DIR/usr
 
-        sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
-
-        $env:OUTPUT = "build/$APP_NAME-$env:VERSION-x86_64.AppImage"
-        wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-        wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
-        chmod +x linuxdeploy*.AppImage
-
-        ./linuxdeploy-x86_64.AppImage --appdir dist/$BUILD_DIR --plugin qt --output appimage
-      }
-
-    # Windows packaging (translated to PowerShell)
-    - |
-      if ($env:OS -eq "windows") {
-        # Load VS developer command prompt (required for cl and MSVC env)
-        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
-
-        windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist\$BUILD_DIR\usr\bin\$APP_NAME.exe
-        iscc setup_script.iss
-        Copy-Item dist\$APP_NAME-win64.exe dist\$APP_NAME-$env:VERSION-x86_64.exe
-      }
+    # Windows packaging
+    - windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw "dist\$env:BUILD_DIR\usr\bin\$env:APP_NAME.exe"
+    - iscc setup_script.iss
+    - Copy-Item "dist\$env:APP_NAME-win64.exe" "dist\$env:APP_NAME-$env:VERSION-x86_64.exe"
 
   artifacts:
     when: always
     expire_in: 1 week
     paths:
-      - dist/
-      - build/*.AppImage
-      - dist/$APP_NAME-*-x86_64.exe  # Covers versioned Windows exe
+      - dist/$env:BUILD_DIR/
+      - dist/*.exe
 
 # ----------------------------------------
 # Release job (tags only)
 # ----------------------------------------
 create-release:
   stage: release
-  needs: ["build-cmake"]
+  needs: ["build-cmake-unix", "build-cmake-windows"]
   tags:
     - linux
   rules:
     - if: $CI_COMMIT_TAG
-
   script:
     - echo "Creating GitLab Release for $CI_COMMIT_TAG"
     - |
@@ -143,4 +189,6 @@ create-release:
         --name "$CI_COMMIT_TAG" \
         --tag-name "$CI_COMMIT_TAG" \
         --description "Automated release for $CI_COMMIT_TAG" \
-        --assets-link "{\"name\":\"Artifacts\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build-cmake\"}"
+        --assets-link "{\"name\":\"All Artifacts (zip)\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build-cmake-unix\"}" \
+        --assets-link "{\"name\":\"Windows Installer\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/dist/$APP_NAME-$CI_COMMIT_TAG-x86_64.exe?job=build-cmake-windows\"}" \
+        --assets-link "{\"name\":\"Linux AppImage\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/build/$APP_NAME-$CI_COMMIT_TAG-x86_64.AppImage?job=build-cmake-unix\"}"
