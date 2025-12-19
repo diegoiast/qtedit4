@@ -8,7 +8,6 @@ variables:
   QT_VERSION: "6.10.1"
   BUILD_TYPE: "Release"
 
-# Cache definitions
 cache:
   paths:
     - .cache/pip
@@ -21,12 +20,6 @@ build-cmake:
   stage: build
   parallel:
     matrix:
-      - NAME: "Windows MSVC"
-        OS: windows
-        RUNNER_TAG: saas-windows-medium-amd64
-        BUILD_DIR: windows-msvc
-        CC: cl
-        CXX: cl
       - NAME: "Ubuntu GCC"
         OS: linux
         RUNNER_TAG: saas-linux-small-amd64
@@ -35,10 +28,16 @@ build-cmake:
         CXX: g++
       - NAME: "macOS"
         OS: macos
-        RUNNER_TAG: saas-macos-medium-m1
+        RUNNER_TAG: saas-macos-large-m2pro
         BUILD_DIR: macos
         CC: clang
         CXX: clang++
+      - NAME: "Windows MSVC"
+        OS: windows
+        RUNNER_TAG: saas-windows-medium-amd64
+        BUILD_DIR: windows-msvc
+        CC: cl
+        CXX: cl
 
   tags:
     - $RUNNER_TAG
@@ -46,70 +45,77 @@ build-cmake:
   before_script:
     - echo "Building $NAME with Qt $QT_VERSION"
 
-    # Handle version/tag logic
+    # Version handling (works in PowerShell too)
     - |
-      if [[ -n "$CI_COMMIT_TAG" ]]; then
-        export VERSION="$CI_COMMIT_TAG"
-      else
-        export VERSION="${CI_COMMIT_SHORT_SHA}"
-      fi
-      echo "VERSION=$VERSION"
+      if ($env:CI_COMMIT_TAG) {
+        $env:VERSION = $env:CI_COMMIT_TAG
+      } else {
+        $env:VERSION = $env:CI_COMMIT_SHORT_SHA
+      }
+      echo "VERSION=$env:VERSION"
 
-    # Install `aqtinstall` and Qt (if not cached)
+    # Qt installation (aqtinstall uses Python, works cross-platform)
     - |
-      if [[ "$OS" == "linux" || "$OS" == "macos" ]]; then
+      if ($env:OS -eq "linux") {
+        sudo apt update
+        sudo apt install -y python3-pip
+      }
+      if ($env:OS -eq "linux" -or $env:OS -eq "macos") {
         python3 -m pip install --user aqtinstall
-        python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
-        export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
-        export PATH=$QT_ROOT_DIR/bin:$PATH
-      fi
-    - |
-      if [[ "$OS" == "windows" ]]; then
+        python3 -m aqt install-qt $env:OS desktop $QT_VERSION gcc_64 -m qt5compat
+        $env:QT_ROOT_DIR = "$env:HOME/Qt/$QT_VERSION/gcc_64"
+        $env:PATH = "$env:QT_ROOT_DIR/bin;$env:PATH"
+      }
+      if ($env:OS -eq "windows") {
         python -m pip install --user aqtinstall
         aqt install-qt windows desktop $QT_VERSION win64_msvc2022_64 -m qt5compat
-        set QT_ROOT_DIR=%CD%\Qt\$QT_VERSION\msvc2022_64
-        set PATH=%QT_ROOT_DIR%\bin;%PATH%
-      fi
+        $env:QT_ROOT_DIR = "$pwd\Qt\$QT_VERSION\msvc2022_64"
+        $env:PATH = "$env:QT_ROOT_DIR\bin;$env:PATH"
+      }
 
   script:
+    # Platform-specific dependencies
     - |
-      if [[ "$OS" == "linux" ]]; then
+      if ($env:OS -eq "linux") {
         sudo apt install -y libcups2-dev python3-pip ninja-build
         pip3 install cmake-format
-      fi
-    - |
-      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
-        choco install innosetup -y  # Install Inno Setup on Windows
-      fi
+      }
+      if ($env:OS -eq "windows") {
+        choco install innosetup -y
+      }
+
+    # CMake build (common, works in PowerShell)
     - cmake -B build/$BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_VERSION=OFFICIAL
     - cmake --build build/$BUILD_DIR --parallel --verbose
     - cmake --install build/$BUILD_DIR --prefix dist/$BUILD_DIR/usr
 
-    # Packaging for Linux (AppImage, TGZ)
+    # Linux packaging (unchanged, only runs on Linux runner)
     - |
-      if [[ "$OS" == "linux" && "$CC" == "gcc" ]]; then
+      if ($env:OS -eq "linux") {
         mkdir -p dist/$APP_NAME
-        ln -s ../$BUILD_DIR/usr dist/$APP_NAME/$APP_NAME-$BUILD_DIR-$VERSION
-        tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$VERSION.tar.gz -C dist/$APP_NAME .
+        New-Item -ItemType SymbolicLink -Path dist/$APP_NAME -Name "$APP_NAME-$BUILD_DIR-$env:VERSION" -Target "../$BUILD_DIR/usr"
+        tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$env:VERSION.tar.gz -C dist/$APP_NAME .
 
         sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
 
-        export OUTPUT=build/$APP_NAME-$VERSION-x86_64.AppImage
+        $env:OUTPUT = "build/$APP_NAME-$env:VERSION-x86_64.AppImage"
         wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
         wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
         chmod +x linuxdeploy*.AppImage
 
         ./linuxdeploy-x86_64.AppImage --appdir dist/$BUILD_DIR --plugin qt --output appimage
-      fi
+      }
 
-    # Packaging for Windows (windeployqt + Inno Setup)
+    # Windows packaging (translated to PowerShell)
     - |
-      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
-        windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist\\$BUILD_DIR\\usr\\bin\\$APP_NAME.exe
+      if ($env:OS -eq "windows") {
+        # Load VS developer command prompt (required for cl and MSVC env)
+        & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
+
+        windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist\$BUILD_DIR\usr\bin\$APP_NAME.exe
         iscc setup_script.iss
-        copy dist\\$APP_NAME-win64.exe dist\\$APP_NAME-$VERSION-x86_64.exe
-      fi
+        Copy-Item dist\$APP_NAME-win64.exe dist\$APP_NAME-$env:VERSION-x86_64.exe
+      }
 
   artifacts:
     when: always
@@ -117,7 +123,7 @@ build-cmake:
     paths:
       - dist/
       - build/*.AppImage
-      - dist/$APP_NAME-${VERSION}-x86_64.exe
+      - dist/$APP_NAME-*-x86_64.exe  # Covers versioned Windows exe
 
 # ----------------------------------------
 # Release job (tags only)
