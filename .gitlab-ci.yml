@@ -50,10 +50,10 @@ build-cmake-unix:
       if [[ "$OS" == "linux" ]]; then
         apt update
         # apt install -y libcups2-dev
-        apt install -y python3-pip ninja-build
+        apt install -y python3-pipx ninja-build
       fi
 
-      python3 -m pip install --user cmake-format aqtinstall
+      python3 -m pipx install --user cmake-format aqtinstall
       python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
       export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
       export PATH=$QT_ROOT_DIR/bin:$PATH
