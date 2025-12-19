@@ -48,7 +48,8 @@ build-cmake-unix:
 
     - |
       if [[ "$OS" == "linux" ]]; then
-        apt install -y libcups2-dev python3-pip ninja-build
+        # apt install -y libcups2-dev
+        apt install -y python3-pip ninja-build
       fi
 
       python3 -m pip install --user cmake-format aqtinstall
@@ -132,7 +133,7 @@ build-cmake-windows:
 
     # Install tools and Qt
     - python -m pip install --user aqtinstall
-    - aqt install-qt windows desktop $env:QT_VERSION win64_msvc2022_64 -m qt5compat
+    - python -m aqt install-qt windows desktop $env:QT_VERSION win64_msvc2022_64 -m qt5compat
     - $env:QT_ROOT_DIR = "$pwd\Qt\$env:QT_VERSION\msvc2022_64"
     - $env:PATH = "$env:QT_ROOT_DIR\bin;$env:PATH"
 
