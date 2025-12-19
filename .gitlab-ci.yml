@@ -50,7 +50,7 @@ build-cmake-unix:
       if [[ "$OS" == "linux" ]]; then
         apt update
         # apt install -y libcups2-dev
-        apt install -y python3-pipx ninja-build
+        apt install -y python3-pip ninja-build pipx
       fi
 
       python3 -m pipx install --user cmake-format aqtinstall
