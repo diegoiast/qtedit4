@@ -38,21 +38,6 @@
 // button click brings a menu to close.
 #define CLOSABLE_TABS 0
 
-class DecoratedButton : public QPushButton {
-  public:
-    explicit DecoratedButton(const QString &text, QWidget *parent = nullptr);
-    QSize minimumSizeHint() const override;
-
-  protected:
-    bool hovering;
-    bool pressed;
-    virtual void enterEvent(QEnterEvent *event) override;
-    virtual void leaveEvent(QEvent *event) override;
-    virtual void mousePressEvent(QMouseEvent *event) override;
-    virtual void mouseReleaseEvent(QMouseEvent *event) override;
-    virtual void paintEvent(QPaintEvent *event) override;
-};
-
 class DecoratedMenu : public QMenu {
   public:
     explicit DecoratedMenu(const QString &sidebarText, QWidget *parent = nullptr);
@@ -110,9 +95,6 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
     auto manager = dynamic_cast<PluginManager *>(split->parent());
 
     if (first) {
-#if 0
-        auto appMenuButton = new DecoratedButton(QApplication::applicationName(), split);
-#else
         auto appMenuButton = new QToolButton(split);
         appMenuButton->setObjectName("fancyShmancyMenu");
         appMenuButton->setIcon(split->windowIcon());
@@ -131,8 +113,6 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
                                     .arg(b.name(QColor::HexArgb))
                                     .arg(appHighlightColor.name(QColor::HexArgb));
         appMenuButton->setStyleSheet(highlightedStyle);
-
-#endif
 
         auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
         auto menu = manager->menus.updatePopMenu(popup);
@@ -568,110 +548,4 @@ QTabWidget *qmdiSplitTab::tabWidgetFromIndex(int globalIndex, int &localIndex) c
 
     localIndex = -1;
     return nullptr;
-}
-
-DecoratedButton::DecoratedButton(const QString &text, QWidget *parent)
-    : QPushButton(parent), hovering(false), pressed(false) {
-    setCursor(Qt::PointingHandCursor);
-    setText(text);
-}
-
-QSize DecoratedButton::minimumSizeHint() const {
-    auto fm = QFontMetrics(font());
-    auto textWidth = fm.horizontalAdvance(text()) + 10;
-    auto textHeight = fm.height();
-
-    // Minimum 120x40
-    return QSize(qMax(120, textWidth), qMax(40, textHeight + 10));
-}
-
-void DecoratedButton::enterEvent(QEnterEvent *event) {
-    hovering = true;
-    update();
-    QPushButton::enterEvent(event);
-}
-
-void DecoratedButton::leaveEvent(QEvent *event) {
-    hovering = false;
-    update();
-    QPushButton::leaveEvent(event);
-}
-
-void DecoratedButton::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        pressed = true;
-        update();
-    }
-    QPushButton::mousePressEvent(event);
-}
-
-void DecoratedButton::mouseReleaseEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        pressed = false;
-        update();
-    }
-    QPushButton::mouseReleaseEvent(event);
-}
-
-void DecoratedButton::paintEvent(QPaintEvent *event) {
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-
-    // --- Background Gradient ---
-    QColor startColor = QColor("#44ee44");
-    QColor endColor = startColor.lighter();
-
-    if (pressed) {
-        startColor = startColor.darker(140); // 40% darker
-        endColor = endColor.darker(140);
-    } else if (hovering) {
-        startColor = startColor.darker(115); // 15% darker
-        endColor = endColor.darker(115);
-    }
-
-    QLinearGradient bgGradient(0, 0, width(), height());
-    bgGradient.setColorAt(0.0, startColor);
-    bgGradient.setColorAt(1.0, endColor);
-
-    QRectF bgRect = rect();
-    QPainterPath path;
-    path.addRoundedRect(bgRect, 4, 4);
-    painter.fillPath(path, bgGradient);
-
-    // --- Shadow Effect (when hovered) ---
-    if (hovering) {
-        QGraphicsDropShadowEffect shadowEffect;
-        shadowEffect.setOffset(0, 3); // Make the shadow drop a little lower
-        shadowEffect.setBlurRadius(8);
-        shadowEffect.setColor(QColor(0, 0, 0, 80)); // Slightly transparent shadow
-        painter.setOpacity(1); // Draw without transparency for proper shadow effect
-        // shadowEffect.drawSource(&painter);
-    }
-
-    // --- Hamburger Icon ---
-    QPen pen;
-    pen.setCapStyle(Qt::FlatCap);
-    pen.setWidth(4);
-
-    // Line 1: white + light gray split
-    pen.setColor(Qt::white);
-    painter.setPen(pen);
-    painter.drawLine(8, 12, 10, 12);
-
-    pen.setColor(QColor("#eeeeee"));
-    painter.setPen(pen);
-    painter.drawLine(15, 12, 26, 12);
-
-    // Lines 2 and 3: green
-    pen.setColor(QColor("#4ee44e"));
-    painter.setPen(pen);
-    painter.drawLine(8, 20, 26, 20);
-    painter.drawLine(8, 28, 26, 28);
-
-    // --- Text (from QPushButton) ---
-    painter.setPen(Qt::white);
-    QFont font("Arial", 10);
-    painter.setFont(font);
-    QRect textRect(32, 0, width() - 32, height());
-    painter.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, text());
 }
