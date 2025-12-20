@@ -236,7 +236,7 @@ void HelpPlugin::on_client_merged(qmdiHost *host) {
 
     auto actionVisitHomePage = new QAction(tr("Visit homepage"), this);
     connect(actionVisitHomePage, &QAction::triggered, this, []() {
-        QDesktopServices::openUrl(QUrl("https://github.com/codepointerapp/codepointer/"));
+        QDesktopServices::openUrl(QUrl("https://gitlab.com/codepointer/codepointer/"));
     });
     auto actionAboutQt = new QAction(tr("About Qt"), this);
     connect(actionAboutQt, &QAction::triggered, this, []() { QApplication::aboutQt(); });
@@ -469,7 +469,7 @@ void HelpPlugin::actionAbout_triggered() {
     <li><a href="https://github.com/alex-spataru/QSimpleUpdater">QSimpleUpdater</a></li>
 </ul>
 
-<p>Copyright © 2024-2025 <a href="mailto:diegoiast@gmail.com">Diego Iastrubni</a></p>
+<p>Copyright © 2024-2026 <a href="mailto:diegoiast@gmail.com">Diego Iastrubni</a></p>
     )");
 
     QDialog aboutDialog(getManager());
@@ -486,7 +486,7 @@ void HelpPlugin::actionAbout_triggered() {
     auto contentWidget = new QWidget;
     auto contentLayout = new QVBoxLayout(contentWidget);
     auto textLabel = new QLabel(
-        aboutText.arg(appName).arg(version).arg("https://github.com/codepointerapp/codepointer"));
+        aboutText.arg(appName).arg(version).arg("https://gitlab.com/codepointer/codepointer"));
     textLabel->setWordWrap(true);
     textLabel->setOpenExternalLinks(true);
     textLabel->setTextFormat(Qt::RichText);
