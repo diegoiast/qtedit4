@@ -301,11 +301,11 @@ QStringList TextEditorPlugin::myExtensions() {
     s << tr("Sources C++", "EditorPlugin::myExtensions") +
              " (*.c *.cpp *.cxx *.h *.hpp *.hxx *.inc CMakeLists.txt *.toml *.moc conanfile.txt)";
     s << tr("Headers", "EditorPlugin::myExtensions") + " (*.h *.hpp *.hxx *.inc)";
-    s << tr("Sources (other)", "EditorPlugin::myExtensions") +
+    s << tr("Sources, other", "EditorPlugin::myExtensions") +
              " (*.py *.java *.js *.rb *.inc *.rust *.rb *.swift *.kot *.sh *.pas *.bas)";
     s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
-    s << tr("Code related", "EditorPlugin::myExtensions") +
-             " (*.pro *.pri *.qrc *.rc Doxyfile *.desktop *.iss *.xml *.json Makefile* *.dox )";
+    s << tr("Projects", "EditorPlugin::myExtensions") +
+             " (CMakeLists.txt cargo.toml go.mod build.meson *.desktop *.iss *.xml *.yml *.json Makefile*)";
     s << tr("Text images", "EditorPlugin::myExtensions") + " (*.svg *.xpm)";
     s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
     return s;
