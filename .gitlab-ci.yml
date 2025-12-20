@@ -8,46 +8,36 @@ variables:
   QT_VERSION: "6.10.1"
   BUILD_TYPE: "Release"
 
-# Cache definitions
 cache:
   paths:
     - .cache/pip
     - Qt/
 
 # ----------------------------------------
-# Build matrix (Linux, Windows, macOS)
+# Unix builds: Linux + macOS (Bash shell)
 # ----------------------------------------
-build-cmake:
+build-cmake-unix:
   stage: build
-  extends: .default-rules
   parallel:
     matrix:
-      - NAME: "Windows MSVC"
-        OS: windows
-        RUNNER_TAG: windows
-        BUILD_DIR: windows-msvc
-        CC: cl
-        CXX: cl
       - NAME: "Ubuntu GCC"
         OS: linux
-        RUNNER_TAG: linux
+        RUNNER_TAG: saas-linux-small-amd64
         BUILD_DIR: linux-gcc
         CC: gcc
         CXX: g++
       - NAME: "macOS"
         OS: macos
-        RUNNER_TAG: macos
+        RUNNER_TAG: saas-macos-large-m2pro
         BUILD_DIR: macos
         CC: clang
         CXX: clang++
-
   tags:
     - $RUNNER_TAG
 
   before_script:
     - echo "Building $NAME with Qt $QT_VERSION"
-    
-    # Handle version/tag logic
+
     - |
       if [[ -n "$CI_COMMIT_TAG" ]]; then
         export VERSION="$CI_COMMIT_TAG"
@@ -56,45 +46,36 @@ build-cmake:
       fi
       echo "VERSION=$VERSION"
 
-    # Install `aqtinstall` and Qt (if not cached)
-    - |
-      if [[ "$OS" == "linux" || "$OS" == "macos" ]]; then
-        python3 -m pip install --user aqtinstall
-        python3 -m aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
-        export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
-        export PATH=$QT_ROOT_DIR/bin:$PATH
-      fi
-    - |
-      if [[ "$OS" == "windows" ]]; then
-        python -m pip install --user aqtinstall
-        aqt install-qt windows desktop $QT_VERSION win64_msvc2022_64 -m qt5compat
-        set QT_ROOT_DIR=%CD%\Qt\$QT_VERSION\msvc2022_64
-        set PATH=%QT_ROOT_DIR%\bin;%PATH%
-      fi
-
-  script:
     - |
       if [[ "$OS" == "linux" ]]; then
-        sudo apt install -y libcups2-dev python3-pip ninja-build
-        pip3 install cmake-format
+        apt update
+        # apt install -y libcups2-dev
+        apt install -y python3-pip ninja-build pipx
       fi
-    - |
-      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
-        call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat"
-        choco install innosetup -y  # Install Inno Setup on Windows
-      fi
+
+      pipx install cmake-format --include-deps
+      pipx install aqtinstall
+
+      #/root/.local/bin/aqt list-qt $OS desktop --arch $QT_VERSION
+      #/root/.local/bin/aqt list-qt $OS desktop --modules $QT_VERSION
+      #/root/.local/bin/aqt install-qt $OS desktop $QT_VERSION -m all -O ~/qt
+      /root/.local/bin/aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
+      export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
+      export PATH=$QT_ROOT_DIR/bin:$PATH
+
+  script:
     - cmake -B build/$BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_C_COMPILER=$CC -DCMAKE_CXX_COMPILER=$CXX -DBUILD_VERSION=OFFICIAL
     - cmake --build build/$BUILD_DIR --parallel --verbose
     - cmake --install build/$BUILD_DIR --prefix dist/$BUILD_DIR/usr
 
-    # Packaging for Linux (AppImage, TGZ)
+    # Linux-specific: AppImage + TGZ
     - |
-      if [[ "$OS" == "linux" && "$CC" == "gcc" ]]; then
+      if [[ "$OS" == "linux" ]]; then
         mkdir -p dist/$APP_NAME
         ln -s ../$BUILD_DIR/usr dist/$APP_NAME/$APP_NAME-$BUILD_DIR-$VERSION
         tar -czhf dist/$APP_NAME-$BUILD_DIR-qt$QT_VERSION-$VERSION.tar.gz -C dist/$APP_NAME .
 
-        sudo apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
+        apt install -y fuse libxkbcommon-x11-0 libxcb-cursor-dev libxkbcommon-dev
 
         export OUTPUT=build/$APP_NAME-$VERSION-x86_64.AppImage
         wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
@@ -104,12 +85,27 @@ build-cmake:
         ./linuxdeploy-x86_64.AppImage --appdir dist/$BUILD_DIR --plugin qt --output appimage
       fi
 
-    # Packaging for Windows (windeployqt + Inno Setup)
+    # macOS-specific: Bundle .app and create DMG
     - |
-      if [[ "$OS" == "windows" && "$CXX" == "cl" ]]; then
-        windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist\\$BUILD_DIR\\usr\\bin\\$APP_NAME.exe
-        iscc setup_script.iss
-        copy dist\\$APP_NAME-win64.exe dist\\$APP_NAME-$VERSION-x86_64.exe
+      if [[ "$OS" == "macos" ]]; then
+        mkdir -p dist/$APP_NAME.app/Contents/MacOS
+        mkdir -p dist/$APP_NAME.app/Contents/Resources
+
+        mv dist/$BUILD_DIR/usr/bin/$APP_NAME dist/$APP_NAME.app/Contents/MacOS/
+
+        $QT_ROOT_DIR/bin/macdeployqt dist/$APP_NAME.app -always-overwrite
+
+        mkdir -p dmg_staging
+        cp -R dist/$APP_NAME.app dmg_staging/
+        ln -s /Applications dmg_staging/Applications
+
+        hdiutil create -srcfolder dmg_staging \
+                       -volname "$APP_NAME $VERSION" \
+                       -fs HFS+ \
+                       -format UDBZ \
+                       build/$APP_NAME-$VERSION.dmg
+
+        rm -rf dmg_staging
       fi
 
   artifacts:
@@ -118,25 +114,80 @@ build-cmake:
     paths:
       - dist/
       - build/*.AppImage
-      - dist/$APP_NAME-${VERSION}-x86_64.exe
+      - build/*.dmg
 
 # ----------------------------------------
-# Release job (tags only)
+# Windows build (PowerShell)
+# ----------------------------------------
+build-cmake-windows:
+  stage: build
+  tags:
+    - saas-windows-medium-amd64
+  variables:
+    NAME: "Windows MSVC"
+    BUILD_DIR: windows-msvc
+  script:
+    - echo "Building $env:NAME with Qt $env:QT_VERSION"
+
+    - |
+      if ($env:CI_COMMIT_TAG) {
+        $env:VERSION = $env:CI_COMMIT_TAG
+      } else {
+        $env:VERSION = $env:CI_COMMIT_SHORT_SHA
+      }
+      Write-Output "VERSION=$env:VERSION"
+
+    # Install tools and Qt
+    - python -m pip install --user aqtinstall
+    - python -m aqt install-qt windows desktop $env:QT_VERSION win64_msvc2022_64 -m qt5compat
+    - $env:QT_ROOT_DIR = "$pwd\Qt\$env:QT_VERSION\msvc2022_64"
+    - $env:PATH = "$env:QT_ROOT_DIR\bin;$env:PATH"
+
+    # Install Inno Setup and Ninja
+    - choco install innosetup -y
+    - choco install ninja --version=1.8.2 -y
+
+    # Load VS developer command prompt
+    - '& "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=amd64'
+
+    # CMake build
+    - cmake -B build/$env:BUILD_DIR -G Ninja -DCMAKE_BUILD_TYPE=$env:BUILD_TYPE -DBUILD_VERSION=OFFICIAL
+    - cmake --build build/$env:BUILD_DIR --parallel --verbose
+    - cmake --install build/$env:BUILD_DIR --prefix dist/$env:BUILD_DIR/usr
+
+    # Deploy Qt and create installer
+    - windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw "dist\$env:BUILD_DIR\usr\bin\$env:APP_NAME.exe"
+    - iscc setup_script.iss
+    - Copy-Item "dist\$env:APP_NAME-win64.exe" "dist\$env:APP_NAME-$env:VERSION-x86_64.exe"
+
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - dist/windows-msvc/
+      - dist/*.exe
+
+# ----------------------------------------
+# Create GitLab Release (only on tags)
 # ----------------------------------------
 create-release:
   stage: release
-  needs: ["build-cmake"]
+  needs:
+    - job: build-cmake-unix
+      artifacts: true
+    - job: build-cmake-windows
+      artifacts: true
   tags:
     - linux
   rules:
     - if: $CI_COMMIT_TAG
-
   script:
     - echo "Creating GitLab Release for $CI_COMMIT_TAG"
     - |
       release-cli create \
-        --name "$CI_COMMIT_TAG" \
+        --name "Release $CI_COMMIT_TAG" \
         --tag-name "$CI_COMMIT_TAG" \
-        --description "Automated release for $CI_COMMIT_TAG" \
-        --assets-link "{\"name\":\"Artifacts\",\"url\":\"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/download?job=build-cmake\"}"
-
+        --description "Automated release for tag $CI_COMMIT_TAG" \
+        --assets-link '{"name":"Linux AppImage","url":"'"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/build/$APP_NAME-$CI_COMMIT_TAG-x86_64.AppImage?job=build-cmake-unix"'"}' \
+        --assets-link '{"name":"macOS DMG","url":"'"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/build/$APP_NAME-$CI_COMMIT_TAG.dmg?job=build-cmake-unix"'"}' \
+        --assets-link '{"name":"Windows Installer","url":"'"$CI_PROJECT_URL/-/jobs/artifacts/$CI_COMMIT_TAG/raw/dist/$APP_NAME-$CI_COMMIT_TAG-x86_64.exe?job=build-cmake-windows"'"}'
