@@ -488,7 +488,7 @@ ProjectBuildConfig::tryGuessFromMeson(const QString &mesonBuildFile) {
 
 std::shared_ptr<ProjectBuildConfig>
 ProjectBuildConfig::buildFromDirectory(const QString &directory) {
-    auto configFileName = directory + QDir::separator() + "qtedit4.json";
+    auto configFileName = directory + QDir::separator() + "codepointer.json";
     auto config = buildFromJsonFile(configFileName);
     if (!config) {
         config = tryGuessFromCMake(directory + QDir::separator() + "CMakeLists.txt");
@@ -659,7 +659,7 @@ bool ProjectBuildConfig::canLoadFile(const QString &filename) {
     if (fi.fileName().compare("go.mod", Qt::CaseInsensitive) == 0) {
         return true;
     }
-    if (fi.fileName().compare("qtedit4.json", Qt::CaseInsensitive) == 0) {
+    if (fi.fileName().compare("codepointer.json", Qt::CaseInsensitive) == 0) {
         return true;
     }
     return false;
