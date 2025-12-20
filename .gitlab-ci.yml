@@ -56,8 +56,8 @@ build-cmake-unix:
       pipx install cmake-format --include-deps
       pipx install aqtinstall
 
-      /root/.local/bin/aqt list-qt $OS desktop --arch $QT_VERSION
-      /root/.local/bin/aqt list-qt $OS desktop --modules $QT_VERSION
+      #/root/.local/bin/aqt list-qt $OS desktop --arch $QT_VERSION
+      #/root/.local/bin/aqt list-qt $OS desktop --modules $QT_VERSION
       #/root/.local/bin/aqt install-qt $OS desktop $QT_VERSION -m all -O ~/qt
       /root/.local/bin/aqt install-qt $OS desktop $QT_VERSION gcc_64 -m qt5compat
       export QT_ROOT_DIR=$HOME/Qt/$QT_VERSION/gcc_64
@@ -145,7 +145,7 @@ build-cmake-windows:
 
     # Install Inno Setup and Ninja
     - choco install innosetup -y
-    - choco install ninja --version=1.8.2
+    - choco install ninja --version=1.8.2 -y
 
     # Load VS developer command prompt
     - '& "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=amd64'
