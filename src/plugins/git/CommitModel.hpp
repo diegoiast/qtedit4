@@ -29,6 +29,7 @@ struct FullCommitInfo {
     QStringView subject;
     QString body;
     QList<FileDiff> files;
+    static FullCommitInfo parse(const QString &rawInfo);
 };
 
 class CommitModel : public QAbstractListModel {
@@ -48,22 +49,11 @@ class CommitModel : public QAbstractListModel {
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-
-    bool loadFileHistory(const QString &filePath, bool scopeLogToFile = true);
-    bool loadProjectHistory(const QString &filePath);
-
-    QString detectRepoRoot(const QString &filePath) const;
-
+    void setContent(const QString &gitLogOutput);
     CommitInfo getCommitInfo(const QString &sha1) const;
-    FullCommitInfo getFullCommitInfo(const QString &sha1) const;
-    QString getRawCommitDiff(const QString &sha1) const;
-    FullCommitInfo parseFullCommitInfo(const QString &rawInfo) const;
-    QString getCurrentDiff(const QString &fileName);
 
   protected:
   private:
-    QString gitBinary = "git";
     QVector<CommitInfo> m_commits;
     int m_rowHeight = 22;
-    QString repoRoot;
 };

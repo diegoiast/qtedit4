@@ -1,17 +1,12 @@
 #include "CommitModel.hpp"
 
 #include <QDebug>
-#include <QDir>
-#include <QFileInfo>
 #include <QLatin1String>
 #include <QList>
-#include <QProcess>
 #include <QRegularExpression>
 #include <QSize>
 #include <qabstractitemmodel.h>
 #include <qnamespace.h>
-
-#include <memory>
 
 namespace {
 void addHorizontalConnectors(QString &graphString) {
@@ -32,6 +27,100 @@ void addHorizontalConnectors(QString &graphString) {
 }
 
 } // namespace
+
+FullCommitInfo FullCommitInfo::parse(const QString &rawInfo) {
+    FullCommitInfo result;
+    if (rawInfo.isEmpty()) {
+        return result;
+    }
+
+    result.raw = std::make_shared<const QString>(rawInfo);
+    QStringView content(*result.raw);
+
+    auto headerEndPos = content.indexOf(QLatin1String("\n\n"));
+    if (headerEndPos == -1) {
+        result.body = content.toString();
+        return result;
+    }
+
+    auto headers = content.left(headerEndPos);
+    for (auto const &line : headers.split('\n')) {
+        if (line.startsWith(QLatin1String("commit "))) {
+            result.hash = line.mid(7);
+        } else if (line.startsWith(QLatin1String("Author: "))) {
+            result.author = line.mid(8);
+        } else if (line.startsWith(QLatin1String("Date:   "))) {
+            result.date = line.mid(8).trimmed();
+        }
+    }
+
+    auto bodyAndDiff = content.mid(headerEndPos + 2);
+    auto diffStartPos = bodyAndDiff.indexOf(QLatin1String("diff --git"));
+    auto messageBlock = QStringView();
+    if (diffStartPos == -1) {
+        messageBlock = bodyAndDiff;
+    } else {
+        messageBlock = bodyAndDiff.left(diffStartPos);
+    }
+
+    auto firstLineStart = messageBlock.indexOf(QRegularExpression(R"(\S)"));
+    if (firstLineStart != -1) {
+        auto static separator = QRegularExpression(QLatin1String("\\n\\s*\\n"));
+        auto const match = separator.matchView(messageBlock, firstLineStart);
+
+        if (!match.hasMatch()) {
+            result.subject = messageBlock.mid(firstLineStart).trimmed();
+        } else {
+            auto bodyPos = match.capturedStart();
+            auto separatorLength = match.capturedLength();
+            auto rawBody = messageBlock.mid(bodyPos + separatorLength);
+            auto bodyLines = rawBody.split('\n', Qt::KeepEmptyParts);
+            auto processedBodyLines = QStringList();
+
+            result.subject = messageBlock.mid(firstLineStart, bodyPos - firstLineStart).trimmed();
+            processedBodyLines.reserve(bodyLines.size());
+            for (auto line : bodyLines) {
+                if (line.startsWith(QLatin1String("    "))) {
+                    processedBodyLines.append(line.sliced(4).toString());
+                } else {
+                    processedBodyLines.append(line.toString());
+                }
+            }
+            result.body = processedBodyLines.join('\n').trimmed();
+        }
+    }
+    if (diffStartPos != -1) {
+        auto diffsBlock = bodyAndDiff.mid(diffStartPos);
+        auto currentPos = 0;
+        while (currentPos < diffsBlock.size()) {
+            auto nextPos = diffsBlock.indexOf(QLatin1String("\ndiff --git"), currentPos + 1);
+            if (nextPos != -1) {
+                // include the \n
+                nextPos++;
+            }
+            auto endOfBlock = (nextPos == -1) ? diffsBlock.size() : nextPos;
+            auto currentDiff = diffsBlock.mid(currentPos, endOfBlock - currentPos);
+            if (currentDiff.isEmpty()) {
+                break;
+            }
+
+            FileDiff fileDiff;
+            fileDiff.diff_content = currentDiff;
+            auto firstLineEnd = currentDiff.indexOf('\n');
+            auto firstLine = currentDiff.left(firstLineEnd);
+            auto b_part_start = firstLine.lastIndexOf(QLatin1String(" b/"));
+            if (b_part_start != -1) {
+                fileDiff.filename = firstLine.mid(b_part_start + 3);
+            }
+            result.files.append(fileDiff);
+            if (nextPos == -1) {
+                break;
+            }
+            currentPos = nextPos;
+        }
+    }
+    return result;
+}
 
 CommitModel::CommitModel(QObject *parent) : QAbstractListModel(parent) {}
 
@@ -69,34 +158,10 @@ QVariant CommitModel::data(const QModelIndex &index, int role) const {
     return {};
 }
 
-QString CommitModel::detectRepoRoot(const QString &filePath) const {
-    QProcess p;
-    p.setWorkingDirectory(QFileInfo(filePath).absolutePath());
-    p.start(gitBinary, {"rev-parse", "--show-toplevel"});
-    p.waitForFinished();
-    return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
-}
-
-bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
+void CommitModel::setContent(const QString &output) {
     beginResetModel();
     m_commits.clear();
 
-    repoRoot = detectRepoRoot(file);
-    if (repoRoot.isEmpty()) {
-        endResetModel();
-        return false;
-    }
-
-    QProcess p;
-    p.setWorkingDirectory(repoRoot);
-    auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
-    if (scopeLogToFile && !file.isEmpty()) {
-        args << "--" << file;
-    }
-    p.start(gitBinary, args);
-    p.waitForFinished();
-
-    auto output = QString::fromUtf8(p.readAllStandardOutput());
     auto lines = output.split('\n', Qt::SkipEmptyParts);
     auto graphLinesBuffer = QStringList{};
 
@@ -120,7 +185,6 @@ bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
 
             auto dateString = parts[3];
             dateString.replace(10, 1, 'T');
-
             commit.hash = parts[0];
             commit.parents = parts[1].split(' ', Qt::SkipEmptyParts);
             commit.author = parts[2];
@@ -133,11 +197,6 @@ bool CommitModel::loadFileHistory(const QString &file, bool scopeLogToFile) {
         }
     }
     endResetModel();
-    return true;
-}
-
-bool CommitModel::loadProjectHistory(const QString &filePath) {
-    return loadFileHistory(filePath, false);
 }
 
 CommitInfo CommitModel::getCommitInfo(const QString &sha1) const {
@@ -149,136 +208,3 @@ CommitInfo CommitModel::getCommitInfo(const QString &sha1) const {
     return {};
 }
 
-FullCommitInfo CommitModel::getFullCommitInfo(const QString &sha1) const {
-    auto s = getRawCommitDiff(sha1);
-    return parseFullCommitInfo(s);
-}
-
-QString CommitModel::getRawCommitDiff(const QString &sha1) const {
-    if (repoRoot.isEmpty()) {
-        return {};
-    }
-    QProcess p;
-    p.setWorkingDirectory(repoRoot);
-    p.start(gitBinary, {"show", sha1});
-    p.waitForFinished();
-    return QString::fromUtf8(p.readAllStandardOutput());
-}
-
-FullCommitInfo CommitModel::parseFullCommitInfo(const QString &rawInfo) const {
-    FullCommitInfo result;
-    if (rawInfo.isEmpty()) {
-        return result;
-    }
-
-    result.raw = std::make_shared<const QString>(rawInfo);
-    QStringView content(*result.raw);
-
-    // 1. Headers
-    int headerEndPos = content.indexOf(QLatin1String("\n\n"));
-    if (headerEndPos == -1) {
-        // No headers found, something is wrong, but we can treat it all as body.
-        // Body must be an owned QString.
-        result.body = content.toString();
-        return result;
-    }
-
-    QStringView headers = content.left(headerEndPos);
-    for (const auto &line : headers.split('\n')) {
-        if (line.startsWith(QLatin1String("commit "))) {
-            result.hash = line.mid(7);
-        } else if (line.startsWith(QLatin1String("Author: "))) {
-            result.author = line.mid(8);
-        } else if (line.startsWith(QLatin1String("Date:   "))) {
-            result.date = line.mid(8).trimmed();
-        }
-    }
-
-    // 2. Message and Diff blocks
-    QStringView bodyAndDiff = content.mid(headerEndPos + 2);
-    int diffStartPos = bodyAndDiff.indexOf(QLatin1String("diff --git"));
-    QStringView messageBlock;
-    if (diffStartPos == -1) {
-        messageBlock = bodyAndDiff;
-    } else {
-        messageBlock = bodyAndDiff.left(diffStartPos);
-    }
-
-    // 3. Subject and Body from message block
-    int firstLineStart = messageBlock.indexOf(QRegularExpression(R"(\S)"));
-    if (firstLineStart != -1) {
-        const QRegularExpression separator(QLatin1String("\\n\\s*\\n"));
-        const auto match = separator.matchView(messageBlock, firstLineStart);
-
-        if (!match.hasMatch()) {
-            result.subject = messageBlock.mid(firstLineStart).trimmed();
-        } else {
-            const int bodyPos = match.capturedStart();
-            const int separatorLength = match.capturedLength();
-            result.subject = messageBlock.mid(firstLineStart, bodyPos - firstLineStart).trimmed();
-
-            QStringView rawBody = messageBlock.mid(bodyPos + separatorLength);
-            QList<QStringView> bodyLines = rawBody.split('\n', Qt::KeepEmptyParts);
-
-            QStringList processedBodyLines;
-            processedBodyLines.reserve(bodyLines.size());
-            for (QStringView line : bodyLines) {
-                if (line.startsWith(QLatin1String("    "))) {
-                    processedBodyLines.append(line.sliced(4).toString());
-                } else {
-                    processedBodyLines.append(line.toString());
-                }
-            }
-            result.body = processedBodyLines.join('\n').trimmed();
-        }
-    }
-
-    // 4. Parse file diffs
-    if (diffStartPos != -1) {
-        QStringView diffsBlock = bodyAndDiff.mid(diffStartPos);
-        int currentPos = 0;
-        while (currentPos < diffsBlock.size()) {
-            int nextPos = diffsBlock.indexOf(QLatin1String("\ndiff --git"), currentPos + 1);
-            if (nextPos != -1) {
-                nextPos++; // include the \n
-            }
-            int endOfBlock = (nextPos == -1) ? diffsBlock.size() : nextPos;
-
-            QStringView currentDiff = diffsBlock.mid(currentPos, endOfBlock - currentPos);
-            if (currentDiff.isEmpty()) {
-                break;
-            }
-
-            FileDiff fileDiff;
-            fileDiff.diff_content = currentDiff;
-
-            int firstLineEnd = currentDiff.indexOf('\n');
-            QStringView firstLine = currentDiff.left(firstLineEnd);
-            int b_part_start = firstLine.lastIndexOf(QLatin1String(" b/"));
-            if (b_part_start != -1) {
-                fileDiff.filename = firstLine.mid(b_part_start + 3);
-            }
-
-            result.files.append(fileDiff);
-
-            if (nextPos == -1) {
-                break;
-            }
-            currentPos = nextPos;
-        }
-    }
-
-    return result;
-}
-
-QString CommitModel::getCurrentDiff(const QString &fileName) {
-    if (repoRoot.isEmpty()) {
-        return {};
-    }
-    QProcess p;
-    p.setWorkingDirectory(repoRoot);
-    p.start(gitBinary, {"diff", fileName});
-    p.waitForFinished();
-
-    return QString::fromUtf8(p.readAllStandardOutput());
-}

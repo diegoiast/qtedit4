@@ -118,15 +118,21 @@ void GitPlugin::logProjectHandler() {
     auto filename = client->mdiClientFileName();
     logHandler(GitLog::Project, filename);
 }
-void on_gitDiff(const QModelIndex &mi);
 
 void GitPlugin::diffFileHandler() {
     auto manager = getManager();
-    auto const model = static_cast<CommitModel *>(form->listView->model());
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
-    auto const diff = model->getCurrentDiff(filename);
-
+    
+    // Ensure we have a repo root
+    if (repoRoot.isEmpty()) {
+        repoRoot = detectRepoRoot(filename);
+    }
+    
+    auto const diff = getDiff(filename);
+    if (diff.isEmpty()) {
+        return;
+    }
     CommandArgs args = {
         {GlobalArguments::FileName, QString("%1.diff").arg(client->mdiClientName)},
         {GlobalArguments::Content, diff},
@@ -137,24 +143,32 @@ void GitPlugin::diffFileHandler() {
 
 void GitPlugin::logHandler(GitLog log, const QString &filename) {
     auto model = new CommitModel(this);
+    repoRoot = detectRepoRoot(filename);
 
-    auto res = false;
-    switch (log) {
-    case GitPlugin::GitLog::File:
-        form->label->setText(QString("git log %1").arg(filename));
-        res = model->loadFileHistory(filename);
-        break;
-    case GitPlugin::GitLog::Project:
-        form->label->setText(QString("git log (repo)"));
-        res = model->loadProjectHistory(filename);
-        break;
-    }
-
-    if (!res) {
+    if (repoRoot.isEmpty()) {
         form->label->setText(tr("No commits or not a git repo"));
         delete model;
         return;
     }
+
+    auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
+    QString labelText;
+
+    switch (log) {
+    case GitPlugin::GitLog::File:
+        labelText = QString("git log %1").arg(filename);
+        if (!filename.isEmpty()) {
+            args << "--" << filename;
+        }
+        break;
+    case GitPlugin::GitLog::Project:
+        labelText = QString("git log (repo)");
+        break;
+    }
+
+    form->label->setText(labelText);
+    auto output = runGit(args);
+    model->setContent(output);
 
     form->listView->setModel(model);
     gitDock->raise();
@@ -164,8 +178,9 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
 void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-    auto const sha1Short = shortGitSha1(sha1);
-    auto const fullCommit = model->getFullCommitInfo(sha1);
+    auto const sha1Short = shortGitSha1(sha1);  
+    auto rawCommit = getRawCommit(sha1);
+    auto const fullCommit = FullCommitInfo::parse(rawCommit);
     auto widget = static_cast<GitCommitDisplay *>(form->container->widget(0));
 
     if (!widget) {
@@ -192,7 +207,9 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
 void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-    auto const fullCommit = model->getFullCommitInfo(sha1);
+    
+    auto rawCommit = getRawCommit(sha1);
+    auto const fullCommit = FullCommitInfo::parse(rawCommit);
 
     auto manager = getManager();
     CommandArgs args = {
@@ -201,4 +218,31 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
         {GlobalArguments::ReadOnly, true},
     };
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
+}
+
+QString GitPlugin::runGit(const QStringList &args) {
+    if (repoRoot.isEmpty()) {
+        return {};
+    }
+    QProcess p;
+    p.setWorkingDirectory(repoRoot);
+    p.start(gitBinary, args);
+    p.waitForFinished();
+    return QString::fromUtf8(p.readAllStandardOutput());
+}
+
+QString GitPlugin::detectRepoRoot(const QString &filePath) {
+    QProcess p;
+    p.setWorkingDirectory(QFileInfo(filePath).absolutePath());
+    p.start(gitBinary, {"rev-parse", "--show-toplevel"});
+    p.waitForFinished();
+    return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
+}
+
+QString GitPlugin::getDiff(const QString &path) {
+    return runGit({"diff", path});
+}
+
+QString GitPlugin::getRawCommit(const QString &sha1) {
+    return runGit({"show", sha1});
 }

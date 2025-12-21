@@ -1218,7 +1218,6 @@ bool qmdiEditor::saveFile(const QString &newFileName, bool makeExecutable) {
 }
 
 void qmdiEditor::setReadOnly(bool b) {
-    qDebug() << "Setting editor to readOly" << b;
     textEditor->setReadOnly(b);
     actionCut->setEnabled(!b);
     actionPaste->setEnabled(!b);
