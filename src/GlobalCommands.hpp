@@ -61,4 +61,5 @@ inline constexpr const char *Tooltip = "Tooltip";
 inline constexpr const char *Symbol = "Symbol";
 inline constexpr const char *Content = "Content";
 inline constexpr const char *ReadOnly = "ReadOnly";
+inline constexpr const char *Position = "Position";
 } // namespace GlobalArguments

@@ -147,20 +147,19 @@ void GitPlugin::diffFileHandler() {
     auto manager = getManager();
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
-
-    // Ensure we have a repo root
     if (repoRoot.isEmpty()) {
         repoRoot = detectRepoRoot(filename);
     }
-
     auto const diff = getDiff(filename);
     if (diff.isEmpty()) {
         return;
     }
+    auto position = manager->getMdiServer()->getClientIndex(client);
     CommandArgs args = {
         {GlobalArguments::FileName, QString("%1.diff").arg(client->mdiClientName)},
         {GlobalArguments::Content, diff},
         {GlobalArguments::ReadOnly, true},
+        {GlobalArguments::Position, position},
     };
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
@@ -231,10 +230,8 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
 void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-
-    auto rawCommit = getRawCommit(sha1);
+    auto const rawCommit = getRawCommit(sha1);
     auto const fullCommit = FullCommitInfo::parse(rawCommit);
-
     auto manager = getManager();
     CommandArgs args = {
         {GlobalArguments::FileName, QString("%1.diff").arg(sha1)},
