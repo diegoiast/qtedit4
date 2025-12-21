@@ -181,6 +181,7 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     CommandArgs args = {
         {GlobalArguments::FileName, QString("%1.diff").arg(sha1)},
         {GlobalArguments::Content, *fullCommit.raw},
+        {GlobalArguments::ReadOnly, true},
     };
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }

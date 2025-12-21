@@ -176,6 +176,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
         }
         return textEditor->document()->isEmpty();
     }
+    void setReadOnly(bool b);
 
   protected:
     virtual void focusInEvent(QFocusEvent *event) override;

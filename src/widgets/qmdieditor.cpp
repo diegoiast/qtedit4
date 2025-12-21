@@ -1072,7 +1072,8 @@ void qmdiEditor::newDocument() { loadFile(""); }
 
 void qmdiEditor::setPlainText(const QString &plainText) {
     textEditor->setPlainText(plainText);
-    textEditor->document()->setModified(true);
+    // textEditor->document()->setModified(true);
+    documentHasBeenLoaded = true;
 }
 
 bool qmdiEditor::doSave() {
@@ -1216,6 +1217,26 @@ bool qmdiEditor::saveFile(const QString &newFileName, bool makeExecutable) {
     return true;
 }
 
+void qmdiEditor::setReadOnly(bool b) {
+    qDebug() << "Setting editor to readOly" << b;
+    textEditor->setReadOnly(b);
+    actionCut->setEnabled(!b);
+    actionPaste->setEnabled(!b);
+    actionReplace->setEnabled(!b);
+    actionCapitalize->setEnabled(!b);
+    actionLowerCase->setEnabled(!b);
+    actionChangeCase->setEnabled(!b);
+    textOperationsMenu->setEnabled(!b);
+
+    if (b) {
+        actionUndo->setEnabled(false);
+        actionRedo->setEnabled(false);
+    } else {
+        actionUndo->setEnabled(textEditor->document()->isUndoAvailable());
+        actionRedo->setEnabled(textEditor->document()->isRedoAvailable());
+    }
+}
+
 void qmdiEditor::transformBlockToUpper() {
     QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
@@ -1276,7 +1297,7 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
         hideBannerMessage();
     } else if (s == ":forcerw") {
         hideBannerMessage();
-        textEditor->setReadOnly(false);
+        setReadOnly(false);
     }
 }
 
@@ -1304,7 +1325,7 @@ void qmdiEditor::loadContent() {
     auto modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
-    textEditor->setReadOnly(false);
+    setReadOnly(false);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
@@ -1351,7 +1372,7 @@ void qmdiEditor::loadContent() {
 
     fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
     if (fileInfo.exists() && !fileInfo.isWritable()) {
-        textEditor->setReadOnly(true);
+        setReadOnly(true);
         displayBannerMessage(
             tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
                "change the file attributes for write access'>here to force write access.</a>"),
