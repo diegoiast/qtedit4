@@ -8,6 +8,15 @@ class GitCommandsForm;
 
 class GitPlugin : public IPlugin {
     Q_OBJECT
+    struct Config {
+        CONFIG_DEFINE(GitBinary, QString)
+        CONFIG_DEFINE(GitHomepage, QString)
+        qmdiPluginConfig *config;
+    };
+    Config &getConfig() {
+        static Config configObject{&this->config};
+        return configObject;
+    }
 
     enum class GitLog { File, Project };
 
@@ -22,7 +31,7 @@ class GitPlugin : public IPlugin {
     void logFileHandler();
     void logProjectHandler();
     void diffFileHandler();
-    void logHandler(GitLog log, const QString &filename);
+    void logHandler(GitPlugin::GitLog log, const QString &filename);
     void on_gitCommitClicked(const QModelIndex &mi);
     void on_gitCommitDoubleClicked(const QModelIndex &mi);
 

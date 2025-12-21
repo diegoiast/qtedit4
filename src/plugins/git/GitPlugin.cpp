@@ -43,6 +43,30 @@ GitPlugin::GitPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
+
+    // TODO: find git in a more proper way
+#if defined(Q_OS_LINUX)
+    gitBinary = "git";
+#else
+    gitBinary = "c:\\Program Files\\Git\\bin\\git.exe";
+#endif
+
+    config.pluginName = tr("git");
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("git.exe"))
+                                     .setDescription(tr("Where is git installed"))
+                                     .setKey(Config::GitBinaryKey)
+                                     .setType(qmdiConfigItem::Path)
+                                     .setDefaultValue(gitBinary)
+                                     .setPossibleValue(true) // Must be an existing file
+                                     .build());
+
+    config.configItems.push_back(
+        qmdiConfigItem::Builder()
+            .setDisplayName(tr("<a href='https://git-scm.com/' >Visit git home page</a>"))
+            .setKey(Config::GitHomepageKey)
+            .setType(qmdiConfigItem::Label)
+            .build());
 }
 
 GitPlugin::~GitPlugin() {}
@@ -94,8 +118,8 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     form->listView->setItemDelegate(delegate);
     form->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
     connect(form->listView, &QAbstractItemView::clicked, this, &GitPlugin::on_gitCommitClicked);
-    connect(form->listView, &QAbstractItemView::doubleClicked, this, &GitPlugin::on_gitCommitDoubleClicked);
-    
+    connect(form->listView, &QAbstractItemView::doubleClicked, this,
+            &GitPlugin::on_gitCommitDoubleClicked);
 
     gitDock = manager->createNewPanel(Panels::West, "gitpanel", tr("Git"), w);
 }
@@ -123,12 +147,12 @@ void GitPlugin::diffFileHandler() {
     auto manager = getManager();
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
-    
+
     // Ensure we have a repo root
     if (repoRoot.isEmpty()) {
         repoRoot = detectRepoRoot(filename);
     }
-    
+
     auto const diff = getDiff(filename);
     if (diff.isEmpty()) {
         return;
@@ -178,7 +202,7 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
 void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-    auto const sha1Short = shortGitSha1(sha1);  
+    auto const sha1Short = shortGitSha1(sha1);
     auto rawCommit = getRawCommit(sha1);
     auto const fullCommit = FullCommitInfo::parse(rawCommit);
     auto widget = static_cast<GitCommitDisplay *>(form->container->widget(0));
@@ -207,7 +231,7 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
 void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
-    
+
     auto rawCommit = getRawCommit(sha1);
     auto const fullCommit = FullCommitInfo::parse(rawCommit);
 
@@ -239,10 +263,6 @@ QString GitPlugin::detectRepoRoot(const QString &filePath) {
     return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
 }
 
-QString GitPlugin::getDiff(const QString &path) {
-    return runGit({"diff", path});
-}
+QString GitPlugin::getDiff(const QString &path) { return runGit({"diff", path}); }
 
-QString GitPlugin::getRawCommit(const QString &sha1) {
-    return runGit({"show", sha1});
-}
+QString GitPlugin::getRawCommit(const QString &sha1) { return runGit({"show", sha1}); }
