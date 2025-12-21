@@ -270,3 +270,15 @@ FullCommitInfo CommitModel::parseFullCommitInfo(const QString &rawInfo) const {
 
     return result;
 }
+
+QString CommitModel::getCurrentDiff(const QString &fileName) {
+    if (repoRoot.isEmpty()) {
+        return {};
+    }
+    QProcess p;
+    p.setWorkingDirectory(repoRoot);
+    p.start(gitBinary, {"diff", fileName});
+    p.waitForFinished();
+
+    return QString::fromUtf8(p.readAllStandardOutput());
+}

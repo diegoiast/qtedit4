@@ -58,6 +58,7 @@ class CommitModel : public QAbstractListModel {
     FullCommitInfo getFullCommitInfo(const QString &sha1) const;
     QString getRawCommitDiff(const QString &sha1) const;
     FullCommitInfo parseFullCommitInfo(const QString &rawInfo) const;
+    QString getCurrentDiff(const QString &fileName);
 
   protected:
   private:

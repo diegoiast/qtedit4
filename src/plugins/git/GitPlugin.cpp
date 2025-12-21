@@ -50,13 +50,13 @@ GitPlugin::~GitPlugin() {}
 void GitPlugin::on_client_merged(qmdiHost *host) {
     IPlugin::on_client_merged(host);
 
-    diffFile = new QAction(tr("git: Diff current file"), this);
-    logFile = new QAction(tr("git: Log current file"), this);
-    logProject = new QAction(tr("git: Log project/dir"), this);
-    revert = new QAction(tr("git: Revert"), this);
-    commit = new QAction(tr("git: Commit"), this);
-    stash = new QAction(tr("git: Stash"), this);
-    branches = new QAction(tr("git: Branches"), this);
+    diffFile = new QAction(tr("git diff current file"), this);
+    logFile = new QAction(tr("git log current file"), this);
+    logProject = new QAction(tr("git log project/dir"), this);
+    revert = new QAction(tr("git revert"), this);
+    commit = new QAction(tr("git commit"), this);
+    stash = new QAction(tr("git stash"), this);
+    branches = new QAction(tr("git branch"), this);
 
     diffFile->setToolTip(tr("GIT: Show changes (current file)"));
     diffFile->setShortcut(QKeySequence("Ctrl+G, D"));
@@ -71,6 +71,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
 
     connect(logFile, &QAction::triggered, this, &GitPlugin::logFileHandler);
     connect(logProject, &QAction::triggered, this, &GitPlugin::logProjectHandler);
+    connect(diffFile, &QAction::triggered, this, &GitPlugin::diffFileHandler);
 
     auto menuName = "&Git";
     host->menus.addActionGroup(menuName, "&Project");
@@ -116,6 +117,22 @@ void GitPlugin::logProjectHandler() {
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
     logHandler(GitLog::Project, filename);
+}
+void on_gitDiff(const QModelIndex &mi);
+
+void GitPlugin::diffFileHandler() {
+    auto manager = getManager();
+    auto const model = static_cast<CommitModel *>(form->listView->model());
+    auto client = manager->getMdiServer()->getCurrentClient();
+    auto filename = client->mdiClientFileName();
+    auto const diff = model->getCurrentDiff(filename);
+
+    CommandArgs args = {
+        {GlobalArguments::FileName, QString("%1.diff").arg(client->mdiClientName)},
+        {GlobalArguments::Content, diff},
+        {GlobalArguments::ReadOnly, true},
+    };
+    manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
 void GitPlugin::logHandler(GitLog log, const QString &filename) {

@@ -21,6 +21,7 @@ class GitPlugin : public IPlugin {
   protected slots:
     void logFileHandler();
     void logProjectHandler();
+    void diffFileHandler();
     void logHandler(GitLog log, const QString &filename);
     void on_gitCommitClicked(const QModelIndex &mi);
     void on_gitCommitDoubleClicked(const QModelIndex &mi);
