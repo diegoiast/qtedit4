@@ -15,7 +15,7 @@ cmake --build   "build/%matrix_config_build_dir%" --parallel --verbose --config 
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --install build/%matrix_config_build_dir% --prefix dist/%matrix_config_build_dir%/usr
 if %errorlevel% neq 0 exit /b %errorlevel%
-windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw dist/%matrix_config_build_dir%/usr/bin/qtedit4.exe
+for %%F in (dist\%matrix_config_build_dir%\usr\bin\*.exe) do windeployqt --release --no-translations --no-system-d3d-compiler --no-compiler-runtime --no-opengl-sw "%%F"
 if %errorlevel% neq 0 exit /b %errorlevel%
 
 iscc setup_script.iss
