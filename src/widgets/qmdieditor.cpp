@@ -469,6 +469,11 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
 }
 
 bool qmdiEditor::canCloseClient(CloseReason reason) {
+    if (textEditor->isReadOnly()) {
+        saveBackup();
+        return true;
+    }
+
     if (!textEditor->document()->isModified()) {
         deleteBackup();
         return true;
@@ -522,6 +527,7 @@ qmdiClientState qmdiEditor::getState() const {
     state[StateConstants::COLUMN] = col;
     state[StateConstants::ROW] = row;
     state[StateConstants::ZOOM] = zoom;
+    state[StateConstants::READ_ONLY] = textEditor->isReadOnly();
 
     if (!uid.isEmpty()) {
         state[StateConstants::UUID] = uid;
@@ -574,6 +580,10 @@ void qmdiEditor::setState(const qmdiClientState &state) {
         cursor.setPosition(anchor, QTextCursor::MoveAnchor);
         cursor.setPosition(position, QTextCursor::KeepAnchor);
         textEditor->setTextCursor(cursor);
+    }
+
+    if (state.contains(StateConstants::READ_ONLY)) {
+        textEditor->setReadOnly(state[StateConstants::READ_ONLY].toBool());
     }
 }
 

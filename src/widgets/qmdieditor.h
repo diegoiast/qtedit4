@@ -220,6 +220,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
         static constexpr const char *SEL_ANCHOR = "sel-anchor";
         static constexpr const char *SEL_POSITION = "sel-position";
         static constexpr const char *UUID = "uuid";
+        static constexpr const char *READ_ONLY = "read-only";
     };
 
     QString fileName;
