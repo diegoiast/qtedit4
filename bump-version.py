@@ -10,7 +10,7 @@
 #
 # Qt versions is also spread:
 # 1) build.bat
-# 2) build.sh
+# 2) build-appimage.sh
 # 3) github actions
 #
 # This script is vibe coded to the death. I just ask chatgpt to add features, and paste
@@ -263,7 +263,7 @@ def main():
     parser.add_argument('--iss', default='setup_script.iss', help='Path to .iss file')
     parser.add_argument('--cpp', default='src/main.cpp', help='Path to main.cpp file')
     parser.add_argument('--json', default='updates.json', help='Path to updates.json file')
-    parser.add_argument('--build-sh', default='build.sh', help='Path to build.sh file')
+    parser.add_argument('--build-sh', default='build-appimage.sh', help='Path to build-appimage.sh file')
     parser.add_argument('--build-bat', default='build.bat', help='Path to build.bat file')
     args = parser.parse_args()
 
