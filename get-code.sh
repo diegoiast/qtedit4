@@ -26,16 +26,19 @@ clone_or_update_repo() {
         git remote add github "git@github.com:$owner/$repo"
         cd - > /dev/null
     fi
-    echo "."
+    echo -n "."
 
+    echo -n " Updating to $release"
     (
         cd "$target_dir"
         if ! git checkout -q $release 2>/dev/null &&
            ! git checkout -q origin/$release 2>/dev/null; then
             echo "Failed to checkout $release for $repo. Falling back to master/main."
-            git checkout -q master || git checkout -q main
+            #git checkout -q master || git checkout -q main
+            exit -1
         fi
     )
+    echo "."
 }
 
 while read -r line; do
