@@ -110,10 +110,10 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new ProjectManagerPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
+    pluginManager.addPlugin(new GitPlugin);
     split->setLoadingFinished(false);
 
     // Those are defaults, restore will override them
-    pluginManager.addPlugin(new GitPlugin);
     pluginManager.hidePanels(Qt::BottomDockWidgetArea);
     pluginManager.hidePanels(Qt::LeftDockWidgetArea);
     pluginManager.hidePanels(Qt::RightDockWidgetArea);

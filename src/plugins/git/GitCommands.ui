@@ -39,7 +39,7 @@
        <item>
         <widget class="QLabel" name="label">
          <property name="text">
-          <string>TextLabel</string>
+          <string>Here the git history is shown</string>
          </property>
         </widget>
        </item>
