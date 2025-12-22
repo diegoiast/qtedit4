@@ -5,7 +5,10 @@
 #include <QStringListModel>
 #include <QStyleOption>
 
-AutoShrinkLabel::AutoShrinkLabel(QWidget *parent) : QLabel(parent) {}
+AutoShrinkLabel::AutoShrinkLabel(QWidget *parent) : QLabel(parent) {
+    setTextInteractionFlags(Qt::TextSelectableByMouse);
+    setFocusPolicy(Qt::StrongFocus); // for keyboard selection
+}
 
 void AutoShrinkLabel::setPrimaryText(const QString &text) {
     m_primary = text;
@@ -17,13 +20,17 @@ void AutoShrinkLabel::setFallbackText(const QString &text) {
     update();
 }
 
-void AutoShrinkLabel::paintEvent(QPaintEvent *) {
-    QPainter painter(this);
-    painter.setFont(font());
+void AutoShrinkLabel::resizeEvent(QResizeEvent *event) {
+    QLabel::resizeEvent(event);
     QFontMetrics fm(font());
-    QString toDraw = (fm.horizontalAdvance(m_primary) <= width()) ? m_primary : m_fallback;
-    QRect r = rect();
-    painter.drawText(r, alignment(), toDraw);
+
+    if (fm.horizontalAdvance(m_primary) <= width()) {
+        setText(m_primary);
+        setToolTip(m_fallback);
+    } else {
+        setText(m_fallback);
+        setToolTip(m_primary);
+    }
 }
 
 ElidedLabel::ElidedLabel(QWidget *parent) : QLabel(parent) {
@@ -40,7 +47,7 @@ QSize ElidedLabel::sizeHint() const {
     }
 
     QFontMetrics fm(font());
-    int w = fm.horizontalAdvance(text());
+    auto w = fm.horizontalAdvance(text());
     w += contentsMargins().left() + contentsMargins().right();
     return QSize(w, QLabel::sizeHint().height());
 }

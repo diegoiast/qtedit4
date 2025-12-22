@@ -9,7 +9,7 @@ class AutoShrinkLabel : public QLabel {
     void setFallbackText(const QString &text);
 
   protected:
-    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *) override;
 
   private:
     QString m_primary;
