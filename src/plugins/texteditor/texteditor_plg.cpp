@@ -313,6 +313,13 @@ QFuture<CommandArgs> TextEditorPlugin::handleCommandAsync(const QString &command
 
     auto fileName = args[GlobalArguments::FileName].toString();
     auto content = args[GlobalArguments::Content].toString();
+    auto isReadOnly = args[GlobalArguments::ReadOnly].toBool();
+    auto ok = false;
+    auto clientPosition = args[GlobalArguments::Position].toInt(&ok);
+    if (!ok) {
+        clientPosition = -1;
+    }
+
     auto editor = new qmdiEditor(dynamic_cast<QMainWindow *>(mdiServer), themeManager);
     auto langInfo = ::Qutepart::chooseLanguage({}, {}, fileName);
     if (langInfo.isValid()) {
@@ -325,8 +332,9 @@ QFuture<CommandArgs> TextEditorPlugin::handleCommandAsync(const QString &command
     editor->setPreviewVisible(true);
     editor->setHistoryModel(historyModel);
     editor->setPlainText(content);
+    editor->setReadOnly(isReadOnly);
     applySettings(editor);
-    mdiServer->addClient(editor);
+    mdiServer->addClient(editor, clientPosition);
 
     auto promise = new QPromise<CommandArgs>();
     auto future = promise->future();

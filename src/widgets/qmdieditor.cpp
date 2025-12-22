@@ -469,6 +469,11 @@ void qmdiEditor::showContextMenu(const QPoint &localPosition, const QPoint &glob
 }
 
 bool qmdiEditor::canCloseClient(CloseReason reason) {
+    if (textEditor->isReadOnly()) {
+        saveBackup();
+        return true;
+    }
+
     if (!textEditor->document()->isModified()) {
         deleteBackup();
         return true;
@@ -522,6 +527,7 @@ qmdiClientState qmdiEditor::getState() const {
     state[StateConstants::COLUMN] = col;
     state[StateConstants::ROW] = row;
     state[StateConstants::ZOOM] = zoom;
+    state[StateConstants::READ_ONLY] = textEditor->isReadOnly();
 
     if (!uid.isEmpty()) {
         state[StateConstants::UUID] = uid;
@@ -574,6 +580,10 @@ void qmdiEditor::setState(const qmdiClientState &state) {
         cursor.setPosition(anchor, QTextCursor::MoveAnchor);
         cursor.setPosition(position, QTextCursor::KeepAnchor);
         textEditor->setTextCursor(cursor);
+    }
+
+    if (state.contains(StateConstants::READ_ONLY)) {
+        textEditor->setReadOnly(state[StateConstants::READ_ONLY].toBool());
     }
 }
 
@@ -637,11 +647,7 @@ void qmdiEditor::setupActions() {
     // this is usually "control+r, which we use for running a target
     // actionReplace->setShortcut(QKeySequence::Replace);
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
-    if (!is_running_under_gnome()) {
-        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_G));
-    } else {
-        actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
-    }
+    actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
     actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
     actionToggleHeader->setShortcut(Qt::Key_F4);
@@ -1076,7 +1082,8 @@ void qmdiEditor::newDocument() { loadFile(""); }
 
 void qmdiEditor::setPlainText(const QString &plainText) {
     textEditor->setPlainText(plainText);
-    textEditor->document()->setModified(true);
+    // textEditor->document()->setModified(true);
+    documentHasBeenLoaded = true;
 }
 
 bool qmdiEditor::doSave() {
@@ -1220,6 +1227,25 @@ bool qmdiEditor::saveFile(const QString &newFileName, bool makeExecutable) {
     return true;
 }
 
+void qmdiEditor::setReadOnly(bool b) {
+    textEditor->setReadOnly(b);
+    actionCut->setEnabled(!b);
+    actionPaste->setEnabled(!b);
+    actionReplace->setEnabled(!b);
+    actionCapitalize->setEnabled(!b);
+    actionLowerCase->setEnabled(!b);
+    actionChangeCase->setEnabled(!b);
+    textOperationsMenu->setEnabled(!b);
+
+    if (b) {
+        actionUndo->setEnabled(false);
+        actionRedo->setEnabled(false);
+    } else {
+        actionUndo->setEnabled(textEditor->document()->isUndoAvailable());
+        actionRedo->setEnabled(textEditor->document()->isRedoAvailable());
+    }
+}
+
 void qmdiEditor::transformBlockToUpper() {
     QTextCursor cursor = textEditor->textCursor();
     QString s_before = cursor.selectedText();
@@ -1280,7 +1306,7 @@ void qmdiEditor::fileMessage_clicked(const QString &s) {
         hideBannerMessage();
     } else if (s == ":forcerw") {
         hideBannerMessage();
-        textEditor->setReadOnly(false);
+        setReadOnly(false);
     }
 }
 
@@ -1308,7 +1334,7 @@ void qmdiEditor::loadContent() {
     auto modificationsEnabledState = getModificationsLookupEnabled();
     setModificationsLookupEnabled(false);
     hideBannerMessage();
-    textEditor->setReadOnly(false);
+    setReadOnly(false);
     QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     QApplication::processEvents();
 
@@ -1355,7 +1381,7 @@ void qmdiEditor::loadContent() {
 
     fileName = QDir::toNativeSeparators(fileInfo.absoluteFilePath());
     if (fileInfo.exists() && !fileInfo.isWritable()) {
-        textEditor->setReadOnly(true);
+        setReadOnly(true);
         displayBannerMessage(
             tr("The file is readonly. Click <a href=':forcerw' title='Click here to try and "
                "change the file attributes for write access'>here to force write access.</a>"),

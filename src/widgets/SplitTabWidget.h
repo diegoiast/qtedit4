@@ -99,13 +99,13 @@ class SplitTabWidget : public QWidget {
   public:
     explicit SplitTabWidget(QWidget *parent = nullptr);
 
-    void addTab(QWidget *widget, const QString &label, const QString &tooltip = {});
+    void addTab(QWidget *widget, const QString &label, const QString &tooltip);
     void splitHorizontally();
     void closeCurrentSplit();
     void closeSplitWithTabWidget(QTabWidget *tab);
-    void addTabToCurrentSplit(QWidget *widget, const QString &label, const QString &tooltip = {});
-    void addTabToSplit(int splitNumber, QWidget *widget, const QString &label,
-                       const QString &tooltip = {});
+    void addTabToCurrentSplit(QWidget *widget, const QString &label, const QString &tooltip);
+    void addTabToSplit(int splitNumber, int position, QWidget *widget, const QString &label,
+                       const QString &tooltip);
     int findSplitIndex(QTabWidget *);
     void moveTabToNewSplit(QWidget *widget);
     void closeCurrentTab();

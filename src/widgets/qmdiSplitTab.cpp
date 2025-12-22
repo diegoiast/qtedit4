@@ -325,16 +325,35 @@ void qmdiSplitTab::onNewSplitCreated(QTabWidget *tabWidget, int count) {
 #endif
 }
 
-void qmdiSplitTab::addClient(qmdiClient *client) {
+void qmdiSplitTab::addClient(qmdiClient *client, int position) {
     auto w = dynamic_cast<QWidget *>(client);
-
     if (w == nullptr) {
         qDebug("%s %s %d: warning trying to add a qmdiClient which does not derive QWidget",
                __FILE__, __FUNCTION__, __LINE__);
         return;
     }
 
-    addTab(w, client->mdiClientName, client->mdiClientFileName());
+    auto label = client->mdiClientName;
+    auto tooltip = client->mdiClientFileName();
+    if (position < 0) {
+        addTab(w, label, tooltip);
+    } else {
+        // We don't handle splits and restore if a specific position has been requested
+        auto localIndex = -1;
+        auto tabWidget = tabWidgetFromIndex(position, localIndex);
+        if (tabWidget) {
+            // TODO: This is very similar to addTabToSplit, merge functions somehow
+            auto index = tabWidget->insertTab(localIndex, w, label);
+            tabWidget->setCurrentIndex(index);
+            tabWidget->setTabToolTip(index, tooltip);
+            w->setObjectName(label);
+            w->installEventFilter(this);
+            w->setFocus();
+            onTabFocusChanged(tabWidget->currentWidget(), true);
+        } else {
+            addTab(w, label, tooltip);
+        }
+    }
     client->mdiServer = this;
     w->setFocus();
     emit newClientAdded(client);
@@ -417,14 +436,14 @@ void qmdiSplitTab::setCurrentClientIndex(int i) {
         return;
     }
 
-    int currentCount = 0;
+    auto currentCount = 0;
     for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
         auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
         if (!tabWidget) {
             continue;
         }
 
-        int tabCount = tabWidget->count();
+        auto tabCount = tabWidget->count();
         if (i < currentCount + tabCount) {
             // The requested index is in this tab widget
             tabWidget->setCurrentIndex(i - currentCount);
@@ -434,6 +453,28 @@ void qmdiSplitTab::setCurrentClientIndex(int i) {
 
         currentCount += tabCount;
     }
+}
+
+int qmdiSplitTab::getClientIndex(qmdiClient *client) const {
+    if (!client) {
+        return -1;
+    }
+    auto currentCount = 0;
+    for (auto tabIndex = 0; tabIndex < splitter->count(); tabIndex++) {
+        auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(tabIndex));
+        if (!tabWidget) {
+            continue;
+        }
+        auto tabCount = tabWidget->count();
+        for (auto localIndex = 0; localIndex < tabCount; localIndex++) {
+            auto currentClient = dynamic_cast<qmdiClient *>(tabWidget->widget(localIndex));
+            if (client == currentClient) {
+                return currentCount;
+            }
+            currentCount++;
+        }
+    }
+    return -1;
 }
 
 void qmdiSplitTab::moveClient(int oldPosition, int newPosition) {

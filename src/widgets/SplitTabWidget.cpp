@@ -416,14 +416,14 @@ void SplitTabWidget::addTabToCurrentSplit(QWidget *widget, const QString &label,
     onTabFocusChanged(currentTabWidget->currentWidget(), true);
 }
 
-void SplitTabWidget::addTabToSplit(int splitNumber, QWidget *widget, const QString &label,
-                                   const QString &tooltip) {
+void SplitTabWidget::addTabToSplit(int splitNumber, int position, QWidget *widget,
+                                   const QString &label, const QString &tooltip) {
     auto tabWidget = qobject_cast<QTabWidget *>(splitter->widget(splitNumber));
     if (!tabWidget) {
         return;
     }
 
-    auto index = tabWidget->addTab(widget, label);
+    auto index = tabWidget->insertTab(position, widget, label);
     tabWidget->setCurrentIndex(index);
     tabWidget->setTabToolTip(index, tooltip);
     widget->setObjectName(label);
