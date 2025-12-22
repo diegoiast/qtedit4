@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <QDockWidget>
 #include <QFileInfo>
 #include <QFontDatabase>
@@ -34,6 +35,7 @@ class GitCommitDisplay : public QWidget {
   public:
     explicit GitCommitDisplay(QWidget *parent) : QWidget(parent) { ui.setupUi(this); }
     Ui::GitCommit ui;
+    QString currentSha1;
 };
 
 GitPlugin::GitPlugin() {
@@ -209,8 +211,24 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
     if (!widget) {
         widget = new GitCommitDisplay(form->container);
         form->container->addWidget(widget);
+        connect(widget->ui.commits, &QAbstractItemView::doubleClicked, this,
+                [this, widget](const QModelIndex &i) {
+                    auto manager = getManager();
+                    // auto position = manager->getMdiServer()->getClientIndex(client);
+                    auto filename = i.data().toString();
+                    auto diff = runGit({"show", widget->currentSha1, "--", filename});
+                    auto displayName = QString("%1-%2.diff").arg(filename).arg(widget->currentSha1);
+                    CommandArgs args = {
+                        {GlobalArguments::FileName, displayName},
+                        {GlobalArguments::Content, diff},
+                        {GlobalArguments::ReadOnly, true},
+                        // {GlobalArguments::Position, position},
+                    };
+                    manager->handleCommandAsync(GlobalCommands::DisplayText, args);
+                });
     }
 
+    widget->currentSha1 = sha1;
     widget->ui.sha1->setPrimaryText(sha1);
     widget->ui.sha1->setFallbackText(sha1Short);
     widget->ui.commiter->setText(fullCommit.author.toString());
