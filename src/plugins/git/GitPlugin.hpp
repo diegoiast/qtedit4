@@ -11,6 +11,9 @@ class GitPlugin : public IPlugin {
     struct Config {
         CONFIG_DEFINE(GitBinary, QString)
         CONFIG_DEFINE(GitHomepage, QString)
+        CONFIG_DEFINE(GitLastCommand, QString)
+        CONFIG_DEFINE(GitLastDir, QString)
+        CONFIG_DEFINE(GitLastActiveItem, QString)
         qmdiPluginConfig *config;
     };
     Config &getConfig() {
@@ -26,6 +29,7 @@ class GitPlugin : public IPlugin {
 
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void on_client_unmerged(qmdiHost *host) override;
+    virtual void loadConfig(QSettings &settings) override;
 
   protected slots:
     void logFileHandler();
@@ -35,10 +39,11 @@ class GitPlugin : public IPlugin {
     void on_gitCommitClicked(const QModelIndex &mi);
     void on_gitCommitDoubleClicked(const QModelIndex &mi);
 
-    QString runGit(const QStringList &args);
+    QString runGit(const QStringList &args, bool saveConfig);
     QString detectRepoRoot(const QString &path);
     QString getDiff(const QString &path);
     QString getRawCommit(const QString &sha1);
+    void restoreGitLog();
 
   private:
     QAction *diffFile = nullptr;

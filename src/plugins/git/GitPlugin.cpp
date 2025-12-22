@@ -15,6 +15,7 @@
 #include "CommitModel.hpp"
 #include "GitPlugin.hpp"
 #include "GlobalCommands.hpp"
+#include "iplugin.h"
 #include "ui_GitCommands.h"
 #include "ui_GitCommit.h"
 #include "widgets/AutoShrinkLabel.hpp"
@@ -39,36 +40,57 @@ class GitCommitDisplay : public QWidget {
 };
 
 GitPlugin::GitPlugin() {
-    name = tr("Help system browser");
+    name = tr("git scm support");
     author = tr("Diego Iastrubni <diegoiast@gmail.com>");
     iVersion = 0;
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
 
-    // TODO: find git in a more proper way
-#if defined(Q_OS_LINUX)
-    gitBinary = "git";
-#else
+// TODO: find git in a more proper way
+#if defined(Q_OS_WINDOWS)
+    auto label = tr("git exe");
     gitBinary = "c:\\Program Files\\Git\\bin\\git.exe";
+#else
+    gitBinary = "git";
+    auto label = tr("git binary");
 #endif
 
     config.pluginName = tr("git");
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("git.exe"))
+                                     .setDisplayName(label)
                                      .setDescription(tr("Where is git installed"))
                                      .setKey(Config::GitBinaryKey)
                                      .setType(qmdiConfigItem::Path)
                                      .setDefaultValue(gitBinary)
                                      .setPossibleValue(true) // Must be an existing file
                                      .build());
-
     config.configItems.push_back(
         qmdiConfigItem::Builder()
             .setDisplayName(tr("<a href='https://git-scm.com/' >Visit git home page</a>"))
             .setKey(Config::GitHomepageKey)
             .setType(qmdiConfigItem::Label)
             .build());
+
+    // Save and restore the last git command
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::GitLastCommandKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue(QString())
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::GitLastDirKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue(QString())
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::GitLastActiveItemKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setDefaultValue(QString())
+                                     .setUserEditable(false)
+                                     .build());
 }
 
 GitPlugin::~GitPlugin() {}
@@ -123,12 +145,17 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     connect(form->listView, &QAbstractItemView::doubleClicked, this,
             &GitPlugin::on_gitCommitDoubleClicked);
 
-    gitDock = manager->createNewPanel(Panels::West, "gitpanel", tr("Git"), w);
+    gitDock = manager->createNewPanel(Panels::East, "gitpanel", tr("Git"), w);
 }
 
 void GitPlugin::on_client_unmerged(qmdiHost *host) {
     IPlugin::on_client_unmerged(host);
     delete gitDock;
+}
+
+void GitPlugin::loadConfig(QSettings &settings) {
+    IPlugin::loadConfig(settings);
+    restoreGitLog();
 }
 
 void GitPlugin::logFileHandler() {
@@ -192,9 +219,8 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
     }
 
     form->label->setText(labelText);
-    auto output = runGit(args);
+    auto output = runGit(args, true);
     model->setContent(output);
-
     form->listView->setModel(model);
     gitDock->raise();
     gitDock->show();
@@ -203,6 +229,9 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
 void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
     auto const *model = static_cast<CommitModel *>(form->listView->model());
     auto const sha1 = model->data(mi, CommitModel::Roles::HashRole).toString();
+    getConfig().setGitLastActiveItem(sha1);
+    getManager()->saveSettings();
+
     auto const sha1Short = shortGitSha1(sha1);
     auto rawCommit = getRawCommit(sha1);
     auto const fullCommit = FullCommitInfo::parse(rawCommit);
@@ -214,15 +243,14 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
         connect(widget->ui.commits, &QAbstractItemView::doubleClicked, this,
                 [this, widget](const QModelIndex &i) {
                     auto manager = getManager();
-                    // auto position = manager->getMdiServer()->getClientIndex(client);
                     auto filename = i.data().toString();
-                    auto diff = runGit({"show", widget->currentSha1, "--", filename});
-                    auto displayName = QString("%1-%2.diff").arg(filename).arg(widget->currentSha1);
+                    auto diff = runGit({"show", widget->currentSha1, "--", filename}, false);
+                    auto shortSha1 = shortGitSha1(widget->currentSha1);
+                    auto displayName = QString("%1-%2.diff").arg(shortSha1).arg(filename);
                     CommandArgs args = {
                         {GlobalArguments::FileName, displayName},
                         {GlobalArguments::Content, diff},
                         {GlobalArguments::ReadOnly, true},
-                        // {GlobalArguments::Position, position},
                     };
                     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
                 });
@@ -252,14 +280,14 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     auto const fullCommit = FullCommitInfo::parse(rawCommit);
     auto manager = getManager();
     CommandArgs args = {
-        {GlobalArguments::FileName, QString("%1.diff").arg(sha1)},
+        {GlobalArguments::FileName, QString("%1.diff").arg(shortGitSha1(sha1))},
         {GlobalArguments::Content, *fullCommit.raw},
         {GlobalArguments::ReadOnly, true},
     };
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
-QString GitPlugin::runGit(const QStringList &args) {
+QString GitPlugin::runGit(const QStringList &args, bool saveConfig) {
     if (repoRoot.isEmpty()) {
         return {};
     }
@@ -267,6 +295,12 @@ QString GitPlugin::runGit(const QStringList &args) {
     p.setWorkingDirectory(repoRoot);
     p.start(gitBinary, args);
     p.waitForFinished();
+
+    if (saveConfig) {
+        getConfig().setGitLastCommand(args.join(" "));
+        getConfig().setGitLastDir(repoRoot);
+        getManager()->saveSettings();
+    }
     return QString::fromUtf8(p.readAllStandardOutput());
 }
 
@@ -278,6 +312,38 @@ QString GitPlugin::detectRepoRoot(const QString &filePath) {
     return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
 }
 
-QString GitPlugin::getDiff(const QString &path) { return runGit({"diff", path}); }
+QString GitPlugin::getDiff(const QString &path) { return runGit({"diff", path}, false); }
 
-QString GitPlugin::getRawCommit(const QString &sha1) { return runGit({"show", sha1}); }
+QString GitPlugin::getRawCommit(const QString &sha1) { return runGit({"show", sha1}, false); }
+
+void GitPlugin::restoreGitLog() {
+    if (!form) {
+        return;
+    }
+
+    auto cmd = getConfig().getGitLastCommand();
+    auto dir = getConfig().getGitLastDir();
+    if (cmd.isEmpty() || dir.isEmpty()) {
+        return;
+    }
+
+    repoRoot = dir;
+    auto args = cmd.split(" ");
+    auto model = new CommitModel(this);
+    form->label->setText(cmd);
+    auto output = runGit(args, false);
+    model->setContent(output);
+    form->listView->setModel(model);
+
+    auto lastActive = getConfig().getGitLastActiveItem();
+    if (!lastActive.isEmpty()) {
+        for (int i = 0; i < model->rowCount(); ++i) {
+            auto index = model->index(i, 0);
+            if (model->data(index, CommitModel::Roles::HashRole).toString() == lastActive) {
+                form->listView->setCurrentIndex(index);
+                on_gitCommitClicked(index);
+                break;
+            }
+        }
+    }
+}
