@@ -252,6 +252,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
     QAction *actionCopyFileName = nullptr;
     QAction *actionCopyFilePath = nullptr;
     QAction *actionToggleHeader = nullptr;
+    QAction *actionTogglePreview = nullptr;
 
     QTimer *autoSaveTimer = nullptr;
     QString uid;

@@ -350,7 +350,8 @@ qmdiEditor::qmdiEditor(QWidget *p, Qutepart::ThemeManager *themes)
     this->menus["&Edit"]->addMenu(textOperationsMenu);
     this->menus["&Edit"]->addMenu(bookmarksMenu);
     this->menus["&Edit"]->addMenu(foldingMenu);
-    menus["&Edit"]->addAction(textEditor->findMatchingBracketAction());
+    this->menus["&Edit"]->addAction(actionTogglePreview);
+    this->menus["&Edit"]->addAction(textEditor->findMatchingBracketAction());
 
     this->menus["&Search"]->addAction(actionFind);
     this->menus["&Search"]->addAction(actionFindNext);
@@ -633,6 +634,7 @@ void qmdiEditor::setupActions() {
     actionLowerCase = new QAction(tr("Change to &lower letters"), this);
     actionChangeCase = new QAction(tr("Change ca&se"), this);
     actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
+    actionTogglePreview = new QAction(tr("Toggle preview"), this);
 
     actionSave->setShortcut(QKeySequence::Save);
     actionSaveAs->setShortcut(QKeySequence::SaveAs);
@@ -649,8 +651,9 @@ void qmdiEditor::setupActions() {
     actionReplace->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_H));
     actionGotoLine->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     actionCapitalize->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U));
-    actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_U));
+    actionLowerCase->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_U | Qt::SHIFT));
     actionToggleHeader->setShortcut(Qt::Key_F4);
+    actionTogglePreview->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Period));
 
     auto highlighters = Qutepart::getAvailableHighlihters();
     comboChangeHighlighter->setObjectName("qmdiEditor::comboChangeHighlighter");
@@ -678,6 +681,7 @@ void qmdiEditor::setupActions() {
     actionLowerCase->setObjectName("qmdiEditor::actionLowerCase");
     actionChangeCase->setObjectName("qmdiEditor::actionChangeCase");
     actionToggleHeader->setObjectName("qmdiEditor::actiohToggleHeader");
+    actionTogglePreview->setObjectName("qmdiEditor::actionTogglePreview");
 
     actionSave->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actionSaveAs->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -695,6 +699,7 @@ void qmdiEditor::setupActions() {
     actionLowerCase->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actionChangeCase->setShortcutContext(Qt::WidgetWithChildrenShortcut);
     actionToggleHeader->setShortcutContext(Qt::WidgetWithChildrenShortcut);
+    actionTogglePreview->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 
     connect(textEditor, &QPlainTextEdit::undoAvailable, actionUndo, &QAction::setEnabled);
     connect(textEditor, &QPlainTextEdit::redoAvailable, actionRedo, &QAction::setEnabled);
@@ -751,6 +756,7 @@ void qmdiEditor::setupActions() {
     connect(actionLowerCase, &QAction::triggered, this, &qmdiEditor::transformBlockToLower);
     connect(actionChangeCase, &QAction::triggered, this, &qmdiEditor::transformBlockCase);
     connect(actionToggleHeader, &QAction::triggered, this, &qmdiEditor::toggleHeaderImpl);
+    connect(actionTogglePreview, &QAction::triggered, previewButton, &QPushButton::click);
 
     addAction(actionSave);
     addAction(actionSaveAs);
@@ -769,6 +775,7 @@ void qmdiEditor::setupActions() {
     addAction(actionLowerCase);
     addAction(actionChangeCase);
     addAction(actionToggleHeader);
+    addAction(actionTogglePreview);
 
     // default is control+b - which we want to use for build
     textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
@@ -802,7 +809,10 @@ bool qmdiEditor::isLocalToolbarVisible() const { return toolbar->isVisible(); }
 
 void qmdiEditor::setLocalToolbarVisible(bool state) const { toolbar->setVisible(state); }
 
-void qmdiEditor::setPreviewEnabled(bool enabled) { this->previewButton->setEnabled(enabled); }
+void qmdiEditor::setPreviewEnabled(bool enabled) {
+    this->previewButton->setEnabled(enabled);
+    this->actionTogglePreview->setEnabled(enabled);
+}
 
 void qmdiEditor::setPreviewVisible(bool enabled) { this->previewButton->setChecked(enabled); }
 
