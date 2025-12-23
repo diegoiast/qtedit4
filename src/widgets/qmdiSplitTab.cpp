@@ -107,11 +107,11 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
         auto b = appHighlightColor.lighter();
         b.setAlpha(180);
 
-        auto highlightedStyle = QString("QToolButton { background-color: %1 }"
-                                        "QToolButton:hover { background-color: %2 }"
-                                        "QToolButton:pressed { background-color: %2 }")
-                                    .arg(b.name(QColor::HexArgb))
-                                    .arg(appHighlightColor.name(QColor::HexArgb));
+        auto highlightedStyle =
+            QString("QToolButton { background-color: %1 }"
+                    "QToolButton:hover { background-color: %2 }"
+                    "QToolButton:pressed { background-color: %2 }")
+                .arg(b.name(QColor::HexArgb), appHighlightColor.name(QColor::HexArgb));
         appMenuButton->setStyleSheet(highlightedStyle);
 
         auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
@@ -150,7 +150,7 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
     auto tabCloseBtn = new QToolButton(split);
     tabCloseBtn->setObjectName("simple-close-button");
     tabCloseBtn->setAutoRaise(true);
-    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    tabCloseBtn->setIcon(QIcon::fromTheme("document-close"));
     QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
     return tabCloseBtn;
 #else
@@ -182,7 +182,7 @@ QWidget *DefaultButtonsProvider::getNonFirstTabButtons(bool first, SplitTabWidge
 #if not CLOSABLE_TABS
     auto tabCloseBtn = new QToolButton(split);
     tabCloseBtn->setAutoRaise(true);
-    tabCloseBtn->setIcon(QIcon::fromTheme(QIcon::ThemeIcon::WindowClose));
+    tabCloseBtn->setIcon(QIcon::fromTheme("document-close"));
     QObject::connect(tabCloseBtn, &QAbstractButton::clicked, manager, &PluginManager::closeClient);
     return tabCloseBtn;
 #else
