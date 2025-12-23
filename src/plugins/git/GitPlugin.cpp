@@ -4,6 +4,7 @@
 #include <QFontDatabase>
 #include <QFontMetrics>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPainter>
 #include <QPlainTextEdit>
 #include <QProcess>
@@ -19,6 +20,7 @@
 #include "ui_GitCommands.h"
 #include "ui_GitCommit.h"
 #include "widgets/AutoShrinkLabel.hpp"
+#include "widgets/qmdieditor.h"
 
 QString shortGitSha1(const QString &fullSha1, int length = 7) {
     if (length <= 0) {
@@ -113,6 +115,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     logProject->setToolTip(tr("Show commits (current project)"));
     logProject->setShortcut(QKeySequence("Ctrl+G, L"));
     revert->setToolTip(tr("Revert existing commits"));
+    revert->setShortcut(QKeySequence("Ctrl+G, U"));
     commit->setToolTip(tr("Record changes to the repository"));
     stash->setToolTip(tr("tash away changes to dirty working directory"));
     branches->setToolTip(tr("List, create, or delete branches"));
@@ -120,6 +123,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     connect(logFile, &QAction::triggered, this, &GitPlugin::logFileHandler);
     connect(logProject, &QAction::triggered, this, &GitPlugin::logProjectHandler);
     connect(diffFile, &QAction::triggered, this, &GitPlugin::diffFileHandler);
+    connect(revert, &QAction::triggered, this, &GitPlugin::revertFileHandler);
 
     auto menuName = "&Git";
     host->menus.addActionGroup(menuName, "&Project");
@@ -193,6 +197,37 @@ void GitPlugin::diffFileHandler() {
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
+void GitPlugin::revertFileHandler() {
+    auto manager = getManager();
+    auto client = manager->getMdiServer()->getCurrentClient();
+    auto filename = client->mdiClientFileName();
+    if (repoRoot.isEmpty()) {
+        repoRoot = detectRepoRoot(filename);
+    }
+    auto const diff = getDiff(filename);
+    if (diff.isEmpty()) {
+        return;
+    }
+
+    QMessageBox msgBox(QMessageBox::Warning, client->mdiClientName,
+                       tr("Do you want to revert %1.\n").arg(client->mdiClientName),
+                       QMessageBox::Yes | QMessageBox::Default, manager);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::Yes);
+    auto ret = msgBox.exec();
+    if (ret != QMessageBox::Yes) {
+        qDebug() << "Not reverting";
+        return;
+    }
+    auto args = QStringList{"restore", client->mdiClientFileName()};
+    auto output = runGit(args, false);
+
+    if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
+        editor->loadFile(filename);
+        editor->loadContent(false);
+    }
+}
+
 void GitPlugin::logHandler(GitLog log, const QString &filename) {
     auto model = new CommitModel(this);
     repoRoot = detectRepoRoot(filename);
@@ -204,8 +239,7 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
     }
 
     auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
-    QString labelText;
-
+    auto labelText = QString();
     switch (log) {
     case GitPlugin::GitLog::File:
         labelText = QString("git log %1").arg(filename);

@@ -177,7 +177,7 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
             auto client = manager->clientForFileName(nativeFileName);
             auto editor = dynamic_cast<qmdiEditor *>(client);
             if (editor) {
-                editor->loadContent();
+                editor->loadContent(true);
                 if (!address.isEmpty()) {
                     editor->findText(address);
                 }
@@ -962,7 +962,9 @@ void qmdiEditor::handleTabSelected() {
     }
     loadingTimer = new QTimer(this);
     loadingTimer->setSingleShot(true);
-    connect(loadingTimer, &QTimer::timeout, this, &qmdiEditor::loadContent);
+    connect(loadingTimer, &QTimer::timeout, this, [this](){
+        this->loadContent(true);
+    });
     loadingTimer->start(50);
 }
 
@@ -1302,7 +1304,7 @@ void qmdiEditor::transformBlockCase() {
 void qmdiEditor::fileMessage_clicked(const QString &s) {
     if (s == ":reload") {
         documentHasBeenLoaded = false;
-        loadContent();
+        loadContent(false);
         hideBannerMessage();
     } else if (s == ":forcerw") {
         hideBannerMessage();
@@ -1321,7 +1323,7 @@ void qmdiEditor::toggleHeaderImpl() {
     }
 }
 
-void qmdiEditor::loadContent() {
+void qmdiEditor::loadContent(bool useBackup) {
     if (documentHasBeenLoaded) {
         return;
     }
@@ -1340,7 +1342,7 @@ void qmdiEditor::loadContent() {
 
     QFile file;
     auto loadedFromBackup = false;
-    if (savedState.contains(StateConstants::UUID)) {
+    if (useBackup && savedState.contains(StateConstants::UUID)) {
         uid = savedState[StateConstants::UUID].toString();
         file.setFileName(getBackupFileName());
         if (file.open(QIODevice::ReadOnly)) {
