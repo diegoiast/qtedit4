@@ -180,7 +180,7 @@ bool TextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        if (searchWidget && searchWidget->isVisible() && searchWidget->hasFocus()) {
+        if (searchWidget && searchFormUi->searchText->hasFocus()) {
             if (keyEvent->modifiers().testFlag(Qt::ControlModifier) ||
                 keyEvent->modifiers().testFlag(Qt::AltModifier) ||
                 keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
@@ -189,7 +189,7 @@ bool TextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
                 searchNext();
             }
             return true;
-        } else if (replaceWidget && replaceWidget->isVisible() && replaceWidget->hasFocus()) {
+        } else if (replaceWidget && replaceFormUi->searchText->hasFocus()) {
             if (keyEvent->modifiers().testFlag(Qt::ControlModifier) ||
                 keyEvent->modifiers().testFlag(Qt::AltModifier) ||
                 keyEvent->modifiers().testFlag(Qt::ShiftModifier)) {
@@ -198,7 +198,7 @@ bool TextOperationsWidget::eventFilter(QObject *obj, QEvent *event) {
                 replaceOldText_returnPressed();
             }
             return true;
-        } else if (gotoLineWidget && gotoLineWidget->isVisible() && gotoLineWidget->hasFocus()) {
+        } else if (gotoLineWidget && gotoLineFormUi->numberSpinBox->hasFocus()) {
             return true;
         }
         break;
