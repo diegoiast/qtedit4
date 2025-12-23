@@ -142,6 +142,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     form->setupUi(w);
     form->listView->setViewMode(QListView::ListMode);
     form->listView->setAlternatingRowColors(true);
+    form->branchListCombo->setItemDelegate(new BoldItemDelegate(form->branchListCombo));
 
     auto delegate = new CommitDelegate(form->listView);
     form->listView->setItemDelegate(delegate);
@@ -238,15 +239,24 @@ void GitPlugin::refreshBranchesHandler() {
     auto output = runGit({"branch", "-a"}, false);
     auto branches = output.split('\n', Qt::SkipEmptyParts);
     form->branchListCombo->clear();
-    for (auto branch : branches) {
-        branch = branch.trimmed();
-        if (branch.startsWith("* ")) {
-            branch = branch.mid(2);
-            form->branchListCombo->addItem(branch);
-            form->branchListCombo->setCurrentText(branch);
-        } else {
-            form->branchListCombo->addItem(branch);
+    int activeIndex = -1;
+    auto delegate = static_cast<BoldItemDelegate *>(form->branchListCombo->itemDelegate());
+    for (auto const &line : branches) {
+        bool isActive = line.startsWith('*');
+        QString branchName = line.mid(2).trimmed();
+        if (branchName.isEmpty()) {
+            continue;
         }
+
+        form->branchListCombo->addItem(branchName);
+        if (isActive) {
+            delegate->boldItemStr = branchName;
+            activeIndex = form->branchListCombo->count() - 1;
+        }
+    }
+
+    if (activeIndex != -1) {
+        form->branchListCombo->setCurrentIndex(activeIndex);
     }
 }
 

@@ -188,36 +188,29 @@ static auto createSubFollowSymbolSubmenu(const CommandArgs &data, QMenu *menu,
     }
 }
 
-class BoldItemDelegate : public QStyledItemDelegate {
-  public:
-    QString boldItemStr = "";
-    explicit BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+void BoldItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                             const QModelIndex &index) const {
+    QString text = index.data(Qt::DisplayRole).toString();
+    painter->save();
 
-    void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const override {
-        QString text = index.data(Qt::DisplayRole).toString();
-        painter->save();
-
-        bool isSelected = option.state & QStyle::State_Selected;
-        if (isSelected) {
-            painter->fillRect(option.rect, option.palette.highlight());
-            painter->setPen(option.palette.highlightedText().color());
-        } else {
-            painter->setPen(option.palette.text().color());
-        }
-
-        QFont font = painter->font();
-        if (text == boldItemStr) {
-            font.setBold(true);
-        }
-        painter->setFont(font);
-        QRect textRect = option.rect.adjusted(4, 0, -4, 0);
-        // painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, text);
-        painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
-
-        painter->restore();
+    bool isSelected = option.state & QStyle::State_Selected;
+    if (isSelected) {
+        painter->fillRect(option.rect, option.palette.highlight());
+        painter->setPen(option.palette.highlightedText().color());
+    } else {
+        painter->setPen(option.palette.text().color());
     }
-};
+
+    QFont font = painter->font();
+    if (text == boldItemStr) {
+        font.setBold(true);
+    }
+    painter->setFont(font);
+    QRect textRect = option.rect.adjusted(4, 0, -4, 0);
+    // painter->drawText(option.rect, Qt::AlignLeft | Qt::AlignVCenter, text);
+    painter->drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, text);
+    painter->restore();
+}
 
 namespace Qutepart {
 QStringList getAvailableHighlihters() {

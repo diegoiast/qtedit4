@@ -9,11 +9,11 @@
 #pragma once
 
 #include <QFuture>
+#include <QStyledItemDelegate>
 #include <QToolButton>
 
 // needed only for CommandArgs
 #include <pluginmanager.h>
-
 #include <qmdiclient.h>
 #include <qutepart/qutepart.h>
 
@@ -34,6 +34,15 @@ class BannerMessage;
 namespace Qutepart {
 class ThemeManager;
 }
+
+class BoldItemDelegate : public QStyledItemDelegate {
+  public:
+    QString boldItemStr = "";
+    explicit BoldItemDelegate(QObject *parent = nullptr) : QStyledItemDelegate(parent) {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QModelIndex &index) const override;
+};
 
 /**
 A source editor with MDI interface.
