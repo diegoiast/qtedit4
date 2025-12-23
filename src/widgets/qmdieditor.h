@@ -176,6 +176,7 @@ class qmdiEditor : public QWidget, public qmdiClient {
         }
         return textEditor->document()->isEmpty();
     }
+    inline void foldTopLevel() const { textEditor->foldTopLevelBlocks(); };
     void setReadOnly(bool b);
 
   protected:

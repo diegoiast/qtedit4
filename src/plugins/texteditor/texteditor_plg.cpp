@@ -314,6 +314,7 @@ QFuture<CommandArgs> TextEditorPlugin::handleCommandAsync(const QString &command
     auto fileName = args[GlobalArguments::FileName].toString();
     auto content = args[GlobalArguments::Content].toString();
     auto isReadOnly = args[GlobalArguments::ReadOnly].toBool();
+    auto shouldFold = args[GlobalArguments::FoldTopLevel].toBool();
     auto ok = false;
     auto clientPosition = args[GlobalArguments::Position].toInt(&ok);
     if (!ok) {
@@ -335,7 +336,9 @@ QFuture<CommandArgs> TextEditorPlugin::handleCommandAsync(const QString &command
     editor->setReadOnly(isReadOnly);
     applySettings(editor);
     mdiServer->addClient(editor, clientPosition);
-
+    if (shouldFold) {
+        editor->foldTopLevel();
+    }
     auto promise = new QPromise<CommandArgs>();
     auto future = promise->future();
     promise->finish();

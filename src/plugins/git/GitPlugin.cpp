@@ -11,6 +11,7 @@
 #include <QResizeEvent>
 #include <QScrollArea>
 #include <QStringListModel>
+#include <QTimer>
 
 #include "CommitDelegate.hpp"
 #include "CommitModel.hpp"
@@ -148,6 +149,9 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     connect(form->listView, &QAbstractItemView::clicked, this, &GitPlugin::on_gitCommitClicked);
     connect(form->listView, &QAbstractItemView::doubleClicked, this,
             &GitPlugin::on_gitCommitDoubleClicked);
+    connect(form->refreshBranchesButton, &QToolButton::clicked, this,
+            &GitPlugin::refreshBranchesHandler);
+    connect(form->diffBranchButton, &QPushButton::clicked, this, &GitPlugin::diffBranchHandler);
 
     gitDock = manager->createNewPanel(Panels::East, "gitpanel", tr("Git"), w);
 }
@@ -221,11 +225,54 @@ void GitPlugin::revertFileHandler() {
     }
     auto args = QStringList{"restore", client->mdiClientFileName()};
     auto output = runGit(args, false);
-
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         editor->loadFile(filename);
         editor->loadContent(false);
     }
+}
+
+void GitPlugin::refreshBranchesHandler() {
+    if (repoRoot.isEmpty()) {
+        return;
+    }
+    auto output = runGit({"branch", "-a"}, false);
+    auto branches = output.split('\n', Qt::SkipEmptyParts);
+    form->branchListCombo->clear();
+    for (auto branch : branches) {
+        branch = branch.trimmed();
+        if (branch.startsWith("* ")) {
+            branch = branch.mid(2);
+            form->branchListCombo->addItem(branch);
+            form->branchListCombo->setCurrentText(branch);
+        } else {
+            form->branchListCombo->addItem(branch);
+        }
+    }
+}
+
+void GitPlugin::diffBranchHandler() {
+    if (repoRoot.isEmpty()) {
+        return;
+    }
+
+    auto branch = form->branchListCombo->currentText();
+    if (branch.isEmpty()) {
+        return;
+    }
+
+    auto diff = runGit({"diff", branch}, false);
+    if (diff.isEmpty()) {
+        return;
+    }
+
+    auto manager = getManager();
+    CommandArgs args = {
+        {GlobalArguments::FileName, QString("diff-%1.diff").arg(branch)},
+        {GlobalArguments::Content, diff},
+        {GlobalArguments::ReadOnly, true},
+        {GlobalArguments::FoldTopLevel, true},
+    };
+    manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
 void GitPlugin::logHandler(GitLog log, const QString &filename) {
@@ -317,6 +364,7 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
         {GlobalArguments::FileName, QString("%1.diff").arg(shortGitSha1(sha1))},
         {GlobalArguments::Content, *fullCommit.raw},
         {GlobalArguments::ReadOnly, true},
+        {GlobalArguments::FoldTopLevel, true},
     };
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
@@ -329,7 +377,6 @@ QString GitPlugin::runGit(const QStringList &args, bool saveConfig) {
     p.setWorkingDirectory(repoRoot);
     p.start(gitBinary, args);
     p.waitForFinished();
-
     if (saveConfig) {
         getConfig().setGitLastCommand(args.join(" "));
         getConfig().setGitLastDir(repoRoot);
@@ -375,9 +422,10 @@ void GitPlugin::restoreGitLog() {
             auto index = model->index(i, 0);
             if (model->data(index, CommitModel::Roles::HashRole).toString() == lastActive) {
                 form->listView->setCurrentIndex(index);
-                on_gitCommitClicked(index);
+                QTimer::singleShot(0, this, [this, index] { on_gitCommitClicked(index); });
                 break;
             }
         }
     }
+    QTimer::singleShot(0, this, &GitPlugin::refreshBranchesHandler);
 }

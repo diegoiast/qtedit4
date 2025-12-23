@@ -36,6 +36,8 @@ class GitPlugin : public IPlugin {
     void logProjectHandler();
     void diffFileHandler();
     void revertFileHandler();
+    void refreshBranchesHandler();
+    void diffBranchHandler();
     void logHandler(GitPlugin::GitLog log, const QString &filename);
     void on_gitCommitClicked(const QModelIndex &mi);
     void on_gitCommitDoubleClicked(const QModelIndex &mi);

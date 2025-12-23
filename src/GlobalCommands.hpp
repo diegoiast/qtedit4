@@ -62,4 +62,5 @@ inline constexpr const char *Symbol = "Symbol";
 inline constexpr const char *Content = "Content";
 inline constexpr const char *ReadOnly = "ReadOnly";
 inline constexpr const char *Position = "Position";
+inline constexpr const char *FoldTopLevel = "FoldTopLevel";
 } // namespace GlobalArguments
