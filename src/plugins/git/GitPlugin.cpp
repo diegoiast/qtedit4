@@ -1,3 +1,4 @@
+#include <QCheckBox>
 #include <QDebug>
 #include <QDockWidget>
 #include <QFileInfo>
@@ -18,6 +19,7 @@
 #include "GitPlugin.hpp"
 #include "GlobalCommands.hpp"
 #include "iplugin.h"
+#include "plugins/git/CreateGitBranch.hpp"
 #include "ui_GitCommands.h"
 #include "ui_GitCommit.h"
 #include "widgets/AutoShrinkLabel.hpp"
@@ -153,7 +155,9 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     connect(form->refreshBranchesButton, &QToolButton::clicked, this,
             &GitPlugin::refreshBranchesHandler);
     connect(form->diffBranchButton, &QPushButton::clicked, this, &GitPlugin::diffBranchHandler);
-
+    connect(form->newBranchButton, &QPushButton::clicked, this, &GitPlugin::newBranchHandler);
+    connect(form->deleteBranchButton, &QPushButton::clicked, this, &GitPlugin::deleteBranchHandler);
+    form->checkoutBranchButton->setEnabled(false);
     gitDock = manager->createNewPanel(Panels::East, "gitpanel", tr("Git"), w);
 }
 
@@ -285,6 +289,37 @@ void GitPlugin::diffBranchHandler() {
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
+void GitPlugin::newBranchHandler() {
+    auto dialog = new CreateGitBranch(getManager(), this);
+    dialog->exec();
+}
+
+void GitPlugin::deleteBranchHandler() {
+    auto branch = form->branchListCombo->currentText();
+    if (branch.isEmpty()) {
+        return;
+    }
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Delete git branch");
+    msgBox.setText(tr("Are you sure you want to delete branch?\n%1").arg(branch));
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    msgBox.setIcon(QMessageBox::Icon::Question);
+
+    auto cb = new QCheckBox(tr("Force delete the branch (-D)"));
+    msgBox.setCheckBox(cb);
+    auto reply = msgBox.exec();
+    if (reply == QMessageBox::Yes) {
+        auto deleteBranchArg = cb->isChecked() ? "-D" : "-d";
+        auto args = QStringList{"branch", deleteBranchArg, branch};
+        auto res = runGit(args, false);
+        form->gitOutput->setText(res);
+        form->gitOutput->setToolTip(res);
+        refreshBranchesHandler();
+    }
+}
+
 void GitPlugin::logHandler(GitLog log, const QString &filename) {
     auto model = new CommitModel(this);
     repoRoot = detectRepoRoot(filename);
@@ -381,9 +416,14 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
 
 QString GitPlugin::runGit(const QStringList &args, bool saveConfig) {
     if (repoRoot.isEmpty()) {
+        qDebug() << "Repository is not configured, doing nothing.";
         return {};
     }
+
+    // qDebug() << "git: repo is at" << repoRoot;
+    // qDebug() << "git " << args.join(" ");
     QProcess p;
+    p.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
     p.setWorkingDirectory(repoRoot);
     p.start(gitBinary, args);
     p.waitForFinished();

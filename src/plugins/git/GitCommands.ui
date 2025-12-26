@@ -23,11 +23,14 @@
    <property name="rightMargin">
     <number>0</number>
    </property>
-   <property name="bottomMargin">
-    <number>0</number>
-   </property>
    <item>
     <widget class="QLabel" name="label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="text">
       <string>Here the git history is shown</string>
      </property>
@@ -47,7 +50,29 @@
     </widget>
    </item>
    <item>
+    <widget class="QLabel" name="gitOutput">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="scaledContents">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextInteractionFlag::LinksAccessibleByMouse|Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="rightMargin">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QComboBox" name="branchListCombo"/>
      </item>
@@ -64,12 +89,44 @@
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QToolButton" name="newBranchButton">
+       <property name="toolTip">
+        <string>Create a new local branch</string>
+       </property>
+       <property name="text">
+        <string>New branch</string>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::DocumentNew"/>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="deleteBranchButton">
+       <property name="toolTip">
+        <string>Delete local branch</string>
+       </property>
+       <property name="text">
+        <string>...</string>
+       </property>
+       <property name="icon">
+        <iconset theme="QIcon::ThemeIcon::EditDelete"/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <property name="rightMargin">
+      <number>6</number>
+     </property>
      <item>
       <widget class="QPushButton" name="checkoutBranchButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="toolTip">
         <string>Checkout the selected branch</string>
        </property>
@@ -85,16 +142,6 @@
        </property>
        <property name="text">
         <string>Diff...</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="newBranchButton">
-       <property name="toolTip">
-        <string>Create a new local branch</string>
-       </property>
-       <property name="text">
-        <string>New branch</string>
        </property>
       </widget>
      </item>

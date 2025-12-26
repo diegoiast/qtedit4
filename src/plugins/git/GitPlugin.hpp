@@ -27,21 +27,25 @@ class GitPlugin : public IPlugin {
     GitPlugin();
     ~GitPlugin();
 
+    // IPlugin interface
     virtual void on_client_merged(qmdiHost *host) override;
     virtual void on_client_unmerged(qmdiHost *host) override;
     virtual void loadConfig(QSettings &settings) override;
 
-  protected slots:
+  public slots:
     void logFileHandler();
     void logProjectHandler();
     void diffFileHandler();
     void revertFileHandler();
     void refreshBranchesHandler();
     void diffBranchHandler();
+    void newBranchHandler();
+    void deleteBranchHandler();
     void logHandler(GitPlugin::GitLog log, const QString &filename);
     void on_gitCommitClicked(const QModelIndex &mi);
     void on_gitCommitDoubleClicked(const QModelIndex &mi);
 
+  public slots:
     QString runGit(const QStringList &args, bool saveConfig);
     QString detectRepoRoot(const QString &path);
     QString getDiff(const QString &path);
@@ -56,10 +60,8 @@ class GitPlugin : public IPlugin {
     QAction *commit = nullptr;
     QAction *stash = nullptr;
     QAction *branches = nullptr;
-
     QString gitBinary = "git";
     QString repoRoot;
-
     QDockWidget *gitDock = nullptr;
     Ui::GitCommandsForm *form = nullptr;
 };
