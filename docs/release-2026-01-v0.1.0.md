@@ -35,6 +35,7 @@ Important keyboard shortcuts you need to know:
 * ProjectManager: hello.sh - https://github.com/diegoiast/qtedit4/issues/137
 * Wayland is broken - github.com/diegoiast/qtedit4/issues/142
 * Fix deprecation warning: https://github.com/diegoiast/command-palette-widget/issues/6
+* Qutepart: Indentation is broken if we indent from start of line #62 - https://github.com/diegoiast/qutepart-cpp/issues/62
 * Started working on flatpack releases. Not upstream yet.
 * New welcome page
 * git: git integration 
