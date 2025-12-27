@@ -145,6 +145,9 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     form->listView->setViewMode(QListView::ListMode);
     form->listView->setAlternatingRowColors(true);
     form->branchListCombo->setItemDelegate(new BoldItemDelegate(form->branchListCombo));
+    form->diffBranchButton->setEnabled(false);
+    form->newBranchButton->setEnabled(false);
+    form->deleteBranchButton->setEnabled(false);
 
     auto delegate = new CommitDelegate(form->listView);
     form->listView->setItemDelegate(delegate);
@@ -262,6 +265,9 @@ void GitPlugin::refreshBranchesHandler() {
     if (activeIndex != -1) {
         form->branchListCombo->setCurrentIndex(activeIndex);
     }
+    form->diffBranchButton->setEnabled(true);
+    form->newBranchButton->setEnabled(true);
+    form->deleteBranchButton->setEnabled(true);
 }
 
 void GitPlugin::diffBranchHandler() {
@@ -326,6 +332,9 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
 
     if (repoRoot.isEmpty()) {
         form->label->setText(tr("No commits or not a git repo"));
+        form->diffBranchButton->setEnabled(true);
+        form->newBranchButton->setEnabled(true);
+        form->deleteBranchButton->setEnabled(true);
         delete model;
         return;
     }
