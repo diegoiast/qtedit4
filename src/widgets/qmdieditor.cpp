@@ -734,25 +734,6 @@ void qmdiEditor::setupActions() {
     connect(actionToggleHeader, &QAction::triggered, this, &qmdiEditor::toggleHeaderImpl);
     connect(actionTogglePreview, &QAction::triggered, previewButton, &QPushButton::click);
 
-    addAction(actionSave);
-    addAction(actionSaveAs);
-    addAction(actionUndo);
-    addAction(actionRedo);
-    addAction(actionCopy);
-    addAction(actionCut);
-    addAction(actionPaste);
-    addAction(actionFind);
-    addAction(actionFindNext);
-    addAction(actionFindPrev);
-    addAction(actionReplace);
-    addAction(actionGotoLine);
-
-    addAction(actionCapitalize);
-    addAction(actionLowerCase);
-    addAction(actionChangeCase);
-    addAction(actionToggleHeader);
-    addAction(actionTogglePreview);
-
     // default is control+b - which we want to use for build
     textEditor->toggleBookmarkAction()->setShortcut(QKeySequence());
 }
