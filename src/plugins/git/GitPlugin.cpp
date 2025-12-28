@@ -268,6 +268,7 @@ void GitPlugin::refreshBranchesHandler() {
     form->diffBranchButton->setEnabled(true);
     form->newBranchButton->setEnabled(true);
     form->deleteBranchButton->setEnabled(true);
+    form->checkoutBranchButton->setEnabled(true);
 }
 
 void GitPlugin::diffBranchHandler() {
