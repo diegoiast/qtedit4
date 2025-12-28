@@ -8,9 +8,9 @@
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0-beta1",
-            "latest-version": "0.1.0-beta1",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0-beta1/qtedit4-qt6.8.3-v0.1.0-beta1-x86_64.exe",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0-rc1",
+            "latest-version": "0.1.0-rc1",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0-rc1/qtedit4-qt6.8.3-v0.1.0-rc1-x86_64.exe",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
@@ -22,9 +22,9 @@
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0-beta1",
-            "latest-version": "0.1.0-beta1",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0-beta1/qtedit4-qt6.8.3-v0.1.0-beta1-x86_64.AppImage",
+            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0-rc1",
+            "latest-version": "0.1.0-rc1",
+            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0-rc1/qtedit4-qt6.8.3-v0.1.0-rc1-x86_64.AppImage",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         }
