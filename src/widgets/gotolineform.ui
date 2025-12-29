@@ -55,6 +55,9 @@
      <property name="text">
       <string>Go</string>
      </property>
+     <property name="icon">
+      <iconset theme="QIcon::ThemeIcon::GoNext"/>
+     </property>
      <property name="default">
       <bool>true</bool>
      </property>

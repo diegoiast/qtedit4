@@ -48,6 +48,9 @@
      <property name="text">
       <string>Previous</string>
      </property>
+     <property name="icon">
+      <iconset theme="QIcon::ThemeIcon::GoUp"/>
+     </property>
      <property name="autoRepeat">
       <bool>true</bool>
      </property>
@@ -63,6 +66,9 @@
      </property>
      <property name="text">
       <string>Next</string>
+     </property>
+     <property name="icon">
+      <iconset theme="QIcon::ThemeIcon::GoDown"/>
      </property>
      <property name="autoRepeat">
       <bool>true</bool>
