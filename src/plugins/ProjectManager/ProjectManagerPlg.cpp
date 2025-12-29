@@ -727,6 +727,7 @@ void ProjectManagerPlugin::configurationHasBeenModified() {
         p.setColor(QPalette::Text, QColor(192, 192, 192));
     }
     outputPanel->commandOuput->setPalette(p);
+    outputPanel->commandOuput->viewport()->setPalette(p);
 
     auto newFont = QFont();
     newFont.fromString(getConfig().getConsoleFont());
