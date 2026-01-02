@@ -1020,23 +1020,35 @@ void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QSt
     }
 
     auto env = customEnv;
+    auto capture = outputPanel ? outputPanel->captureOutput->isChecked() : true;
+
 #if defined(USE_TTY_FOR_TASKS)
     auto usingPty = false;
     auto masterFd = -1;
-    usingPty = setupPty(runProcess, masterFd);
-    if (usingPty && masterFd >= 0) {
-        runProcess.setProcessChannelMode(QProcess::MergedChannels);
-        auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
-        connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
-        connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
-            char buffer[4096];
-            auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
-            if (bytesRead > 0) {
-                buffer[bytesRead] = '\0';
-                QString lines = QString::fromUtf8(buffer, bytesRead);
-                processBuildOutput(lines);
-            }
-        });
+#endif
+
+    // Reset redirections
+    runProcess.setStandardInputFile(QString());
+    runProcess.setStandardOutputFile(QString());
+    runProcess.setStandardErrorFile(QString());
+
+#if defined(USE_TTY_FOR_TASKS)
+    if (capture) {
+        usingPty = setupPty(runProcess, masterFd);
+        if (usingPty && masterFd >= 0) {
+            runProcess.setProcessChannelMode(QProcess::MergedChannels);
+            auto notifier = new QSocketNotifier(masterFd, QSocketNotifier::Read, &runProcess);
+            connect(&runProcess, &QProcess::finished, notifier, [notifier]() { delete notifier; });
+            connect(notifier, &QSocketNotifier::activated, notifier, [this, masterFd]() {
+                char buffer[4096];
+                auto bytesRead = read(masterFd, buffer, sizeof(buffer) - 1);
+                if (bytesRead > 0) {
+                    buffer[bytesRead] = '\0';
+                    QString lines = QString::fromUtf8(buffer, bytesRead);
+                    processBuildOutput(lines);
+                }
+            });
+        }
     }
     env.insert("FORCE_COLOR", "1");
     env.insert("CLICOLOR_FORCE", "1");
@@ -1047,6 +1059,27 @@ void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QSt
     runProcess.setProcessEnvironment(env);
     runProcess.setProgram(program);
     runProcess.setArguments(arguments);
+
+    if (capture) {
+#if defined(Q_OS_WIN)
+        runProcess.setCreateProcessArgumentsModifier({});
+#endif
+#if defined(USE_TTY_FOR_TASKS)
+        if (!usingPty)
+#endif
+        {
+            runProcess.setProcessChannelMode(QProcess::SeparateChannels);
+        }
+    } else {
+#if defined(Q_OS_WIN)
+        runProcess.setCreateProcessArgumentsModifier(
+            [](QProcess::CreateProcessArguments *args) {
+                args->flags |= CREATE_NEW_CONSOLE;
+                args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
+            });
+#endif
+        runProcess.setProcessChannelMode(QProcess::ForwardedChannels);
+    }
 
     runProcess.start();
     if (!runProcess.waitForStarted()) {
