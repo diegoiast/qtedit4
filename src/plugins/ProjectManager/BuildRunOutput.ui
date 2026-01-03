@@ -113,12 +113,25 @@
       </spacer>
      </item>
      <item>
-      <widget class="QCheckBox" name="captureOutput">
+      <widget class="QCheckBox" name="captureTasksOutput">
        <property name="toolTip">
-        <string>Capture stdout/stderr</string>
+        <string>Capture tasks stdout/stderr</string>
        </property>
        <property name="text">
-        <string>Capture stdin/stdout</string>
+        <string>Capture tasks</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="captureAppOutput">
+       <property name="toolTip">
+        <string>Capture application stdout/stderr</string>
+       </property>
+       <property name="text">
+        <string>Capture app</string>
        </property>
        <property name="checked">
         <bool>true</bool>

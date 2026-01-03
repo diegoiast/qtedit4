@@ -854,7 +854,8 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
                     auto scriptName = fi.absoluteFilePath();
                     auto arguments = QStringList();
                     auto env = QProcessEnvironment();
-                    this->runCommand(workingDir, scriptName, arguments, env);
+                    auto capture = outputPanel ? outputPanel->captureTasksOutput->isChecked() : true;
+                    this->runCommand(workingDir, scriptName, arguments, env, capture);
                 });
                 this->mdiServer->mdiHost->unmergeClient(client);
                 this->mdiServer->mdiHost->mergeClient(client);
@@ -1013,14 +1014,13 @@ void ProjectManagerPlugin::newProjectSelected(int index) {
 
 void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QString &program,
                                       const QStringList &arguments,
-                                      const QProcessEnvironment &customEnv) {
+                                      const QProcessEnvironment &customEnv, bool capture) {
     if (runProcess.processId() != 0) {
         runProcess.kill();
         return;
     }
 
     auto env = customEnv;
-    auto capture = outputPanel ? outputPanel->captureOutput->isChecked() : true;
 
 #if defined(USE_TTY_FOR_TASKS)
     auto usingPty = false;
@@ -1125,7 +1125,8 @@ void ProjectManagerPlugin::do_runExecutable(const ExecutableInfo *info) {
         }
     }
     getManager()->saveSettings();
-    runCommand(workingDirectory, executablePath, arguments, env);
+    auto capture = outputPanel ? outputPanel->captureAppOutput->isChecked() : true;
+    runCommand(workingDirectory, executablePath, arguments, env, capture);
 }
 
 void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
@@ -1183,7 +1184,8 @@ void ProjectManagerPlugin::do_runTask(const TaskInfo *task) {
     runProcess.setProperty(GlobalArguments::BuildDirectory, QVariant::fromValue(buildDirectory));
     runProcess.setProperty(GlobalArguments::SourceDirectory, QVariant::fromValue(sourceDirectory));
 
-    runCommand(workingDirectory, program, arguments, env);
+    auto capture = outputPanel ? outputPanel->captureTasksOutput->isChecked() : true;
+    runCommand(workingDirectory, program, arguments, env, capture);
 }
 
 void ProjectManagerPlugin::runButton_clicked() {

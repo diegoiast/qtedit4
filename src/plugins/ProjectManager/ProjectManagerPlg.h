@@ -92,7 +92,8 @@ class ProjectManagerPlugin : public IPlugin {
     void newProjectSelected(int index);
 
     void runCommand(const QString &workingDirectory, const QString &programOrCommand,
-                    const QStringList &arguments, const QProcessEnvironment &env);
+                    const QStringList &arguments, const QProcessEnvironment &env,
+                    bool captureOutput);
     void do_runExecutable(const ExecutableInfo *info);
     void do_runTask(const TaskInfo *task);
     void runButton_clicked();
