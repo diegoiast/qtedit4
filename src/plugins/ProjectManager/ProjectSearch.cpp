@@ -151,7 +151,6 @@ auto searchFile(const std::string &filename, bool searchInBinaries, const std::s
 ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     : QWidget(parent), ui(new Ui::ProjectSearchGUI) {
     ui->setupUi(this);
-    ui->searchFor->setFocus();
     this->model = m;
 
     QStringList headerLabels;
@@ -159,7 +158,6 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     ui->treeWidget->setHeaderLabels(headerLabels);
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
     ui->treeWidget->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    ui->searchFor->setFocus();
 
     ui->pathEdit->setFileMode(false);
     ui->pathEdit->setPlaceholderText(tr("Search in directory"));
