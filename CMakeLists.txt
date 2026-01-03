@@ -48,6 +48,7 @@ if (CODEPOINTER_WORK_OFFLINE)
     add_subdirectory("lib/qmdilib")
     add_subdirectory("lib/qutepart-cpp")
     add_subdirectory("lib/command-palette-widget")
+    add_subdirectory("lib/KodoTerm")
     add_subdirectory("lib/image-viewer")
     add_subdirectory("lib/QJsonModel")
     add_subdirectory("lib/QSimpleUpdater")
@@ -59,6 +60,7 @@ else()
     CPMAddPackage("gh:diegoiast/qmdilib#88fb3676c2ac97c1c484cc4481e0c83b9895f2cd")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#124afa24db3079f29c3e6121b611b368cc363bc3")
     CPMAddPackage("gh:diegoiast/command-palette-widget#630829124fd8d48aac020d2bef2dbf0a8f668558")
+    CPMAddPackage("gh:diegoiast/KodoTerm#4c976750af92cbacdff98c200887799c718c7445")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
     CPMAddPackage("gh:alex-spataru/QSimpleUpdater#8e7017f7fbdc2b4b1a26ed1eef9ebcba6a50639c")
@@ -165,6 +167,8 @@ set(codepointer_sources
     src/plugins/git/GitCommit.ui
     src/plugins/git/GitPlugin.cpp
     src/plugins/git/GitPlugin.hpp
+    src/plugins/Terminal/TerminalPlugin.cpp
+    src/plugins/Terminal/TerminalPlugin.hpp
     src/AnsiToHTML.cpp
     src/AnsiToHTML.hpp
     src/main.cpp
@@ -209,6 +213,7 @@ target_link_libraries(codepointer PUBLIC Qt6::Core Qt6::Widgets Qt6::Concurrent 
     qmdilib
     qutepart
     CommandPaletteWidget
+    KodoTerm::KodoTerm
     Pal::ImageViewer
     QHexView
     QSimpleUpdater

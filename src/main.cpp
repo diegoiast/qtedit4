@@ -23,6 +23,7 @@
 #include "plugins/hexviewer/hexviewer_plg.h"
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
+#include "plugins/Terminal/TerminalPlugin.hpp"
 
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);
@@ -108,6 +109,7 @@ int main(int argc, char *argv[]) {
     pluginManager.addPlugin(new CTagsPlugin);
     pluginManager.addPlugin(new FileSystemBrowserPlugin);
     pluginManager.addPlugin(new ProjectManagerPlugin);
+    pluginManager.addPlugin(new TerminalPlugin);
     pluginManager.addPlugin(new ImageViewrPlugin);
     pluginManager.addPlugin(new HexViewrPlugin);
     pluginManager.addPlugin(new GitPlugin);
