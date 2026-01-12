@@ -32,6 +32,12 @@ class ProjectSearch : public QWidget {
     auto setSearchExclude(const QString &) -> void;
     auto getCollapseFiles() const -> bool;
     auto setCollapseFiles(bool status) -> void;
+    auto getSearchCaseSensitive() const -> bool;
+    auto setSearchCaseSensitive(bool status) -> void;
+    auto getSearchWholeWords() const -> bool;
+    auto setSearchWholeWords(bool status) -> void;
+    auto getSearchRegex() const -> bool;
+    auto setSearchRegex(bool status) -> void;
 
   public slots:
     auto updateProjectList() -> void;

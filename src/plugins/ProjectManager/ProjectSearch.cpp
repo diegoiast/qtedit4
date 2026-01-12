@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <functional>
+#include <regex>
 #include <string>
 #include <vector>
 
@@ -17,6 +18,18 @@
 #include "ProjectManagerPlg.h"
 #include "ProjectSearch.h"
 #include "ui_ProjectSearchGUI.h"
+
+static auto regexEscape(const std::string &string) -> std::string {
+    static const std::string specialChars = "^$\\.*+?()[]{}|";
+    std::string result;
+    for (char c : string) {
+        if (specialChars.find(c) != std::string::npos) {
+            result += '\\';
+        }
+        result += c;
+    }
+    return result;
+}
 
 static auto FilenameMatches(const QString &fileName, const QString &goodList,
                             const QString &badList) -> bool {
@@ -62,13 +75,54 @@ static auto FilenameMatches(const QString &fileName, const QString &goodList,
     return filterMatchFound;
 }
 
+struct SearchOptions {
+    bool caseSensitive;
+    bool wholeWord;
+    bool useRegex;
+    bool searchInBinaries;
+};
+
 auto static searchTextFile(std::ifstream &file, const std::string &searchString,
+                           SearchOptions options,
                            std::function<void(const std::string &, size_t)> callback) -> void {
     auto line = std::string();
     auto lineNumber = size_t(0);
 
+    std::regex regex;
+    bool useRegexSearch = options.useRegex || options.wholeWord || !options.caseSensitive;
+
+    if (useRegexSearch) {
+        auto flags = std::regex_constants::ECMAScript;
+        if (!options.caseSensitive) {
+            flags |= std::regex_constants::icase;
+        }
+
+        auto pattern = std::string();
+        if (options.useRegex) {
+            pattern = searchString;
+        } else {
+            pattern = regexEscape(searchString);
+            if (options.wholeWord) {
+                pattern = "\\b" + pattern + "\\b";
+            }
+        }
+
+        try {
+            regex.assign(pattern, flags);
+        } catch (...) {
+            return;
+        }
+    }
+
     while (std::getline(file, line)) {
-        if (line.find(searchString) != std::string::npos) {
+        bool match = false;
+        if (useRegexSearch) {
+            match = std::regex_search(line, regex);
+        } else {
+            match = (line.find(searchString) != std::string::npos);
+        }
+
+        if (match) {
             callback(line, lineNumber);
         }
         lineNumber++;
@@ -76,6 +130,7 @@ auto static searchTextFile(std::ifstream &file, const std::string &searchString,
 }
 
 auto static searchBinaryFile(std::ifstream &file, const std::string &searchString,
+
                              std::function<void(const std::string &, size_t)> callback) -> void {
     if (!file.is_open() || searchString.empty()) {
         return;
@@ -125,8 +180,8 @@ auto static searchBinaryFile(std::ifstream &file, const std::string &searchStrin
     }
 }
 
-auto static searchFile(const std::string &filename, bool searchInBinaries,
-                       const std::string &searchString,
+auto static searchFile(const std::string &filename, const std::string &searchString,
+                       SearchOptions options,
                        std::function<void(const std::string &, size_t)> callback) -> void {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -142,9 +197,9 @@ auto static searchFile(const std::string &filename, bool searchInBinaries,
 
     file.seekg(0);
     if (isPlainText(QString::fromStdString(firstLines))) {
-        searchTextFile(file, searchString, callback);
+        searchTextFile(file, searchString, options, callback);
     } else {
-        if (searchInBinaries) {
+        if (options.searchInBinaries) {
             searchBinaryFile(file, searchString, callback);
         }
     }
@@ -223,9 +278,51 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
             }
         }
     });
+
+    auto updateTooltips = [this]() {
+        ui->caseSensitiveBtn->setToolTip(ui->caseSensitiveBtn->isChecked()
+                                             ? tr("Case Sensitive (On)")
+                                             : tr("Case Sensitive (Off)"));
+        ui->wholeWordBtn->setToolTip(ui->wholeWordBtn->isChecked() ? tr("Whole Word (On)")
+                                                                   : tr("Whole Word (Off)"));
+        ui->regexBtn->setToolTip(ui->regexBtn->isChecked() ? tr("Regular Expression (On)")
+                                                           : tr("Regular Expression (Off)"));
+        ui->searchInBinaryFiles->setToolTip(ui->searchInBinaryFiles->isChecked()
+                                                ? tr("Search in binary files as well")
+                                                : tr("Search in text files only"));
+    };
+
+    connect(ui->caseSensitiveBtn, &QToolButton::toggled, this, updateTooltips);
+    connect(ui->wholeWordBtn, &QToolButton::toggled, this, updateTooltips);
+    connect(ui->regexBtn, &QToolButton::toggled, this, updateTooltips);
+    connect(ui->searchInBinaryFiles, &QCheckBox::toggled, this, updateTooltips);
+    updateTooltips();
+
+    auto validateRegex = [this]() {
+        if (!ui->regexBtn->isChecked()) {
+            ui->searchFor->setStyleSheet("");
+            ui->searchFor->setToolTip("");
+            return;
+        }
+
+        try {
+            std::regex(ui->searchFor->text().toStdString());
+            ui->searchFor->setStyleSheet("");
+            ui->searchFor->setToolTip("");
+        } catch (const std::regex_error &e) {
+            ui->searchFor->setStyleSheet("background-color: #550000; color: white;");
+            ui->searchFor->setToolTip(e.what());
+        }
+    };
+
+    connect(ui->searchFor, &QLineEdit::textChanged, this, validateRegex);
+    connect(ui->regexBtn, &QToolButton::toggled, this, validateRegex);
+    validateRegex();
 }
 
-ProjectSearch::~ProjectSearch() { delete ui; }
+ProjectSearch::~ProjectSearch() {
+    delete ui;
+}
 
 void ProjectSearch::setFocusOnSearch() {
     ui->searchFor->setFocus();
@@ -258,6 +355,24 @@ auto ProjectSearch::getCollapseFiles() const -> bool { return ui->collapseFileNa
 
 void ProjectSearch::setCollapseFiles(bool status) { ui->collapseFileNames->setChecked(status); }
 
+auto ProjectSearch::getSearchCaseSensitive() const -> bool {
+    return ui->caseSensitiveBtn->isChecked();
+}
+
+auto ProjectSearch::setSearchCaseSensitive(bool status) -> void {
+    ui->caseSensitiveBtn->setChecked(status);
+}
+
+auto ProjectSearch::getSearchWholeWords() const -> bool { return ui->wholeWordBtn->isChecked(); }
+
+auto ProjectSearch::setSearchWholeWords(bool status) -> void {
+    ui->wholeWordBtn->setChecked(status);
+}
+
+auto ProjectSearch::getSearchRegex() const -> bool { return ui->regexBtn->isChecked(); }
+
+auto ProjectSearch::setSearchRegex(bool status) -> void { ui->regexBtn->setChecked(status); }
+
 void ProjectSearch::updateProjectList() {
     ui->sourceCombo->clear();
     ui->sourceCombo->addItem(tr("Custom"));
@@ -281,6 +396,15 @@ void ProjectSearch::searchButton_clicked() {
     auto allowList = ui->includeFiles->text();
     auto denyList = ui->excludeFiles->text();
     auto originalText = ui->searchButton->text();
+
+    auto searchText = ui->searchFor->text().toStdString();
+    auto startSearchPath = QDir::toNativeSeparators(ui->pathEdit->path());
+    SearchOptions options;
+    options.caseSensitive = ui->caseSensitiveBtn->isChecked();
+    options.wholeWord = ui->wholeWordBtn->isChecked();
+    options.useRegex = ui->regexBtn->isChecked();
+    options.searchInBinaries = ui->searchInBinaryFiles->isChecked();
+
     ui->searchButton->setText("(click to &stop)");
     ui->progressIndicator->start();
     running = true;
@@ -288,10 +412,8 @@ void ProjectSearch::searchButton_clicked() {
     if (allowList.isEmpty()) {
         allowList = "*";
     }
-    QThreadPool::globalInstance()->start([this, originalText, allowList, denyList]() {
-        auto text = ui->searchFor->text().toStdString();
-        auto startSearchPath = QDir::toNativeSeparators(ui->pathEdit->path());
-
+    QThreadPool::globalInstance()->start([this, originalText, allowList, denyList, searchText,
+                                          startSearchPath, options]() {
         QDirIterator it(startSearchPath, allowList.split(";"), QDir::Files,
                         QDirIterator::Subdirectories);
         while (it.hasNext()) {
@@ -306,7 +428,6 @@ void ProjectSearch::searchButton_clicked() {
                 trimCount++;
             }
             auto shortFileName = fullFileName.mid(trimCount);
-            auto searchInBinaries = ui->searchInBinaryFiles->isChecked();
             if (shortFileName.startsWith('/') || shortFileName.startsWith('\\')) {
                 shortFileName.remove(0, 1);
             }
@@ -314,7 +435,7 @@ void ProjectSearch::searchButton_clicked() {
             if (!FilenameMatches(fullFileName, allowList, denyList)) {
                 continue;
             };
-            searchFile(fullFileName.toStdString(), searchInBinaries, text,
+            searchFile(fullFileName.toStdString(), searchText, options,
                        [foundData](auto line, auto line_number) {
                            foundData->push_back({line, line_number});
                        });

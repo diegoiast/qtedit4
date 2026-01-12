@@ -132,13 +132,6 @@
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
-    <widget class="QCheckBox" name="searchInBinaryFiles">
-     <property name="text">
-      <string>Search in &amp;binary files</string>
-     </property>
-    </widget>
-   </item>
    <item row="2" column="0" colspan="2">
     <widget class="QLabel" name="label_4">
      <property name="text">
@@ -150,9 +143,71 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QLineEdit" name="searchFor">
-     <property name="placeholderText">
-      <string>Search for</string>
+    <layout class="QHBoxLayout" name="searchLayout">
+     <property name="spacing">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLineEdit" name="searchFor">
+       <property name="placeholderText">
+        <string>Search for</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="caseSensitiveBtn">
+       <property name="toolTip">
+        <string>Case Sensitive</string>
+       </property>
+       <property name="text">
+        <string>Aa</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="wholeWordBtn">
+       <property name="toolTip">
+        <string>Whole Word</string>
+       </property>
+       <property name="text">
+        <string>\b</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="regexBtn">
+       <property name="toolTip">
+        <string>Regular Expression</string>
+       </property>
+       <property name="text">
+        <string>.*</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="autoRaise">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="6" column="0" colspan="2">
+    <widget class="QCheckBox" name="searchInBinaryFiles">
+     <property name="text">
+      <string>Search in &amp;binary files</string>
      </property>
     </widget>
    </item>

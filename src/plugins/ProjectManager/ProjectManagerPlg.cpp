@@ -1,3 +1,4 @@
+#include "qmdipluginconfig.h"
 #include <QClipboard>
 #include <QDesktopServices>
 #include <QDockWidget>
@@ -324,6 +325,30 @@ ProjectManagerPlugin::ProjectManagerPlugin() {
                                      .setKey(Config::SearchPathKey)
                                      .setType(qmdiConfigItem::String)
                                      .setDefaultValue("")
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchCollapseFileNamesKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchRegexKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchSensitiveKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
+                                     .setUserEditable(false)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::SearchWholeWordsKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(false)
                                      .setUserEditable(false)
                                      .build());
 }
@@ -742,6 +767,10 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
     searchPanelUI->setCollapseFiles(getConfig().getSearchCollapseFileNames());
+    searchPanelUI->setSearchWholeWords(getConfig().getSearchWholeWords());
+    searchPanelUI->setSearchRegex(getConfig().getSearchRegex());
+    searchPanelUI->setSearchCaseSensitive(getConfig().getSearchSensitive());
+
     auto dirsToLoad = getConfig().getOpenDirs();
 
     gui->projectComboBox->blockSignals(true);
@@ -768,6 +797,9 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
     getConfig().setSearchPath(searchPanelUI->getSearchPath());
     getConfig().setSearchCollapseFileNames(searchPanelUI->getCollapseFiles());
+    getConfig().setSearchWholeWords(searchPanelUI->getSearchWholeWords());
+    getConfig().setSearchRegex(searchPanelUI->getSearchRegex());
+    getConfig().setSearchSensitive(searchPanelUI->getSearchCaseSensitive());
     IPlugin::saveConfig(settings);
 }
 
@@ -856,7 +888,8 @@ CommandArgs ProjectManagerPlugin::handleCommand(const QString &command, const Co
                     auto scriptName = fi.absoluteFilePath();
                     auto arguments = QStringList();
                     auto env = QProcessEnvironment();
-                    auto capture = outputPanel ? outputPanel->captureTasksOutput->isChecked() : true;
+                    auto capture =
+                        outputPanel ? outputPanel->captureTasksOutput->isChecked() : true;
                     this->runCommand(workingDir, scriptName, arguments, env, capture);
                 });
                 this->mdiServer->mdiHost->unmergeClient(client);
@@ -1074,11 +1107,10 @@ void ProjectManagerPlugin::runCommand(const QString &workingDirectory, const QSt
         }
     } else {
 #if defined(Q_OS_WIN)
-        runProcess.setCreateProcessArgumentsModifier(
-            [](QProcess::CreateProcessArguments *args) {
-                args->flags |= CREATE_NEW_CONSOLE;
-                args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
-            });
+        runProcess.setCreateProcessArgumentsModifier([](QProcess::CreateProcessArguments *args) {
+            args->flags |= CREATE_NEW_CONSOLE;
+            args->startupInfo->dwFlags &= ~STARTF_USESTDHANDLES;
+        });
 #endif
         runProcess.setProcessChannelMode(QProcess::ForwardedChannels);
     }
