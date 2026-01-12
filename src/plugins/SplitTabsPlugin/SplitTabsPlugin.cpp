@@ -85,6 +85,7 @@ void SplitTabsPlugin::on_client_merged(qmdiHost *host) {
     auto manager = getManager();
     auto splitAction = new QAction("Split tabs", split);
     splitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Backslash));
+    splitAction->setIcon(QIcon::fromTheme("view-split-left-right"));
     connect(splitAction, &QAction::triggered, splitAction, [this]() {
         split->splitHorizontally();
         textEditorPlugin->fileNew();
