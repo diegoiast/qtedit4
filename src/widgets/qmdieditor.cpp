@@ -612,6 +612,12 @@ void qmdiEditor::setupActions() {
     actionToggleHeader = new QAction(tr("Toggle header/implementation"), this);
     actionTogglePreview = new QAction(tr("Toggle preview"), this);
 
+    addAction(actionCapitalize);
+    addAction(actionLowerCase );
+    addAction(actionChangeCase );
+    addAction(actionToggleHeader );
+    addAction(actionTogglePreview );
+
     actionSave->setShortcut(QKeySequence::Save);
     actionSaveAs->setShortcut(QKeySequence::SaveAs);
     actionUndo->setShortcut(QKeySequence::Undo);
