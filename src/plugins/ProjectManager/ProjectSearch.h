@@ -22,14 +22,16 @@ class ProjectSearch : public QWidget {
     ~ProjectSearch();
     auto setFocusOnSearch() -> void;
 
-    auto getSearchPath() -> const QString;
+    auto getSearchPath() const -> const QString;
     auto setSearchPath(const QString &) -> void;
-    auto getSearchPattern() -> const QString;
+    auto getSearchPattern() const -> const QString;
     auto setSearchPattern(const QString &) -> void;
-    auto getSearchInclude() -> const QString;
+    auto getSearchInclude() const -> const QString;
     auto setSearchInclude(const QString &) -> void;
-    auto getSearchExclude() -> const QString;
+    auto getSearchExclude() const -> const QString;
     auto setSearchExclude(const QString &) -> void;
+    auto getCollapseFiles() const -> bool;
+    auto setCollapseFiles(bool status) -> void;
 
   public slots:
     auto updateProjectList() -> void;

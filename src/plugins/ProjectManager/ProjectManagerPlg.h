@@ -57,6 +57,7 @@ class ProjectManagerPlugin : public IPlugin {
         CONFIG_DEFINE(SearchPattern, QString);
         CONFIG_DEFINE(SearchInclude, QString);
         CONFIG_DEFINE(SearchExclude, QString);
+        CONFIG_DEFINE(SearchCollapseFileNames, bool);
         qmdiPluginConfig *config;
     };
     Config &getConfig() {

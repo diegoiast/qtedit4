@@ -741,6 +741,7 @@ void ProjectManagerPlugin::loadConfig(QSettings &settings) {
     searchPanelUI->setSearchPattern(getConfig().getSearchPattern());
     searchPanelUI->setSearchInclude(getConfig().getSearchInclude());
     searchPanelUI->setSearchExclude(getConfig().getSearchExclude());
+    searchPanelUI->setCollapseFiles(getConfig().getSearchCollapseFileNames());
     auto dirsToLoad = getConfig().getOpenDirs();
 
     gui->projectComboBox->blockSignals(true);
@@ -766,6 +767,7 @@ void ProjectManagerPlugin::saveConfig(QSettings &settings) {
     getConfig().setSearchInclude(searchPanelUI->getSearchInclude());
     getConfig().setSearchExclude(searchPanelUI->getSearchExclude());
     getConfig().setSearchPath(searchPanelUI->getSearchPath());
+    getConfig().setSearchCollapseFileNames(searchPanelUI->getCollapseFiles());
     IPlugin::saveConfig(settings);
 }
 

@@ -18,10 +18,11 @@
 #include "ProjectSearch.h"
 #include "ui_ProjectSearchGUI.h"
 
-bool FilenameMatches(const QString &fileName, const QString &goodList, const QString &badList) {
+static auto FilenameMatches(const QString &fileName, const QString &goodList,
+                            const QString &badList) -> bool {
     if (!badList.isEmpty()) {
         auto list = badList.split(";");
-        for (const auto &rule : std::as_const(list)) {
+        for (auto const &rule : std::as_const(list)) {
             if (rule.length() < 3) {
                 continue;
             }
@@ -39,7 +40,7 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
         }
     }
 
-    bool filterMatchFound = true;
+    auto filterMatchFound = true;
     if (!goodList.isEmpty()) {
         filterMatchFound = false;
         auto list = goodList.split(";");
@@ -61,8 +62,8 @@ bool FilenameMatches(const QString &fileName, const QString &goodList, const QSt
     return filterMatchFound;
 }
 
-void searchTextFile(std::ifstream &file, const std::string &searchString,
-                    std::function<void(const std::string &, size_t)> callback) {
+auto static searchTextFile(std::ifstream &file, const std::string &searchString,
+                           std::function<void(const std::string &, size_t)> callback) -> void {
     auto line = std::string();
     auto lineNumber = size_t(0);
 
@@ -74,8 +75,8 @@ void searchTextFile(std::ifstream &file, const std::string &searchString,
     }
 }
 
-auto searchBinaryFile(std::ifstream &file, const std::string &searchString,
-                      std::function<void(const std::string &, size_t)> callback) -> void {
+auto static searchBinaryFile(std::ifstream &file, const std::string &searchString,
+                             std::function<void(const std::string &, size_t)> callback) -> void {
     if (!file.is_open() || searchString.empty()) {
         return;
     }
@@ -124,8 +125,9 @@ auto searchBinaryFile(std::ifstream &file, const std::string &searchString,
     }
 }
 
-auto searchFile(const std::string &filename, bool searchInBinaries, const std::string &searchString,
-                std::function<void(const std::string &, size_t)> callback) -> void {
+auto static searchFile(const std::string &filename, bool searchInBinaries,
+                       const std::string &searchString,
+                       std::function<void(const std::string &, size_t)> callback) -> void {
     std::ifstream file(filename);
     if (!file.is_open()) {
         return;
@@ -207,6 +209,20 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
             this->ui->sourceCombo->setCurrentIndex(i + 1);
         }
     });
+
+    connect(ui->collapseFileNames, &QAbstractButton::toggled, this, [this](auto toggled) {
+        // we just collapse
+        if (!toggled) {
+            return;
+        }
+        auto count = ui->treeWidget->topLevelItemCount(); //
+        for (auto i = 0; i < count; ++i) {
+            auto item = ui->treeWidget->topLevelItem(i); //
+            if (item) {
+                ui->treeWidget->collapseItem(item);
+            }
+        }
+    });
 }
 
 ProjectSearch::~ProjectSearch() { delete ui; }
@@ -216,27 +232,31 @@ void ProjectSearch::setFocusOnSearch() {
     ui->searchFor->selectAll();
 }
 
-const QString ProjectSearch::getSearchPath() {
+const QString ProjectSearch::getSearchPath() const {
     auto sss = ui->pathEdit->path();
     return sss;
 }
 
 void ProjectSearch::setSearchPath(const QString &s) { ui->pathEdit->setText(s); }
 
-const QString ProjectSearch::getSearchPattern() { return ui->searchFor->text(); }
+const QString ProjectSearch::getSearchPattern() const { return ui->searchFor->text(); }
 
 void ProjectSearch::setSearchPattern(const QString &s) {
     ui->searchFor->setText(s);
     ui->searchFor->selectAll();
 }
 
-const QString ProjectSearch::getSearchInclude() { return ui->includeFiles->text(); }
+const QString ProjectSearch::getSearchInclude() const { return ui->includeFiles->text(); }
 
 void ProjectSearch::setSearchInclude(const QString &s) { ui->includeFiles->setText(s); }
 
-const QString ProjectSearch::getSearchExclude() { return ui->excludeFiles->text(); }
+const QString ProjectSearch::getSearchExclude() const { return ui->excludeFiles->text(); }
 
 void ProjectSearch::setSearchExclude(const QString &s) { ui->excludeFiles->setText(s); }
+
+auto ProjectSearch::getCollapseFiles() const -> bool { return ui->collapseFileNames->isChecked(); }
+
+void ProjectSearch::setCollapseFiles(bool status) { ui->collapseFileNames->setChecked(status); }
 
 void ProjectSearch::updateProjectList() {
     ui->sourceCombo->clear();
@@ -344,6 +364,8 @@ void ProjectSearch::file_searched(QString fullFileName, QString shortFileName,
         lineItem->setToolTip(1, shortFileName);
     }
     delete foundData;
-    ui->treeWidget->expandItem(dirItem);
+    if (!ui->collapseFileNames->isChecked()) {
+        ui->treeWidget->expandItem(dirItem);
+    }
     ui->treeWidget->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
