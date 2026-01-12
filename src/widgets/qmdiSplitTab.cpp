@@ -102,17 +102,46 @@ QWidget *DefaultButtonsProvider::getFirstTabButtons(bool first, SplitTabWidget *
         appMenuButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
         appMenuButton->setPopupMode(QToolButton::InstantPopup);
         appMenuButton->setAutoRaise(true);
+        appMenuButton->setProperty("windowActive", true);
 
         auto appHighlightColor = qApp->palette().color(QPalette::Highlight);
         auto b = appHighlightColor.lighter();
         b.setAlpha(180);
 
         auto highlightedStyle =
-            QString("QToolButton { background-color: %1 }"
-                    "QToolButton:hover { background-color: %2 }"
-                    "QToolButton:pressed { background-color: %2 }")
+            QString::fromUtf8(R"CSS(
+QToolButton#fancyShmancyMenu[windowActive="true"] {
+    background-color: %1;
+    border: 1px solid transparent;
+}
+
+QToolButton#fancyShmancyMenu:hover {
+    background-color: %2;
+}
+
+QToolButton#fancyShmancyMenu:pressed {
+    background-color: %2;
+}
+
+QToolButton#fancyShmancyMenu[windowActive="false"] {
+    background-color: transparent;
+    // border: 1px solid transparent;
+}
+)CSS")
                 .arg(b.name(QColor::HexArgb), appHighlightColor.name(QColor::HexArgb));
-        appMenuButton->setStyleSheet(highlightedStyle);
+
+        manager->setStyleSheet(highlightedStyle);
+        QObject::connect(qApp, &QGuiApplication::focusWindowChanged, appMenuButton,
+                         [appMenuButton](QWindow *win) {
+                             QWidget *windowWidget = appMenuButton->window();
+                             bool active = windowWidget && windowWidget->windowHandle() &&
+                                           windowWidget->windowHandle() == win;
+
+                             appMenuButton->setProperty("windowActive", active);
+                             appMenuButton->style()->unpolish(appMenuButton);
+                             appMenuButton->style()->polish(appMenuButton);
+                             appMenuButton->update();
+                         });
 
         auto popup = new DecoratedMenu(QApplication::applicationName(), manager);
         auto menu = manager->menus.updatePopMenu(popup);

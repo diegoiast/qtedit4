@@ -66,15 +66,19 @@ int main(int argc, char *argv[]) {
 
 #if !defined(BUILD_CE)
     auto tintTextColor = Qt::white;
-
     auto lighterColor = tintBackgroundColor.lighter(150).name();
     auto baseColor = tintBackgroundColor.name();
-    auto dockStyle = QString("QDockWidget::title {"
-                             "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
-                             "stop:0 %1, "
-                             "stop:1 %2);"
-                             "color: white;"
-                             "font-weight: bold;"
+    auto dockStyle = QString("QDockWidget::title:active {"
+                             "  background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                             "   stop:0 %1, "
+                             "   stop:1 %2);"
+                             "  color: white;"
+                             "  font-weight: bold;"
+                             "}"
+                             "QDockWidget::title:!active {"
+                             "  background: %1;"
+                             "  color: white;"
+                             "  font-weight: bold;"
                              "}")
                          .arg(baseColor, lighterColor);
     qApp->setStyleSheet(dockStyle);
