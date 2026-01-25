@@ -537,10 +537,10 @@ void HelpPlugin::actionAbout_triggered() {
 
     auto contentWidget = new QWidget;
     auto contentLayout = new QVBoxLayout(contentWidget);
-    auto textLabel = new QLabel(
-        aboutText.arg(appName).arg(version)
-        .arg("https://github.com/codepointerapp/codepointer")
-        .arg("https://gitlab.com/codepointer/codepointer"));
+    auto textLabel = new QLabel(aboutText.arg(appName)
+                                    .arg(version)
+                                    .arg("https://github.com/codepointerapp/codepointer")
+                                    .arg("https://gitlab.com/codepointer/codepointer"));
     textLabel->setWordWrap(true);
     textLabel->setOpenExternalLinks(true);
     textLabel->setTextFormat(Qt::RichText);
