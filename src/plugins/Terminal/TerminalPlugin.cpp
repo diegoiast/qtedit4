@@ -5,9 +5,11 @@
  * License MIT
  */
 
+#include <FontWidget.hpp>
 #include <QDockWidget>
 #include <QFontDatabase>
 #include <QKeySequence>
+#include <QPushButton>
 #include <QSettings>
 
 #include <KodoTerm/KodoTerm.hpp>
@@ -40,6 +42,7 @@ TerminalPlugin::TerminalPlugin() {
     sVersion = "0.0.1";
     autoEnabled = true;
     alwaysEnabled = false;
+    consoleConfig.theme = TerminalTheme::defaultTheme();
 
     toggleTerminal = new QAction(tr("Toggle terminal"), this);
     toggleTerminal->setShortcut(QKeySequence("Ctrl+T"));
@@ -56,27 +59,16 @@ TerminalPlugin::TerminalPlugin() {
 
     menus[tr("&File")]->addAction(toggleTerminal);
 
-    theme = TerminalTheme::defaultTheme();
-#ifdef Q_OS_WIN
-    auto pseudoPrompt = QString("C:\\> ver<br>Microsoft Windows [Version 10.0.19045.4170]");
-#else
-    auto pseudoPrompt =
-        QString("user@localhost:~$ uptime<br>12:34:56 up 10 days,  1:23,  2<br>users, "
-                " load average: 0.05, 0.01, 0.00");
-#endif
-
-    auto colorsSpan = QString("<br>");
-    for (auto i = 0; i < 16; i++) {
-        auto c1 = theme.palette[i].name();
-        auto c2 = theme.palette[16 - i].name();
-        auto c3 = QString("<span style='background-color: %1; color: %2'>x</span>").arg(c1, c1);
-        colorsSpan += c3;
-    }
     auto monospacedFont = QFontDatabase::systemFont(QFontDatabase::FixedFont);
     monospacedFont.setFixedPitch(true);
 
-    config.pluginName = tr("Terminal");
+    tempConfig.theme = consoleConfig.theme;
 
+    config.pluginName = tr("Terminal");
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::PromptPreviewKey)
+                                     .setType(qmdiConfigItem::Label)
+                                     .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Display font"))
                                      .setKey(Config::FontKey)
@@ -84,13 +76,23 @@ TerminalPlugin::TerminalPlugin() {
                                      .setDefaultValue(monospacedFont)
                                      .setValue(monospacedFont)
                                      .build());
+
+    // -> start hack
+    // Instead of registring a full normal widget, we create it here in this plugin,
+    // by using a list of configs:
+    // 1. A button that will open a popup - to choose the theme. This is the main
+    //    button seen on screen.
+    // 2. A user defined config, to store the actual file chosen. No visible.
+    // 0. As buttons don't have label - a special label is used.
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Theme"))
                                      .setDescription(tr("Which theme to use for the terminal"))
-                                     .setKey(Config::ThemeFileKey)
                                      .setType(qmdiConfigItem::Label)
-                                     //.setDefaultValue("ctags-universal")
-                                     //.setPossibleValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setKey(Config::ThemeFileKey)
+                                     .setType(qmdiConfigItem::String)
+                                     .setUserEditable(false)
                                      .build());
     config.configItems.push_back(
         qmdiConfigItem::Builder()
@@ -99,18 +101,8 @@ TerminalPlugin::TerminalPlugin() {
             .setKey(Config::ThemeFileChooseKey)
             .setType(qmdiConfigItem::Button)
             .build());
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(pseudoPrompt + colorsSpan)
-                                     .setKey(Config::PromptPreviewKey)
-                                     .setType(qmdiConfigItem::Label)
-                                     .build());
+    // -> end hack
 
-    config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Double click selects line"))
-                                     .setKey(Config::DoubleClickKey)
-                                     .setType(qmdiConfigItem::Bool)
-                                     .setDefaultValue(true)
-                                     .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Tripple click selects whole line"))
                                      .setKey(Config::TrippleClickClickKey)
@@ -129,29 +121,60 @@ TerminalPlugin::TerminalPlugin() {
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
                                      .build());
-
-    connect(&qmdiDialogEvents::instance(), &qmdiDialogEvents::buttonClicked, this,
-            [this](qmdiConfigDialog *dialog, const QString &buttonKey) {
-                if (buttonKey == Config::ThemeFileKey) {
-                    // downloadCTags(dialog);
-                }
-            });
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Make sound on terminal bells"))
+                                     .setKey(Config::AudioBellKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Visual bell"))
+                                     .setKey(Config::VisualBellKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
     connect(&qmdiDialogEvents::instance(), &qmdiDialogEvents::widgetCreated, this,
             [this, monospacedFont](auto dialog, auto const &item, auto label, auto widget) {
-                qDebug() << "Created widget" << item.key;
                 if (item.key == Config::PromptPreviewKey) {
-                    label->setFrameStyle(QFrame::Panel);
-                    label->setFont(monospacedFont);
-                    auto pal = label->palette();
-                    pal.setColor(QPalette::Window, this->theme.background);
-                    pal.setColor(QPalette::WindowText, this->theme.foreground);
-                    label->setAutoFillBackground(true);
-                    label->setPalette(pal);
+                    // hack?
+                    // We should in theory have a referenced optional. Which is not available in
+                    // C++. In theory, we could use this use this widget and de-reference it.
+                    // However - the places where we use it, are callbacks from the dialog.
+                    // Meaning, that we first must pass trough this place.
+                    promptPreviewLabel = label;
+                    promptPreviewLabel->setAutoFillBackground(true);
+                    promptPreviewLabel->setFrameStyle(QFrame::Panel);
+                    promptPreviewLabel->setFont(getConfig().getFont());
+                    updateTerminalPreview();
                 }
 
+                if (item.key == Config::FontKey) {
+                    auto f = qobject_cast<FontWidget *>(widget);
+                    connect(f, &FontWidget::fontUpdated, f, [this, f]() {
+                        promptPreviewLabel->setFont(f->font());
+                        updateTerminalPreview();
+                    });
+                }
+
+                if (item.key == Config::ThemeFileChooseKey) {
+                    auto themeMenu = new QMenu(widget);
+                    auto button = qobject_cast<QPushButton *>(widget);
+                    auto themeCallback = [this](const TerminalTheme::ThemeInfo &info) {
+                        qDebug() << "ThemeFileChooseKey - Theme is " << info.path;
+                        this->tempConfig.theme = TerminalTheme::loadTheme(info.path);
+                        this->tempConfig.themeFile = info.path;
+                        updateTerminalPreview();
+                    };
+                    KodoTerm::populateThemeMenu(themeMenu, tr("Konsole"),
+                                                TerminalTheme::ThemeFormat::Konsole, themeCallback);
+                    KodoTerm::populateThemeMenu(themeMenu, tr("Windows Terminal"),
+                                                TerminalTheme::ThemeFormat::WindowsTerminal,
+                                                themeCallback);
+                    KodoTerm::populateThemeMenu(themeMenu, tr("iTerm"),
+                                                TerminalTheme::ThemeFormat::ITerm, themeCallback);
+                    button->setMenu(themeMenu);
+                }
                 Q_UNUSED(dialog);
-                Q_UNUSED(widget);
-                // Q_UNUSED(this);
             });
 }
 
@@ -171,5 +194,57 @@ void TerminalPlugin::on_client_merged(qmdiHost *host) {
 void TerminalPlugin::on_client_unmerged(qmdiHost *) { delete terminalDock; }
 
 void TerminalPlugin::loadConfig(QSettings &settings) {
-    // TODO
+
+    IPlugin::loadConfig(settings);
+    consoleConfig.setDefaults();
+    consoleConfig.font = getConfig().getFont();
+    consoleConfig.tripleClickSelectsLine = getConfig().getTrippleClickClick();
+    consoleConfig.copyOnSelect = getConfig().getCopyOnSelect();
+    consoleConfig.pasteOnMiddleClick = getConfig().getPasteOnMiddleClick();
+    consoleConfig.audibleBell = getConfig().getAudioBell();
+    consoleConfig.visualBell = getConfig().getVisualBell();
+    consoleConfig.theme = TerminalTheme::loadTheme(getConfig().getThemeFile());
+    console->setConfig(consoleConfig);
+}
+
+void TerminalPlugin::configurationHasBeenModified() {
+    // TODO: register a normal widget for editing theme files, instead
+    //       of this ugly workaround.
+    // Why are we modifying the config here? it should have been done by the config
+    // dialog?
+    // Not on this case. We set the button for the config, instead of registring
+    // a widget. This means that this data is handeled by the dialog itself.
+    getConfig().setThemeFile(tempConfig.themeFile);
+
+    consoleConfig.setDefaults();
+    consoleConfig.font = getConfig().getFont();
+    consoleConfig.tripleClickSelectsLine = getConfig().getTrippleClickClick();
+    consoleConfig.copyOnSelect = getConfig().getCopyOnSelect();
+    consoleConfig.pasteOnMiddleClick = getConfig().getPasteOnMiddleClick();
+    consoleConfig.theme = TerminalTheme::loadTheme(getConfig().getThemeFile());
+    console->setConfig(consoleConfig);
+}
+
+void TerminalPlugin::updateTerminalPreview() {
+#ifdef Q_OS_WIN
+    auto static pseudoPrompt = QString("C:\\> ver<br>Microsoft Windows [Version 10.0.19045.4170]");
+#else
+    auto static pseudoPrompt =
+        QString("user@localhost:~$ uptime<br>12:34:56 up 10 days,  1:23,  2<br>users, "
+                " load average: 0.05, 0.01, 0.00");
+#endif
+
+    auto pal = promptPreviewLabel->palette();
+    pal.setColor(QPalette::Window, this->tempConfig.theme.background);
+    pal.setColor(QPalette::WindowText, this->tempConfig.theme.foreground);
+
+    auto colorsSpan = QString("<br><br>");
+    for (auto i = 0; i < 16; i++) {
+        auto c1 = this->tempConfig.theme.palette[i].name();
+        auto c3 = QString("<span style='background-color: %1; color: %1'>-x-</span>").arg(c1);
+        colorsSpan += c3;
+    }
+
+    promptPreviewLabel->setPalette(pal);
+    promptPreviewLabel->setText(pseudoPrompt + colorsSpan);
 }
