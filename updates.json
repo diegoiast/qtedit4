@@ -11,7 +11,7 @@
             "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.1-beta1",
             "latest-version": "0.1.1-beta1",
             "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.1-beta1/codepointer-v0.1.1-beta1-x86_64.exe",
-            "changelog": "Various bug fixes, hide toolbars",
+            "changelog": "Terminal support, better seach options",
             "mandatory": true
         },
         "linux": {
@@ -25,7 +25,7 @@
             "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.1-beta1",
             "latest-version": "0.1.1-beta1",
             "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.1-beta1/codepointer-v0.1.1-beta1-x86_64.AppImage",
-            "changelog": "Various bug fixes, hide toolbars",
+            "changelog": "Terminal support, better seach options",
             "mandatory": true
         }
     }
