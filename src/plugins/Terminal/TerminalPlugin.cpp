@@ -5,7 +5,7 @@
  * License MIT
  */
 
-#include <FontWidget.hpp>
+#include <fontwidget.hpp>
 #include <QDockWidget>
 #include <QFontDatabase>
 #include <QKeySequence>
