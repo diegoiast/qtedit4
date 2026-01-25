@@ -73,6 +73,42 @@ def get_json_versions(file_path):
     versions = {env: v['latest-version'] for env, v in data['updates'].items()}
     return versions
 
+def update_download_url(url, new_version, qt_version=None):
+    url = re.sub(
+        r'/download/v[\d\w\.\-]+/',
+        f'/download/v{new_version}/',
+        url
+    )
+
+    prefix, filename = url.rsplit('/', 1)
+    m = re.match(
+        r'^(?P<prefix>.+?)'
+        r'(?P<qt>-qt(?P<qtver>[\d\.]+))?'
+        r'-v(?P<appver>[\d\w\.\-]+)'
+        r'-(?P<arch>[^.]+)'
+        r'(?P<ext>\..+)$',
+        filename
+    )
+
+    if not m:
+        # Unknown format → leave filename untouched
+        return url
+
+    parts = m.groupdict()
+    parts['appver'] = new_version
+
+    if parts['qt'] and qt_version:
+        parts['qtver'] = qt_version
+
+    new_filename = (
+        f"{parts['prefix']}"
+        f"{'-qt' + parts['qtver'] if parts['qtver'] else ''}"
+        f"-v{parts['appver']}"
+        f"-{parts['arch']}"
+        f"{parts['ext']}"
+    )
+    return f"{prefix}/{new_filename}"
+
 def update_json_versions(file_path, new_version, update_all=False, qt_version=None):
     with open(file_path, 'r', encoding='utf-8') as f:
         original_content = f.read()
@@ -93,15 +129,10 @@ def update_json_versions(file_path, new_version, update_all=False, qt_version=No
                 env_data['open-url']
             )
         if 'download-url' in env_data:
-            env_data['download-url'] = re.sub(
-                r'/download/v[\d\w\.\-]+/',
-                f'/download/v{new_version}/',
-                env_data['download-url']
-            )
-            env_data['download-url'] = re.sub(
-                r'qtedit4-qt[\d\.]+-v[\d\w\.\-]+-x86_64',
-                f'qtedit4-qt{qt_version}-v{new_version}-x86_64' if qt_version else f'qtedit4-qt6.8.3-v{new_version}-x86_64',
-                env_data['download-url']
+            env_data['download-url'] = update_download_url(
+                env_data['download-url'],
+                new_version,
+                qt_version=qt_version
             )
 
     # Dump to JSON string, then apply original line endings
