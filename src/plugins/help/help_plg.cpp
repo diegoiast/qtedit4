@@ -80,7 +80,10 @@ Some hints for starter:
    using `control+shift+p`.
  * You can press `alt+control+m` to get a conservative menus+toolbars UI.
  * You can split the editor horizontally by pressing
- * Program checks for updates, and will notify when a new version is available. 
+ * Program checks for updates, and will notify when a new version is available.
+ * Some files can be re-viewed (JSON, XML, SVG), you can toggle the preview
+   panel by pressing `control+.`
+ * Embeded terminal is available by pressing `control+t`.
 
 ## Project management
 
