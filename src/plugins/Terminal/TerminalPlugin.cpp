@@ -78,7 +78,7 @@ TerminalPlugin::TerminalPlugin() {
                                      .build());
 
     // -> start hack
-    // Instead of registring a full normal widget, we create it here in this plugin,
+    // Instead of registering a full normal widget, we create it here in this plugin,
     // by using a list of configs:
     // 1. A button that will open a popup - to choose the theme. This is the main
     //    button seen on screen.
@@ -97,14 +97,14 @@ TerminalPlugin::TerminalPlugin() {
     config.configItems.push_back(
         qmdiConfigItem::Builder()
             .setDisplayName(tr("Choose theme"))
-            .setDescription(tr("Click to choose form internal themes avilable"))
+            .setDescription(tr("Click to choose form internal themes available"))
             .setKey(Config::ThemeFileChooseKey)
             .setType(qmdiConfigItem::Button)
             .build());
     // -> end hack
 
     config.configItems.push_back(qmdiConfigItem::Builder()
-                                     .setDisplayName(tr("Tripple click selects whole line"))
+                                     .setDisplayName(tr("Triple click selects whole line"))
                                      .setKey(Config::TrippleClickClickKey)
                                      .setType(qmdiConfigItem::Bool)
                                      .setDefaultValue(true)
@@ -140,7 +140,7 @@ TerminalPlugin::TerminalPlugin() {
                     // We should in theory have a referenced optional. Which is not available in
                     // C++. In theory, we could use this use this widget and de-reference it.
                     // However - the places where we use it, are callbacks from the dialog.
-                    // Meaning, that we first must pass trough this place.
+                    // Meaning, that we first must pass through this place.
                     promptPreviewLabel = label;
                     promptPreviewLabel->setAutoFillBackground(true);
                     promptPreviewLabel->setFrameStyle(QFrame::Panel);
@@ -212,8 +212,8 @@ void TerminalPlugin::configurationHasBeenModified() {
     //       of this ugly workaround.
     // Why are we modifying the config here? it should have been done by the config
     // dialog?
-    // Not on this case. We set the button for the config, instead of registring
-    // a widget. This means that this data is handeled by the dialog itself.
+    // Not on this case. We set the button for the config, instead of registering
+    // a widget. This means that this data is handled by the dialog itself.
     getConfig().setThemeFile(tempConfig.themeFile);
 
     consoleConfig.setDefaults();

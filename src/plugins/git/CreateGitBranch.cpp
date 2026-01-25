@@ -72,7 +72,7 @@ void CreateGitBranch::findLocalBranches() {
         }
         this->availableBranches.append(branchName.trimmed());
     }
-    qDebug() << "Available brnaches =" << this->availableBranches;
+    qDebug() << "Available branches =" << this->availableBranches;
 }
 
 void CreateGitBranch::createBranch() {

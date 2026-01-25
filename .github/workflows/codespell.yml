@@ -18,6 +18,6 @@ jobs:
         check_filenames: true
         path: ./src/
         skip: "*.lua,*.ui,./src/stb/stb_*.h"
-        ignore_words_list: "doubleclick,msdos"
+        ignore_words_list: "doubleclick,msdos,iterm"
         ignore_words_file: .codespellignore
 
