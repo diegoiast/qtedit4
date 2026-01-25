@@ -17,13 +17,13 @@
 #include "plugins/CTags/CTagsPlugin.hpp"
 #include "plugins/ProjectManager/ProjectManagerPlg.h"
 #include "plugins/SplitTabsPlugin/SplitTabsPlugin.hpp"
+#include "plugins/Terminal/TerminalPlugin.hpp"
 #include "plugins/filesystem/filesystembrowser.h"
 #include "plugins/git/GitPlugin.hpp"
 #include "plugins/help/help_plg.h"
 #include "plugins/hexviewer/hexviewer_plg.h"
 #include "plugins/imageviewer/imageviewer_plg.h"
 #include "plugins/texteditor/texteditor_plg.h"
-#include "plugins/Terminal/TerminalPlugin.hpp"
 
 int main(int argc, char *argv[]) {
     Q_INIT_RESOURCE(qutepart_syntax_files);

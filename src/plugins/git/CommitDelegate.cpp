@@ -13,8 +13,8 @@
 #include "CommitModel.hpp"
 
 namespace {
-void drawGraphLine(QPainter *p, const QString &graphString, int laneWidth, int leftMargin,
-                   int yTop, int yBottom, int totalLines) {
+void drawGraphLine(QPainter *p, const QString &graphString, int laneWidth, int leftMargin, int yTop,
+                   int yBottom, int totalLines) {
     if (graphString.isEmpty()) {
         return;
     }

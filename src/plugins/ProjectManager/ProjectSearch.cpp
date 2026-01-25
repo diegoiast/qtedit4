@@ -320,9 +320,7 @@ ProjectSearch::ProjectSearch(QWidget *parent, ProjectBuildModel *m)
     validateRegex();
 }
 
-ProjectSearch::~ProjectSearch() {
-    delete ui;
-}
+ProjectSearch::~ProjectSearch() { delete ui; }
 
 void ProjectSearch::setFocusOnSearch() {
     ui->searchFor->setFocus();

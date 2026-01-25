@@ -207,4 +207,3 @@ CommitInfo CommitModel::getCommitInfo(const QString &sha1) const {
     }
     return {};
 }
-

@@ -354,7 +354,8 @@ QStringList TextEditorPlugin::myExtensions() {
              " (*.py *.java *.js *.rb *.inc *.rust *.rb *.swift *.kot *.sh *.pas *.bas)";
     s << tr("Text files", "EditorPlugin::myExtensions") + " (*.txt)";
     s << tr("Projects", "EditorPlugin::myExtensions") +
-             " (CMakeLists.txt cargo.toml go.mod build.meson *.desktop *.iss *.xml *.yml *.json Makefile*)";
+             " (CMakeLists.txt cargo.toml go.mod build.meson *.desktop *.iss *.xml *.yml *.json "
+             "Makefile*)";
     s << tr("Text images", "EditorPlugin::myExtensions") + " (*.svg *.xpm)";
     s << tr("All files", "EditorPlugin::myExtensions") + " (*.*)";
     return s;

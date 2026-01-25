@@ -5,12 +5,12 @@
  * License MIT
  */
 
-#include <fontwidget.hpp>
 #include <QDockWidget>
 #include <QFontDatabase>
 #include <QKeySequence>
 #include <QPushButton>
 #include <QSettings>
+#include <fontwidget.hpp>
 
 #include <KodoTerm/KodoTerm.hpp>
 #include <qmdidialogevents.hpp>
