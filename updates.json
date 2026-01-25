@@ -1,30 +1,30 @@
 {
     "updates": {
         "windows": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0",
+            "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.0",
             "latest-version": "0.1.0",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0/qtedit4-qt6.8.3-v0.1.0-x86_64.exe",
+            "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.0/codepointer-v0.1.0-x86_64.exe",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "windows-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0",
+            "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.0",
             "latest-version": "0.1.0",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0/qtedit4-qt6.8.3-v0.1.0-x86_64.exe",
+            "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.0/codepointer-v0.1.0-x86_64.exe",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "linux": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0",
+            "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.0",
             "latest-version": "0.1.0",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0/qtedit4-qt6.8.3-v0.1.0-x86_64.AppImage",
+            "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.0/codepointer-v0.1.0-x86_64.AppImage",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         },
         "linux-testing": {
-            "open-url": "https://github.com/diegoiast/qtedit4/releases/tag/v0.1.0",
+            "open-url": "https://github.com/codepointerapp/codepointer/releases/tag/v0.1.0",
             "latest-version": "0.1.0",
-            "download-url": "https://github.com/diegoiast/qtedit4/releases/download/v0.1.0/qtedit4-qt6.8.3-v0.1.0-x86_64.AppImage",
+            "download-url": "https://github.com/codepointerapp/codepointer/releases/download/v0.1.0/codepointer-v0.1.0-x86_64.AppImage",
             "changelog": "Various bug fixes, hide toolbars",
             "mandatory": true
         }

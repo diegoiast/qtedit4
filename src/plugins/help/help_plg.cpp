@@ -504,6 +504,8 @@ void HelpPlugin::actionAbout_triggered() {
 <h2>%1 %2</h2>
 <p>A versatile text editor</p>
 <p>Home page: <a href="%3">%3</a></p>
+<p>Mirror: <a href="%4">%4</a></p>
+
 
 <p>Licensed under the GNU General Public License v2 (GPLv2) or later</p>
 
@@ -513,6 +515,7 @@ void HelpPlugin::actionAbout_triggered() {
     <li><a href="https://github.com/diegoiast/qmdilib">qmdilib</a></li>
     <li><a href="https://github.com/diegoiast/qutepart-cpp">qutepart-cpp</a></li>
     <li><a href="https://github.com/diegoiast/command-palette-widget">command-palette-widget</a></li>
+    <li><a href="https://github.com/diegoiast/KodoTerm">KodoTerm</a></li>
     <li><a href="https://github.com/palacaze/image-viewer">image-viewer</a></li>
     <li><a href="https://github.com/Dax89/QHexView">QHexView</a></li>
     <li><a href="https://github.com/alex-spataru/QSimpleUpdater">QSimpleUpdater</a></li>
@@ -535,7 +538,9 @@ void HelpPlugin::actionAbout_triggered() {
     auto contentWidget = new QWidget;
     auto contentLayout = new QVBoxLayout(contentWidget);
     auto textLabel = new QLabel(
-        aboutText.arg(appName).arg(version).arg("https://gitlab.com/codepointer/codepointer"));
+        aboutText.arg(appName).arg(version)
+        .arg("https://github.com/codepointerapp/codepointer")
+        .arg("https://gitlab.com/codepointer/codepointer"));
     textLabel->setWordWrap(true);
     textLabel->setOpenExternalLinks(true);
     textLabel->setTextFormat(Qt::RichText);
