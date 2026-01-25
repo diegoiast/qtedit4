@@ -18,3 +18,5 @@ Mirror is available at https://gitlab.com/codepointer/codepointer .
 * Search: support for more search options - https://github.com/codepointerapp/codepointer/issues/158
 * Need a proper terminal - https://github.com/codepointerapp/codepointer/issues/159
 * Make the colors change when application is not active. - https://github.com/codepointerapp/codepointer/commit/1c49cecdf197352d7c95ce85b2f2da3d8d30ece8
+* Command Palette: mMoving to first item is not always possible - https://github.com/diegoiast/command-palette-widget/issues/5
+* Qutepart: Comment command does not work with multiple cursors - https://github.com/diegoiast/qutepart-cpp/issues/63
