@@ -241,6 +241,12 @@ void qmdiSplitTab::onTabFocusChanged(QWidget *widget, bool focused) {
     }
     if (!focused) {
         if (widget == nullptr) {
+            auto client = dynamic_cast<qmdiClient *>(activeWidget);
+            if (client && mdiHost) {
+                mdiHost->unmergeClient(client);
+                auto m = dynamic_cast<QMainWindow *>(mdiHost);
+                mdiHost->updateGUI(m);
+            }
             activeWidget = nullptr;
         }
         return;
