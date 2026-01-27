@@ -83,7 +83,7 @@ Some hints for starter:
  * Program checks for updates, and will notify when a new version is available.
  * Some files can be re-viewed (JSON, XML, SVG), you can toggle the preview
    panel by pressing `control+.`
- * Embeded terminal is available by pressing `control+t`.
+ * Embedded terminal is available by pressing `control+t`.
 
 ## Project management
 
