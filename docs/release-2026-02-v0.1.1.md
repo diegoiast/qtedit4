@@ -1,4 +1,4 @@
-**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1-rc1
+**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1-rc2
 
 # February 2026 - release 0.1.1-rc1 - Instant Flavor
 
@@ -11,12 +11,14 @@ New months main new feature is a terminal dock (available by pressing
 
 The global search got minor updates as well.
 
-Mirror is available at https://gitlab.com/codepointer/codepointer .
+Code mirror is available at https://gitlab.com/codepointer/codepointer
+Download mirror is available here: https://dappcdn.com/download/devtools/codepointer
 
 ## Changelog
 * Search: close all - https://github.com/codepointerapp/codepointer/issues/157
 * Search: support for more search options - https://github.com/codepointerapp/codepointer/issues/158
 * Need a proper terminal - https://github.com/codepointerapp/codepointer/issues/159
 * Make the colors change when application is not active. - https://github.com/codepointerapp/codepointer/commit/1c49cecdf197352d7c95ce85b2f2da3d8d30ece8
-* Command Palette: mMoving to first item is not always possible - https://github.com/diegoiast/command-palette-widget/issues/5
+* Command Palette: moving to first item is not always possible - https://github.com/diegoiast/command-palette-widget/issues/5
 * Qutepart: Comment command does not work with multiple cursors - https://github.com/diegoiast/qutepart-cpp/issues/63
+* qmdiSplitTabWidget: unmerge client when split looses focus
