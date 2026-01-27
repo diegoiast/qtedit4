@@ -1,6 +1,6 @@
 **Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1-rc2
 
-# February 2026 - release 0.1.1-rc1 - Instant Flavor
+# February 2026 - release 0.1.1-rc2 - Instant Flavor
 
 Application is back again in github. When migrating the application to this 
 new ownwer - account was disabled. This happened in Chrimtmass, so timing was
@@ -21,4 +21,4 @@ Download mirror is available here: https://dappcdn.com/download/devtools/codepoi
 * Make the colors change when application is not active. - https://github.com/codepointerapp/codepointer/commit/1c49cecdf197352d7c95ce85b2f2da3d8d30ece8
 * Command Palette: moving to first item is not always possible - https://github.com/diegoiast/command-palette-widget/issues/5
 * Qutepart: Comment command does not work with multiple cursors - https://github.com/diegoiast/qutepart-cpp/issues/63
-* qmdiSplitTabWidget: unmerge client when split looses focus
+* qmdiSplitTabWidget: unmerge client when split looses focus - https://github.com/codepointerapp/codepointer/commit/4f90cc907b0a834d2950c608171031b5070d7711
