@@ -18,7 +18,7 @@ class QLabel;
 
 class TerminalPlugin : public IPlugin {
     struct Config {
-        CONFIG_DEFINE(Font, QString)
+        CONFIG_DEFINE(TerminalFont, QString)
         CONFIG_DEFINE(ThemeFile, QString)
         CONFIG_DEFINE(ThemeFileChoose, QString)
         CONFIG_DEFINE(PromptPreview, QString)

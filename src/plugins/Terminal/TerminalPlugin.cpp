@@ -71,7 +71,7 @@ TerminalPlugin::TerminalPlugin() {
                                      .build());
     config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Display font"))
-                                     .setKey(Config::FontKey)
+                                     .setKey(Config::TerminalFontKey)
                                      .setType(qmdiConfigItem::Font)
                                      .setDefaultValue(monospacedFont)
                                      .setValue(monospacedFont)
@@ -150,11 +150,11 @@ TerminalPlugin::TerminalPlugin() {
                     promptPreviewLabel = label;
                     promptPreviewLabel->setAutoFillBackground(true);
                     promptPreviewLabel->setFrameStyle(QFrame::Panel);
-                    promptPreviewLabel->setFont(getConfig().getFont());
+                    promptPreviewLabel->setFont(getConfig().getTerminalFont());
                     updateTerminalPreview();
                 }
 
-                if (item.key == Config::FontKey) {
+                if (item.key == Config::TerminalFontKey) {
                     auto f = qobject_cast<FontWidget *>(widget);
                     connect(f, &FontWidget::fontUpdated, f, [this, f]() {
                         promptPreviewLabel->setFont(f->font());
@@ -215,7 +215,7 @@ void TerminalPlugin::configurationHasBeenModified() {
     getConfig().setThemeFile(tempConfig.themeFile);
 
     consoleConfig.setDefaults();
-    consoleConfig.font = getConfig().getFont();
+    consoleConfig.font = getConfig().getTerminalFont();
     consoleConfig.tripleClickSelectsLine = getConfig().getTrippleClickClick();
     consoleConfig.copyOnSelect = getConfig().getCopyOnSelect();
     consoleConfig.pasteOnMiddleClick = getConfig().getPasteOnMiddleClick();
