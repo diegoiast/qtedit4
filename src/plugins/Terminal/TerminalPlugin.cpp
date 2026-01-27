@@ -104,6 +104,12 @@ TerminalPlugin::TerminalPlugin() {
     // -> end hack
 
     config.configItems.push_back(qmdiConfigItem::Builder()
+                                     .setDisplayName(tr("Enable anti aliased painting"))
+                                     .setKey(Config::AntiAliasKey)
+                                     .setType(qmdiConfigItem::Bool)
+                                     .setDefaultValue(true)
+                                     .build());
+    config.configItems.push_back(qmdiConfigItem::Builder()
                                      .setDisplayName(tr("Triple click selects whole line"))
                                      .setKey(Config::TrippleClickClickKey)
                                      .setType(qmdiConfigItem::Bool)
@@ -196,15 +202,7 @@ void TerminalPlugin::on_client_unmerged(qmdiHost *) { delete terminalDock; }
 void TerminalPlugin::loadConfig(QSettings &settings) {
 
     IPlugin::loadConfig(settings);
-    consoleConfig.setDefaults();
-    consoleConfig.font = getConfig().getFont();
-    consoleConfig.tripleClickSelectsLine = getConfig().getTrippleClickClick();
-    consoleConfig.copyOnSelect = getConfig().getCopyOnSelect();
-    consoleConfig.pasteOnMiddleClick = getConfig().getPasteOnMiddleClick();
-    consoleConfig.audibleBell = getConfig().getAudioBell();
-    consoleConfig.visualBell = getConfig().getVisualBell();
-    consoleConfig.theme = TerminalTheme::loadTheme(getConfig().getThemeFile());
-    console->setConfig(consoleConfig);
+    configurationHasBeenModified();
 }
 
 void TerminalPlugin::configurationHasBeenModified() {
@@ -221,7 +219,10 @@ void TerminalPlugin::configurationHasBeenModified() {
     consoleConfig.tripleClickSelectsLine = getConfig().getTrippleClickClick();
     consoleConfig.copyOnSelect = getConfig().getCopyOnSelect();
     consoleConfig.pasteOnMiddleClick = getConfig().getPasteOnMiddleClick();
+    consoleConfig.textAntialiasing = getConfig().getAntiAlias();
+    consoleConfig.visualBell = getConfig().getVisualBell();
     consoleConfig.theme = TerminalTheme::loadTheme(getConfig().getThemeFile());
+    consoleConfig.customBoxDrawing = true;
     console->setConfig(consoleConfig);
 }
 

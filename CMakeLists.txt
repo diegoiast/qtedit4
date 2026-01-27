@@ -59,7 +59,7 @@ else()
 
     CPMAddPackage("gh:diegoiast/qmdilib#39f491d76a2d0a11965fdffe4411c9a9d2dcac00")
     CPMAddPackage("gh:diegoiast/qutepart-cpp#c4ea0c251320c41bf7ab3868ecc29f270a90606f")
-    CPMAddPackage("gh:diegoiast/command-palette-widget#28d9a0cf654334e6aa88369d7922bc1cfe683f1f")
+    CPMAddPackage("gh:diegoiast/command-palette-widget#69eb447b61c9d042394a1404c71a0d0b54ac28c0")
     CPMAddPackage("gh:diegoiast/KodoTerm#9d016815076a451ad639fa021d46602585e91247")
     CPMAddPackage("gh:palacaze/image-viewer#125ea784f93327b471cd9b6b156285e40e70280a")
     CPMAddPackage("gh:dridk/QJsonModel#f5fa5988c0ee52fff39a42973c964d5480951f86")
