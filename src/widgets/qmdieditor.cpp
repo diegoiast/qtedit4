@@ -843,7 +843,7 @@ void qmdiEditor::hideTimer_timeout() {
 
 // FIXME: this is becoming a "on modified" function.
 void qmdiEditor::updateClientName() {
-    static const auto MODIFIED_TEXT = QStringLiteral(" ") + QChar(0x270D); // pencil
+    static const auto MODIFIED_TEXT = QStringLiteral(" ") + QChar(0x270F); // pencil
     static const auto EXECUTABLE_TEXT = QStringLiteral(" ") + QChar(0x2699); // wheel
     // static const auto EXECUTABLE_TEXT = QStringLiteral(" | >_");
 
