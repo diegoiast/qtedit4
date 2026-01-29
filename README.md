@@ -27,7 +27,7 @@ you open a pull-request
 Code is released on the 1st of each month (usually a day, or two before), with an
 RC/Beta/Alpha releases starting at the 20 of each month (sent to testing channels).
 
-Kanban is avialble at https://github.com/users/diegoiast/projects/2
+Kanban is avialble at https://github.com/users/codepointerapp/projects/1
 Feel free to open new issues, and work on whatever makes you happy.
 
 ## Status
