@@ -28,7 +28,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="branchNameEdit"/>
+    <widget class="QLineEdit" name="branchNameEdit">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="gitLogMessage">
