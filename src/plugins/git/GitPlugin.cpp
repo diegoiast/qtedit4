@@ -217,7 +217,7 @@ void GitPlugin::revertFileHandler() {
     }
 
     QMessageBox msgBox(QMessageBox::Warning, client->mdiClientName,
-                       tr("Do you want to revert %1.\n").arg(client->mdiClientName),
+                       tr("Do you want to revert %1?\n").arg(client->mdiClientName),
                        QMessageBox::Yes | QMessageBox::Default, manager);
     msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
     msgBox.setDefaultButton(QMessageBox::Yes);
