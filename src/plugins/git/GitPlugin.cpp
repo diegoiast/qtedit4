@@ -111,7 +111,7 @@ void GitPlugin::on_client_merged(qmdiHost *host) {
     stash = new QAction(tr("git stash"), this);
     branches = new QAction(tr("git branch"), this);
 
-    diffFile->setToolTip(tr("GIT: Show changes (current file)"));
+    diffFile->setToolTip(tr("git: Show changes (current file)"));
     diffFile->setShortcut(QKeySequence("Ctrl+G, D"));
     logFile->setToolTip(tr("Show commits (current file)"));
     logFile->setShortcut(QKeySequence("Ctrl+G, F"));
@@ -192,9 +192,7 @@ void GitPlugin::diffFileHandler() {
     auto manager = getManager();
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
-    if (repoRoot.isEmpty()) {
-        repoRoot = detectRepoRoot(filename);
-    }
+    auto repoRoot = QFileInfo(filename).absolutePath();
     auto const diff = getDiff(filename);
     if (diff.isEmpty()) {
         return;
@@ -213,9 +211,6 @@ void GitPlugin::revertFileHandler() {
     auto manager = getManager();
     auto client = manager->getMdiServer()->getCurrentClient();
     auto filename = client->mdiClientFileName();
-    if (repoRoot.isEmpty()) {
-        repoRoot = detectRepoRoot(filename);
-    }
     auto const diff = getDiff(filename);
     if (diff.isEmpty()) {
         return;
@@ -232,7 +227,7 @@ void GitPlugin::revertFileHandler() {
         return;
     }
     auto args = QStringList{"restore", client->mdiClientFileName()};
-    auto output = runGit(args, false);
+    auto output = runGit(args);
     if (auto editor = dynamic_cast<qmdiEditor *>(client)) {
         editor->loadFile(filename);
         editor->loadContent(false);
@@ -240,17 +235,18 @@ void GitPlugin::revertFileHandler() {
 }
 
 void GitPlugin::refreshBranchesHandler() {
-    if (repoRoot.isEmpty()) {
-        return;
-    }
-    auto output = runGit({"branch", "-a"}, false);
+    auto manager = getManager();
+    auto client = manager->getMdiServer()->getCurrentClient();
+    auto filename = client->mdiClientFileName();
+    auto repoRoot = getConfig().getGitLastDir();
+    auto output = runGit({"-C", repoRoot, "branch", "-a"});
     auto branches = output.split('\n', Qt::SkipEmptyParts);
     form->branchListCombo->clear();
-    int activeIndex = -1;
+    auto activeIndex = -1;
     auto delegate = static_cast<BoldItemDelegate *>(form->branchListCombo->itemDelegate());
     for (auto const &line : branches) {
-        bool isActive = line.startsWith('*');
-        QString branchName = line.mid(2).trimmed();
+        auto isActive = line.startsWith('*');
+        auto branchName = line.mid(2).trimmed();
         if (branchName.isEmpty()) {
             continue;
         }
@@ -272,21 +268,16 @@ void GitPlugin::refreshBranchesHandler() {
 }
 
 void GitPlugin::diffBranchHandler() {
-    if (repoRoot.isEmpty()) {
-        return;
-    }
-
+    auto manager = getManager();
+    auto client = manager->getMdiServer()->getCurrentClient();
+    auto filename = client->mdiClientFileName();
+    auto repoRoot = QFileInfo(filename).absolutePath();
     auto branch = form->branchListCombo->currentText();
-    if (branch.isEmpty()) {
-        return;
-    }
-
-    auto diff = runGit({"diff", branch}, false);
+    auto diff = runGit({"diff", branch});
     if (diff.isEmpty()) {
         return;
     }
 
-    auto manager = getManager();
     CommandArgs args = {
         {GlobalArguments::FileName, QString("diff-%1.diff").arg(branch)},
         {GlobalArguments::Content, diff},
@@ -320,7 +311,7 @@ void GitPlugin::deleteBranchHandler() {
     if (reply == QMessageBox::Yes) {
         auto deleteBranchArg = cb->isChecked() ? "-D" : "-d";
         auto args = QStringList{"branch", deleteBranchArg, branch};
-        auto res = runGit(args, false);
+        auto res = runGit(args);
         form->gitOutput->setText(res);
         form->gitOutput->setToolTip(res);
         refreshBranchesHandler();
@@ -328,19 +319,18 @@ void GitPlugin::deleteBranchHandler() {
 }
 
 void GitPlugin::logHandler(GitLog log, const QString &filename) {
-    auto model = new CommitModel(this);
-    repoRoot = detectRepoRoot(filename);
-
+    auto repoRoot = QFileInfo(filename).absolutePath();
+    repoRoot = detectRepoRoot(repoRoot);
     if (repoRoot.isEmpty()) {
         form->label->setText(tr("No commits or not a git repo"));
         form->diffBranchButton->setEnabled(true);
         form->newBranchButton->setEnabled(true);
         form->deleteBranchButton->setEnabled(true);
-        delete model;
         return;
     }
 
-    auto args = QStringList{"log", "--graph", "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
+    auto args = QStringList{"-C", repoRoot, "log", "--graph",
+                            "--pretty=format:%x01%H%x02%P%x02%an%x02%ai%x02%s"};
     auto labelText = QString();
     switch (log) {
     case GitPlugin::GitLog::File:
@@ -354,8 +344,14 @@ void GitPlugin::logHandler(GitLog log, const QString &filename) {
         break;
     }
 
+    getConfig().setGitLastDir(repoRoot);
+    auto model = new CommitModel(this);
     form->label->setText(labelText);
-    auto output = runGit(args, true);
+
+    getConfig().setGitLastDir(repoRoot);
+    getConfig().setGitLastCommand(args.join(" "));
+
+    auto output = runGit(args);
     model->setContent(output);
     form->listView->setModel(model);
     gitDock->raise();
@@ -380,7 +376,8 @@ void GitPlugin::on_gitCommitClicked(const QModelIndex &mi) {
                 [this, widget](const QModelIndex &i) {
                     auto manager = getManager();
                     auto filename = i.data().toString();
-                    auto diff = runGit({"show", widget->currentSha1, "--", filename}, false);
+                    auto diff = runGit({"-C", getConfig().getGitLastDir(), "show",
+                                        widget->currentSha1, "--", filename});
                     auto shortSha1 = shortGitSha1(widget->currentSha1);
                     auto displayName = QString("%1-%2.diff").arg(shortSha1).arg(filename);
                     CommandArgs args = {
@@ -424,24 +421,12 @@ void GitPlugin::on_gitCommitDoubleClicked(const QModelIndex &mi) {
     manager->handleCommandAsync(GlobalCommands::DisplayText, args);
 }
 
-QString GitPlugin::runGit(const QStringList &args, bool saveConfig) {
-    if (repoRoot.isEmpty()) {
-        qDebug() << "Repository is not configured, doing nothing.";
-        return {};
-    }
-
-    // qDebug() << "git: repo is at" << repoRoot;
+QString GitPlugin::runGit(const QStringList &args) {
     // qDebug() << "git " << args.join(" ");
     QProcess p;
     p.setProcessChannelMode(QProcess::ProcessChannelMode::MergedChannels);
-    p.setWorkingDirectory(repoRoot);
     p.start(gitBinary, args);
     p.waitForFinished();
-    if (saveConfig) {
-        getConfig().setGitLastCommand(args.join(" "));
-        getConfig().setGitLastDir(repoRoot);
-        getManager()->saveSettings();
-    }
     return QString::fromUtf8(p.readAllStandardOutput());
 }
 
@@ -453,9 +438,14 @@ QString GitPlugin::detectRepoRoot(const QString &filePath) {
     return QString::fromUtf8(p.readAllStandardOutput()).trimmed();
 }
 
-QString GitPlugin::getDiff(const QString &path) { return runGit({"diff", path}, false); }
+QString GitPlugin::getDiff(const QString &path) {
+    auto fi = QFileInfo(path);
+    return runGit({"-C", fi.absolutePath(), "diff"});
+}
 
-QString GitPlugin::getRawCommit(const QString &sha1) { return runGit({"show", sha1}, false); }
+QString GitPlugin::getRawCommit(const QString &sha1) {
+    return runGit({"-C", getConfig().getGitLastDir(), "show", sha1});
+}
 
 void GitPlugin::restoreGitLog() {
     if (!form) {
@@ -463,16 +453,14 @@ void GitPlugin::restoreGitLog() {
     }
 
     auto cmd = getConfig().getGitLastCommand();
-    auto dir = getConfig().getGitLastDir();
-    if (cmd.isEmpty() || dir.isEmpty()) {
+    if (cmd.isEmpty()) {
         return;
     }
 
-    repoRoot = dir;
     auto args = cmd.split(" ");
     auto model = new CommitModel(this);
     form->label->setText(cmd);
-    auto output = runGit(args, false);
+    auto output = runGit(args);
     model->setContent(output);
     form->listView->setModel(model);
 

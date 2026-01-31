@@ -46,7 +46,7 @@ class GitPlugin : public IPlugin {
     void on_gitCommitDoubleClicked(const QModelIndex &mi);
 
   public slots:
-    QString runGit(const QStringList &args, bool saveConfig);
+    QString runGit(const QStringList &args);
     QString detectRepoRoot(const QString &path);
     QString getDiff(const QString &path);
     QString getRawCommit(const QString &sha1);
@@ -61,7 +61,6 @@ class GitPlugin : public IPlugin {
     QAction *stash = nullptr;
     QAction *branches = nullptr;
     QString gitBinary = "git";
-    QString repoRoot;
     QDockWidget *gitDock = nullptr;
     Ui::GitCommandsForm *form = nullptr;
 };

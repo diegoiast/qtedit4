@@ -60,7 +60,7 @@ void CreateGitBranch::verifyBranchName(const QString &newText) {
 }
 
 void CreateGitBranch::findLocalBranches() {
-    auto res = plugin->runGit({"branch"}, false);
+    auto res = plugin->runGit({"branch"});
     if (res.isEmpty()) {
         return;
     }
@@ -100,5 +100,5 @@ QString CreateGitBranch::createBranchImplementation(const QString &branchName, b
     } else {
         args = {"branch", branchName};
     }
-    return plugin->runGit(args, false);
+    return plugin->runGit(args);
 }
