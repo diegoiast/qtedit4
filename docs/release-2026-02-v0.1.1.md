@@ -14,6 +14,8 @@ The global search got minor updates as well. Git plugin should be more reliable.
 Code mirror is available at https://gitlab.com/codepointer/codepointer
 Download mirror is available here: https://dappcdn.com/download/devtools/codepointer
 
+![CodePointer with built in terminal](codepointer-v0.1.1.png)
+
 ## Changelog
 * Search: close all - https://github.com/codepointerapp/codepointer/issues/157
 * Search: support for more search options - https://github.com/codepointerapp/codepointer/issues/158
