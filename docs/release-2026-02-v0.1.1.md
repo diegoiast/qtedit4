@@ -1,6 +1,6 @@
-**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1-rc2
+**Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1
 
-# February 2026 - release 0.1.1-rc2 - Instant Flavor
+# February 2026 - release 0.1.1 - Instant Flavor
 
 Application is back again in github. When migrating the application to this 
 new ownwer - account was disabled. This happened in Chrimtmass, so timing was
@@ -9,7 +9,7 @@ not ideal as most support was in vacation. Things got sorted out eventually.
 New months main new feature is a terminal dock (available by pressing 
 `control+t`.  This works on Linux and Windows, using your default shell.
 
-The global search got minor updates as well.
+The global search got minor updates as well. Git plugin should be more reliable.
 
 Code mirror is available at https://gitlab.com/codepointer/codepointer
 Download mirror is available here: https://dappcdn.com/download/devtools/codepointer
@@ -22,3 +22,4 @@ Download mirror is available here: https://dappcdn.com/download/devtools/codepoi
 * Command Palette: moving to first item is not always possible - https://github.com/diegoiast/command-palette-widget/issues/5
 * Qutepart: Comment command does not work with multiple cursors - https://github.com/diegoiast/qutepart-cpp/issues/63
 * qmdiSplitTabWidget: unmerge client when split looses focus - https://github.com/codepointerapp/codepointer/commit/4f90cc907b0a834d2950c608171031b5070d7711
+* git diff fails - https://github.com/codepointerapp/codepointer/issues/161
