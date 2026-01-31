@@ -1,9 +1,9 @@
 **Full Changelog**: https://github.com/diegoiast/qtedit4/compare/v0.1.0...v0.1.1
 
-# February 2026 - release 0.1.1 - Instant Flavor
+# February 2026 - release 0.1.1 - Not on my watch
 
 Application is back again in github. When migrating the application to this 
-new ownwer - account was disabled. This happened in Chrimtmass, so timing was
+new owner - account was disabled. This happened in Christmas, so timing was
 not ideal as most support was in vacation. Things got sorted out eventually.
 
 New months main new feature is a terminal dock (available by pressing 
