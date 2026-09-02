@@ -48,9 +48,8 @@ jobs:
             os: macos-latest
             cc: "clang"
             cxx: "clang++"
-
         qt_version:
-          - "6.10.2"
+          - "6.10.3"
         include:
           - generators: "Ninja"
           - build_type: "Release"
@@ -60,15 +59,15 @@ jobs:
       - uses: lukka/get-cmake@latest
         with:
           cmakeVersion: "~3.31.0"
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
       - name: Install Qt
         uses: jurplel/install-qt-action@v4.1.1
         with:
           version: ${{ matrix.qt_version }}
-          modules: "qt5compat"
           cache: true
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+          setup-python: false
       - name: Install cmake-format
         run: pip3 install cmake-format
       - name: Set up Clang 19.1.7
@@ -82,7 +81,7 @@ jobs:
         run: sudo apt install -y libcups2-dev
       - name: Setup MSVC (Windows)
         if: matrix.config.cxx == 'cl'
-        uses: ilammy/msvc-dev-cmd@v1
+        uses: step-security/msvc-dev-cmd@v1.13.1
       - name: Configure
         run: >
           cmake
@@ -137,14 +136,14 @@ jobs:
 
       - name: Upload AppImage (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ env.APP_NAME }}-${{ env.version }}-x86_64.AppImage
           path: build/${{ env.APP_NAME }}-${{ env.version }}-x86_64.AppImage
 
       - name: Upload TGZ archive (Linux)
         if: matrix.config.os == 'ubuntu-22.04' && matrix.config.cc == 'gcc'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ env.APP_NAME }}-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz
           path: dist/${{ env.APP_NAME }}-${{ matrix.config.build_dir }}-qt${{ matrix.qt_version }}-${{ env.version }}.tar.gz
@@ -157,7 +156,7 @@ jobs:
 
       - name: Create setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
-        uses: Minionguyjpro/Inno-Setup-Action@v1.2.7
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.9
         with:
           path: setup_script.iss
           options: /O+
@@ -170,7 +169,7 @@ jobs:
 
       - name: Upload renamed setup (Windows)
         if: matrix.config.os == 'windows-2022' && matrix.config.cc == 'cl'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.1
         with:
           name: ${{ env.APP_NAME }}-${{ env.version }}-x86_64.exe
           path: dist/${{ env.APP_NAME }}-${{ env.version }}-x86_64.exe
